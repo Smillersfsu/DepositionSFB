@@ -1,0 +1,36 @@
+---
+title: "Independent Project Introduction"
+author: "Savannah K. Miller"
+date: "2025-03-09"
+output: pdf_document
+---
+
+
+## Background 
+
+Sediment is the structural foundation of the salt marsh ecosystem where endemic species live and acquire resources(Levin et al. 2001; Janousek et al. 2017). The salt marsh ecosystem is host to many endemic species that are specially adapted to the conditions of the salt marsh(Dunson and Travis 1994; Schile et al. 2011; Moffett, Robinson, and Gorelick 2010; Rankin et al. 2023), and the very sediment they walk and live within is in short supply(Schoellhamer and Marineau, n.d.). Salt marshes play strong roles in dampening impacts of atmospheric rivers and extreme weather events, offering a protection to coastal communities(Smolders et al. 2015; Castagno et al. 2022; Lee and Nepf 2024; Taylor-Burns et al. 2024).  Already, there has been a long human history of disturbance to existing salt marshes, which puts ecological and human communities at severe risk(Gedan, Silliman, and Bertness 2009). Under these circumstances, the few salt marshes left are at risk of elimination due to drowning if action is not taken and the benefits of this ecosystem could be forever lost.(Endris et al. 2024). 
+
+Across the state, salt marshes are decreasing in number and area due to a variety of factors(Endris et al. 2024). This unfortunate circumstance paired with changing water levels along the coastline increases the sense of urgency to understand, conserve, and restore California’s salt marshes. To assist in raising the elevation of the salt marshes to adapt to natural hazards, we need to understand the fundamental processes of how sediment accumulates within the salt marsh over a brief period (short-term deposition) (Fagherazzi 2013; Houttuijn Bloemendaal et al. 2021; Vandenbruwaene et al. 2011). In this study, I will measure short-term deposition rates across marsh edges of multiple marshes within a single estuary in San Pablo Bay of the San Francisco Bay Estuary and comparing those rates to measurements of the surrounding marsh landscape. This study will provide information to ongoing restoration efforts of salt marshes in San Pablo Bay.(Callaway 2024; University of San Francisco et al. 2011; K. M. Thorne et al. 2019; Haltiner et al. 1996) My study provides novel insights for land managers to characterize their marshes edges to adapt to natural hazards and enhance community resiliency(Reed et al. 1999).
+
+This study will build upon the insights of the previous studies in the San Pablo Bay. Specifically, I will measure short-term deposition rates across marsh edges of multiple marshes within a single estuary. Moreover, I will measure variables such as elevation, vegetation structure, and observations of marsh edge traits and comparing to rates of short-term deposition measured to understand patterns between variables. Other environmental variables such as season at time of collection and tide level at time of collection will be recorded and considered in analyses. Five sites within the San Pablo Bay will be measured at different shoreline angles within the San Pablo Bay, which include China Camp and Hamilton Wetlands at the due West direction, San Pablo Marsh at the Northwest direction, South Mare Island at the Northeast direction, and Giant Marsh at the Southeast direction. Corte Madera Marsh in the Central Bay will be measured as a control to understand if differences in patterns are consistent throughout different parts of the San Francisco Bay Estuary.  
+
+## Research Objective
+This study will measure short-term deposition rates of sediment across the exposed (bay-adjacent) salt marshes in the northern part of the San Francisco Bay Estuary of the San Pablo Bay. I will compare these rates to biological structures of each salt marsh. 
+
+### Research Aim: 
+Marsh characteristics of the vegetation also are one of the first interactions with the waves bay ward and along the marsh edge. These vegetation characteristics will be measured at each marsh and compared with the rates of sediment deposition measured over the course of a year’s spring-neap tidal cycles. 
+
+#### Expected Outcome: 
+Deposition rates vary significantly with characteristics of the marsh vegetation. 
+
+```{r, set as working directory}
+
+knitr::opts_knit$set(root.dir = "C:/Users/savan/OneDrive/Documents/Code/GitHub/DepositionSFB/data")
+```
+
+
+```{r}
+# load data
+dataset_sed <- read.csv("C:/Users/savan/OneDrive/Documents/Code/GitHub/DepositionSFB/data/SFB_sediment_pad_data.csv") 
+```
+

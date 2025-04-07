@@ -32,5 +32,6 @@ knitr::opts_knit$set(root.dir = "C:/Users/savan/OneDrive/Documents/Code/GitHub/D
 ```{r}
 # load data
 dataset_sed <- read.csv("C:/Users/savan/OneDrive/Documents/Code/GitHub/DepositionSFB/data/SFB_sediment_pad_data.csv") 
+dataset_veg <- read.csv("C:/Users/savan/OneDrive/Documents/Code/GitHub/DepositionSFB/data/SFB_1m_vegetation_data.csv") 
 ```
 

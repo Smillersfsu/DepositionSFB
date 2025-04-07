@@ -67,7 +67,7 @@ Vegetation was also measured adjacent to each of the sediment deposition pads, t
 
 ### Source Data
 
-<!-- This section describes the source data (e.g. news text and headlines, social media posts, translated sentences, ...). -->
+(https://www.sciencebase.gov/catalog/item/67c62753d34ea599a3b99794)
 
 #### Data Collection and Processing
 
@@ -77,7 +77,7 @@ Vegetation was also measured adjacent to each of the sediment deposition pads, t
 
 #### Who are the source data producers?
 
-<!-- This section describes the people or systems who originally created the data. It should also include self-reported demographic or identity information for the source data creators if this information is available. -->
+U.S. Geological Survey in Sacramento, California. Dr. Karen Thorne's laboratory and field team. 
 
 {{ source_data_producers_section | default("[More Information Needed]", true)}}
 
@@ -99,15 +99,13 @@ Vegetation was also measured adjacent to each of the sediment deposition pads, t
 
 #### Personal and Sensitive Information
 
-<!-- State whether the dataset contains data that might be considered personal, sensitive, or private (e.g., data that reveals addresses, uniquely identifiable names or aliases, racial or ethnic origins, sexual orientations, religious beliefs, political opinions, financial or health data, etc.). If efforts were made to anonymize the data, describe the anonymization process. -->
+No senstive information is included, all data used is included from the public data release. 
 
 {{ personal_and_sensitive_information | default("[More Information Needed]", true)}}
 
 ## Bias, Risks, and Limitations
 
 
-
-{{ bias_risks_limitations | default("[More Information Needed]", true)}}
 
 ### Recommendations
 

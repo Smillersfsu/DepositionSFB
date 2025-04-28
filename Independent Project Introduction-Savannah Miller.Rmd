@@ -23,11 +23,6 @@ Marsh characteristics of the vegetation also are one of the first interactions w
 #### Expected Outcome: 
 Deposition rates vary significantly with characteristics of the marsh vegetation. 
 
-```{r, set as working directory}
-
-knitr::opts_knit$set(root.dir = "C:/Users/savan/OneDrive/Documents/Code/GitHub/DepositionSFB/data")
-```
-
 
 ```{r}
 # load data

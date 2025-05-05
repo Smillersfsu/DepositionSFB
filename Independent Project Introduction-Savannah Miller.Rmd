@@ -5,28 +5,186 @@ date: "2025-03-09"
 output: pdf_document
 ---
 
+## Background
 
-## Background 
-
-Sediment is the structural foundation of the salt marsh ecosystem where endemic species live and acquire resources(Levin et al. 2001; Janousek et al. 2017). The salt marsh ecosystem is host to many endemic species that are specially adapted to the conditions of the salt marsh(Dunson and Travis 1994; Schile et al. 2011; Moffett, Robinson, and Gorelick 2010; Rankin et al. 2023), and the very sediment they walk and live within is in short supply(Schoellhamer and Marineau, n.d.). Salt marshes play strong roles in dampening impacts of atmospheric rivers and extreme weather events, offering a protection to coastal communities(Smolders et al. 2015; Castagno et al. 2022; Lee and Nepf 2024; Taylor-Burns et al. 2024).  Already, there has been a long human history of disturbance to existing salt marshes, which puts ecological and human communities at severe risk(Gedan, Silliman, and Bertness 2009). Under these circumstances, the few salt marshes left are at risk of elimination due to drowning if action is not taken and the benefits of this ecosystem could be forever lost.(Endris et al. 2024). 
+Sediment is the structural foundation of the salt marsh ecosystem where endemic species live and acquire resources(Levin et al. 2001; Janousek et al. 2017). The salt marsh ecosystem is host to many endemic species that are specially adapted to the conditions of the salt marsh(Dunson and Travis 1994; Schile et al. 2011; Moffett, Robinson, and Gorelick 2010; Rankin et al. 2023), and the very sediment they walk and live within is in short supply(Schoellhamer and Marineau, n.d.). Salt marshes play strong roles in dampening impacts of atmospheric rivers and extreme weather events, offering a protection to coastal communities(Smolders et al. 2015; Castagno et al. 2022; Lee and Nepf 2024; Taylor-Burns et al. 2024). Already, there has been a long human history of disturbance to existing salt marshes, which puts ecological and human communities at severe risk(Gedan, Silliman, and Bertness 2009). Under these circumstances, the few salt marshes left are at risk of elimination due to drowning if action is not taken and the benefits of this ecosystem could be forever lost.(Endris et al. 2024).
 
 Across the state, salt marshes are decreasing in number and area due to a variety of factors(Endris et al. 2024). This unfortunate circumstance paired with changing water levels along the coastline increases the sense of urgency to understand, conserve, and restore California’s salt marshes. To assist in raising the elevation of the salt marshes to adapt to natural hazards, we need to understand the fundamental processes of how sediment accumulates within the salt marsh over a brief period (short-term deposition) (Fagherazzi 2013; Houttuijn Bloemendaal et al. 2021; Vandenbruwaene et al. 2011). In this study, I will measure short-term deposition rates across marsh edges of multiple marshes within a single estuary in San Pablo Bay of the San Francisco Bay Estuary and comparing those rates to measurements of the surrounding marsh landscape. This study will provide information to ongoing restoration efforts of salt marshes in San Pablo Bay.(Callaway 2024; University of San Francisco et al. 2011; K. M. Thorne et al. 2019; Haltiner et al. 1996) My study provides novel insights for land managers to characterize their marshes edges to adapt to natural hazards and enhance community resiliency(Reed et al. 1999).
 
-This study will build upon the insights of the previous studies in the San Pablo Bay. Specifically, I will measure short-term deposition rates across marsh edges of multiple marshes within a single estuary. Moreover, I will measure variables such as elevation, vegetation structure, and observations of marsh edge traits and comparing to rates of short-term deposition measured to understand patterns between variables. Other environmental variables such as season at time of collection and tide level at time of collection will be recorded and considered in analyses. Five sites within the San Pablo Bay will be measured at different shoreline angles within the San Pablo Bay, which include China Camp and Hamilton Wetlands at the due West direction, San Pablo Marsh at the Northwest direction, South Mare Island at the Northeast direction, and Giant Marsh at the Southeast direction. Corte Madera Marsh in the Central Bay will be measured as a control to understand if differences in patterns are consistent throughout different parts of the San Francisco Bay Estuary.  
+In this study, I will measure short-term deposition rates on multiple marshes within the San Francisco Bay Estuary and will compare those rates to measurements of the surrounding marsh landscape. This study builds on the work of Karen Thorne and U.S. Geological Survey (2025; Inter-and Intra-Annual Sediment Dynamics in Two Tidal Marshes: Deposition, Accretion, and Vegetation Data - ScienceBase-Catalog) to understand differences in sediment deposition on marshes with different edge characteristics, vegetation densities and geographic settings. Moreover, I will measure variables such as elevation, vegetation structure, and observations of marsh edge traits and comparing to rates of short-term deposition measured to understand patterns between variables. Other environmental variables such as season at time of collection and tide level at time of collection will be recorded and considered in analyses.
 
 ## Research Objective
-This study will measure short-term deposition rates of sediment across the exposed (bay-adjacent) salt marshes in the northern part of the San Francisco Bay Estuary of the San Pablo Bay. I will compare these rates to biological structures of each salt marsh. 
 
-### Research Aim: 
-Marsh characteristics of the vegetation also are one of the first interactions with the waves bay ward and along the marsh edge. These vegetation characteristics will be measured at each marsh and compared with the rates of sediment deposition measured over the course of a year’s spring-neap tidal cycles. 
+This study will measure short-term deposition rates of sediment across the exposed (bay-adjacent) salt marshes in the northern part of the San Francisco Bay Estuary of the San Pablo Bay. I will compare these rates to biological structures of each salt marsh.
 
-#### Expected Outcome: 
-Deposition rates vary significantly with characteristics of the marsh vegetation. 
+### Research Aim:
 
+Marsh characteristics of the vegetation also are one of the first interactions with the waves bay ward and along the marsh edge. These vegetation characteristics will be measured at each marsh and compared with the rates of sediment deposition measured over the course of a year’s spring-neap tidal cycles.
+
+#### Expected Outcome:
+
+Deposition rates vary significantly with characteristics of the marsh vegetation, specifically maximum height.
+
+# Null Hypothesis:
+
+Deposition rates of sediment do not vary with differences in height of Salicornia pacificia (Pickleweed).
+
+# Alternate hypothesis
+
+Deposition rates of sediment do vary with differences in height of Salicornia pacific (Pickleweed).
+
+## Data analysis Plan
+
+```{r, Load necessary packages}
+
+library(ggplot2)
+library(tidyverse)
+library(Rmisc)
+library(rstatix)
+library(tidyr)
+library(data.table)
+library(dplyr)
+library(lme4)
+
+```
+
+```{r, set working directory}
+
+knitr::opts_knit$set(root.dir = 'C:/Users/savan/OneDrive/Documents/Code/GitHub/DepositionSFB/data')
+
+```
+
+### *1. Perform a two-step t test for Site: Vegetation/Sediment; Season: Vegetation.*
+
+### *2. Run a GLMM with Site and Season as Random Effects.*
 
 ```{r}
 # load data
 dataset_sed <- read.csv("C:/Users/savan/OneDrive/Documents/Code/GitHub/DepositionSFB/data/SFB_sediment_pad_data.csv") 
+
 dataset_veg <- read.csv("C:/Users/savan/OneDrive/Documents/Code/GitHub/DepositionSFB/data/SFB_1m_vegetation_data.csv") 
+
 ```
 
+```{r, data clean up}
+dataset_sed <- dataset_sed |> unite("Plot.ID", Tran, Dist)
+
+```
+
+```{r, more tidying of data}
+
+dataset_sed$Plot.ID <- gsub("_", "", dataset_sed$Plot.ID)
+
+
+#defining variables 
+
+dataset_sed$Flux = as.numeric(dataset_sed$Flux)
+dataset_sed$Plot.ID = as.factor(dataset_sed$Plot.ID)
+dataset_sed$Replicate = as.factor(dataset_sed$Replicate)
+dataset_sed$Date.removed.from.field = as.Date(dataset_sed$Date.removed.from.field, format = "%m/%d/%Y")
+dataset_sed$Year = as.Date(dataset_sed$Year) 
+
+```
+
+```{r trying sediment again}
+
+sediment_flux_df <- aggregate(Flux ~ Site + Plot.ID + Date.placed.in.field + Date.removed.from.field + Season + Year,
+                    data = dataset_sed,
+                    FUN = mean)
+
+str(sediment_flux_df)
+
+#average_flux <- dataset_sed %>%
+
+  #group_by(Plot.ID) %>%
+
+ # summarise(mean_flux = mean(Flux, na.rm = TRUE), .groups ='drop')
+```
+
+```{r, visualizing the vegetation data}
+Salicornia <-filter(dataset_veg, Species =="SAPA")
+
+SAPA_height <- ggplot(Salicornia, aes(x=Max.Ht,fill=Date)) + geom_boxplot()
+
+SAPA_height
+
+SAPA_cover <- ggplot(Salicornia, aes(x=Cover, fill = Date)) + geom_boxplot()
+
+SAPA_cover
+
+SAPA_Site_cover <- ggplot(Salicornia, aes(x= Cover, fill = Site)) + geom_boxplot()
+SAPA_Site_cover
+
+SAPA_Site_mxht <- ggplot(Salicornia, aes(x = Max.Ht, fill = Site)) + geom_boxplot()
+SAPA_Site_mxht
+
+SAPA_Cover_Season <- ggplot(Salicornia, aes(x=Cover, fill = Season)) + geom_boxplot()
+SAPA_Cover_Season
+
+SAPA_Maxht_Season <- ggplot(Salicornia, aes(fill=Season, x = Max.Ht)) +geom_boxplot()
+SAPA_Maxht_Season
+
+#check the data for normality 
+SAPA_Maxht_Site_Normality <-ggplot(Salicornia, aes(x=Max.Ht)) + geom_histogram(binwidth = 0.5)
+SAPA_Maxht_Site_Normality
+```
+
+```{r, visualizing the sediment data}
+
+sed_season <- ggplot(sediment_flux_df, aes(x=Season, y= Flux, color= Season)) +geom_point()+ geom_boxplot()
+sed_season
+
+sed_Site <- ggplot(sediment_flux_df, aes(x=Site, y=Flux, color = Season)) +geom_point() + geom_boxplot()
+sed_Site
+
+sed_date <- ggplot(sediment_flux_df, aes(x=Date.removed.from.field, y=Flux, color=Site)) + geom_point(size=3, alpha =0.5) +theme(axis.text.x = element_text(angle = 45, hjust =1))
+sed_date
+
+sed_site_normality <- ggplot(sediment_flux_df, aes(x=Flux)) +geom_histogram(binwidth = 0.5)
+sed_site_normality
+
+```
+
+```{r, sediment two sample t-test via Site and max height}
+
+t.test(Max.Ht~Site,alternative ="two.sided", var.equal = TRUE, data=Salicornia)
+```
+
+```{r, prepping for merging two dataframes}
+#rename column in Salicornia dataset 
+# Renaming column 'A' to 'X'
+colnames(Salicornia)[colnames(Salicornia) == "Date"] <- "Date.placed.in.field"
+
+#remove the year from sediment flux df
+sediment_flux_df$Year <- NULL
+
+#remove the season from sediment flux df 
+sediment_flux_df$Season <- NULL
+
+#merge two dataframes 
+sed_veg <- merge(sediment_flux_df, Salicornia, by = c("Date.placed.in.field", "Plot.ID", "Site"))
+
+```
+
+
+```{r, run GLM}
+
+sed_veg_glm <- glm(Flux ~ Max.Ht , family = "poisson", data = sed_veg)
+summary(sed_veg_glm)
+
+```
+
+
+```{r, plot the GLM}
+
+# Diagnostic plots for GLM
+plot(sed_veg_glm)
+
+```
+```{r}
+sed_veg_glm2 <- glm(Flux ~ Max.Ht + Cover, family = "poisson", data = sed_veg)
+sed_veg_glm2
+AIC(sed_veg_glm, sed_veg_glm2)
+```
+### Wasn't able to make the graph cause I'm not sure that the GLM is the right representation for this data, or if my data has too many variables to point to specific relationships. 
+### I understand that the AIC values demonstrate that there is "infinity" solutions, which points to the fact that there isn't a pattern to pin down? 

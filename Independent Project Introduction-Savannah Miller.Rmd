@@ -35,6 +35,16 @@ Deposition rates of sediment do vary with differences in height of Salicornia pa
 
 ## Data analysis Plan
 
+First, with steps 1- , I played with both the vegetation and sediment datasets to understand patterns that each of those explanatory variables had with the landscape and abiotic factors, such as distance from the water source ("Distance"), weather factors ("Season"), time factors ("Year" and "Month"), and location ("Site"). 
+
+After going through the steps, I went through a two sampled t-test to see if there was a relationship between the sediment fluxes, and my hypothesized factor of maximum plant height of Salicornia pacifica versus the location of the measurements ("Site") to see if those explanatory variables were different between the two sites. 
+
+I then ran a general linear mixed model with both sites data and sediment deposition versus the maximum plant height. 
+I followed this by running a general linear mixed model for each site with those same explanatory variables to compare the AIC values and find the best fit. 
+The general linear mixed models I believe demonstrate from their values the clearest relationship that the sites have different relationships with the variables due to Corte Madera's much lower value than San Pablo's glmm, despite them both having the same factors accounted for in the model. 
+
+
+
 ```{r, Load necessary packages}
 
 library(ggplot2)
@@ -45,6 +55,7 @@ library(tidyr)
 library(data.table)
 library(dplyr)
 library(lme4)
+library(stringr)
 
 ```
 
@@ -54,208 +65,210 @@ knitr::opts_knit$set(root.dir = 'C:/Users/savan/OneDrive/Documents/Code/GitHub/D
 
 ```
 
-### *1. Perform a two-step t test for Site: Vegetation/Sediment; Season: Vegetation.*
 
-### *2. Run a GLMM with Site and Season as Random Effects.*
 
-```{r}
+```{r, cleaning data}
 # load data
-dataset_sed <- read.csv("C:/Users/savan/OneDrive/Documents/Code/GitHub/DepositionSFB/data/sed_SPB.csv") 
-str(dataset_sed)
+dataset_sed <- read.csv("C:/Users/savan/OneDrive/Documents/Code/GitHub/DepositionSFB/data/SFB_sediment_pad_data (project).csv") 
 
-dataset_veg <- read.csv("C:/Users/savan/OneDrive/Documents/Code/GitHub/DepositionSFB/data/SFB_1m_vegetation_data.csv") 
-str(dataset_veg)
+dataset_veg <- read.csv("C:/Users/savan/OneDrive/Documents/Code/GitHub/DepositionSFB/data/SFB_1m_vegetation_data (project).csv") 
+
+sed <- dataset_sed %>% mutate(FluxAvgRep = ifelse(is.na(FluxAvgRep), 0, FluxAvgRep))
+
+sed <- dataset_sed %>%
+  select(-Date.removed.from.field, -Date.placed.in.field)
+
+sed <- sed %>% mutate(FluxAvgRep = ifelse(is.na(FluxAvgRep), 0, FluxAvgRep))
+
+#sed$Plot.ID <- paste(sed$Transect, sed$Distance)
+#veg$Plot.ID <- paste(veg$Transect, veg$Distance)
+sed$Season <- str_replace_all(sed$Season, " ", "")
+sed$Distance <- str_replace_all(sed$Distance, " ", "")
+sed$Transect <- str_replace_all(sed$Transect, " ", "")
+sed$Year <- str_replace_all(sed$Year, " ", "")
+sed$Month <- str_replace_all(sed$Month, " ", "")
+sed$FluxAvgRep <- str_replace_all(sed$FluxAvgRep, " ", "")
+#sed$Plot.ID <- str_replace_all(sed$Plot.ID, " ", "")
+sed$FluxAvgRep <-as.numeric(sed$FluxAvgRep)
+sed$FluxAvgRep <- round(sed$FluxAvgRep)
+sed$Year <- as.character(sed$Year)
+sed$Distance <-as.numeric(sed$Distance)
+
+
+veg <- dataset_veg %>% mutate(Avg.Ht = ifelse(is.na(Avg.Ht), 0, Avg.Ht))
+veg <- dataset_veg %>% mutate(Max.Ht = ifelse(is.na(Max.Ht), 0, Max.Ht))
+veg$Season <- str_replace_all(veg$Season, " ", "")
+veg$Distance <- str_replace_all(veg$Distance, " ", "")
+veg$Transect <- str_replace_all(veg$Transect, " ", "")
+veg$Year <- str_replace_all(veg$Year, " ", "")
+veg$Month <- str_replace_all(veg$Month, " ", "")
+veg$Year <- as.character(veg$Year)
+veg$Cover <-as.numeric(veg$Cover)
+veg$Distance <-as.numeric(veg$Distance)
+
+str(sed)
+str(veg)
+
 ```
 
-```{r, data clean up}
-dataset_sed <- dataset_sed |> unite("Plot.ID", Tran, Dist)
+```{r, mean and median and standard deviation of sediment flux}
+
+sed_mean <- mean(sed$FluxAvgRep, na.rm = TRUE)
+sed_mean
+sed_max  <- max(sed$FluxAvgRep, na.rm = TRUE)
+sed_max
+sed_min  <- min(sed$FluxAvgRep, na.rm = TRUE)
+sed_min
+sed_sd <-sd(sed$FluxAvgRep, na.rm =TRUE)
+sed_sd
 
 ```
 
-```{r, more tidying of data}
-
-dataset_sed$Plot.ID <- gsub("_", "", dataset_sed$Plot.ID)
 
 
-#defining variables 
+```{r, veg and SAPA}
 
-dataset_sed$Flux = as.numeric(dataset_sed$Flux)
-dataset_sed$Plot.ID = as.factor(dataset_sed$Plot.ID)
-dataset_sed$Year = as.numeric(dataset_sed$Year)
-dataset_sed$Site = as.factor(dataset_sed$Site)
-dataset_sed$Season = as.factor(dataset_sed$Season)
-dataset_sed$Month = as.factor(dataset_sed$Month)
+SAPA_time_space <- ggplot(data=veg, aes(x=Distance, y=Max.Ht, color=Site)) + geom_point()
+SAPA_time_space
 
+sed_space <-ggplot(data=sed, aes(x=Distance, y=FluxAvgRep, color=Site)) +geom_point() + geom_jitter(width = 0.2, height = 0.2, alpha = 0.6) + theme_minimal() +
+ coord_cartesian(ylim = c(0, 357))
+sed_space
+
+sed_time <-ggplot(data=sed, aes(x=Season, y=FluxAvgRep, color=Site)) + geom_point() + geom_jitter(width = 0.2, height = 0.2, alpha = 0.6) + theme_minimal() +
+ coord_cartesian(ylim = c(0, 357))
+sed_time
 ```
-
-```{r trying sediment again}
-
-sediment_flux_df <- aggregate(Flux ~ Site + Plot.ID + Season + Month + Year,
-                    data = dataset_sed,
-                    FUN = mean)
-
-str(sediment_flux_df)
-
-```
-
 ```{r, visualizing the vegetation data}
-Salicornia <-filter(dataset_veg, Species =="SAPA")
 
-SAPA_height <- ggplot(Salicornia, aes(x=Max.Ht,fill=Season)) + geom_boxplot()
-
+SAPA_height <- ggplot(veg, aes(x=Max.Ht,fill=Season)) + geom_boxplot()
 SAPA_height
 
-SAPA_cover <- ggplot(Salicornia, aes(x=Cover, fill = Season)) + geom_boxplot()
-
+SAPA_cover <- ggplot(veg, aes(x=Cover, fill = Season)) + geom_boxplot()
 SAPA_cover
 
-SAPA_Site_cover <- ggplot(Salicornia, aes(x= Cover, fill = Site)) + geom_boxplot()
+SAPA_Site_cover <- ggplot(veg, aes(x= Cover, fill = Site)) + geom_boxplot()
 SAPA_Site_cover
 
-SAPA_Site_mxht <- ggplot(Salicornia, aes(x = Max.Ht, fill = Site)) + geom_boxplot()
+SAPA_Site_mxht <- ggplot(veg, aes(x = Max.Ht, fill = Site)) + geom_boxplot()
 SAPA_Site_mxht
 
-#check the data for normality 
-SAPA_Maxht_Site_Normality <-ggplot(Salicornia, aes(x=Max.Ht)) + geom_histogram(binwidth = 0.5)
+#check the data for normality, Max.Ht 
+SAPA_Maxht_Site_Normality <-ggplot(veg, aes(x=Max.Ht)) + geom_histogram(binwidth = 0.5)
 SAPA_Maxht_Site_Normality
-```
-```{r,separating into site databases}
-CMsed_df <- subset(sediment_flux_df, Site == "Corte Madera")
-CMsed_df
 
-SPsed_df <- subset(sediment_flux_df, Site == "San Pablo")
-SPsed_df
+#check the data for normality, Avg.ht  
+SAPA_Avght_Site_Normality <-ggplot(veg, aes(x=Avg.Ht)) + geom_histogram(binwidth = 0.5)
+SAPA_Avght_Site_Normality
 
+#check the data for normality, Cover 
+SAPA_Cover_Site_Normality <-ggplot(veg, aes(x=Cover)) + geom_histogram(binwidth = 0.5)
+SAPA_Cover_Site_Normality
 ```
+
+
+```{r, putting together two different dataframes}
+
+sed_SAPA <- merge(sed, veg, by = c("Site", "Season", "Distance", "Transect", "Year", "Month"), all = FALSE)
+
+#separating the main dataframe into two site sets 
+
+CMsed_veg <- subset(sed_SAPA, Site == "Corte Madera")
+#CMsed_veg
+
+SPsed_veg <- subset(sed_SAPA, Site == "San Pablo")
+#SPsed_veg
+```
+
 
 
 ```{r, visualizing the sediment data}
 
-sed_season <- ggplot(sediment_flux_df, aes(x=Season, y= Flux, color= Season)) +geom_point()+ geom_boxplot()
-sed_season
+sed_year <- ggplot(sed, aes(x= Year, y= FluxAvgRep, color= Site)) +geom_point()
+sed_year
 
-sed_Siteseason <- ggplot(sediment_flux_df, aes(x= Site, y=Flux, color = Season)) +geom_point() + geom_boxplot()
+sed_Siteseason <- ggplot(sed, aes(x= Site, y=FluxAvgRep, color = Season)) +geom_point() + geom_boxplot()
 sed_Siteseason
 
-sed_site <- ggplot(sediment_flux_df, aes(x=Site, y=Flux)) +geom_point() + geom_boxplot()
+sed_site <- ggplot(sed, aes(x=Site, y=FluxAvgRep)) +geom_point() + geom_boxplot()
 sed_site
 
-sed_sitemonth <- ggplot(sediment_flux_df, aes(x= Month, y=Flux,color = Site)) +geom_point()
-sed_sitemonth
+sedvegCM <- ggplot(CMsed_veg, aes(x = Distance, y = FluxAvgRep, color = Season)) + geom_point()
+sedvegCM
 
-sedCM <- ggplot(CMsed_df, aes(x = Plot.ID, y = Flux, color = Season)) +geom_point()
-sedCM
+sedvegSP <- ggplot(SPsed_veg, aes(x = Distance, y = FluxAvgRep, color = Season)) + geom_point() 
+sedvegSP
 
-sedSP <- ggplot(SPsed_df, aes(x = Season, y = Flux, color = Season)) + geom_point() 
-sedSP
-
-
-sed_site_normality <- ggplot(sediment_flux_df, aes(x=Flux)) +geom_histogram(binwidth = 0.5)
+sed_site_normality <- ggplot(sed, aes(x=FluxAvgRep)) +geom_histogram(binwidth = 0.5)
 sed_site_normality
 
 ```
 
 ```{r,two sample t-test via Site and max height}
 
-t.test(Max.Ht~Site,alternative ="two.sided", var.equal = TRUE, data=Salicornia)
+t.test(Max.Ht~Site,alternative ="two.sided", var.equal = TRUE, data=sed_SAPA)
 ```
 
 ```{r, two sample t-test via Site and sediment flux}
 
-t.test(Flux~Site,alternative ="two.sided", var.equal = TRUE, data=dataset_sed)
+t.test(FluxAvgRep~Site,alternative ="two.sided", var.equal = TRUE, data=sed_SAPA)
 
 ```
-```{r}
+```{r, Fit GLM with Poisson family}
 
-#merge two dataframes 
+sedvegglm <-glm(FluxAvgRep~Max.Ht, family = "poisson", data=sed_SAPA)
+sedvegglm
 
-sed_veg <- merge(sediment_flux_df, Salicornia, by = c("Plot.ID", "Site", "Year", "Month", "Season"))
-sed_veg
+sedvegglm_AIC_text <- paste("AIC: 3788")
+sedvegglm_AIC_text
 
-sed_veg$Species = as.character(sed_veg$Species)
-sed_veg$Cover = as.numeric(sed_veg$Cover)
-sed_veg$Month = as.character(sed_veg$Month)
-sed_veg$Season = as.character(sed_veg$Season)
-sed_veg$Plot.ID = as.character(sed_veg$Plot.ID)
+sedvegglm_coefficient_Max.Ht <- paste("Coefficient for Max Height: -0.003517 ")
+sedvegglm_coefficient_Max.Ht
+```
+```{r, Plot model diagnostics}
 
-
-str(sed_veg)
+plot(sedvegglm)
 ```
 
 
 
-```{r, run GLMM}
-
+```{r, glmm}
 library(glmmTMB)
-sed_vegglm <- glmmTMB(Flux~Max.Ht + Cover + Plot.ID + (1|Site) + (1|Month), family = gaussian, data = sed_veg)
+sed_glmm = glmmTMB(FluxAvgRep~Max.Ht + Distance + Avg.Ht + (1|Season) + (1|Site) +(1|Year), family = poisson, data=sed_SAPA)
+summary(sed_glmm)
 
-summary(sed_vegglm)
-
-
-```
-
-
-```{r, trying another GLMM}
-
-sed_veg_glm2 <- glmmTMB(Flux~Max.Ht + Cover + Plot.ID, family = gaussian, data = sed_veg)
-
-summary(sed_veg_glm2)
-
-```
-```{r, Pearson correlation}
-sedveg_cor <- cor_test(Flux, Max.Ht, data= sed_veg)
-
-#correlation coefficient
-r <- sedveg_cor$cor
+AIC(sed_glmm)
 
 ```
 
 ```{r}
-# converting sed into a matrix
-sed <- as.matrix(subset(sed_veg,select=-c(Plot.ID, Site, Month, Season, Species)))
-str(sed)
+sed_glmmSP = glmmTMB(FluxAvgRep~Max.Ht + Cover + Distance + Avg.Ht + (1|Season) + (1|Year), family = poisson, data=SPsed_veg)
+summary(sed_glmmSP)
 
-# correlation coefficient
-sed2 <- cor(sed,method="pearson")
-
-# installing corrplot
-install.packages("corrplot")
-
-# loading package
-library(corrplot)
-
-# "corrplot" with different visual methods
-corrplot(sed2, method = "circle")
-corrplot(sed2, method = "color")
-corrplot(sed2, method = "color",type="lower")
-```
-
-```{r, precision of r}
-
-# sample size
-n <- 115
-n
-
-# standard error of r
-r_se <- sqrt((1-r^2)/(n-2))
-r_se
 ```
 ```{r}
-# t-test for correlation analysis
-sedveg_cor
-```
-```{r}
-lm1 <- lm(Flux~Max.Ht, data=sed_veg) 
-
-# summary of the model output
-summary(lm1)
+sed_glmmCM = glmmTMB(FluxAvgRep~Max.Ht + Cover + Distance + Avg.Ht + (1|Season) + (1|Year), family = poisson, data=CMsed_veg)
+summary(sed_glmmCM)
 ```
 
 ```{r}
-p1 <- ggplot(sed_veg, aes(x=Max.Ht, y = Flux)) + geom_point(size = 1) +geom_smooth(method = "lm", se = FALSE) + ylab ("Flux of Sediment Deposition") + xlab("Maximum Height of Salicornia Pacifica") + theme_classic(8) 
-p1
+sed1_cor <- cor_test(FluxAvgRep, Max.Ht, data=sed_SAPA)
 
-p2 <- p1 + geom_smooth(method= "lm", se = TRUE)
-p2
+#correlation coefficient 
+r <- sed1_cor$cor
+
+r
+```
+
+
+```{r}
+# plotting the interaction
+p5 <- ggplot(sed_SAPA,aes(Max.Ht,FluxAvgRep,group=Season, color=Site)) + geom_point(size=2,alpha=.5,position = position_dodge(width=.15)) +
+  geom_smooth(method = "lm", se = FALSE) +
+  ylab("Sediment Flux") +
+  xlab("Maximum Plant Height") +
+  theme_classic(14)
+p5
+
 ```
 

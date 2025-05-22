@@ -980,17 +980,17 @@ collected.
 
 \begin{Shaded}
 \begin{Highlighting}[]
-\NormalTok{sed\_MxHt\_site }\OtherTok{\textless{}{-}} \FunctionTok{ggplot}\NormalTok{(sed\_SAPA, }\FunctionTok{aes}\NormalTok{(}\AttributeTok{x =}\NormalTok{ Max.Ht, }\AttributeTok{y =}\NormalTok{ FluxAvgRep, }\AttributeTok{color =}\NormalTok{ Site)) }\SpecialCharTok{+}
+\NormalTok{sed\_MxHt\_season }\OtherTok{\textless{}{-}} \FunctionTok{ggplot}\NormalTok{(sed\_SAPA, }\FunctionTok{aes}\NormalTok{(}\AttributeTok{x =}\NormalTok{ Max.Ht, }\AttributeTok{y =}\NormalTok{ FluxAvgRep, }\AttributeTok{color =}\NormalTok{ Season)) }\SpecialCharTok{+}
   \FunctionTok{geom\_point}\NormalTok{(}\AttributeTok{position =} \FunctionTok{position\_jitter}\NormalTok{(}\AttributeTok{w =} \FloatTok{0.05}\NormalTok{, }\AttributeTok{h =} \DecValTok{0}\NormalTok{)) }\SpecialCharTok{+}
   \FunctionTok{geom\_smooth}\NormalTok{(}\AttributeTok{method =} \StringTok{"lm"}\NormalTok{, }\AttributeTok{se =} \ConstantTok{FALSE}\NormalTok{) }\SpecialCharTok{+}
   \FunctionTok{scale\_y\_log10}\NormalTok{() }\SpecialCharTok{+}
   \FunctionTok{labs}\NormalTok{(}
     \AttributeTok{x =} \FunctionTok{expression}\NormalTok{(}\StringTok{"Maximum Height of Pickleweed "} \SpecialCharTok{*} \FunctionTok{italic}\NormalTok{(}\StringTok{"(Salicornia pacifica)"}\NormalTok{)),}
     \AttributeTok{y =} \StringTok{"Log Flux of Sediment Deposition"}\NormalTok{,}
-    \AttributeTok{title =} \StringTok{"Sediment Deposition Variations Across Differences in Maximum Plant Height}\SpecialCharTok{\textbackslash{}n}\StringTok{ Between Two Marshes"}
+    \AttributeTok{title =} \StringTok{"Sediment Deposition Rates Across Differences in Maximum Plant Height}\SpecialCharTok{\textbackslash{}n}\StringTok{ Between Two Seasons"}
 \NormalTok{  )}
 
-\NormalTok{sed\_MxHt\_site}
+\NormalTok{sed\_MxHt\_season}
 \end{Highlighting}
 \end{Shaded}
 
@@ -1012,17 +1012,36 @@ collected.
 
 \begin{Shaded}
 \begin{Highlighting}[]
-\NormalTok{sed\_MxHt\_season }\OtherTok{\textless{}{-}} \FunctionTok{ggplot}\NormalTok{(sed\_SAPA, }\FunctionTok{aes}\NormalTok{(}\AttributeTok{x =}\NormalTok{ Max.Ht, }\AttributeTok{y =}\NormalTok{ FluxAvgRep, }\AttributeTok{color =}\NormalTok{ Season)) }\SpecialCharTok{+}
+\NormalTok{sed\_DistPlant }\OtherTok{\textless{}{-}} \FunctionTok{ggplot}\NormalTok{(veg, }\FunctionTok{aes}\NormalTok{(}\AttributeTok{x =}\NormalTok{ Distance, }\AttributeTok{y =}\NormalTok{ Max.Ht, }\AttributeTok{color =}\NormalTok{ Site)) }\SpecialCharTok{+} 
+  \FunctionTok{geom\_point}\NormalTok{(}\AttributeTok{position =} \FunctionTok{position\_jitter}\NormalTok{(}\AttributeTok{w =} \FloatTok{0.05}\NormalTok{, }\AttributeTok{h =} \DecValTok{0}\NormalTok{)) }\SpecialCharTok{+}
+  \FunctionTok{scale\_y\_log10}\NormalTok{() }\SpecialCharTok{+} 
+  \FunctionTok{labs}\NormalTok{(}
+    \AttributeTok{x =} \StringTok{"Distance from Marsh Edge"}\NormalTok{,}
+    \AttributeTok{y =} \FunctionTok{expression}\NormalTok{(}\StringTok{"Maximum Height of Pickleweed "} \SpecialCharTok{*} \FunctionTok{italic}\NormalTok{(}\StringTok{"(Salicornia pacifica)"}\NormalTok{)),}
+    \AttributeTok{title =} \StringTok{"Sediment Deposition Rates Across Plant Structure}\SpecialCharTok{\textbackslash{}n}\StringTok{(Maximum Height)"}
+\NormalTok{  )}
+
+\NormalTok{sed\_DistPlant}
+\end{Highlighting}
+\end{Shaded}
+
+\includegraphics{Independent-Project-Final-Project-Savannah-Miller_files/figure-latex/graphing the relationships-2.pdf}
+
+\subsection{Summary of
+Results/Conclusions}\label{summary-of-resultsconclusions}
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\NormalTok{sed\_MxHt\_site }\OtherTok{\textless{}{-}} \FunctionTok{ggplot}\NormalTok{(sed\_SAPA, }\FunctionTok{aes}\NormalTok{(}\AttributeTok{x =}\NormalTok{ Max.Ht, }\AttributeTok{y =}\NormalTok{ FluxAvgRep, }\AttributeTok{color =}\NormalTok{ Site)) }\SpecialCharTok{+}
   \FunctionTok{geom\_point}\NormalTok{(}\AttributeTok{position =} \FunctionTok{position\_jitter}\NormalTok{(}\AttributeTok{w =} \FloatTok{0.05}\NormalTok{, }\AttributeTok{h =} \DecValTok{0}\NormalTok{)) }\SpecialCharTok{+}
   \FunctionTok{geom\_smooth}\NormalTok{(}\AttributeTok{method =} \StringTok{"lm"}\NormalTok{, }\AttributeTok{se =} \ConstantTok{FALSE}\NormalTok{) }\SpecialCharTok{+}
   \FunctionTok{scale\_y\_log10}\NormalTok{() }\SpecialCharTok{+}
   \FunctionTok{labs}\NormalTok{(}
     \AttributeTok{x =} \FunctionTok{expression}\NormalTok{(}\StringTok{"Maximum Height of Pickleweed "} \SpecialCharTok{*} \FunctionTok{italic}\NormalTok{(}\StringTok{"(Salicornia pacifica)"}\NormalTok{)),}
     \AttributeTok{y =} \StringTok{"Log Flux of Sediment Deposition"}\NormalTok{,}
-    \AttributeTok{title =} \StringTok{"Sediment Deposition Variations Across Differences in Maximum Plant Height}\SpecialCharTok{\textbackslash{}n}\StringTok{ Between Two Seasons"}
+    \AttributeTok{title =} \StringTok{"Sediment Deposition Rates Across Differences in Maximum Plant Height}\SpecialCharTok{\textbackslash{}n}\StringTok{ Between Two Marshes"}
 \NormalTok{  )}
-
-\NormalTok{sed\_MxHt\_season}
+\NormalTok{sed\_MxHt\_site}
 \end{Highlighting}
 \end{Shaded}
 
@@ -1040,27 +1059,18 @@ collected.
 ## (`stat_smooth()`).
 \end{verbatim}
 
-\includegraphics{Independent-Project-Final-Project-Savannah-Miller_files/figure-latex/graphing the relationships-2.pdf}
+\includegraphics{Independent-Project-Final-Project-Savannah-Miller_files/figure-latex/final figure-1.pdf}
 
-\begin{Shaded}
-\begin{Highlighting}[]
-\NormalTok{sed\_DistPlant }\OtherTok{\textless{}{-}} \FunctionTok{ggplot}\NormalTok{(veg, }\FunctionTok{aes}\NormalTok{(}\AttributeTok{x =}\NormalTok{ Distance, }\AttributeTok{y =}\NormalTok{ Max.Ht, }\AttributeTok{color =}\NormalTok{ Site)) }\SpecialCharTok{+} 
-  \FunctionTok{geom\_point}\NormalTok{(}\AttributeTok{position =} \FunctionTok{position\_jitter}\NormalTok{(}\AttributeTok{w =} \FloatTok{0.05}\NormalTok{, }\AttributeTok{h =} \DecValTok{0}\NormalTok{)) }\SpecialCharTok{+}
-  \FunctionTok{scale\_y\_log10}\NormalTok{() }\SpecialCharTok{+} 
-  \FunctionTok{labs}\NormalTok{(}
-    \AttributeTok{x =} \StringTok{"Distance from Marsh Edge"}\NormalTok{,}
-    \AttributeTok{y =} \FunctionTok{expression}\NormalTok{(}\StringTok{"Maximum Height of Pickleweed "} \SpecialCharTok{*} \FunctionTok{italic}\NormalTok{(}\StringTok{"(Salicornia pacifica)"}\NormalTok{)),}
-    \AttributeTok{title =} \StringTok{"Sediment Deposition Rates Across Plant Structure}\SpecialCharTok{\textbackslash{}n}\StringTok{(Maximum Height)"}
-\NormalTok{  )}
+Within this graph, sediment deposition is marked with a log function as
+there were some outliers within the data set, specifically at the San
+Pablo site that made it difficult to observe patterns in the data.
 
-\NormalTok{sed\_DistPlant}
-\end{Highlighting}
-\end{Shaded}
-
-\includegraphics{Independent-Project-Final-Project-Savannah-Miller_files/figure-latex/graphing the relationships-3.pdf}
-
-\subsection{Summary of
-Results/Conclusions}\label{summary-of-resultsconclusions}
+The graph above and the GLMM outputs demonstrates that maximum height of
+Pickleweed does play a role in sediment deposition, though site specific
+differences play a role in influencing those relationships. Season and
+Year also did play a role in the strength of these predictor variables,
+however since some of the interest of this study is based off of
+replication across site, this was the final graph that I chose.
 
 Based off of the conclusions of the linear regressions, as well as the
 comparisons of the outputs for the general linear mixed models (GLMM),

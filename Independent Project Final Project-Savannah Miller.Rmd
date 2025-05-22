@@ -1,0 +1,318 @@
+---
+title: "Sediment Deposition Rates Across Distances and Plant Dimensions\n In Two Marshes of San Pablo Bay, CA"
+author: "Savannah K. Miller"
+date: "2025-03-21"
+output: pdf_document
+---
+
+#### Dataset Card Source: (<https://github.com/Smillersfsu/DepositionSFB/blob/0a6b8b2033b76344b3b1574f88ab81aa244e5210/DatasetCard.md>)
+
+## Background
+
+Sediment is the structural foundation of the salt marsh ecosystem where endemic species live and acquire resources (Levin et al. 2001; Janousek et al. 2017). The salt marsh ecosystem is host to many endemic species that are specially adapted to the conditions of the salt marsh (Dunson and Travis 1994; Schile et al. 2011; Moffett, Robinson, and Gorelick 2010; Rankin et al. 2023), and the very sediment they walk and live within is in short supply (Schoellhamer and Marineau, n.d.). Salt marshes play strong roles in dampening impacts of atmospheric rivers and extreme weather events, offering a protection to coastal communities(Smolders et al. 2015; Castagno et al. 2022; Lee and Nepf 2024; Taylor-Burns et al. 2024). Already, there has been a long human history of disturbance to existing salt marshes, which puts ecological and human communities at severe risk(Gedan, Silliman, and Bertness 2009). Under these circumstances, the few salt marshes left are at risk of elimination due to drowning if action is not taken and the benefits of this ecosystem could be forever lost.(Endris et al. 2024).
+
+Across the state, salt marshes are decreasing in number and area due to a variety of factors (Endris et al. 2024). This unfortunate circumstance paired with changing water levels along the coastline increases the sense of urgency to understand, conserve, and restore California’s salt marshes. To assist in raising the elevation of the salt marshes to adapt to natural hazards, we need to understand the fundamental processes of how sediment accumulates within the salt marsh over a brief period (short-term deposition) (Fagherazzi 2013; Houttuijn Bloemendaal et al. 2021; Vandenbruwaene et al. 2011). In this study, I will measure short-term deposition rates across marsh edges of multiple marshes within a single estuary in San Pablo Bay of the San Francisco Bay Estuary and comparing those rates to measurements of the surrounding marsh landscape. This study will provide information to ongoing restoration efforts of salt marshes in San Pablo Bay.(Callaway 2024; University of San Francisco et al. 2011; K. M. Thorne et al. 2019; Haltiner et al. 1996) My study provides novel insights for land managers to characterize their marshes edges to adapt to natural hazards and enhance community resiliency (Reed et al. 1999).
+
+In this study, I will measure short-term deposition rates on multiple marshes within the San Francisco Bay Estuary and will compare those rates to measurements of the surrounding marsh landscape. This study builds on the work of Karen Thorne and U.S. Geological Survey (2025; Inter-and Intra-Annual Sediment Dynamics in Two Tidal Marshes: Deposition, Accretion, and Vegetation Data - ScienceBase-Catalog) to understand differences in sediment deposition on marshes with different edge characteristics, vegetation densities and geographic settings. Moreover, I will measure variables such as elevation, vegetation structure, and observations of marsh edge traits and comparing to rates of short-term deposition measured to understand patterns between variables. Other environmental variables such as season at time of collection and tide level at time of collection will be recorded and considered in analyses.
+
+## Research Objective
+
+This study will measure short-term deposition rates of sediment across the exposed (bay-adjacent) salt marshes in the northern part of the San Francisco Bay Estuary of the San Pablo Bay. I will compare these rates to biological structures of each salt marsh.
+
+### Research Aim:
+
+Marsh characteristics of the vegetation also are one of the first interactions with the waves bay ward and along the marsh edge. These vegetation characteristics will be measured at each marsh and compared with the rates of sediment deposition measured over the course of a year’s spring-neap tidal cycles.
+
+### Expected Outcome:
+
+Deposition rates vary significantly with characteristics of the marsh vegetation, specifically maximum height.
+
+### Null Hypothesis:
+
+Deposition rates of sediment do not vary with differences in height of Salicornia pacificia (Pickleweed).
+
+### Alternate hypothesis
+
+Deposition rates of sediment do vary with differences in height of Salicornia pacifica (Pickleweed).
+
+## Data analysis Plan
+
+First, I played with both the vegetation and sediment data sets to understand patterns that each of those explanatory variables had with the landscape and abiotic factors, such as distance from the water source ("Distance"), weather factors ("Season"), time factors ("Year" and "Month"), and location ("Site").
+
+As the sample distribution for the sediment flux measurements was not normally distributed, which was my main independent variable, I did not run a two-sampled t-test.
+
+I ran a general linear mixed model with both sites data and sediment deposition versus the maximum plant height. I followed this by running a general linear mixed model for each site with those same explanatory variables to compare the AIC values and find the best fit, with distance from the marsh edge as an additional predictor. Within these models, I accounted for random effects such as "Year", "Season" and "Site".
+
+```{r, Load necessary packages}
+
+library(ggplot2)
+library(tidyverse)
+library(Rmisc)
+library(rstatix)
+library(tidyr)
+library(data.table)
+library(dplyr)
+library(lme4)
+library(stringr)
+
+```
+
+```{r, set working directory}
+
+knitr::opts_knit$set(root.dir = 'C:/Users/savan/OneDrive/Documents/Code/GitHub/DepositionSFB/data')
+
+```
+
+```{r, cleaning data}
+# load data
+dataset_sed <- read.csv("C:/Users/savan/OneDrive/Documents/Code/GitHub/DepositionSFB/data/SFB_sediment_pad_data (project).csv") 
+
+dataset_veg <- read.csv("C:/Users/savan/OneDrive/Documents/Code/GitHub/DepositionSFB/data/SFB_1m_vegetation_data (project).csv") 
+
+sed <- dataset_sed %>% mutate(FluxAvgRep = ifelse(is.na(FluxAvgRep), 0, FluxAvgRep))
+
+sed <- dataset_sed %>%
+  select(-Date.removed.from.field, -Date.placed.in.field)
+
+sed <- sed %>% mutate(FluxAvgRep = ifelse(is.na(FluxAvgRep), 0, FluxAvgRep))
+
+#sed$Plot.ID <- paste(sed$Transect, sed$Distance)
+#veg$Plot.ID <- paste(veg$Transect, veg$Distance)
+sed$Season <- str_replace_all(sed$Season, " ", "")
+sed$Distance <- str_replace_all(sed$Distance, " ", "")
+sed$Transect <- str_replace_all(sed$Transect, " ", "")
+sed$Year <- str_replace_all(sed$Year, " ", "")
+sed$Month <- str_replace_all(sed$Month, " ", "")
+sed$FluxAvgRep <- str_replace_all(sed$FluxAvgRep, " ", "")
+#sed$Plot.ID <- str_replace_all(sed$Plot.ID, " ", "")
+sed$FluxAvgRep <-as.numeric(sed$FluxAvgRep)
+sed$FluxAvgRep <- round(sed$FluxAvgRep)
+sed$Year <- as.character(sed$Year)
+sed$Distance <-as.numeric(sed$Distance)
+
+
+veg <- dataset_veg %>% mutate(Avg.Ht = ifelse(is.na(Avg.Ht), 0, Avg.Ht))
+veg <- dataset_veg %>% mutate(Max.Ht = ifelse(is.na(Max.Ht), 0, Max.Ht))
+veg$Season <- str_replace_all(veg$Season, " ", "")
+veg$Distance <- str_replace_all(veg$Distance, " ", "")
+veg$Transect <- str_replace_all(veg$Transect, " ", "")
+veg$Year <- str_replace_all(veg$Year, " ", "")
+veg$Month <- str_replace_all(veg$Month, " ", "")
+veg$Year <- as.character(veg$Year)
+veg$Cover <-as.numeric(veg$Cover)
+veg$Distance <-as.numeric(veg$Distance)
+
+str(sed)
+str(veg)
+
+```
+
+```{r, mean and median and standard deviation of sediment flux}
+
+sed_mean <- mean(sed$FluxAvgRep, na.rm = TRUE)
+sed_mean
+sed_max  <- max(sed$FluxAvgRep, na.rm = TRUE)
+sed_max
+sed_min  <- min(sed$FluxAvgRep, na.rm = TRUE)
+sed_min
+sed_sd <-sd(sed$FluxAvgRep, na.rm =TRUE)
+sed_sd
+
+```
+
+```{r, veg and SAPA combined dataframe}
+
+sed_SAPA <- sed %>% left_join(veg, by = c("Site", "Season", "Distance", "Transect", "Year", "Month"))
+sed_SAPA <- sed_SAPA %>%
+  mutate(FluxAvgRep = ifelse(is.na(FluxAvgRep), 0, FluxAvgRep),
+        Species = ifelse(is.na(Species), 0, Species), 
+        Avg.Ht = ifelse(is.na(Avg.Ht), 0, Avg.Ht),
+        Max.Ht = ifelse(is.na(Max.Ht), 0, Max.Ht), 
+        Cover = ifelse(is.na(Cover), 0, Cover))
+sed_SAPA <- sed_SAPA %>%
+  select(-Date)
+
+```
+
+```{r, visualizing relationships of the vegetation data to explanatory variables}
+SAPA_dist_mx <- ggplot(data=sed_SAPA, aes(x=Distance, y=Max.Ht, color=Site)) + geom_point() +  facet_wrap(~ Season)
+SAPA_dist_mx
+
+SAPA_dist_avg <- ggplot(data=sed_SAPA, aes(x=Distance, y=Avg.Ht, color=Site)) + geom_point() + facet_wrap(~ Season)
+SAPA_dist_avg
+
+SAPA_dist_c <- ggplot(data=sed_SAPA, aes(x=Distance, y=Cover, color=Site)) + geom_point() +facet_wrap(~ Season)
+SAPA_dist_c
+```
+
+```{r, visualizing relationships of the sediment data to explanatory variables}
+
+sed_space <-ggplot(data=sed_SAPA, aes(x=Distance, y=FluxAvgRep, color=Site)) +geom_point() + geom_jitter(width = 0.2, height = 0.2, alpha = 0.6) + theme_minimal() +
+ coord_cartesian(ylim = c(0, 357)) + facet_wrap(~ Season)
+sed_space
+
+sed_time <-ggplot(data=sed_SAPA, aes(x=Season, y=FluxAvgRep, color=Site)) + geom_point() + geom_jitter(width = 0.2, height = 0.2, alpha = 0.6) + theme_minimal() +
+ coord_cartesian(ylim = c(0, 357))
+sed_time
+
+sed_year <- ggplot(sed_SAPA, aes(x= Season, y= FluxAvgRep, color= Site)) +geom_point() + facet_wrap(~Year)
+sed_year
+
+sed_season_site = ggplot(sed, aes(x = Season, y = FluxAvgRep, fill = Site)) +
+  facet_wrap(~Distance) +
+  geom_col(position = "dodge") +
+  scale_y_log10() +
+  labs(x = "Season", y = "Log Flux of Sediment Deposition") 
+sed_season_site
+
+sed_Siteseason <- ggplot(sed_SAPA, aes(x= Site, y=FluxAvgRep, color = Season)) +geom_point() + geom_boxplot()
+sed_Siteseason
+
+sed_season = ggplot(sed, aes(x = Site, y = FluxAvgRep, fill = Season)) + 
+  geom_col(position = "dodge") +
+  scale_y_log10() +
+  labs(x = "Site", y = "Log Flux of Sediment Deposition") 
+sed_season
+
+sed_Dist = ggplot(sed, aes(x = Distance, y = FluxAvgRep, color = Site)) + 
+  geom_point(aes(x = Distance, y = FluxAvgRep), data = sed, position = position_jitter(w = 0.05, h = 0)) +
+  #scale_y_log10() + 
+   geom_smooth(method = "lm", se = FALSE) +
+  labs(x = "Distance", y = "Log Flux of Sediment Deposition", 
+       title = "Sediment Deposition Rates Across Distances")
+sed_Dist
+```
+
+For visualizing the vegetation data, I used the original veg data set so that the average wouldn't be swayed by the zero values within the combined data frame of "sed_SAPA" that accounted for observations of sediment data collected when vegetation data wasn't consequently collected.
+
+```{r, checking the range of data for the vegetation dataset}
+
+SAPA_Season_mxht <- ggplot(veg, aes(x=Max.Ht,fill=Season)) + geom_boxplot()
+SAPA_Season_mxht
+
+SAPA_Season_avght <-ggplot(veg, aes(x=Avg.Ht,fill=Season)) + geom_boxplot()
+SAPA_Season_avght
+
+SAPA_Season_cover <- ggplot(veg, aes(x=Cover, fill = Season)) + geom_boxplot()
+SAPA_Season_cover
+
+SAPA_Site_cover <- ggplot(veg, aes(x= Cover, fill = Site)) + geom_boxplot()
+SAPA_Site_cover
+
+SAPA_Site_mxht <- ggplot(veg, aes(x = Max.Ht, fill = Site)) + geom_boxplot()
+SAPA_Site_mxht
+
+SAPA_Site_avght <- ggplot(veg, aes(x = Avg.Ht, fill = Site)) + geom_boxplot()
+SAPA_Site_avght
+
+#check the data for normality, Max.Ht 
+SAPA_Maxht_Normality <-ggplot(veg, aes(x=Max.Ht)) + geom_histogram(binwidth = 0.5)
+SAPA_Maxht_Normality
+
+#check the data for normality, Avg.ht  
+SAPA_Avght_Normality <-ggplot(veg, aes(x=Avg.Ht)) + geom_histogram(binwidth = 0.5)
+SAPA_Avght_Normality
+
+#check the data for normality, Cover 
+SAPA_Cover_Normality <-ggplot(veg, aes(x=Cover)) + geom_histogram(binwidth = 0.5)
+SAPA_Cover_Normality
+
+
+```
+
+```{r, Fit GLM with Poisson family}
+
+sedvegglm <-glm(FluxAvgRep~Max.Ht, family = "poisson", data=sed_SAPA)
+sedvegglm
+
+sedvegglm_AIC_text <- paste("AIC: 7914")
+sedvegglm_AIC_text
+
+sedvegglm_coefficient_Max.Ht <- paste("Coefficient for Max Height: -0.01325 ")
+sedvegglm_coefficient_Max.Ht
+
+```
+
+```{r, Plot model diagnostics}
+
+plot(sedvegglm)
+```
+
+```{r, glmm trial and error with random effects}
+
+library(glmmTMB)
+sed_glmm = glmmTMB(FluxAvgRep~Max.Ht + Distance + (1|Site) + (1|Season) + (1|Year), family = poisson(), data=sed_SAPA)
+summary(sed_glmm)
+
+sed_glmm2 = glmmTMB(FluxAvgRep~Max.Ht + Distance + (1|Site) + (1|Season), family = poisson(), data=sed_SAPA)
+summary(sed_glmm2)
+
+sed_glmm3 = glmmTMB(FluxAvgRep~Max.Ht + Distance + (1|Site), family = poisson(), data=sed_SAPA)
+summary(sed_glmm3)
+
+sed_glmm4 = glmmTMB(FluxAvgRep~Max.Ht + Distance + (1|Site) + (1|Year), family = poisson(), data=sed_SAPA)
+summary(sed_glmm4)
+
+sed_glmm5 = glmmTMB(FluxAvgRep~Max.Ht + Distance + (1|Year) + (1|Season), family = poisson(), data=sed_SAPA)
+summary(sed_glmm5)
+
+AIC(sed_glmm)
+AIC(sed_glmm, sed_glmm2, sed_glmm3, sed_glmm4, sed_glmm5)
+
+```
+
+```{r, graphing the relationships}
+
+sed_MxHt_site <- ggplot(sed_SAPA, aes(x = Max.Ht, y = FluxAvgRep, color = Site)) +
+  geom_point(position = position_jitter(w = 0.05, h = 0)) +
+  geom_smooth(method = "lm", se = FALSE) +
+  scale_y_log10() +
+  labs(
+    x = expression("Maximum Height of Pickleweed " * italic("(Salicornia pacifica)")),
+    y = "Log Flux of Sediment Deposition",
+    title = "Sediment Deposition Variations Across Differences in Maximum Plant Height\n Between Two Marshes"
+  )
+
+sed_MxHt_site
+
+
+sed_MxHt_season <- ggplot(sed_SAPA, aes(x = Max.Ht, y = FluxAvgRep, color = Season)) +
+  geom_point(position = position_jitter(w = 0.05, h = 0)) +
+  geom_smooth(method = "lm", se = FALSE) +
+  scale_y_log10() +
+  labs(
+    x = expression("Maximum Height of Pickleweed " * italic("(Salicornia pacifica)")),
+    y = "Log Flux of Sediment Deposition",
+    title = "Sediment Deposition Variations Across Differences in Maximum Plant Height\n Between Two Seasons"
+  )
+
+sed_MxHt_season
+
+sed_DistPlant <- ggplot(veg, aes(x = Distance, y = Max.Ht, color = Site)) + 
+  geom_point(position = position_jitter(w = 0.05, h = 0)) +
+  scale_y_log10() + 
+  labs(
+    x = "Distance from Marsh Edge",
+    y = expression("Maximum Height of Pickleweed " * italic("(Salicornia pacifica)")),
+    title = "Sediment Deposition Rates Across Plant Structure\n(Maximum Height)"
+  )
+
+sed_DistPlant
+
+```
+
+## Summary of Results/Conclusions
+
+Based off of the conclusions of the linear regressions, as well as the comparisons of the outputs for the general linear mixed models (GLMM), it is apparent that site, season, and year are strong influences on both of the independent variables I measured, which includes maximum height of an ecologically important marsh species, Pickleweed (*Salicornia pacifica*) and the average sediment deposition rates across a marsh bay ward edge. This is demonstrated from the six GLMMs performed, where the AIC values fell all within a close range, but only the model with all three random effects of Site, Season, and Year had the lowest value and was therefore the best fit model.
+
+Based on the repeated outputs of coefficients for both distance and maximum height of Pickleweed, it is observed that both of these predictors are significant in terms of their effect on sediment deposition, but in very different ways.
+
+There appears to be a negative relationship with distance and sediment deposition-meaning that the farther you go away from the marsh edge, the less sediment is deposited on the marsh platform. This makes sense from the ecological understanding, as the marsh edge is the commonly inundated with water than other points in the marsh, and the edge is more likely to encounter dynamic wave energy and scarps that suspended sediment in the water column would first interact with prior to settling out.
+
+There also appears to be a positive relationship with maximum height and sediment deposition. This also makes sense ecologically, as a taller plant would create more of an obstruction to suspended sediment in the water column, causing for it to settle out quicker than with a shorter plant.
+
+Both distance and maximum height are interrelated to other variables of the marsh, such as slope and average tide levels throughout the marsh. As demonstrated from the GLMM outputs, site specific characteristics such as slope and tide level cannot be ignored as predictors for sediment deposition rates, but they were not measured within this study. Slope is not accounted for in this model, and future analyses could take into account this additional variable as it could characterize the landscape differences between marshes that would result in such differences in both plant growth and sediment deposition. Slope is related to the mean low low water tide levels of the marsh, which are also pertinent variables to consider when measuring differences in sediment deposition as well as plant growth differences.
+
+These results demonstrate that I can reject my null hypothesis based on the significance of the effect of distance and maximum height on differences in sediment deposition rates!
+
+I am excited to see in my thesis studies how many of these additional variables I can measure to see if I can uncover at least one clear pattern with my own data-that would be incredible. Thanks for this class Jenna! I will sincerely miss it!

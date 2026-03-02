@@ -586,3 +586,4 @@ file_paths <- list(
 for (loc in names(file_paths)) {
   plot_transects(file_paths[[loc]], loc)
 }
+

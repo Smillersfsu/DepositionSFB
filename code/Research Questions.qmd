@@ -1,0 +1,196 @@
+---
+title: "Research Questions"
+format: docx
+editor: visual
+---
+
+## Quarto
+
+Quarto enables you to weave together content and executable code into a finished document. To learn more about Quarto see <https://quarto.org>.
+
+## Running Code
+
+When you click the **Render** button a document will be generated that includes both content and the output of embedded code. You can embed code like this:
+
+```{r, load packages and load up working directory}
+
+library(ggplot2)
+library(tidyverse)
+library(Rmisc)
+library(rstatix)
+library(tidyr)
+library(data.table)
+library(dplyr)
+library(lme4)
+library(stringr)
+#install.packages("readxl")
+library(readxl)
+#install.packages("lubridate")
+#install.packages("lmerTest")
+library(lmerTest)
+#install.packages("ggeffects")
+library(ggeffects)
+
+knitr::opts_knit$set(root.dir = 'C:/Users/savan/OneDrive - San Francisco State University/ProjectData/GitHub/DepositionSFB/data')
+```
+
+You can add options to executable code like this
+
+```{r}
+combined <-read_excel("C:/Users/savan/OneDrive/Desktop/stats/combined.xlsx")
+
+
+
+str(usgs_thesis_M1_m6_no150)
+```
+
+```{r}
+
+
+# Dropped variables relating to LOI and temporal as they are represented already within the Study.Phase variable
+#usgs_thesis_M1_m6_no150 <- usgs_thesis_M1_m6_no150 %>% 
+  #select(-Date.placed.in.field, -Date.removed.from.field)
+
+marshedge <- usgs_thesis_M1_m6_no150 %>%
+  dplyr::filter(!Study.Dataset %in% c("USGS"))
+
+marshedge <- usgs_thesis_M1_m6_no150 %>%
+  select(-LOI, -Study.Dataset)
+
+avgtotal = aggregate(Flux ~ Site + Dist + Replicate + Month + Study.Phase + marsh_orientation + marsh_edge_type, data = marshedge, FUN = mean)
+avgtotal
+
+str(avgtotal)
+```
+
+```{r, statistics}
+
+shapiro.test(avgtotal$Flux)
+shapiro.test(log(avgtotal$Flux))
+
+qqnorm(avgtotal$Flux)
+
+qqline(avgtotal$Flux)
+
+shapiro.test(resid(distsitemodel))
+
+qqnorm(resid(distsitemodel))
+qqline(resid(distsitemodel))
+
+```
+
+```{r, Question 1-marsh edge type}
+
+marsh_edge_model_edge<- lmer(Flux ~marsh_edge_type + (1|Dist), data = avgtotal)
+summary(marsh_edge_model_edge)
+
+marsh_edge_model_orient<- lmer(Flux ~marsh_orientation + (1|Dist), data = avgtotal)
+summary(marsh_edge_model_orient)
+
+
+```
+
+```{r}
+colnames(avgtotal)
+
+# Check if they exist and what they're called
+grep("marsh", colnames(avgtotal), value = TRUE, ignore.case = TRUE)
+```
+
+```{r}
+
+ggplot(avgtotal, aes(x = marsh_edge_type, y = log(Flux), fill = marsh_orientation)) +
+  geom_boxplot(alpha = 0.4, outlier.shape = NA) +
+  geom_sina(alpha = 0.6, size = 2, aes(colour = marsh_orientation)) +
+  labs(
+    x = "Marsh Edge Type",
+    y = "Log of Average Flux (g/cm³)",
+    fill = "Marsh Orientation",
+    colour = "Marsh Orientation"
+  ) +
+  theme_classic(base_size = 18) +
+  theme(axis.text.x = element_text(angle = 45, hjust = 1, size = 18))
+
+ggplot(usgs_thesis_M1_m6_no150, aes(x = marsh_edge_type, y = log(Flux), fill = marsh_orientation)) +
+  geom_violin(alpha = 0.6) +
+  geom_boxplot(width = 0.2, position = position_dodge(0.9)) +
+  scale_fill_manual(values = c("East.facing" = "#E07070", 
+                                "South.facing" = "#70B870",
+                                "West.facing" = "#7090D0")) +
+  theme_bw()
+
+```
+
+```{r}
+str(usgs_thesis)
+```
+
+```{r}
+emm <- emmeans(marsh_edge_model_time, ~ Site * Year)
+emm_df <- as.data.frame(emm)
+
+ggplot() +
+  geom_jitter(data = avgtotal, aes(x = as.factor(Year), y = Flux, color = Site),
+              alpha = 0.3, width = 0.2) +
+  geom_point(data = emm_df, aes(x = as.factor(Year), y = emmean, color = Site),
+             size = 4, position = position_dodge(0.5)) +
+  geom_errorbar(data = emm_df, aes(x = as.factor(Year), ymin = lower.CL, 
+                ymax = upper.CL, color = Site),
+                width = 0.2, position = position_dodge(0.5)) +
+  labs(title = "Flux by Site and Year",
+       y = "Flux (g/cm^3/month)", x = "Year") +
+  theme_bw()
+
+
+# Get estimated marginal means for Site and Year
+emm <- emmeans(marsh_edge_model_time, ~ Site * Year)
+emm_df <- as.data.frame(emm)
+
+ggplot(emm_df, aes(x = Year, y = emmean, color = Site, group = Site)) +
+  geom_point(size = 3) +
+  geom_line() +
+  geom_errorbar(aes(ymin = lower.CL, ymax = upper.CL), width = 0.2) +
+  labs(title = "Estimated Flux by Site and Year",
+       y = "Flux (g/cm^3/month)", x = "Year") +
+  theme_bw()
+```
+
+```{r, edge type over time}
+
+# Plot 2A: Boxplot with jitter
+ggplot(avgtotal, aes(x = marsh_edge_type, y = Flux, fill = marsh_edge_type)) +
+  geom_boxplot(alpha = 0.5, outlier.shape = NA) +
+  geom_jitter(alpha = 0.4, width = 0.2, size = 0.8) +
+  annotate("text", x = 1.5, y = max(avgtotal$Flux) * 0.95,
+           label = "***", size = 8, color = "black") +
+  scale_y_log10() +
+  labs(title = str_wrap("Sediment Flux by Marsh Edge Type", width = 40),
+       y = "Log of Average Flux (g/m³/day)",
+       x = "Marsh Edge Type") +
+  theme_bw() +
+  theme(legend.position = "none",
+        axis.text.x = element_text(size = 13),
+        axis.title = element_text(size = 13),
+        plot.title = element_text(hjust = 0.5))
+
+```
+
+```{r}
+
+
+# Plot 1A: Boxplot with jitter
+ggplot(avgtotal, aes(x = marsh_orientation, y = Flux, fill = marsh_orientation)) +
+  geom_boxplot(alpha = 0.5, outlier.shape = NA) +
+  geom_jitter(alpha = 0.4, width = 0.2, size = 0.8) +
+  annotate("text", x = 3, y = max(avgtotal$Flux) * 0.95,
+           label = "***", size = 8, color = "black") +
+  scale_y_log10() +
+  labs(title = str_wrap("Sediment Flux by Marsh Orientation", width = 40),
+       y = "Log of Average Flux (g/cm³/month)",
+       x = "Marsh Orientation") +
+  theme_bw() +
+  theme(legend.position = "none",
+        axis.text.x = element_text(size = 13),
+        axis.title = element_text(size = 13),
+        plot.title = element_text(hjust = 0.5))
+```

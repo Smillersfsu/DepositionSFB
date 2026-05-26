@@ -1,0 +1,153 @@
+---
+title: "Locations of sampling areas"
+format: html
+editor: visual
+---
+
+## Quarto
+
+Quarto enables you to weave together content and executable code into a finished document. To learn more about Quarto see <https://quarto.org>.
+
+## Running Code
+
+When you click the **Render** button a document will be generated that includes both content and the output of embedded code. You can embed code like this:
+
+```{r, install packages}
+
+#install.packages(c("ggplot2", "sf", "ggmap", "ggspatial"))
+#install.packages("leaflet")
+library(leaflet)
+```
+
+You can add options to executable code like this
+
+```{r}
+
+
+library(readxl)
+library(ggplot2)
+library(sf)
+
+# Load data
+usgs_locations <- as.data.frame(read_excel("C:/Users/savan/OneDrive - San Francisco State University/ProjectData/GitHub/DepositionSFB/data/Locations Karen's Data.xlsx"))
+thesis_locations <- as.data.frame(read_csv("C:\\Users\\savan\\OneDrive - San Francisco State University\\ProjectData\\GitHub\\DepositionSFB\\data\\All_Sites_Calculated.csv"))
+
+# Convert UTM to lat/lon (USGS)
+#UTM Zone 10N (WGS84)
+coords_sf_usgs <- st_as_sf(usgs_locations,
+                            coords = c("Easting", "Northing"),
+                            crs = 32610)
+coords_wgs84_usgs <- st_transform(coords_sf_usgs, crs = 4326) 
+coords_matrix_usgs <- st_coordinates(coords_wgs84_usgs)
+usgs_locations$Longitude <- coords_matrix_usgs[, 1]
+usgs_locations$Latitude  <- coords_matrix_usgs[, 2]
+usgs_locations$Site <- sub("\\s.*", "", usgs_locations$ID)
+
+# Convert UTM to lat/lon (Thesis) — fixed to use coords_sf_thesis
+#California State Plane Zone 3 (NAD83) 
+coords_sf_thesis <- st_as_sf(thesis_locations,
+                              coords = c("Easting", "Northing"),
+                              crs = 2227)  # ← Zone 3, US feet
+coords_wgs84_thesis <- st_transform(coords_sf_thesis, crs = 4326)
+coords_matrix_thesis <- st_coordinates(coords_wgs84_thesis)
+thesis_locations$Longitude <- coords_matrix_thesis[, 1]
+thesis_locations$Latitude  <- coords_matrix_thesis[, 2]
+
+# Check the RANGE this time, not just the first few rows
+summary(thesis_locations[, c("Longitude", "Latitude")])
+
+# Combined map
+ggplot() +
+  geom_point(data = usgs_locations,
+             aes(x = Longitude, y = Latitude, color = Site),
+             size = 3, shape = 16) +
+  geom_text(data = usgs_locations,
+            aes(x = Longitude, y = Latitude, label = ID),
+            vjust = -0.8, size = 2.5) +
+  geom_point(data = thesis_locations,
+             aes(x = Longitude, y = Latitude, color = Transect_ID),
+             size = 3, shape = 17) +          # different shape to distinguish
+  geom_text(data = thesis_locations,
+            aes(x = Longitude, y = Latitude, label = Transect_ID),  # ← replace with your label column
+            vjust = -0.8, size = 2.5) +
+  theme_minimal() +
+  labs(title = "Site Locations",
+       x = "Longitude", y = "Latitude",
+       color = "Site / Transect")
+```
+
+```{r}
+# Create the Transect column
+usgs_locations$Transect <- sub(".* ([A-D]).*", "\\1", usgs_locations$ID)
+
+# Color scheme for USGS transects
+transect_colors <- colorFactor(
+  palette = c("blue", "red", "green", "orange"),
+  domain = c("A", "B", "C", "D")
+)
+
+# color scheme for thesis transects 
+
+thesis_colors <- colorFactor(
+  palette = c("purple", "cyan", "pink", "black"),
+  domain = unique(thesis_locations$Transect_ID)
+)
+
+leaflet() %>%
+  addTiles() %>%
+  
+
+  # --- USGS layer ---
+  addCircleMarkers(
+    data = usgs_locations,
+    lng = ~Longitude,
+    lat = ~Latitude,
+    color = ~transect_colors(Transect),
+    fillColor = ~transect_colors(Transect),
+    radius = 6,
+    fillOpacity = 0.8,
+    label = ~ID,
+    popup = ~paste(
+      "ID:", ID,
+      "<br>Transect:", Transect,
+      "<br>Easting:", Easting,
+      "<br>Northing:", Northing
+    ),
+    group = "USGS"
+  ) %>%
+  
+  # --- Thesis layer ---
+  addCircleMarkers(
+    data = thesis_locations,
+    lng = ~Longitude,
+    lat = ~Latitude,
+    color = ~thesis_colors(Transect_ID),
+    fillColor = ~thesis_colors(Transect_ID),
+    stroke = TRUE,
+    radius = 6,
+    fillOpacity = 0.8,
+    opacity = 0.8,
+    label = ~Transect_ID,
+    popup = ~paste(
+      "Transect:", Transect_ID,
+      "<br>Easting:", Easting,
+      "<br>Northing:", Northing
+    ),
+    group = "Thesis"
+  ) %>%
+  
+  addLegend(
+    position = "bottomright",
+    pal = transect_colors,
+    values = usgs_locations$Transect,
+    title = "USGS Transect"
+  ) %>%
+
+  addLegend(
+    position = "bottomleft",
+    pal = thesis_colors,
+    values = thesis_locations$Transect_ID,
+    title = "Thesis Transect",
+    group = "Thesis"
+  )
+```

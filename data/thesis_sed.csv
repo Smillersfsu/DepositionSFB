@@ -1,0 +1,908 @@
+﻿Study Phase,Site,Tran,Dist,Replicate,Date placed in field,Date removed from field,Season ,Month,Year ,Flux
+M1,Buck's Landing,1,0.5,a ,7/8/2025,8/5/2025,Summer ,July,2025,3.199435405
+M1,Buck's Landing,1,0.5,b ,7/8/2025,8/5/2025,Summer ,July,2025,3.968600088
+M1,Buck's Landing,1,0.5,c,7/8/2025,8/5/2025,Summer ,July,2025,7.558035278
+M1,Buck's Landing,1,2,a ,7/8/2025,8/5/2025,Summer ,July,2025,1.961114509
+M1,Buck's Landing,1,2,b ,7/8/2025,8/5/2025,Summer ,July,2025,1.520533206
+M1,Buck's Landing,1,2,c,7/8/2025,8/5/2025,Summer ,July,2025,2.980155261
+M1,Buck's Landing,1,6,a ,7/8/2025,8/5/2025,Summer ,July,2025,5.229657404
+M1,Buck's Landing,1,6,b ,7/8/2025,8/5/2025,Summer ,July,2025,2.912563532
+M1,Buck's Landing,1,6,c,7/8/2025,8/5/2025,Summer ,July,2025,5.792229428
+M1,Buck's Landing,1,12,a ,7/8/2025,8/5/2025,Summer ,July,2025,1.654481599
+M1,Buck's Landing,1,12,b ,7/8/2025,8/5/2025,Summer ,July,2025,5.695108422
+M1,Buck's Landing,1,12,c,7/8/2025,8/5/2025,Summer ,July,2025,2.167707169
+M1,Buck's Landing,1,18,a,7/8/2025,8/5/2025,Summer ,July,2025,2.678069635
+M1,Buck's Landing,1,18,b,7/8/2025,8/5/2025,Summer ,July,2025,2.720454814
+M1,Buck's Landing,1,18,c,7/8/2025,8/5/2025,Summer ,July,2025,2.922668607
+M1,Buck's Landing,1,24,a ,7/8/2025,8/5/2025,Summer ,July,2025,3.806245204
+M1,Buck's Landing,1,24,b ,7/8/2025,8/5/2025,Summer ,July,2025,3.351292238
+M1,Buck's Landing,1,24,c,7/8/2025,8/5/2025,Summer ,July,2025,3.041571666
+M1,Buck's Landing,1,48,a ,7/8/2025,8/5/2025,Summer ,July,2025,4.745680415
+M1,Buck's Landing,1,48,b ,7/8/2025,8/5/2025,Summer ,July,2025,4.755617072
+M1,Buck's Landing,1,48,c,7/8/2025,8/5/2025,Summer ,July,2025,7.452661794
+M1,Buck's Landing,2,0.5,a ,7/8/2025,8/5/2025,Summer ,July,2025,3.540032597
+M1,Buck's Landing,2,0.5,b ,7/8/2025,8/5/2025,Summer ,July,2025,34.73187521
+M1,Buck's Landing,2,0.5,c,7/8/2025,8/5/2025,Summer ,July,2025,5.37936223
+M1,Buck's Landing,2,2,a ,7/8/2025,8/5/2025,Summer ,July,2025,6.740609501
+M1,Buck's Landing,2,2,b ,7/8/2025,8/5/2025,Summer ,July,2025,8.826166147
+M1,Buck's Landing,2,2,c,7/8/2025,8/5/2025,Summer ,July,2025,6.964642774
+M1,Buck's Landing,2,6,a ,7/8/2025,8/5/2025,Summer ,July,2025,8.583251354
+M1,Buck's Landing,2,6,b ,7/8/2025,8/5/2025,Summer ,July,2025,10.9774245
+M1,Buck's Landing,2,6,c,7/8/2025,8/5/2025,Summer ,July,2025,11.11446055
+M1,Buck's Landing,2,12,a ,7/8/2025,8/5/2025,Summer ,July,2025,10.48422195
+M1,Buck's Landing,2,12,b ,7/8/2025,8/5/2025,Summer ,July,2025,12.24825005
+M1,Buck's Landing,2,12,c,7/8/2025,8/5/2025,Summer ,July,2025,6.090778277
+M1,Buck's Landing,2,24,a ,7/8/2025,8/5/2025,Summer ,July,2025,5.187440643
+M1,Buck's Landing,2,24,b ,7/8/2025,8/5/2025,Summer ,July,2025,5.403913822
+M1,Buck's Landing,2,24,c,7/8/2025,8/5/2025,Summer ,July,2025,5.21781201
+M1,Buck's Landing,2,48,a ,7/8/2025,8/5/2025,Summer ,July,2025,10.74590599
+M1,Buck's Landing,2,48,b ,7/8/2025,8/5/2025,Summer ,July,2025,6.985582736
+M1,Buck's Landing,2,48,c,7/8/2025,8/5/2025,Summer ,July,2025,8.475014764
+M2,Buck's Landing,1,0.5,a ,8/5/2025,9/3/2025,Summer ,August,2025,4.14824588
+M2,Buck's Landing,1,0.5,b ,8/5/2025,9/3/2025,Summer ,August,2025,2.234429707
+M2,Buck's Landing,1,0.5,c,8/5/2025,9/3/2025,Summer ,August,2025,2.536180433
+M2,Buck's Landing,1,2,a ,8/5/2025,9/3/2025,Summer ,August,2025,1.378773705
+M2,Buck's Landing,1,2,b ,8/5/2025,9/3/2025,Summer ,August,2025,1.198492959
+M2,Buck's Landing,1,2,c,8/5/2025,9/3/2025,Summer ,August,2025,1.033118167
+M2,Buck's Landing,1,6,a ,8/5/2025,9/3/2025,Summer ,August,2025,4.793755022
+M2,Buck's Landing,1,6,b ,8/5/2025,9/3/2025,Summer ,August,2025,4.056858827
+M2,Buck's Landing,1,6,c,8/5/2025,9/3/2025,Summer ,August,2025,4.182014642
+M2,Buck's Landing,1,12,a ,8/5/2025,9/3/2025,Summer ,August,2025,1.096427822
+M2,Buck's Landing,1,12,b ,8/5/2025,9/3/2025,Summer ,August,2025,1.357959572
+M2,Buck's Landing,1,12,c,8/5/2025,9/3/2025,Summer ,August,2025,1.799609458
+M2,Buck's Landing,1,18,a ,8/5/2025,9/3/2025,Summer ,August,2025,3.023361235
+M2,Buck's Landing,1,18,b ,8/5/2025,9/3/2025,Summer ,August,2025,2.563227965
+M2,Buck's Landing,1,18,c ,8/5/2025,9/3/2025,Summer ,August,2025,2.359964947
+M2,Buck's Landing,1,24,a ,8/5/2025,9/3/2025,Summer ,August,2025,1.488427328
+M2,Buck's Landing,1,24,b ,8/5/2025,9/3/2025,Summer ,August,2025,1.909750912
+M2,Buck's Landing,1,24,c,8/5/2025,9/3/2025,Summer ,August,2025,1.763672557
+M2,Buck's Landing,1,48,a ,8/5/2025,9/3/2025,Summer ,August,2025,1.990405678
+M2,Buck's Landing,1,48,b ,8/5/2025,9/3/2025,Summer ,August,2025,1.967965441
+M2,Buck's Landing,1,48,c,8/5/2025,9/3/2025,Summer ,August,2025,2.656024308
+M2,Buck's Landing,2,0.5,a ,8/5/2025,9/3/2025,Summer ,August,2025,6.193613878
+M2,Buck's Landing,2,0.5,b ,8/5/2025,9/3/2025,Summer ,August,2025,1.856848324
+M2,Buck's Landing,2,0.5,c,8/5/2025,9/3/2025,Summer ,August,2025,7.910183618
+M2,Buck's Landing,2,2,a ,8/5/2025,9/3/2025,Summer ,August,2025,2.154804807
+M2,Buck's Landing,2,2,b ,8/5/2025,9/3/2025,Summer ,August,2025,1.535259128
+M2,Buck's Landing,2,2,c,8/5/2025,9/3/2025,Summer ,August,2025,0.986719996
+M2,Buck's Landing,2,6,a ,8/5/2025,9/3/2025,Summer ,August,2025,5.834190658
+M2,Buck's Landing,2,6,b ,8/5/2025,9/3/2025,Summer ,August,2025,4.440727812
+M2,Buck's Landing,2,6,c,8/5/2025,9/3/2025,Summer ,August,2025,4.821615606
+M2,Buck's Landing,2,12,a ,8/5/2025,9/3/2025,Summer ,August,2025,2.235838997
+M2,Buck's Landing,2,12,b ,8/5/2025,9/3/2025,Summer ,August,2025,3.723182256
+M2,Buck's Landing,2,12,c,8/5/2025,9/3/2025,Summer ,August,2025,3.207165207
+M2,Buck's Landing,2,24,a ,8/5/2025,9/3/2025,Summer ,August,2025,2.060815988
+M2,Buck's Landing,2,24,b ,8/5/2025,9/3/2025,Summer ,August,2025,2.36657777
+M2,Buck's Landing,2,24,c,8/5/2025,9/3/2025,Summer ,August,2025,2.168138861
+M2,Buck's Landing,2,48,a ,8/5/2025,9/3/2025,Summer ,August,2025,3.30652017
+M2,Buck's Landing,2,48,b ,8/5/2025,9/3/2025,Summer ,August,2025,2.25399716
+M2,Buck's Landing,2,48,c,8/5/2025,9/3/2025,Summer ,August,2025,3.017832481
+M3,Buck's Landing,1,0.5,a ,9/3/2025,10/8/2025,Fall,September,2025,7.780863427
+M3,Buck's Landing,1,0.5,b ,9/3/2025,10/8/2025,Fall,September,2025,7.164947831
+M3,Buck's Landing,1,0.5,c,9/3/2025,10/8/2025,Fall,September,2025,5.316976487
+M3,Buck's Landing,1,2,a ,9/3/2025,10/8/2025,Fall,September,2025,2.349138191
+M3,Buck's Landing,1,2,b ,9/3/2025,10/8/2025,Fall,September,2025,1.993753904
+M3,Buck's Landing,1,2,c,9/3/2025,10/8/2025,Fall,September,2025,1.665226663
+M3,Buck's Landing,1,6,a ,9/3/2025,10/8/2025,Fall,September,2025,3.068080648
+M3,Buck's Landing,1,6,b ,9/3/2025,10/8/2025,Fall,September,2025,4.850571101
+M3,Buck's Landing,1,6,c,9/3/2025,10/8/2025,Fall,September,2025,4.885871499
+M3,Buck's Landing,1,12,a ,9/3/2025,10/8/2025,Fall,September,2025,1.480775347
+M3,Buck's Landing,1,12,b ,9/3/2025,10/8/2025,Fall,September,2025,1.304273357
+M3,Buck's Landing,1,12,c,9/3/2025,10/8/2025,Fall,September,2025,1.283928471
+M3,Buck's Landing,1,18,a ,9/3/2025,10/8/2025,Fall,September,2025,1.582993802
+M3,Buck's Landing,1,18,b ,9/3/2025,10/8/2025,Fall,September,2025,1.446373178
+M3,Buck's Landing,1,18,c ,9/3/2025,10/8/2025,Fall,September,2025,1.187952707
+M3,Buck's Landing,1,24,a ,9/3/2025,10/8/2025,Fall,September,2025,1.15453859
+M3,Buck's Landing,1,24,b ,9/3/2025,10/8/2025,Fall,September,2025,1.439456815
+M3,Buck's Landing,1,24,c,9/3/2025,10/8/2025,Fall,September,2025,1.410354196
+M3,Buck's Landing,1,48,a ,9/3/2025,10/8/2025,Fall,September,2025,1.885292757
+M3,Buck's Landing,1,48,b ,9/3/2025,10/8/2025,Fall,September,2025,1.81060502
+M3,Buck's Landing,1,48,c,9/3/2025,10/8/2025,Fall,September,2025,2.232368426
+M3,Buck's Landing,2,0.5,a ,9/3/2025,10/8/2025,Fall,September,2025,8.378320417
+M3,Buck's Landing,2,0.5,b ,9/3/2025,10/8/2025,Fall,September,2025,8.805652843
+M3,Buck's Landing,2,0.5,c,9/3/2025,10/8/2025,Fall,September,2025,5.038660245
+M3,Buck's Landing,2,2,a ,9/3/2025,10/8/2025,Fall,September,2025,2.109266148
+M3,Buck's Landing,2,2,b ,9/3/2025,10/8/2025,Fall,September,2025,1.865352075
+M3,Buck's Landing,2,2,c,9/3/2025,10/8/2025,Fall,September,2025,2.00044571
+M3,Buck's Landing,2,6,a ,9/3/2025,10/8/2025,Fall,September,2025,3.617617123
+M3,Buck's Landing,2,6,b ,9/3/2025,10/8/2025,Fall,September,2025,4.067270539
+M3,Buck's Landing,2,6,c,9/3/2025,10/8/2025,Fall,September,2025,2.91771712
+M3,Buck's Landing,2,12,a ,9/3/2025,10/8/2025,Fall,September,2025,2.516792625
+M3,Buck's Landing,2,12,b ,9/3/2025,10/8/2025,Fall,September,2025,3.128306899
+M3,Buck's Landing,2,12,c,9/3/2025,10/8/2025,Fall,September,2025,2.343973374
+M3,Buck's Landing,2,24,a ,9/3/2025,10/8/2025,Fall,September,2025,1.595569007
+M3,Buck's Landing,2,24,b ,9/3/2025,10/8/2025,Fall,September,2025,1.370832122
+M3,Buck's Landing,2,24,c,9/3/2025,10/8/2025,Fall,September,2025,1.668325553
+M3,Buck's Landing,2,48,a ,9/3/2025,10/8/2025,Fall,September,2025,1.952210815
+M3,Buck's Landing,2,48,b ,9/3/2025,10/8/2025,Fall,September,2025,2.045581715
+M3,Buck's Landing,2,48,c,9/3/2025,10/8/2025,Fall,September,2025,2.62363696
+M4,Buck's Landing,1,0.5,a ,10/8/2025,11/15/2025,Fall,October,2025,5.220943992
+M4,Buck's Landing,1,0.5,b ,10/8/2025,11/15/2025,Fall,October,2025,2.172284
+M4,Buck's Landing,1,0.5,c,10/8/2025,11/15/2025,Fall,October,2025,3.315221254
+M4,Buck's Landing,1,2,a ,10/8/2025,11/15/2025,Fall,October,2025,0.280708368
+M4,Buck's Landing,1,2,b ,10/8/2025,11/15/2025,Fall,October,2025,2.245005089
+M4,Buck's Landing,1,2,c,10/8/2025,11/15/2025,Fall,October,2025,1.417978506
+M4,Buck's Landing,1,6,a ,10/8/2025,11/15/2025,Fall,October,2025,2.613326237
+M4,Buck's Landing,1,6,b ,10/8/2025,11/15/2025,Fall,October,2025,0.875920968
+M4,Buck's Landing,1,6,c,10/8/2025,11/15/2025,Fall,October,2025,0.952199516
+M4,Buck's Landing,1,12,a ,10/8/2025,11/15/2025,Fall,October,2025,0.73689049
+M4,Buck's Landing,1,12,b ,10/8/2025,11/15/2025,Fall,October,2025,1.234976175
+M4,Buck's Landing,1,12,c,10/8/2025,11/15/2025,Fall,October,2025,0.995633614
+M4,Buck's Landing,1,18,a ,10/8/2025,11/15/2025,Fall,October,2025,1.350841801
+M4,Buck's Landing,1,18,b ,10/8/2025,11/15/2025,Fall,October,2025,0.906118007
+M4,Buck's Landing,1,18,c ,10/8/2025,11/15/2025,Fall,October,2025,0.600300594
+M4,Buck's Landing,1,24,a ,10/8/2025,11/15/2025,Fall,October,2025,1.538559834
+M4,Buck's Landing,1,24,b ,10/8/2025,11/15/2025,Fall,October,2025,0.272311109
+M4,Buck's Landing,1,24,c,10/8/2025,11/15/2025,Fall,October,2025,0.25365513
+M4,Buck's Landing,1,48,a ,10/8/2025,11/15/2025,Fall,October,2025,0.546855971
+M4,Buck's Landing,1,48,b ,10/8/2025,11/15/2025,Fall,October,2025,0.746735552
+M4,Buck's Landing,1,48,c,10/8/2025,11/15/2025,Fall,October,2025,0.799104664
+M4,Buck's Landing,2,0.5,a ,10/8/2025,11/15/2025,Fall,October,2025,3.129323316
+M4,Buck's Landing,2,0.5,b ,10/8/2025,11/15/2025,Fall,October,2025,2.277601346
+M4,Buck's Landing,2,0.5,c,10/8/2025,11/15/2025,Fall,October,2025,4.518056196
+M4,Buck's Landing,2,2,a ,10/8/2025,11/15/2025,Fall,October,2025,-0.206911768
+M4,Buck's Landing,2,2,b ,10/8/2025,11/15/2025,Fall,October,2025,-1.649254734
+M4,Buck's Landing,2,2,c,10/8/2025,11/15/2025,Fall,October,2025,2.993271176
+M4,Buck's Landing,2,6,a ,10/8/2025,11/15/2025,Fall,October,2025,1.177270873
+M4,Buck's Landing,2,6,b ,10/8/2025,11/15/2025,Fall,October,2025,4.543165241
+M4,Buck's Landing,2,6,c,10/8/2025,11/15/2025,Fall,October,2025,5.485809256
+M4,Buck's Landing,2,12,a ,10/8/2025,11/15/2025,Fall,October,2025,4.389077609
+M4,Buck's Landing,2,12,b ,10/8/2025,11/15/2025,Fall,October,2025,5.584011682
+M4,Buck's Landing,2,12,c,10/8/2025,11/15/2025,Fall,October,2025,2.376051967
+M4,Buck's Landing,2,24,a ,10/8/2025,11/15/2025,Fall,October,2025,1.704891745
+M4,Buck's Landing,2,24,b ,10/8/2025,11/15/2025,Fall,October,2025,1.080644484
+M4,Buck's Landing,2,24,c,10/8/2025,11/15/2025,Fall,October,2025,1.312578429
+M4,Buck's Landing,2,48,a ,10/8/2025,11/15/2025,Fall,October,2025,1.45533183
+M4,Buck's Landing,2,48,b ,10/8/2025,11/15/2025,Fall,October,2025,1.777364639
+M4,Buck's Landing,2,48,c,10/8/2025,11/15/2025,Fall,October,2025,1.86989995
+M5,Buck's Landing,1,0.5,a,11/15/2025,12/12/2025,Winter,November,2025,2.385854131
+M5,Buck's Landing,1,0.5,b ,11/15/2025,12/12/2025,Winter,November,2025,2.644286246
+M5,Buck's Landing,1,0.5,c,11/15/2025,12/12/2025,Winter,November,2025,3.661422419
+M5,Buck's Landing,1,2,a ,11/15/2025,12/12/2025,Winter,November,2025,0.953270431
+M5,Buck's Landing,1,2,b ,11/15/2025,12/12/2025,Winter,November,2025,0.927130305
+M5,Buck's Landing,1,2,c,11/15/2025,12/12/2025,Winter,November,2025,0.515292328
+M5,Buck's Landing,1,6,a ,11/15/2025,12/12/2025,Winter,November,2025,9.853604924
+M5,Buck's Landing,1,6,b ,11/15/2025,12/12/2025,Winter,November,2025,5.171669656
+M5,Buck's Landing,1,6,c,11/15/2025,12/12/2025,Winter,November,2025,8.664432954
+M5,Buck's Landing,1,12,a ,11/15/2025,12/12/2025,Winter,November,2025,2.067049387
+M5,Buck's Landing,1,12,b ,11/15/2025,12/12/2025,Winter,November,2025,1.93140018
+M5,Buck's Landing,1,12,c,11/15/2025,12/12/2025,Winter,November,2025,2.382069926
+M5,Buck's Landing,1,18,a ,11/15/2025,12/12/2025,Winter,November,2025,10.51456005
+M5,Buck's Landing,1,18,b ,11/15/2025,12/12/2025,Winter,November,2025,7.99986828
+M5,Buck's Landing,1,18,c ,11/15/2025,12/12/2025,Winter,November,2025,7.952245512
+M5,Buck's Landing,1,24,a ,11/15/2025,12/12/2025,Winter,November,2025,7.888205114
+M5,Buck's Landing,1,24,b ,11/15/2025,12/12/2025,Winter,November,2025,10.97087699
+M5,Buck's Landing,1,24,c,11/15/2025,12/12/2025,Winter,November,2025,9.606583644
+M5,Buck's Landing,1,48,a ,11/15/2025,12/12/2025,Winter,November,2025,11.29125364
+M5,Buck's Landing,1,48,b ,11/15/2025,12/12/2025,Winter,November,2025,11.73848849
+M5,Buck's Landing,1,48,c,11/15/2025,12/12/2025,Winter,November,2025,11.02344834
+M5,Buck's Landing,2,0.5,a ,11/15/2025,12/12/2025,Winter,November,2025,4.608929214
+M5,Buck's Landing,2,0.5,b ,11/15/2025,12/12/2025,Winter,November,2025,2.509859629
+M5,Buck's Landing,2,0.5,c,11/15/2025,12/12/2025,Winter,November,2025,5.557658599
+M5,Buck's Landing,2,2,a ,11/15/2025,12/12/2025,Winter,November,2025,2.055231022
+M5,Buck's Landing,2,2,b ,11/15/2025,12/12/2025,Winter,November,2025,-0.100776299
+M5,Buck's Landing,2,2,c,11/15/2025,12/12/2025,Winter,November,2025,1.125713757
+M5,Buck's Landing,2,6,a ,11/15/2025,12/12/2025,Winter,November,2025,15.60565524
+M5,Buck's Landing,2,6,b ,11/15/2025,12/12/2025,Winter,November,2025,11.99855072
+M5,Buck's Landing,2,6,c,11/15/2025,12/12/2025,Winter,November,2025,7.94392026
+M5,Buck's Landing,2,12,a ,11/15/2025,12/12/2025,Winter,November,2025,12.11929598
+M5,Buck's Landing,2,12,b ,11/15/2025,12/12/2025,Winter,November,2025,16.3141167
+M5,Buck's Landing,2,12,c,11/15/2025,12/12/2025,Winter,November,2025,10.92692199
+M5,Buck's Landing,2,18,a,11/6/2025,12/3/2025,Winter,November,2025,16.01207889
+M5,Buck's Landing,2,18,b ,11/6/2025,12/3/2025,Winter,November,2025,16.316329
+M5,Buck's Landing,2,18,c,11/6/2025,12/3/2025,Winter,November,2025,15.8469711
+M5,Buck's Landing,2,24,a ,11/15/2025,12/12/2025,Winter,November,2025,13.28715996
+M5,Buck's Landing,2,24,b ,11/15/2025,12/12/2025,Winter,November,2025,15.10579083
+M5,Buck's Landing,2,24,c,11/15/2025,12/12/2025,Winter,November,2025,14.13598633
+M5,Buck's Landing,2,48,a ,11/15/2025,12/12/2025,Winter,November,2025,12.31834518
+M5,Buck's Landing,2,48,b ,11/15/2025,12/12/2025,Winter,November,2025,12.27974629
+M5,Buck's Landing,2,48,c,11/15/2025,12/12/2025,Winter,November,2025,11.38894435
+M5 ,Buck's Landing,1,0.5,a ,11/15/2025,12/12/2025,Winter,November,2025,2.385854131
+M6,Buck's Landing,1,0.5,a ,12/12/2025,1/22/2026,Winter,December,2025,1.808874286
+M6,Buck's Landing,1,0.5,b ,12/12/2025,1/22/2026,Winter,December,2025,0.794998351
+M6,Buck's Landing,1,0.5,c,12/12/2025,1/22/2026,Winter,December,2025,0.660504996
+M6,Buck's Landing,1,2,a ,12/12/2025,1/22/2026,Winter,December,2025,0.529768866
+M6,Buck's Landing,1,2,b ,12/12/2025,1/22/2026,Winter,December,2025,0.541155561
+M6,Buck's Landing,1,2,c,12/12/2025,1/22/2026,Winter,December,2025,0.840966861
+M6,Buck's Landing,1,6,a ,12/12/2025,1/22/2026,Winter,December,2025,2.82796433
+M6,Buck's Landing,1,6,b ,12/12/2025,1/22/2026,Winter,December,2025,2.962035956
+M6,Buck's Landing,1,6,c,12/12/2025,1/22/2026,Winter,December,2025,3.38119669
+M6,Buck's Landing,1,12,a ,12/12/2025,1/22/2026,Winter,December,2025,2.284546765
+M6,Buck's Landing,1,12,b ,12/12/2025,1/22/2026,Winter,December,2025,3.501159548
+M6,Buck's Landing,1,12,c,12/12/2025,1/22/2026,Winter,December,2025,2.800091848
+M6,Buck's Landing,1,18,a ,12/12/2025,1/22/2026,Winter,December,2025,4.187620075
+M6,Buck's Landing,1,18,b ,12/12/2025,1/22/2026,Winter,December,2025,3.511932819
+M6,Buck's Landing,1,18,c ,12/12/2025,1/22/2026,Winter,December,2025,2.435640925
+M6,Buck's Landing,1,24,a ,12/12/2025,1/22/2026,Winter,December,2025,1.845296375
+M6,Buck's Landing,1,24,b ,12/12/2025,1/22/2026,Winter,December,2025,2.966151013
+M6,Buck's Landing,1,24,c,12/12/2025,1/22/2026,Winter,December,2025,1.778816478
+M6,Buck's Landing,1,48,a ,12/12/2025,1/22/2026,Winter,December,2025,1.565076325
+M6,Buck's Landing,1,48,b ,12/12/2025,1/22/2026,Winter,December,2025,1.615492164
+M6,Buck's Landing,1,48,c,12/12/2025,1/22/2026,Winter,December,2025,1.93339949
+M6,Buck's Landing,2,0.5,a ,12/12/2025,1/22/2026,Winter,December,2025,1.901539747
+M6,Buck's Landing,2,0.5,b ,12/12/2025,1/22/2026,Winter,December,2025,0.839126587
+M6,Buck's Landing,2,0.5,c,12/12/2025,1/22/2026,Winter,December,2025,1.127819564
+M6,Buck's Landing,2,2,a ,12/12/2025,1/22/2026,Winter,December,2025,0.612197804
+M6,Buck's Landing,2,2,b ,12/12/2025,1/22/2026,Winter,December,2025,0.384578919
+M6,Buck's Landing,2,2,c,12/12/2025,1/22/2026,Winter,December,2025,0.487825956
+M6,Buck's Landing,2,6,a ,12/12/2025,1/22/2026,Winter,December,2025,3.954978775
+M6,Buck's Landing,2,6,b ,12/12/2025,1/22/2026,Winter,December,2025,3.805111464
+M6,Buck's Landing,2,6,c,12/12/2025,1/22/2026,Winter,December,2025,7.137924284
+M6,Buck's Landing,2,12,a ,12/12/2025,1/22/2026,Winter,December,2025,6.004315525
+M6,Buck's Landing,2,12,b ,12/12/2025,1/22/2026,Winter,December,2025,7.219049695
+M6,Buck's Landing,2,12,c,12/12/2025,1/22/2026,Winter,December,2025,5.150773459
+M6,Buck's Landing,2,18,a,12/12/2025,1/22/2026,Winter,December,2025,4.178955451
+M6,Buck's Landing,2,18,b ,12/12/2025,1/22/2026,Winter,December,2025,4.737325242
+M6,Buck's Landing,2,18,c,12/12/2025,1/22/2026,Winter,December,2025,3.220862821
+M6,Buck's Landing,2,24,a ,12/12/2025,1/22/2026,Winter,December,2025,3.08138539
+M6,Buck's Landing,2,24,b ,12/12/2025,1/22/2026,Winter,December,2025,3.626681568
+M6,Buck's Landing,2,24,c,12/12/2025,1/22/2026,Winter,December,2025,4.315059046
+M6,Buck's Landing,2,48,a ,12/12/2025,1/22/2026,Winter,December,2025,4.125204116
+M6,Buck's Landing,2,48,b ,12/12/2025,1/22/2026,Winter,December,2025,5.318890153
+M6,Buck's Landing,2,48,c,12/12/2025,1/22/2026,Winter,December,2025,5.013136302
+M1,Corte Madera,2,0.5,a ,7/10/2025,8/7/2025,Summer ,July,2025,#DIV/0!
+M1,Corte Madera,2,0.5,b ,7/10/2025,8/7/2025,Summer ,July,2025,2.636638824
+M1,Corte Madera,2,0.5,c,7/10/2025,8/7/2025,Summer ,July,2025,2.048691832
+M1,Corte Madera,2,2,a ,7/10/2025,8/7/2025,Summer ,July,2025,3.099339015
+M1,Corte Madera,2,2,b ,7/10/2025,8/7/2025,Summer ,July,2025,#DIV/0!
+M1,Corte Madera,2,2,c,7/10/2025,8/7/2025,Summer ,July,2025,1.610243823
+M1,Corte Madera,2,6,a ,7/10/2025,8/7/2025,Summer ,July,2025,2.902570735
+M1,Corte Madera,2,6,b ,7/10/2025,8/7/2025,Summer ,July,2025,5.880817259
+M1,Corte Madera,2,6,c,7/10/2025,8/7/2025,Summer ,July,2025,2.676890709
+M1,Corte Madera,2,12,a ,7/10/2025,8/7/2025,Summer ,July,2025,2.498760679
+M1,Corte Madera,2,12,b ,7/10/2025,8/7/2025,Summer ,July,2025,2.83295799
+M1,Corte Madera,2,12,c,7/10/2025,8/7/2025,Summer ,July,2025,3.609664055
+M1,Corte Madera,2,24,a ,7/10/2025,8/7/2025,Summer ,July,2025,7.066030367
+M1,Corte Madera,2,24,b ,7/10/2025,8/7/2025,Summer ,July,2025,6.442266496
+M1,Corte Madera,2,24,c,7/10/2025,8/7/2025,Summer ,July,2025,7.961396219
+M1,Corte Madera,2,48,a ,7/10/2025,8/7/2025,Summer ,July,2025,4.841959331
+M1,Corte Madera,2,48,b ,7/10/2025,8/7/2025,Summer ,July,2025,#VALUE!
+M1,Corte Madera,2,48,c,7/10/2025,8/7/2025,Summer ,July,2025,29.16061011
+M2 ,Corte Madera,1,0.5,a,8/7/2025,9/5/2025,Summer ,August,2025,#DIV/0!
+M2 ,Corte Madera,1,0.5,b ,8/7/2025,9/5/2025,Summer ,August,2025,#DIV/0!
+M2 ,Corte Madera,1,0.5,c,8/7/2025,9/5/2025,Summer ,August,2025,0.854662271
+M2 ,Corte Madera,1,2,a,8/7/2025,9/5/2025,Summer ,August,2025,5.364517577
+M2 ,Corte Madera,1,2,b ,8/7/2025,9/5/2025,Summer ,August,2025,1.319746125
+M2 ,Corte Madera,1,2,c,8/7/2025,9/5/2025,Summer ,August,2025,11.56138366
+M2 ,Corte Madera,1,6,a,8/7/2025,9/5/2025,Summer ,August,2025,1.791478938
+M2 ,Corte Madera,1,6,b ,8/7/2025,9/5/2025,Summer ,August,2025,1.294324697
+M2 ,Corte Madera,1,6,c,8/7/2025,9/5/2025,Summer ,August,2025,2.442733648
+M2 ,Corte Madera,1,12,a,8/7/2025,9/5/2025,Summer ,August,2025,6.042115175
+M2 ,Corte Madera,1,12,b ,8/7/2025,9/5/2025,Summer ,August,2025,2.202901354
+M2 ,Corte Madera,1,12,c,8/7/2025,9/5/2025,Summer ,August,2025,4.593906823
+M2 ,Corte Madera,1,24,a ,8/7/2025,9/5/2025,Summer ,August,2025,3.058051457
+M2 ,Corte Madera,1,24,b ,8/7/2025,9/5/2025,Summer ,August,2025,5.552441013
+M2 ,Corte Madera,1,24,c,8/7/2025,9/5/2025,Summer ,August,2025,3.42392489
+M2 ,Corte Madera,1,48,a,8/7/2025,9/5/2025,Summer ,August,2025,1.347335692
+M2 ,Corte Madera,1,48,b ,8/7/2025,9/5/2025,Summer ,August,2025,3.204346626
+M2 ,Corte Madera,1,48,c,8/7/2025,9/5/2025,Summer ,August,2025,1.256544877
+M2 ,Corte Madera,2,0.5,a,8/7/2025,9/5/2025,Summer ,August,2025,2.333351042
+M2 ,Corte Madera,2,0.5,b ,8/7/2025,9/5/2025,Summer ,August,2025,1.196704244
+M2 ,Corte Madera,2,0.5,c,8/7/2025,9/5/2025,Summer ,August,2025,1.922109304
+M2 ,Corte Madera,2,2,a,8/7/2025,9/5/2025,Summer ,August,2025,0.809583051
+M2 ,Corte Madera,2,2,b ,8/7/2025,9/5/2025,Summer ,August,2025,3.451243439
+M2 ,Corte Madera,2,2,c,8/7/2025,9/5/2025,Summer ,August,2025,1.268686455
+M2 ,Corte Madera,2,6,a,8/7/2025,9/5/2025,Summer ,August,2025,1.465445056
+M2 ,Corte Madera,2,6,b ,8/7/2025,9/5/2025,Summer ,August,2025,1.08108824
+M2 ,Corte Madera,2,6,c,8/7/2025,9/5/2025,Summer ,August,2025,1.471515845
+M2 ,Corte Madera,2,12,a,8/7/2025,9/5/2025,Summer ,August,2025,1.354111126
+M2 ,Corte Madera,2,12,b ,8/7/2025,9/5/2025,Summer ,August,2025,2.607385727
+M2 ,Corte Madera,2,12,c,8/7/2025,9/5/2025,Summer ,August,2025,1.417474984
+M2 ,Corte Madera,2,24,a ,8/7/2025,9/5/2025,Summer ,August,2025,4.745622339
+M2 ,Corte Madera,2,24,b ,8/7/2025,9/5/2025,Summer ,August,2025,5.605506212
+M2 ,Corte Madera,2,24,c,8/7/2025,9/5/2025,Summer ,August,2025,#VALUE!
+M2 ,Corte Madera,2,48,a,8/7/2025,9/5/2025,Summer ,August,2025,2.638950215
+M2 ,Corte Madera,2,48,b ,8/7/2025,9/5/2025,Summer ,August,2025,6.839339834
+M2 ,Corte Madera,2,48,c,8/7/2025,9/5/2025,Summer ,August,2025,3.819989656
+M3,Corte Madera,1,0.5,a,9/5/2025,10/3/2025,Fall,September,2025,1.958756658
+M3,Corte Madera,1,0.5,b ,9/5/2025,10/3/2025,Fall,September,2025,2.01882572
+M3,Corte Madera,1,0.5,c,9/5/2025,10/3/2025,Fall,September,2025,5.480880816
+M3,Corte Madera,1,2,a,9/5/2025,10/3/2025,Fall,September,2025,6.100939492
+M3,Corte Madera,1,2,b ,9/5/2025,10/3/2025,Fall,September,2025,2.565061204
+M3,Corte Madera,1,2,c,9/5/2025,10/3/2025,Fall,September,2025,6.156292852
+M3,Corte Madera,1,6,a,9/5/2025,10/3/2025,Fall,September,2025,5.74978811
+M3,Corte Madera,1,6,b ,9/5/2025,10/3/2025,Fall,September,2025,6.00028171
+M3,Corte Madera,1,6,c,9/5/2025,10/3/2025,Fall,September,2025,14.63349705
+M3,Corte Madera,1,12,a,9/5/2025,10/3/2025,Fall,September,2025,8.876579247
+M3,Corte Madera,1,12,b ,9/5/2025,10/3/2025,Fall,September,2025,7.673513838
+M3,Corte Madera,1,12,c,9/5/2025,10/3/2025,Fall,September,2025,7.818858512
+M3,Corte Madera,1,24,a ,9/5/2025,10/3/2025,Fall,September,2025,2.493483584
+M3,Corte Madera,1,24,b ,9/5/2025,10/3/2025,Fall,September,2025,5.219103214
+M3,Corte Madera,1,24,c,9/5/2025,10/3/2025,Fall,September,2025,6.041001423
+M3,Corte Madera,1,48,a,9/5/2025,10/3/2025,Fall,September,2025,2.289529472
+M3,Corte Madera,1,48,b ,9/5/2025,10/3/2025,Fall,September,2025,3.887310368
+M3,Corte Madera,1,48,c,9/5/2025,10/3/2025,Fall,September,2025,3.227112084
+M3,Corte Madera,2,0.5,a,9/5/2025,10/3/2025,Fall,September,2025,11.96643072
+M3,Corte Madera,2,0.5,b ,9/5/2025,10/3/2025,Fall,September,2025,4.699309345
+M3,Corte Madera,2,0.5,c,9/5/2025,10/3/2025,Fall,September,2025,6.616859749
+M3,Corte Madera,2,2,a,9/5/2025,10/3/2025,Fall,September,2025,1.914238186
+M3,Corte Madera,2,2,b ,9/5/2025,10/3/2025,Fall,September,2025,1.506891354
+M3,Corte Madera,2,2,c,9/5/2025,10/3/2025,Fall,September,2025,2.139019982
+M3,Corte Madera,2,6,a,9/5/2025,10/3/2025,Fall,September,2025,4.067966667
+M3,Corte Madera,2,6,b ,9/5/2025,10/3/2025,Fall,September,2025,3.722316936
+M3,Corte Madera,2,6,c,9/5/2025,10/3/2025,Fall,September,2025,2.563208607
+M3,Corte Madera,2,12,a,9/5/2025,10/3/2025,Fall,September,2025,2.588695853
+M3,Corte Madera,2,12,b ,9/5/2025,10/3/2025,Fall,September,2025,3.153401171
+M3,Corte Madera,2,12,c,9/5/2025,10/3/2025,Fall,September,2025,2.647136875
+M3,Corte Madera,2,24,a ,9/5/2025,10/3/2025,Fall,September,2025,5.741535631
+M3,Corte Madera,2,24,b ,9/5/2025,10/3/2025,Fall,September,2025,5.582324548
+M3,Corte Madera,2,24,c,9/5/2025,10/3/2025,Fall,September,2025,7.300131289
+M3,Corte Madera,2,48,a,9/5/2025,10/3/2025,Fall,September,2025,2.057281147
+M3,Corte Madera,2,48,b ,9/5/2025,10/3/2025,Fall,September,2025,1.437671585
+M3,Corte Madera,2,48,c,9/5/2025,10/3/2025,Fall,September,2025,2.342749537
+M4,Corte Madera,1,0.5,a,10/3/2025,11/6/2025,Fall,October,2025,0.540132811
+M4,Corte Madera,1,0.5,b ,10/3/2025,11/6/2025,Fall,October,2025,0.474020518
+M4,Corte Madera,1,0.5,c,10/3/2025,11/6/2025,Fall,October,2025,0.414057131
+M4,Corte Madera,1,2,a,10/3/2025,11/6/2025,Fall,October,2025,1.103566738
+M4,Corte Madera,1,2,b ,10/3/2025,11/6/2025,Fall,October,2025,0.597414721
+M4,Corte Madera,1,2,c,10/3/2025,11/6/2025,Fall,October,2025,0.727512618
+M4,Corte Madera,1,6,a,10/3/2025,11/6/2025,Fall,October,2025,8.047622897
+M4,Corte Madera,1,6,b ,10/3/2025,11/6/2025,Fall,October,2025,#VALUE!
+M4,Corte Madera,1,6,c,10/3/2025,11/6/2025,Fall,October,2025,5.180614764
+M4,Corte Madera,1,12,a,10/3/2025,11/6/2025,Fall,October,2025,1.540508893
+M4,Corte Madera,1,12,b ,10/3/2025,11/6/2025,Fall,October,2025,1.309531959
+M4,Corte Madera,1,12,c,10/3/2025,11/6/2025,Fall,October,2025,0.905276091
+M4,Corte Madera,1,24,a ,10/3/2025,11/6/2025,Fall,October,2025,3.92281683
+M4,Corte Madera,1,24,b ,10/3/2025,11/6/2025,Fall,October,2025,5.60179168
+M4,Corte Madera,1,24,c,10/3/2025,11/6/2025,Fall,October,2025,4.026654739
+M4,Corte Madera,1,48,a,10/3/2025,11/6/2025,Fall,October,2025,6.177246024
+M4,Corte Madera,1,48,b ,10/3/2025,11/6/2025,Fall,October,2025,8.077673939
+M4,Corte Madera,1,48,c,10/3/2025,11/6/2025,Fall,October,2025,9.794698031
+M4,Corte Madera,2,0.5,a,10/3/2025,11/6/2025,Fall,October,2025,0.123440435
+M4,Corte Madera,2,0.5,b ,10/3/2025,11/6/2025,Fall,October,2025,0.085899749
+M4,Corte Madera,2,0.5,c,10/3/2025,11/6/2025,Fall,October,2025,0.009431404
+M4,Corte Madera,2,2,a,10/3/2025,11/6/2025,Fall,October,2025,0.28155515
+M4,Corte Madera,2,2,b ,10/3/2025,11/6/2025,Fall,October,2025,0.221314368
+M4,Corte Madera,2,2,c,10/3/2025,11/6/2025,Fall,October,2025,0.354278673
+M4,Corte Madera,2,6,a,10/3/2025,11/6/2025,Fall,October,2025,1.627703148
+M4,Corte Madera,2,6,b ,10/3/2025,11/6/2025,Fall,October,2025,2.068020267
+M4,Corte Madera,2,6,c,10/3/2025,11/6/2025,Fall,October,2025,0.774577173
+M4,Corte Madera,2,12,a,10/3/2025,11/6/2025,Fall,October,2025,1.111611171
+M4,Corte Madera,2,12,b ,10/3/2025,11/6/2025,Fall,October,2025,0.683222005
+M4,Corte Madera,2,12,c,10/3/2025,11/6/2025,Fall,October,2025,1.148781999
+M4,Corte Madera,2,24,a ,10/3/2025,11/6/2025,Fall,October,2025,3.995401655
+M4,Corte Madera,2,24,b ,10/3/2025,11/6/2025,Fall,October,2025,1.927612551
+M4,Corte Madera,2,24,c,10/3/2025,11/6/2025,Fall,October,2025,2.836540999
+M4,Corte Madera,2,48,a,10/3/2025,11/6/2025,Fall,October,2025,6.511598544
+M4,Corte Madera,2,48,b ,10/3/2025,11/6/2025,Fall,October,2025,5.529021925
+M4,Corte Madera,2,48,c,10/3/2025,11/6/2025,Fall,October,2025,5.826712173
+M5,Corte Madera,1,0.5,a,11/6/2025,12/3/2025,Winter,November,2025,0.722375688
+M5,Corte Madera,1,0.5,b ,11/6/2025,12/3/2025,Winter,November,2025,0.476285904
+M5,Corte Madera,1,0.5,c,11/6/2025,12/3/2025,Winter,November,2025,0.704910125
+M5,Corte Madera,1,2,a,11/6/2025,12/3/2025,Winter,November,2025,0.967417537
+M5,Corte Madera,1,2,b ,11/6/2025,12/3/2025,Winter,November,2025,0.673006363
+M5,Corte Madera,1,2,c,11/6/2025,12/3/2025,Winter,November,2025,1.100563346
+M5,Corte Madera,1,6,a,11/6/2025,12/3/2025,Winter,November,2025,5.701400183
+M5,Corte Madera,1,6,b ,11/6/2025,12/3/2025,Winter,November,2025,4.536156035
+M5,Corte Madera,1,6,c,11/6/2025,12/3/2025,Winter,November,2025,5.067516681
+M5,Corte Madera,1,12,a,11/6/2025,12/3/2025,Winter,November,2025,14.00965209
+M5,Corte Madera,1,12,b ,11/6/2025,12/3/2025,Winter,November,2025,15.14287604
+M5,Corte Madera,1,12,c,11/6/2025,12/3/2025,Winter,November,2025,2.528897092
+M5,Corte Madera,1,18,a,11/3/2025,12/2/2025,Winter,November,2025,2.71006517
+M5,Corte Madera,1,18,b ,11/3/2025,12/2/2025,Winter,November,2025,4.708167741
+M5,Corte Madera,1,18,c,11/3/2025,12/2/2025,Winter,November,2025,3.561710114
+M5,Corte Madera,1,24,a ,11/6/2025,12/3/2025,Winter,November,2025,2.573434278
+M5,Corte Madera,1,24,b ,11/6/2025,12/3/2025,Winter,November,2025,3.020552692
+M5,Corte Madera,1,24,c,11/6/2025,12/3/2025,Winter,November,2025,2.8563764
+M5,Corte Madera,1,48,a,11/6/2025,12/3/2025,Winter,November,2025,2.171493454
+M5,Corte Madera,1,48,b ,11/6/2025,12/3/2025,Winter,November,2025,3.244402992
+M5,Corte Madera,1,48,c,11/6/2025,12/3/2025,Winter,November,2025,2.243917322
+M5,Corte Madera,2,0.5,a,11/6/2025,12/3/2025,Winter,November,2025,0.313041108
+M5,Corte Madera,2,0.5,b ,11/6/2025,12/3/2025,Winter,November,2025,0.214709988
+M5,Corte Madera,2,0.5,c,11/6/2025,12/3/2025,Winter,November,2025,0.257500618
+M5,Corte Madera,2,2,a,11/6/2025,12/3/2025,Winter,November,2025,0.388434122
+M5,Corte Madera,2,2,b ,11/6/2025,12/3/2025,Winter,November,2025,0.607685157
+M5,Corte Madera,2,2,c,11/6/2025,12/3/2025,Winter,November,2025,0.520706653
+M5,Corte Madera,2,6,a,11/6/2025,12/3/2025,Winter,November,2025,1.612304344
+M5,Corte Madera,2,6,b ,11/6/2025,12/3/2025,Winter,November,2025,1.452610879
+M5,Corte Madera,2,6,c,11/6/2025,12/3/2025,Winter,November,2025,1.26270199
+M5,Corte Madera,2,12,a,11/6/2025,12/3/2025,Winter,November,2025,1.226198963
+M5,Corte Madera,2,12,b ,11/6/2025,12/3/2025,Winter,November,2025,1.168038638
+M5,Corte Madera,2,12,c,11/6/2025,12/3/2025,Winter,November,2025,0.829206715
+M5,Corte Madera,2,18,a,11/3/2025,12/2/2025,Winter,November,2025,2.358626121
+M5,Corte Madera,2,18,b ,11/3/2025,12/2/2025,Winter,November,2025,2.519323153
+M5,Corte Madera,2,18,c,11/3/2025,12/2/2025,Winter,November,2025,2.151444192
+M5,Corte Madera,2,24,a ,11/6/2025,12/3/2025,Winter,November,2025,4.551059982
+M5,Corte Madera,2,24,b ,11/6/2025,12/3/2025,Winter,November,2025,3.897032864
+M5,Corte Madera,2,24,c,11/6/2025,12/3/2025,Winter,November,2025,5.484768983
+M5,Corte Madera,2,48,a,11/6/2025,12/3/2025,Winter,November,2025,2.423754403
+M5,Corte Madera,2,48,b ,11/6/2025,12/3/2025,Winter,November,2025,2.74122012
+M5,Corte Madera,2,48,c,11/6/2025,12/3/2025,Winter,November,2025,2.574598649
+M6,Corte Madera,1,0.5,a,12/3/2025,1/10/2026,Winter,December,2025,0.130881414
+M6,Corte Madera,1,0.5,b ,12/3/2025,1/10/2026,Winter,December,2025,3.226077939
+M6,Corte Madera,1,0.5,c,12/3/2025,1/10/2026,Winter,December,2025,0.248980794
+M6,Corte Madera,1,2,a,12/3/2025,1/10/2026,Winter,December,2025,0.638439869
+M6,Corte Madera,1,2,b ,12/3/2025,1/10/2026,Winter,December,2025,0.713270614
+M6,Corte Madera,1,2,c,12/3/2025,1/10/2026,Winter,December,2025,0.6192875
+M6,Corte Madera,1,6,a,12/3/2025,1/10/2026,Winter,December,2025,0.288319676
+M6,Corte Madera,1,6,b ,12/3/2025,1/10/2026,Winter,December,2025,1.662864084
+M6,Corte Madera,1,6,c,12/3/2025,1/10/2026,Winter,December,2025,1.242297922
+M6,Corte Madera,1,12,a,12/3/2025,1/10/2026,Winter,December,2025,2.684351328
+M6,Corte Madera,1,12,b ,12/3/2025,1/10/2026,Winter,December,2025,3.044109753
+M6,Corte Madera,1,12,c,12/3/2025,1/10/2026,Winter,December,2025,2.16301806
+M6,Corte Madera,1,18,a,12/3/2025,1/10/2026,Winter,December,2025,1.463729088
+M6,Corte Madera,1,18,b ,12/3/2025,1/10/2026,Winter,December,2025,1.532892718
+M6,Corte Madera,1,18,c,12/3/2025,1/10/2026,Winter,December,2025,1.653887704
+M6,Corte Madera,1,24,a ,12/3/2025,1/10/2026,Winter,December,2025,1.738356683
+M6,Corte Madera,1,24,b ,12/3/2025,1/10/2026,Winter,December,2025,1.473243224
+M6,Corte Madera,1,24,c,12/3/2025,1/10/2026,Winter,December,2025,1.724995527
+M6,Corte Madera,1,48,a,12/3/2025,1/10/2026,Winter,December,2025,2.815356839
+M6,Corte Madera,1,48,b ,12/3/2025,1/10/2026,Winter,December,2025,4.481240628
+M6,Corte Madera,1,48,c,12/3/2025,1/10/2026,Winter,December,2025,3.590316282
+M6,Corte Madera,2,0.5,a,12/3/2025,1/10/2026,Winter,December,2025,0.033589035
+M6,Corte Madera,2,0.5,b ,12/3/2025,1/10/2026,Winter,December,2025,0.050052627
+M6,Corte Madera,2,0.5,c,12/3/2025,1/10/2026,Winter,December,2025,0.028128749
+M6,Corte Madera,2,2,a,12/3/2025,1/10/2026,Winter,December,2025,0.325342074
+M6,Corte Madera,2,2,b ,12/3/2025,1/10/2026,Winter,December,2025,0.233385884
+M6,Corte Madera,2,2,c,12/3/2025,1/10/2026,Winter,December,2025,0.381640937
+M6,Corte Madera,2,6,a,12/3/2025,1/10/2026,Winter,December,2025,1.689586396
+M6,Corte Madera,2,6,b ,12/3/2025,1/10/2026,Winter,December,2025,2.260310438
+M6,Corte Madera,2,6,c,12/3/2025,1/10/2026,Winter,December,2025,3.344673709
+M6,Corte Madera,2,12,a,12/3/2025,1/10/2026,Winter,December,2025,1.796723837
+M6,Corte Madera,2,12,b ,12/3/2025,1/10/2026,Winter,December,2025,1.907915126
+M6,Corte Madera,2,12,c,12/3/2025,1/10/2026,Winter,December,2025,1.683712451
+M6,Corte Madera,2,18,a,12/3/2025,1/10/2026,Winter,December,2025,1.628530464
+M6,Corte Madera,2,18,b ,12/3/2025,1/10/2026,Winter,December,2025,1.892733875
+M6,Corte Madera,2,18,c,12/3/2025,1/10/2026,Winter,December,2025,2.03879654
+M6,Corte Madera,2,24,a ,12/3/2025,1/10/2026,Winter,December,2025,2.010336865
+M6,Corte Madera,2,24,b ,12/3/2025,1/10/2026,Winter,December,2025,2.000409071
+M6,Corte Madera,2,24,c,12/3/2025,1/10/2026,Winter,December,2025,1.905184983
+M6,Corte Madera,2,48,a,12/3/2025,1/10/2026,Winter,December,2025,8.52971218
+M6,Corte Madera,2,48,b ,12/3/2025,1/10/2026,Winter,December,2025,7.941200841
+M6,Corte Madera,2,48,c,12/3/2025,1/10/2026,Winter,December,2025,10.12250259
+M1,Giant Marsh,1,0.5,a ,7/9/2025,8/6/2025,Summer ,July,2025,-2.119090527
+M1,Giant Marsh,1,0.5,b ,7/9/2025,8/6/2025,Summer ,July,2025,29.73798419
+M1,Giant Marsh,1,0.5,c,7/9/2025,8/6/2025,Summer ,July,2025,49.33309216
+M1,Giant Marsh,1,2,a ,7/9/2025,8/6/2025,Summer ,July,2025,7.857482357
+M1,Giant Marsh,1,2,b ,7/9/2025,8/6/2025,Summer ,July,2025,7.538274241
+M1,Giant Marsh,1,2,c,7/9/2025,8/6/2025,Summer ,July,2025,17.76775472
+M1,Giant Marsh,1,6,a ,7/9/2025,8/6/2025,Summer ,July,2025,16.28281383
+M1,Giant Marsh,1,6,b ,7/9/2025,8/6/2025,Summer ,July,2025,10.6308204
+M1,Giant Marsh,1,6,c,7/9/2025,8/6/2025,Summer ,July,2025,12.27407414
+M1,Giant Marsh,1,12,a ,7/9/2025,8/6/2025,Summer ,July,2025,8.75677796
+M1,Giant Marsh,1,12,b ,7/9/2025,8/6/2025,Summer ,July,2025,8.591784529
+M1,Giant Marsh,1,12,c,7/9/2025,8/6/2025,Summer ,July,2025,9.243000523
+M1,Giant Marsh,1,24,a ,7/9/2025,8/6/2025,Summer ,July,2025,6.476343057
+M1,Giant Marsh,1,24,b ,7/9/2025,8/6/2025,Summer ,July,2025,5.396503433
+M1,Giant Marsh,1,24,c,7/9/2025,8/6/2025,Summer ,July,2025,7.398318942
+M1,Giant Marsh,1,48,a ,7/9/2025,8/6/2025,Summer ,July,2025,6.348513849
+M1,Giant Marsh,1,48,b ,7/9/2025,8/6/2025,Summer ,July,2025,2.227776231
+M1,Giant Marsh,1,48,c,7/9/2025,8/6/2025,Summer ,July,2025,2.166359826
+M1,Giant Marsh,2,0.5,a ,7/9/2025,8/6/2025,Summer ,July,2025,#DIV/0!
+M1,Giant Marsh,2,0.5,b ,7/9/2025,8/6/2025,Summer ,July,2025,#DIV/0!
+M1,Giant Marsh,2,0.5,c,7/9/2025,8/6/2025,Summer ,July,2025,#DIV/0!
+M1,Giant Marsh,2,2,a ,7/9/2025,8/6/2025,Summer ,July,2025,154.6275886
+M1,Giant Marsh,2,2,b ,7/9/2025,8/6/2025,Summer ,July,2025,324.3091016
+M1,Giant Marsh,2,2,c,7/9/2025,8/6/2025,Summer ,July,2025,26.81982545
+M1,Giant Marsh,2,6,a ,7/9/2025,8/6/2025,Summer ,July,2025,8.927216905
+M1,Giant Marsh,2,6,b ,7/9/2025,8/6/2025,Summer ,July,2025,8.96584075
+M1,Giant Marsh,2,6,c,7/9/2025,8/6/2025,Summer ,July,2025,8.927946716
+M1,Giant Marsh,2,12,a ,7/9/2025,8/6/2025,Summer ,July,2025,7.04138521
+M1,Giant Marsh,2,12,b ,7/9/2025,8/6/2025,Summer ,July,2025,6.71521582
+M1,Giant Marsh,2,12,c,7/9/2025,8/6/2025,Summer ,July,2025,7.302040026
+M1,Giant Marsh,2,24,a ,7/9/2025,8/6/2025,Summer ,July,2025,2.9883516
+M1,Giant Marsh,2,24,b ,7/9/2025,8/6/2025,Summer ,July,2025,3.04364882
+M1,Giant Marsh,2,24,c,7/9/2025,8/6/2025,Summer ,July,2025,3.186130388
+M1,Giant Marsh,2,48,a ,7/9/2025,8/6/2025,Summer ,July,2025,3.15996947
+M1,Giant Marsh,2,48,b ,7/9/2025,8/6/2025,Summer ,July,2025,3.492482602
+M1,Giant Marsh,2,48,c,7/9/2025,8/6/2025,Summer ,July,2025,2.352124802
+M2 ,Giant Marsh,1,0.5,a,8/6/2025,9/6/2025,Summer ,August,2025,15.54275104
+M2 ,Giant Marsh,1,0.5,b ,8/6/2025,9/6/2025,Summer ,August,2025,6.333187817
+M2 ,Giant Marsh,1,0.5,c,8/6/2025,9/6/2025,Summer ,August,2025,7.596539601
+M2 ,Giant Marsh,1,2,a,8/6/2025,9/6/2025,Summer ,August,2025,2.407999714
+M2 ,Giant Marsh,1,2,b ,8/6/2025,9/6/2025,Summer ,August,2025,24.22648814
+M2 ,Giant Marsh,1,2,c,8/6/2025,9/6/2025,Summer ,August,2025,36.66235214
+M2 ,Giant Marsh,1,6,a,8/6/2025,9/6/2025,Summer ,August,2025,9.575461137
+M2 ,Giant Marsh,1,6,b ,8/6/2025,9/6/2025,Summer ,August,2025,4.188405407
+M2 ,Giant Marsh,1,6,c,8/6/2025,9/6/2025,Summer ,August,2025,7.719756331
+M2 ,Giant Marsh,1,12,a,8/6/2025,9/6/2025,Summer ,August,2025,7.482957101
+M2 ,Giant Marsh,1,12,b ,8/6/2025,9/6/2025,Summer ,August,2025,6.810538557
+M2 ,Giant Marsh,1,12,c,8/6/2025,9/6/2025,Summer ,August,2025,6.133708551
+M2 ,Giant Marsh,1,24,a ,8/6/2025,9/6/2025,Summer ,August,2025,3.334254863
+M2 ,Giant Marsh,1,24,b ,8/6/2025,9/6/2025,Summer ,August,2025,2.452165052
+M2 ,Giant Marsh,1,24,c,8/6/2025,9/6/2025,Summer ,August,2025,2.91962803
+M2 ,Giant Marsh,1,48,a,8/6/2025,9/6/2025,Summer ,August,2025,2.196503013
+M2 ,Giant Marsh,1,48,b ,8/6/2025,9/6/2025,Summer ,August,2025,2.040732727
+M2 ,Giant Marsh,1,48,c,8/6/2025,9/6/2025,Summer ,August,2025,1.662868088
+M2 ,Giant Marsh,2,0.5,a,8/6/2025,9/6/2025,Summer ,August,2025,#DIV/0!
+M2 ,Giant Marsh,2,0.5,b ,8/6/2025,9/6/2025,Summer ,August,2025,498.2268996
+M2 ,Giant Marsh,2,0.5,c,8/6/2025,9/6/2025,Summer ,August,2025,374.9298503
+M2 ,Giant Marsh,2,2,a,8/6/2025,9/6/2025,Summer ,August,2025,490.8347578
+M2 ,Giant Marsh,2,2,b ,8/6/2025,9/6/2025,Summer ,August,2025,557.8402693
+M2 ,Giant Marsh,2,2,c,8/6/2025,9/6/2025,Summer ,August,2025,742.0371115
+M2 ,Giant Marsh,2,6,a,8/6/2025,9/6/2025,Summer ,August,2025,12.75389501
+M2 ,Giant Marsh,2,6,b ,8/6/2025,9/6/2025,Summer ,August,2025,11.3595177
+M2 ,Giant Marsh,2,6,c,8/6/2025,9/6/2025,Summer ,August,2025,9.972999888
+M2 ,Giant Marsh,2,12,a,8/6/2025,9/6/2025,Summer ,August,2025,3.579319248
+M2 ,Giant Marsh,2,12,b ,8/6/2025,9/6/2025,Summer ,August,2025,3.749642293
+M2 ,Giant Marsh,2,12,c,8/6/2025,9/6/2025,Summer ,August,2025,3.872808316
+M2 ,Giant Marsh,2,24,a ,8/6/2025,9/6/2025,Summer ,August,2025,1.351226102
+M2 ,Giant Marsh,2,24,b ,8/6/2025,9/6/2025,Summer ,August,2025,1.204684394
+M2 ,Giant Marsh,2,24,c,8/6/2025,9/6/2025,Summer ,August,2025,1.231153173
+M2 ,Giant Marsh,2,48,a,8/6/2025,9/6/2025,Summer ,August,2025,1.140236467
+M2 ,Giant Marsh,2,48,b ,8/6/2025,9/6/2025,Summer ,August,2025,0.925748084
+M2 ,Giant Marsh,2,48,c,8/6/2025,9/6/2025,Summer ,August,2025,1.288350075
+M3,Giant Marsh,1,0.5,a,9/6/2025,10/7/2025,Fall,September,2025,2.202283551
+M3,Giant Marsh,1,0.5,b ,9/6/2025,10/7/2025,Fall,September,2025,2.172316026
+M3,Giant Marsh,1,0.5,c,9/6/2025,10/7/2025,Fall,September,2025,2.235141346
+M3,Giant Marsh,1,2,a,9/6/2025,10/7/2025,Fall,September,2025,2.836773653
+M3,Giant Marsh,1,2,b ,9/6/2025,10/7/2025,Fall,September,2025,31.50377978
+M3,Giant Marsh,1,2,c,9/6/2025,10/7/2025,Fall,September,2025,61.89211857
+M3,Giant Marsh,1,6,a,9/6/2025,10/7/2025,Fall,September,2025,5.843109752
+M3,Giant Marsh,1,6,b ,9/6/2025,10/7/2025,Fall,September,2025,6.910734549
+M3,Giant Marsh,1,6,c,9/6/2025,10/7/2025,Fall,September,2025,6.2030243
+M3,Giant Marsh,1,12,a,9/6/2025,10/7/2025,Fall,September,2025,4.274961357
+M3,Giant Marsh,1,12,b ,9/6/2025,10/7/2025,Fall,September,2025,3.935785756
+M3,Giant Marsh,1,12,c,9/6/2025,10/7/2025,Fall,September,2025,3.468322778
+M3,Giant Marsh,1,24,a ,9/6/2025,10/7/2025,Fall,September,2025,1.776552001
+M3,Giant Marsh,1,24,b ,9/6/2025,10/7/2025,Fall,September,2025,1.747243659
+M3,Giant Marsh,1,24,c,9/6/2025,10/7/2025,Fall,September,2025,2.202841322
+M3,Giant Marsh,1,48,a,9/6/2025,10/7/2025,Fall,September,2025,2.495924739
+M3,Giant Marsh,1,48,b ,9/6/2025,10/7/2025,Fall,September,2025,2.32078458
+M3,Giant Marsh,1,48,c,9/6/2025,10/7/2025,Fall,September,2025,1.998697061
+M3,Giant Marsh,2,0.5,a,9/6/2025,10/7/2025,Fall,September,2025,611.2994449
+M3,Giant Marsh,2,0.5,b ,9/6/2025,10/7/2025,Fall,September,2025,1234.412078
+M3,Giant Marsh,2,0.5,c,9/6/2025,10/7/2025,Fall,September,2025,978.2368395
+M3,Giant Marsh,2,2,a,9/6/2025,10/7/2025,Fall,September,2025,47.65074916
+M3,Giant Marsh,2,2,b ,9/6/2025,10/7/2025,Fall,September,2025,178.9319891
+M3,Giant Marsh,2,2,c,9/6/2025,10/7/2025,Fall,September,2025,16.56879653
+M3,Giant Marsh,2,6,a,9/6/2025,10/7/2025,Fall,September,2025,6.442003909
+M3,Giant Marsh,2,6,b ,9/6/2025,10/7/2025,Fall,September,2025,7.085367643
+M3,Giant Marsh,2,6,c,9/6/2025,10/7/2025,Fall,September,2025,8.272254065
+M3,Giant Marsh,2,12,a,9/6/2025,10/7/2025,Fall,September,2025,3.122910282
+M3,Giant Marsh,2,12,b ,9/6/2025,10/7/2025,Fall,September,2025,2.800670643
+M3,Giant Marsh,2,12,c,9/6/2025,10/7/2025,Fall,September,2025,2.912681243
+M3,Giant Marsh,2,24,a ,9/6/2025,10/7/2025,Fall,September,2025,0.949782953
+M3,Giant Marsh,2,24,b ,9/6/2025,10/7/2025,Fall,September,2025,1.008095397
+M3,Giant Marsh,2,24,c,9/6/2025,10/7/2025,Fall,September,2025,0.989131176
+M3,Giant Marsh,2,48,a,9/6/2025,10/7/2025,Fall,September,2025,1.725287756
+M3,Giant Marsh,2,48,b ,9/6/2025,10/7/2025,Fall,September,2025,1.1647784
+M3,Giant Marsh,2,48,c,9/6/2025,10/7/2025,Fall,September,2025,1.382866942
+M4,Giant Marsh,1,0.5,a,10/7/2025,11/4/2025,Fall,October,2025,3.667637248
+M4,Giant Marsh,1,0.5,b ,10/7/2025,11/4/2025,Fall,October,2025,1.553262424
+M4,Giant Marsh,1,0.5,c,10/7/2025,11/4/2025,Fall,October,2025,2.538844146
+M4,Giant Marsh,1,2,a,10/7/2025,11/4/2025,Fall,October,2025,11.83321214
+M4,Giant Marsh,1,2,b ,10/7/2025,11/4/2025,Fall,October,2025,20.7538046
+M4,Giant Marsh,1,2,c,10/7/2025,11/4/2025,Fall,October,2025,35.80671844
+M4,Giant Marsh,1,6,a,10/7/2025,11/4/2025,Fall,October,2025,8.739992307
+M4,Giant Marsh,1,6,b ,10/7/2025,11/4/2025,Fall,October,2025,6.234045796
+M4,Giant Marsh,1,6,c,10/7/2025,11/4/2025,Fall,October,2025,10.29011093
+M4,Giant Marsh,1,12,a,10/7/2025,11/4/2025,Fall,October,2025,3.109444091
+M4,Giant Marsh,1,12,b ,10/7/2025,11/4/2025,Fall,October,2025,2.622603997
+M4,Giant Marsh,1,12,c,10/7/2025,11/4/2025,Fall,October,2025,3.227841896
+M4,Giant Marsh,1,24,a ,10/7/2025,11/4/2025,Fall,October,2025,1.843278098
+M4,Giant Marsh,1,24,b ,10/7/2025,11/4/2025,Fall,October,2025,1.141424447
+M4,Giant Marsh,1,24,c,10/7/2025,11/4/2025,Fall,October,2025,1.147824328
+M4,Giant Marsh,1,48,a,10/7/2025,11/4/2025,Fall,October,2025,-0.411332723
+M4,Giant Marsh,1,48,b ,10/7/2025,11/4/2025,Fall,October,2025,-0.341383143
+M4,Giant Marsh,1,48,c,10/7/2025,11/4/2025,Fall,October,2025,-0.085949283
+M4,Giant Marsh,2,0.5,a,10/7/2025,11/4/2025,Fall,October,2025,676.7299626
+M4,Giant Marsh,2,0.5,b ,10/7/2025,11/4/2025,Fall,October,2025,16.97602203
+M4,Giant Marsh,2,0.5,c,10/7/2025,11/4/2025,Fall,October,2025,8.246640052
+M4,Giant Marsh,2,2,a,10/7/2025,11/4/2025,Fall,October,2025,5.448263877
+M4,Giant Marsh,2,2,b ,10/7/2025,11/4/2025,Fall,October,2025,2014.574739
+M4,Giant Marsh,2,2,c,10/7/2025,11/4/2025,Fall,October,2025,1265.263947
+M4,Giant Marsh,2,6,a,10/7/2025,11/4/2025,Fall,October,2025,5.425920431
+M4,Giant Marsh,2,6,b ,10/7/2025,11/4/2025,Fall,October,2025,5.61640111
+M4,Giant Marsh,2,6,c,10/7/2025,11/4/2025,Fall,October,2025,5.956874796
+M4,Giant Marsh,2,12,a,10/7/2025,11/4/2025,Fall,October,2025,2.381990915
+M4,Giant Marsh,2,12,b ,10/7/2025,11/4/2025,Fall,October,2025,2.052790002
+M4,Giant Marsh,2,12,c,10/7/2025,11/4/2025,Fall,October,2025,2.353247588
+M4,Giant Marsh,2,24,a ,10/7/2025,11/4/2025,Fall,October,2025,0.817500629
+M4,Giant Marsh,2,24,b ,10/7/2025,11/4/2025,Fall,October,2025,0.835689766
+M4,Giant Marsh,2,24,c,10/7/2025,11/4/2025,Fall,October,2025,0.746035288
+M4,Giant Marsh,2,48,a,10/7/2025,11/4/2025,Fall,October,2025,2.786362363
+M4,Giant Marsh,2,48,b ,10/7/2025,11/4/2025,Fall,October,2025,2.962976632
+M4,Giant Marsh,2,48,c,10/7/2025,11/4/2025,Fall,October,2025,2.790011418
+M5,Giant Marsh,1,0.5,a,11/4/2025,12/11/2025,Winter,November,2025,0.256134842
+M5,Giant Marsh,1,0.5,b ,11/4/2025,12/11/2025,Winter,November,2025,0.6677604
+M5,Giant Marsh,1,0.5,c,11/4/2025,12/11/2025,Winter,November,2025,1.801228238
+M5,Giant Marsh,1,2,a,11/4/2025,12/11/2025,Winter,November,2025,1.678535017
+M5,Giant Marsh,1,2,b ,11/4/2025,12/11/2025,Winter,November,2025,20.26634546
+M5,Giant Marsh,1,2,c,11/4/2025,12/11/2025,Winter,November,2025,108.467689
+M5,Giant Marsh,1,6,a,11/4/2025,12/11/2025,Winter,November,2025,9.953232586
+M5,Giant Marsh,1,6,b ,11/4/2025,12/11/2025,Winter,November,2025,6.770558559
+M5,Giant Marsh,1,6,c,11/4/2025,12/11/2025,Winter,November,2025,8.206086229
+M5,Giant Marsh,1,12,a,11/4/2025,12/11/2025,Winter,November,2025,8.732757922
+M5,Giant Marsh,1,12,b ,11/4/2025,12/11/2025,Winter,November,2025,9.292524497
+M5,Giant Marsh,1,12,c,11/4/2025,12/11/2025,Winter,November,2025,7.008382882
+M5,Giant Marsh,1,18,a,11/4/2025,12/11/2025,Winter,November,2025,12.55566285
+M5,Giant Marsh,1,18,b ,11/4/2025,12/11/2025,Winter,November,2025,11.23352444
+M5,Giant Marsh,1,18,c,11/4/2025,12/11/2025,Winter,November,2025,18.00794903
+M5,Giant Marsh,1,24,a ,11/4/2025,12/11/2025,Winter,November,2025,#VALUE!
+M5,Giant Marsh,1,24,b ,11/4/2025,12/11/2025,Winter,November,2025,2.509815571
+M5,Giant Marsh,1,24,c,11/4/2025,12/11/2025,Winter,November,2025,2.506756738
+M5,Giant Marsh,1,48,a,11/4/2025,12/11/2025,Winter,November,2025,2.174533406
+M5,Giant Marsh,1,48,b ,11/4/2025,12/11/2025,Winter,November,2025,2.084722648
+M5,Giant Marsh,1,48,c,11/4/2025,12/11/2025,Winter,November,2025,2.708427346
+M5,Giant Marsh,2,0.5,a,11/4/2025,12/11/2025,Winter,November,2025,1.637028343
+M5,Giant Marsh,2,0.5,b ,11/4/2025,12/11/2025,Winter,November,2025,1.976261502
+M5,Giant Marsh,2,0.5,c,11/4/2025,12/11/2025,Winter,November,2025,0.257324389
+M5,Giant Marsh,2,2,a,11/4/2025,12/11/2025,Winter,November,2025,1512.903079
+M5,Giant Marsh,2,2,b ,11/4/2025,12/11/2025,Winter,November,2025,1198.988014
+M5,Giant Marsh,2,2,c,11/4/2025,12/11/2025,Winter,November,2025,365.3041938
+M5,Giant Marsh,2,6,a,11/4/2025,12/11/2025,Winter,November,2025,26.23264316
+M5,Giant Marsh,2,6,b ,11/4/2025,12/11/2025,Winter,November,2025,11.33132216
+M5,Giant Marsh,2,6,c,11/4/2025,12/11/2025,Winter,November,2025,8.576842369
+M5,Giant Marsh,2,12,a,11/4/2025,12/11/2025,Winter,November,2025,9.356080265
+M5,Giant Marsh,2,12,b ,11/4/2025,12/11/2025,Winter,November,2025,6.386462505
+M5,Giant Marsh,2,12,c,11/4/2025,12/11/2025,Winter,November,2025,9.391724175
+M5,Giant Marsh,2,18,a,11/6/2025,12/3/2025,Winter,November,2025,9.310076602
+M5,Giant Marsh,2,18,b ,11/6/2025,12/3/2025,Winter,November,2025,11.52511753
+M5,Giant Marsh,2,18,c,11/6/2025,12/3/2025,Winter,November,2025,11.3975607
+M5,Giant Marsh,2,24,a ,11/4/2025,12/11/2025,Winter,November,2025,2.174278503
+M5,Giant Marsh,2,24,b ,11/4/2025,12/11/2025,Winter,November,2025,1.876806921
+M5,Giant Marsh,2,24,c,11/4/2025,12/11/2025,Winter,November,2025,1.786656294
+M5,Giant Marsh,2,48,a,11/4/2025,12/11/2025,Winter,November,2025,2.003068781
+M5,Giant Marsh,2,48,b ,11/4/2025,12/11/2025,Winter,November,2025,1.604953072
+M5,Giant Marsh,2,48,c,11/4/2025,12/11/2025,Winter,November,2025,1.994104699
+M6,Giant Marsh,1,0.5,a,12/11/2025,1/23/2026,Winter,December,2025,-0.632635188
+M6,Giant Marsh,1,0.5,b ,12/11/2025,1/23/2026,Winter,December,2025,-0.601964847
+M6,Giant Marsh,1,0.5,c,12/11/2025,1/23/2026,Winter,December,2025,-0.508162588
+M6,Giant Marsh,1,2,a,12/11/2025,1/23/2026,Winter,December,2025,0.070004414
+M6,Giant Marsh,1,2,b ,12/11/2025,1/23/2026,Winter,December,2025,1.92729645
+M6,Giant Marsh,1,2,c,12/11/2025,1/23/2026,Winter,December,2025,0.339603657
+M6,Giant Marsh,1,6,a,12/11/2025,1/23/2026,Winter,December,2025,1.839562459
+M6,Giant Marsh,1,6,b ,12/11/2025,1/23/2026,Winter,December,2025,2.677239295
+M6,Giant Marsh,1,6,c,12/11/2025,1/23/2026,Winter,December,2025,2.290953843
+M6,Giant Marsh,1,12,a,12/11/2025,1/23/2026,Winter,December,2025,0.712765566
+M6,Giant Marsh,1,12,b ,12/11/2025,1/23/2026,Winter,December,2025,0.877595802
+M6,Giant Marsh,1,12,c,12/11/2025,1/23/2026,Winter,December,2025,0.841259307
+M6,Giant Marsh,1,18,a,12/11/2025,1/23/2026,Winter,December,2025,1.423703341
+M6,Giant Marsh,1,18,b ,12/11/2025,1/23/2026,Winter,December,2025,25.16145065
+M6,Giant Marsh,1,18,c,12/11/2025,1/23/2026,Winter,December,2025,18.5433467
+M6,Giant Marsh,1,24,a ,12/11/2025,1/23/2026,Winter,December,2025,4.841271298
+M6,Giant Marsh,1,24,b ,12/11/2025,1/23/2026,Winter,December,2025,8.556330596
+M6,Giant Marsh,1,24,c,12/11/2025,1/23/2026,Winter,December,2025,8.332718586
+M6,Giant Marsh,1,48,a,12/11/2025,1/23/2026,Winter,December,2025,1.264283368
+M6,Giant Marsh,1,48,b ,12/11/2025,1/23/2026,Winter,December,2025,0.903550441
+M6,Giant Marsh,1,48,c,12/11/2025,1/23/2026,Winter,December,2025,1.372488624
+M6,Giant Marsh,2,0.5,a,12/11/2025,1/23/2026,Winter,December,2025,30.19793008
+M6,Giant Marsh,2,0.5,b ,12/11/2025,1/23/2026,Winter,December,2025,0.613516489
+M6,Giant Marsh,2,0.5,c,12/11/2025,1/23/2026,Winter,December,2025,0.175870096
+M6,Giant Marsh,2,2,a,12/11/2025,1/23/2026,Winter,December,2025,1119.30536
+M6,Giant Marsh,2,2,b ,12/11/2025,1/23/2026,Winter,December,2025,972.2298523
+M6,Giant Marsh,2,2,c,12/11/2025,1/23/2026,Winter,December,2025,823.2347611
+M6,Giant Marsh,2,6,a,12/11/2025,1/23/2026,Winter,December,2025,4.021653042
+M6,Giant Marsh,2,6,b ,12/11/2025,1/23/2026,Winter,December,2025,4.665547425
+M6,Giant Marsh,2,6,c,12/11/2025,1/23/2026,Winter,December,2025,4.426581967
+M6,Giant Marsh,2,12,a,12/11/2025,1/23/2026,Winter,December,2025,5.430587827
+M6,Giant Marsh,2,12,b ,12/11/2025,1/23/2026,Winter,December,2025,10.79351081
+M6,Giant Marsh,2,12,c,12/11/2025,1/23/2026,Winter,December,2025,7.307912458
+M6,Giant Marsh,2,18,a,12/11/2025,1/23/2026,Winter,December,2025,2.012800536
+M6,Giant Marsh,2,18,b ,12/11/2025,1/23/2026,Winter,December,2025,3.364488892
+M6,Giant Marsh,2,18,c,12/11/2025,1/23/2026,Winter,December,2025,3.139524317
+M6,Giant Marsh,2,24,a ,12/11/2025,1/23/2026,Winter,December,2025,1.667969395
+M6,Giant Marsh,2,24,b ,12/11/2025,1/23/2026,Winter,December,2025,1.108994204
+M6,Giant Marsh,2,24,c,12/11/2025,1/23/2026,Winter,December,2025,1.435620541
+M6,Giant Marsh,2,48,a,12/11/2025,1/23/2026,Winter,December,2025,1.349275672
+M6,Giant Marsh,2,48,b ,12/11/2025,1/23/2026,Winter,December,2025,1.026816699
+M6,Giant Marsh,2,48,c,12/11/2025,1/23/2026,Winter,December,2025,0.992783221
+M1,San Pablo ,1,0.5,a ,7/11/2025,8/8/2025,Summer ,July,2025,#VALUE!
+M1,San Pablo ,1,0.5,b ,7/11/2025,8/8/2025,Summer ,July,2025,#DIV/0!
+M1,San Pablo ,1,0.5,c,7/11/2025,8/8/2025,Summer ,July,2025,#DIV/0!
+M1,San Pablo ,1,2,a ,7/11/2025,8/8/2025,Summer ,July,2025,6.530798188
+M1,San Pablo ,1,2,b ,7/11/2025,8/8/2025,Summer ,July,2025,24.21625267
+M1,San Pablo ,1,2,c,7/11/2025,8/8/2025,Summer ,July,2025,27.01895158
+M1,San Pablo ,1,6,a ,7/11/2025,8/8/2025,Summer ,July,2025,4.954013393
+M1,San Pablo ,1,6,b ,7/11/2025,8/8/2025,Summer ,July,2025,7.274849887
+M1,San Pablo ,1,6,c,7/11/2025,8/8/2025,Summer ,July,2025,10.92880786
+M1,San Pablo ,1,12,a ,7/11/2025,8/8/2025,Summer ,July,2025,2.547714157
+M1,San Pablo ,1,12,b ,7/11/2025,8/8/2025,Summer ,July,2025,2.299802965
+M1,San Pablo ,1,12,c,7/11/2025,8/8/2025,Summer ,July,2025,4.687351672
+M1,San Pablo ,1,24,a ,7/11/2025,8/8/2025,Summer ,July,2025,2.709563787
+M1,San Pablo ,1,24,b ,7/11/2025,8/8/2025,Summer ,July,2025,3.67403713
+M1,San Pablo ,1,24,c,7/11/2025,8/8/2025,Summer ,July,2025,3.349158944
+M1,San Pablo ,1,48,a ,7/11/2025,8/8/2025,Summer ,July,2025,1.80976293
+M1,San Pablo ,1,48,b ,7/11/2025,8/8/2025,Summer ,July,2025,2.644554467
+M1,San Pablo ,1,48,c,7/11/2025,8/8/2025,Summer ,July,2025,2.149125058
+M1,San Pablo ,2,0.5,a ,7/11/2025,8/8/2025,Summer ,July,2025,#DIV/0!
+M1,San Pablo ,2,0.5,b ,7/11/2025,8/8/2025,Summer ,July,2025,#DIV/0!
+M1,San Pablo ,2,0.5,c,7/11/2025,8/8/2025,Summer ,July,2025,#DIV/0!
+M1,San Pablo ,2,2,a ,7/11/2025,8/8/2025,Summer ,July,2025,42.4775842
+M1,San Pablo ,2,2,b ,7/11/2025,8/8/2025,Summer ,July,2025,#DIV/0!
+M1,San Pablo ,2,2,c,7/11/2025,8/8/2025,Summer ,July,2025,22.4179983
+M1,San Pablo ,2,6,a ,7/11/2025,8/8/2025,Summer ,July,2025,3.992739992
+M1,San Pablo ,2,6,b ,7/11/2025,8/8/2025,Summer ,July,2025,#VALUE!
+M1,San Pablo ,2,6,c,7/11/2025,8/8/2025,Summer ,July,2025,6.085894157
+M1,San Pablo ,2,12,a ,7/11/2025,8/8/2025,Summer ,July,2025,8.406075692
+M1,San Pablo ,2,12,b ,7/11/2025,8/8/2025,Summer ,July,2025,8.975328293
+M1,San Pablo ,2,12,c,7/11/2025,8/8/2025,Summer ,July,2025,7.346614638
+M1,San Pablo ,2,24,a ,7/11/2025,8/8/2025,Summer ,July,2025,3.535092338
+M1,San Pablo ,2,24,b ,7/11/2025,8/8/2025,Summer ,July,2025,2.837168439
+M1,San Pablo ,2,24,c,7/11/2025,8/8/2025,Summer ,July,2025,2.099104933
+M1,San Pablo ,2,48,a ,7/11/2025,8/8/2025,Summer ,July,2025,3.15104332
+M1,San Pablo ,2,48,b ,7/11/2025,8/8/2025,Summer ,July,2025,3.240136404
+M1,San Pablo ,2,48,c,7/11/2025,8/8/2025,Summer ,July,2025,2.801744534
+M2 ,San Pablo ,1,0.5,a,8/8/2025,9/8/2025,Summer ,August,2025,61.00069876
+M2 ,San Pablo ,1,0.5,b ,8/8/2025,9/8/2025,Summer ,August,2025,#DIV/0!
+M2 ,San Pablo ,1,0.5,c,8/8/2025,9/8/2025,Summer ,August,2025,#DIV/0!
+M2 ,San Pablo ,1,2,a,8/8/2025,9/8/2025,Summer ,August,2025,12.37816004
+M2 ,San Pablo ,1,2,b ,8/8/2025,9/8/2025,Summer ,August,2025,28.59662555
+M2 ,San Pablo ,1,2,c,8/8/2025,9/8/2025,Summer ,August,2025,24.94170295
+M2 ,San Pablo ,1,6,a,8/8/2025,9/8/2025,Summer ,August,2025,4.013569486
+M2 ,San Pablo ,1,6,b ,8/8/2025,9/8/2025,Summer ,August,2025,3.550771504
+M2 ,San Pablo ,1,6,c,8/8/2025,9/8/2025,Summer ,August,2025,6.33587526
+M2 ,San Pablo ,1,12,a,8/8/2025,9/8/2025,Summer ,August,2025,1.978211645
+M2 ,San Pablo ,1,12,b ,8/8/2025,9/8/2025,Summer ,August,2025,1.896675636
+M2 ,San Pablo ,1,12,c,8/8/2025,9/8/2025,Summer ,August,2025,2.225253584
+M2 ,San Pablo ,1,24,a ,8/8/2025,9/8/2025,Summer ,August,2025,2.02775187
+M2 ,San Pablo ,1,24,b ,8/8/2025,9/8/2025,Summer ,August,2025,2.154112402
+M2 ,San Pablo ,1,24,c,8/8/2025,9/8/2025,Summer ,August,2025,1.330740687
+M2 ,San Pablo ,1,48,a,8/8/2025,9/8/2025,Summer ,August,2025,0.815715037
+M2 ,San Pablo ,1,48,b ,8/8/2025,9/8/2025,Summer ,August,2025,1.973140998
+M2 ,San Pablo ,1,48,c,8/8/2025,9/8/2025,Summer ,August,2025,1.074115225
+M2 ,San Pablo ,2,0.5,a,8/8/2025,9/8/2025,Summer ,August,2025,4.539192789
+M2 ,San Pablo ,2,0.5,b ,8/8/2025,9/8/2025,Summer ,August,2025,18.2150329
+M2 ,San Pablo ,2,0.5,c,8/8/2025,9/8/2025,Summer ,August,2025,9.070982434
+M2 ,San Pablo ,2,2,a,8/8/2025,9/8/2025,Summer ,August,2025,61.06038028
+M2 ,San Pablo ,2,2,b ,8/8/2025,9/8/2025,Summer ,August,2025,30.66473977
+M2 ,San Pablo ,2,2,c,8/8/2025,9/8/2025,Summer ,August,2025,24.38377962
+M2 ,San Pablo ,2,6,a,8/8/2025,9/8/2025,Summer ,August,2025,2.192852147
+M2 ,San Pablo ,2,6,b ,8/8/2025,9/8/2025,Summer ,August,2025,4.421705891
+M2 ,San Pablo ,2,6,c,8/8/2025,9/8/2025,Summer ,August,2025,6.49935293
+M2 ,San Pablo ,2,12,a,8/8/2025,9/8/2025,Summer ,August,2025,3.04127286
+M2 ,San Pablo ,2,12,b ,8/8/2025,9/8/2025,Summer ,August,2025,3.994909504
+M2 ,San Pablo ,2,12,c,8/8/2025,9/8/2025,Summer ,August,2025,#VALUE!
+M2 ,San Pablo ,2,24,a ,8/8/2025,9/8/2025,Summer ,August,2025,#DIV/0!
+M2 ,San Pablo ,2,24,b ,8/8/2025,9/8/2025,Summer ,August,2025,#DIV/0!
+M2 ,San Pablo ,2,24,c,8/8/2025,9/8/2025,Summer ,August,2025,#DIV/0!
+M2 ,San Pablo ,2,48,a,8/8/2025,9/8/2025,Summer ,August,2025,2.252178721
+M2 ,San Pablo ,2,48,b ,8/8/2025,9/8/2025,Summer ,August,2025,3.409655389
+M2 ,San Pablo ,2,48,c,8/8/2025,9/8/2025,Summer ,August,2025,2.236206182
+M3,San Pablo ,1,0.5,a,9/8/2025,10/6/2025,Fall,September,2025,30.40695892
+M3,San Pablo ,1,0.5,b ,9/8/2025,10/6/2025,Fall,September,2025,24.99181724
+M3,San Pablo ,1,0.5,c,9/8/2025,10/6/2025,Fall,September,2025,26.08591625
+M3,San Pablo ,1,2,a,9/8/2025,10/6/2025,Fall,September,2025,30.16307105
+M3,San Pablo ,1,2,b ,9/8/2025,10/6/2025,Fall,September,2025,34.47290458
+M3,San Pablo ,1,2,c,9/8/2025,10/6/2025,Fall,September,2025,4.752080296
+M3,San Pablo ,1,6,a,9/8/2025,10/6/2025,Fall,September,2025,7.001900562
+M3,San Pablo ,1,6,b ,9/8/2025,10/6/2025,Fall,September,2025,3.798217283
+M3,San Pablo ,1,6,c,9/8/2025,10/6/2025,Fall,September,2025,1.092695526
+M3,San Pablo ,1,12,a,9/8/2025,10/6/2025,Fall,September,2025,1.490442536
+M3,San Pablo ,1,12,b ,9/8/2025,10/6/2025,Fall,September,2025,7.695969562
+M3,San Pablo ,1,12,c,9/8/2025,10/6/2025,Fall,September,2025,7.777932955
+M3,San Pablo ,1,24,a ,9/8/2025,10/6/2025,Fall,September,2025,3.561646232
+M3,San Pablo ,1,24,b ,9/8/2025,10/6/2025,Fall,September,2025,4.802100421
+M3,San Pablo ,1,24,c,9/8/2025,10/6/2025,Fall,September,2025,4.224988316
+M3,San Pablo ,1,48,a,9/8/2025,10/6/2025,Fall,September,2025,0.623932289
+M3,San Pablo ,1,48,b ,9/8/2025,10/6/2025,Fall,September,2025,2.12700617
+M3,San Pablo ,1,48,c,9/8/2025,10/6/2025,Fall,September,2025,1.475565619
+M3,San Pablo ,2,0.5,a,9/8/2025,10/6/2025,Fall,September,2025,12.48886314
+M3,San Pablo ,2,0.5,b ,9/8/2025,10/6/2025,Fall,September,2025,24.32359104
+M3,San Pablo ,2,0.5,c,9/8/2025,10/6/2025,Fall,September,2025,67.236704
+M3,San Pablo ,2,2,a,9/8/2025,10/6/2025,Fall,September,2025,16.9866885
+M3,San Pablo ,2,2,b ,9/8/2025,10/6/2025,Fall,September,2025,39.68717981
+M3,San Pablo ,2,2,c,9/8/2025,10/6/2025,Fall,September,2025,27.12791798
+M3,San Pablo ,2,6,a,9/8/2025,10/6/2025,Fall,September,2025,1.941877439
+M3,San Pablo ,2,6,b ,9/8/2025,10/6/2025,Fall,September,2025,7.936189669
+M3,San Pablo ,2,6,c,9/8/2025,10/6/2025,Fall,September,2025,7.795167723
+M3,San Pablo ,2,12,a,9/8/2025,10/6/2025,Fall,September,2025,9.786092206
+M3,San Pablo ,2,12,b ,9/8/2025,10/6/2025,Fall,September,2025,10.14695569
+M3,San Pablo ,2,12,c,9/8/2025,10/6/2025,Fall,September,2025,10.95828099
+M3,San Pablo ,2,24,a ,9/8/2025,10/6/2025,Fall,September,2025,3.100293384
+M3,San Pablo ,2,24,b ,9/8/2025,10/6/2025,Fall,September,2025,2.040720051
+M3,San Pablo ,2,24,c,9/8/2025,10/6/2025,Fall,September,2025,3.186186528
+M3,San Pablo ,2,48,a,9/8/2025,10/6/2025,Fall,September,2025,2.720903928
+M3,San Pablo ,2,48,b ,9/8/2025,10/6/2025,Fall,September,2025,2.604695557
+M3,San Pablo ,2,48,c,9/8/2025,10/6/2025,Fall,September,2025,2.204141581
+M4,San Pablo ,1,0.5,a,10/6/2025,11/3/2025,Fall,October,2025,-0.520299123
+M4,San Pablo ,1,0.5,b ,10/6/2025,11/3/2025,Fall,October,2025,-1.200819837
+M4,San Pablo ,1,0.5,c,10/6/2025,11/3/2025,Fall,October,2025,0.566670193
+M4,San Pablo ,1,2,a,10/6/2025,11/3/2025,Fall,October,2025,3.528243342
+M4,San Pablo ,1,2,b ,10/6/2025,11/3/2025,Fall,October,2025,1.962798689
+M4,San Pablo ,1,2,c,10/6/2025,11/3/2025,Fall,October,2025,-2.182191111
+M4,San Pablo ,1,6,a,10/6/2025,11/3/2025,Fall,October,2025,2.321921853
+M4,San Pablo ,1,6,b ,10/6/2025,11/3/2025,Fall,October,2025,2.115666029
+M4,San Pablo ,1,6,c,10/6/2025,11/3/2025,Fall,October,2025,#DIV/0!
+M4,San Pablo ,1,12,a,10/6/2025,11/3/2025,Fall,October,2025,1.200932115
+M4,San Pablo ,1,12,b ,10/6/2025,11/3/2025,Fall,October,2025,1.048738446
+M4,San Pablo ,1,12,c,10/6/2025,11/3/2025,Fall,October,2025,#VALUE!
+M4,San Pablo ,1,24,a ,10/6/2025,11/3/2025,Fall,October,2025,1.342010201
+M4,San Pablo ,1,24,b ,10/6/2025,11/3/2025,Fall,October,2025,2.257417786
+M4,San Pablo ,1,24,c,10/6/2025,11/3/2025,Fall,October,2025,0.9988306
+M4,San Pablo ,1,48,a,10/6/2025,11/3/2025,Fall,October,2025,0.753726373
+M4,San Pablo ,1,48,b ,10/6/2025,11/3/2025,Fall,October,2025,1.262123963
+M4,San Pablo ,1,48,c,10/6/2025,11/3/2025,Fall,October,2025,1.220749292
+M4,San Pablo ,2,0.5,a,10/6/2025,11/3/2025,Fall,October,2025,1.549276533
+M4,San Pablo ,2,0.5,b ,10/6/2025,11/3/2025,Fall,October,2025,0.152755062
+M4,San Pablo ,2,0.5,c,10/6/2025,11/3/2025,Fall,October,2025,-0.572845517
+M4,San Pablo ,2,2,a,10/6/2025,11/3/2025,Fall,October,2025,17.61982763
+M4,San Pablo ,2,2,b ,10/6/2025,11/3/2025,Fall,October,2025,1.995134931
+M4,San Pablo ,2,2,c,10/6/2025,11/3/2025,Fall,October,2025,1.146813821
+M4,San Pablo ,2,6,a,10/6/2025,11/3/2025,Fall,October,2025,3.077220127
+M4,San Pablo ,2,6,b ,10/6/2025,11/3/2025,Fall,October,2025,2.298399482
+M4,San Pablo ,2,6,c,10/6/2025,11/3/2025,Fall,October,2025,4.883277863
+M4,San Pablo ,2,12,a,10/6/2025,11/3/2025,Fall,October,2025,1.02078107
+M4,San Pablo ,2,12,b ,10/6/2025,11/3/2025,Fall,October,2025,1.120484484
+M4,San Pablo ,2,12,c,10/6/2025,11/3/2025,Fall,October,2025,1.325729801
+M4,San Pablo ,2,24,a ,10/6/2025,11/3/2025,Fall,October,2025,1.508519394
+M4,San Pablo ,2,24,b ,10/6/2025,11/3/2025,Fall,October,2025,1.6804741
+M4,San Pablo ,2,24,c,10/6/2025,11/3/2025,Fall,October,2025,1.621976939
+M4,San Pablo ,2,48,a,10/6/2025,11/3/2025,Fall,October,2025,0.664970125
+M4,San Pablo ,2,48,b ,10/6/2025,11/3/2025,Fall,October,2025,2.422691914
+M4,San Pablo ,2,48,c,10/6/2025,11/3/2025,Fall,October,2025,1.427734927
+M5,San Pablo ,1,0.5,a,11/3/2025,12/2/2025,Winter,November,2025,1.029378128
+M5,San Pablo ,1,0.5,b ,11/3/2025,12/2/2025,Winter,November,2025,0.504742727
+M5,San Pablo ,1,0.5,c,11/3/2025,12/2/2025,Winter,November,2025,1.126456545
+M5,San Pablo ,1,2,a,11/3/2025,12/2/2025,Winter,November,2025,1.699116222
+M5,San Pablo ,1,2,b ,11/3/2025,12/2/2025,Winter,November,2025,1.41210884
+M5,San Pablo ,1,2,c,11/3/2025,12/2/2025,Winter,November,2025,0.929210112
+M5,San Pablo ,1,6,a,11/3/2025,12/2/2025,Winter,November,2025,4.616997501
+M5,San Pablo ,1,6,b ,11/3/2025,12/2/2025,Winter,November,2025,2.852078265
+M5,San Pablo ,1,6,c,11/3/2025,12/2/2025,Winter,November,2025,2.231882144
+M5,San Pablo ,1,12,a,11/3/2025,12/2/2025,Winter,November,2025,3.913761662
+M5,San Pablo ,1,12,b ,11/3/2025,12/2/2025,Winter,November,2025,3.290963774
+M5,San Pablo ,1,12,c,11/3/2025,12/2/2025,Winter,November,2025,4.138543458
+M5,San Pablo ,1,18,a,11/15/2025,12/12/2025,Winter,November,2025,3.928121567
+M5,San Pablo ,1,18,b ,11/15/2025,12/12/2025,Winter,November,2025,3.778441691
+M5,San Pablo ,1,18,c,11/15/2025,12/12/2025,Winter,November,2025,2.457346502
+M5,San Pablo ,1,24,a ,11/3/2025,12/2/2025,Winter,November,2025,13.67531905
+M5,San Pablo ,1,24,b ,11/3/2025,12/2/2025,Winter,November,2025,20.89706438
+M5,San Pablo ,1,24,c,11/3/2025,12/2/2025,Winter,November,2025,22.28532369
+M5,San Pablo ,1,48,a,11/3/2025,12/2/2025,Winter,November,2025,8.894627068
+M5,San Pablo ,1,48,b ,11/3/2025,12/2/2025,Winter,November,2025,13.33465023
+M5,San Pablo ,1,48,c,11/3/2025,12/2/2025,Winter,November,2025,12.44777303
+M5,San Pablo ,2,0.5,a,11/3/2025,12/2/2025,Winter,November,2025,0.801940361
+M5,San Pablo ,2,0.5,b ,11/3/2025,12/2/2025,Winter,November,2025,1.013496511
+M5,San Pablo ,2,0.5,c,11/3/2025,12/2/2025,Winter,November,2025,0.842918186
+M5,San Pablo ,2,2,a,11/3/2025,12/2/2025,Winter,November,2025,4.466203444
+M5,San Pablo ,2,2,b ,11/3/2025,12/2/2025,Winter,November,2025,1.469130892
+M5,San Pablo ,2,2,c,11/3/2025,12/2/2025,Winter,November,2025,1.027372599
+M5,San Pablo ,2,6,a,11/3/2025,12/2/2025,Winter,November,2025,4.025420813
+M5,San Pablo ,2,6,b ,11/3/2025,12/2/2025,Winter,November,2025,3.285706037
+M5,San Pablo ,2,6,c,11/3/2025,12/2/2025,Winter,November,2025,4.036315711
+M5,San Pablo ,2,12,a,11/3/2025,12/2/2025,Winter,November,2025,5.737600072
+M5,San Pablo ,2,12,b ,11/3/2025,12/2/2025,Winter,November,2025,3.732722067
+M5,San Pablo ,2,12,c,11/3/2025,12/2/2025,Winter,November,2025,4.637323803
+M5,San Pablo ,2,18,a,11/4/2025,12/11/2025,Winter,November,2025,3.367606018
+M5,San Pablo ,2,18,b ,11/4/2025,12/11/2025,Winter,November,2025,3.41042969
+M5,San Pablo ,2,18,c,11/4/2025,12/11/2025,Winter,November,2025,1.898218758
+M5,San Pablo ,2,24,a ,11/3/2025,12/2/2025,Winter,November,2025,24.54387394
+M5,San Pablo ,2,24,b ,11/3/2025,12/2/2025,Winter,November,2025,28.70973595
+M5,San Pablo ,2,24,c,11/3/2025,12/2/2025,Winter,November,2025,25.13740196
+M5,San Pablo ,2,48,a,11/3/2025,12/2/2025,Winter,November,2025,3.851265059
+M5,San Pablo ,2,48,b ,11/3/2025,12/2/2025,Winter,November,2025,11.24716614
+M5,San Pablo ,2,48,c,11/3/2025,12/2/2025,Winter,November,2025,13.02292607
+M6,San Pablo ,1,0.5,a,12/2/2025,1/11/2026,Winter,December,2025,0.444494213
+M6,San Pablo ,1,0.5,b ,12/2/2025,1/11/2026,Winter,December,2025,0.193304485
+M6,San Pablo ,1,0.5,c,12/2/2025,1/11/2026,Winter,December,2025,0.458051857
+M6,San Pablo ,1,2,a,12/2/2025,1/11/2026,Winter,December,2025,0.688806876
+M6,San Pablo ,1,2,b ,12/2/2025,1/11/2026,Winter,December,2025,0.628996055
+M6,San Pablo ,1,2,c,12/2/2025,1/11/2026,Winter,December,2025,0.266790842
+M6,San Pablo ,1,6,a,12/2/2025,1/11/2026,Winter,December,2025,1.35214896
+M6,San Pablo ,1,6,b ,12/2/2025,1/11/2026,Winter,December,2025,1.109526091
+M6,San Pablo ,1,6,c,12/2/2025,1/11/2026,Winter,December,2025,0.536371808
+M6,San Pablo ,1,12,a,12/2/2025,1/11/2026,Winter,December,2025,1.851712094
+M6,San Pablo ,1,12,b ,12/2/2025,1/11/2026,Winter,December,2025,2.469534554
+M6,San Pablo ,1,12,c,12/2/2025,1/11/2026,Winter,December,2025,1.429407878
+M6,San Pablo ,1,18,a,12/2/2025,1/11/2026,Winter,December,2025,1.397341104
+M6,San Pablo ,1,18,b ,12/2/2025,1/11/2026,Winter,December,2025,1.283496198
+M6,San Pablo ,1,18,c,12/2/2025,1/11/2026,Winter,December,2025,1.416439698
+M6,San Pablo ,1,24,a ,12/2/2025,1/11/2026,Winter,December,2025,1.714982933
+M6,San Pablo ,1,24,b ,12/2/2025,1/11/2026,Winter,December,2025,1.976940181
+M6,San Pablo ,1,24,c,12/2/2025,1/11/2026,Winter,December,2025,1.8057209
+M6,San Pablo ,1,48,a,12/2/2025,1/11/2026,Winter,December,2025,16.20527422
+M6,San Pablo ,1,48,b ,12/2/2025,1/11/2026,Winter,December,2025,25.85088903
+M6,San Pablo ,1,48,c,12/2/2025,1/11/2026,Winter,December,2025,30.08107023
+M6,San Pablo ,2,0.5,a,12/2/2025,1/11/2026,Winter,December,2025,0.15208139
+M6,San Pablo ,2,0.5,b ,12/2/2025,1/11/2026,Winter,December,2025,0.33139596
+M6,San Pablo ,2,0.5,c,12/2/2025,1/11/2026,Winter,December,2025,0.321768068
+M6,San Pablo ,2,2,a,12/2/2025,1/11/2026,Winter,December,2025,0.871108056
+M6,San Pablo ,2,2,b ,12/2/2025,1/11/2026,Winter,December,2025,0.370772072
+M6,San Pablo ,2,2,c,12/2/2025,1/11/2026,Winter,December,2025,0.306717119
+M6,San Pablo ,2,6,a,12/2/2025,1/11/2026,Winter,December,2025,1.466544032
+M6,San Pablo ,2,6,b ,12/2/2025,1/11/2026,Winter,December,2025,1.262747109
+M6,San Pablo ,2,6,c,12/2/2025,1/11/2026,Winter,December,2025,1.381975775
+M6,San Pablo ,2,12,a,12/2/2025,1/11/2026,Winter,December,2025,1.042209445
+M6,San Pablo ,2,12,b ,12/2/2025,1/11/2026,Winter,December,2025,1.268012976
+M6,San Pablo ,2,12,c,12/2/2025,1/11/2026,Winter,December,2025,1.039104941
+M6,San Pablo ,2,18,a,12/2/2025,1/11/2026,Winter,December,2025,1.439310852
+M6,San Pablo ,2,18,b ,12/2/2025,1/11/2026,Winter,December,2025,1.344839622
+M6,San Pablo ,2,18,c,12/2/2025,1/11/2026,Winter,December,2025,1.391996642
+M6,San Pablo ,2,24,a ,12/2/2025,1/11/2026,Winter,December,2025,2.107958102
+M6,San Pablo ,2,24,b ,12/2/2025,1/11/2026,Winter,December,2025,4.753309747
+M6,San Pablo ,2,24,c,12/2/2025,1/11/2026,Winter,December,2025,1.966369149
+M6,San Pablo ,2,48,a,12/2/2025,1/11/2026,Winter,December,2025,15.97888122
+M6,San Pablo ,2,48,b ,12/2/2025,1/11/2026,Winter,December,2025,21.16713589
+M6,San Pablo ,2,48,c,12/2/2025,1/11/2026,Winter,December,2025,31.4663077

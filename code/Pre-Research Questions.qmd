@@ -1,0 +1,402 @@
+---
+title: "Pre-Research Questions"
+format: html
+editor: visual
+---
+
+## Quarto
+
+Quarto enables you to weave together content and executable code into a finished document. To learn more about Quarto see <https://quarto.org>.
+
+## Running Code
+
+When you click the **Render** button a document will be generated that includes both content and the output of embedded code. You can embed code like this:
+
+```{r, load packages and load up working directory}
+
+library(ggplot2)
+library(tidyverse)
+library(Rmisc)
+library(rstatix)
+library(tidyr)
+library(data.table)
+library(dplyr)
+library(lme4)
+library(stringr)
+#install.packages("readxl")
+library(readxl)
+#install.packages("lubridate")
+#install.packages("lmerTest")
+library(lmerTest)
+#install.packages("ggeffects")
+library(ggeffects)
+
+knitr::opts_knit$set(root.dir = 'C:/Users/savan/OneDrive - San Francisco State University/ProjectData/GitHub/DepositionSFB/data')
+```
+
+```{r}
+
+#write_xlsx(combined, "C:/Users/savan/OneDrive/Desktop/stats/combined.xlsx")
+
+```
+
+```{r}
+
+#combined <-read_excel("C:/Users/savan/OneDrive/Desktop/stats/combined.xlsx")
+
+
+usgs_thesis_M1_m6_no150$Dist = as.character(usgs_thesis_M1_m6_no150$Dist)
+usgs_thesis_M1_m6_no150$Date.placed.in.field = as.Date(usgs_thesis_M1_m6_no150$Date.placed.in.field)
+usgs_thesis_M1_m6_no150$Date.removed.from.field = as.Date(usgs_thesis_M1_m6_no150$Date.removed.from.field)
+usgs_thesis_M1_m6_no150$Study.Phase <- as.factor(usgs_thesis_M1_m6_no150$Study.Phase)
+usgs_thesis_M1_m6_no150$Site <- as.factor(usgs_thesis_M1_m6_no150$Site)
+usgs_thesis_M1_m6_no150$Tran <- as.factor(usgs_thesis_M1_m6_no150$Tran)
+usgs_thesis_M1_m6_no150$Dist <- as.factor(usgs_thesis_M1_m6_no150$Dist)
+usgs_thesis_M1_m6_no150$Replicate<- as.factor(usgs_thesis_M1_m6_no150$Replicate)
+usgs_thesis_M1_m6_no150$Season<- as.factor(usgs_thesis_M1_m6_no150$Season)
+usgs_thesis_M1_m6_no150$Month<- as.factor(usgs_thesis_M1_m6_no150$Month)
+usgs_thesis_M1_m6_no150$Year<- as.factor(usgs_thesis_M1_m6_no150$Year)
+usgs_thesis_M1_m6_no150$marsh_edge_type<- as.factor(usgs_thesis_M1_m6_no150$marsh_edge_type)
+usgs_thesis_M1_m6_no150$marsh_orientation<- as.factor(usgs_thesis_M1_m6_no150$marsh_orientation)
+usgs_thesis_M1_m6_no150$Study.Dataset<- as.factor(usgs_thesis_M1_m6_no150$Study.Dataset)
+str(usgs_thesis_M1_m6_no150) 
+
+```
+
+```{r}
+
+# dropped the USGS level from the Study.Dataset column, to focus on the thesis data
+thesis_df = usgs_thesis_M1_m6_no150 %>% 
+  filter(!Study.Dataset %in% c("USGS"))
+
+
+# Dropped temporal variables as they are represented already within the Study.Phase variable
+thesis_df <- thesis_df %>% 
+  select(-Date.placed.in.field, -Date.removed.from.field)
+
+thesis_df <- thesis_df %>%
+  select(-Month, -Year, -Season, -Study.Dataset, -marsh_edge_type, -marsh_orientation, -LOI)
+
+str(thesis_df)
+
+```
+
+avgdist = aggregate(Flux \~ Dist + Site + Tran, data = thesis_df, FUN = mean)
+
+avgdist
+
+```{r, Transect summary}
+avgdist = aggregate(Flux ~ Dist + Site + Tran, data = thesis_df, FUN = mean)
+avgdist
+```
+
+```{r, testing for normality}
+
+shapiro.test(avgdist$Flux)
+shapiro.test(log(avgdist$Flux))
+
+qqnorm(avgdist$Flux)
+
+qqline(avgdist$Flux)
+
+```
+
+```{r, linear model}
+
+distmodel = glmer(Flux~Dist+(1|Site)+(1|Tran), data = avgdist)
+summary(distmodel)
+
+logdistmodel <- lmer(log(Flux) ~ Dist + (1|Site) + (1|Tran), data = avgdist)
+summary(logdistmodel)
+
+```
+
+```{r}
+plot(logdistmodel)        # residuals vs fitted
+qqnorm(resid(logdistmodel))
+qqline(resid(logdistmodel))
+```
+
+```{r, take out the outliers}
+
+# Find which rows are the outliers
+outliers <- which(abs(scale(resid(logdistmodel))) > 2.5)
+
+# Fit model without them
+distmodel_no_outliers <- lmer(log(Flux) ~ Dist + (1|Site) + (1|Tran), 
+                               data = avgdist[-outliers, ])
+
+# Compare coefficients
+summary(logdistmodel)
+summary(distmodel_no_outliers)
+
+```
+
+```{r, plot avg dist}
+avgdist$Dist <- factor(avgdist$Dist, levels = c(0.5, 2, 6, 12, 18, 24, 48))
+
+ggplot(avgdist, aes(x = Dist, y = Flux, colour = Site)) +
+  geom_point(size = 3, alpha = 0.7) +
+  labs(
+    x = "Distance (m)",   # update units if needed
+    y = "Average Flux (g/cm^3/6 months)",           # update units if needed
+    colour = "Site"
+  ) +
+  theme_classic()
+```
+
+```{r, this is the graph we used for ppt}
+
+avgdist$Dist = as.factor(avgdist$Dist)
+
+ggplot(avgdist, aes(x = Dist, y = log(Flux), colour = Site, shape = Site)) +
+  geom_point(size = 3, alpha = 0.7) +
+  labs(
+    x = "Distance (m)",
+    y = "Log of Average Flux (g/cm^3/6 months)",
+    colour = "Site",
+    shape = "Site"
+  ) + 
+  theme_classic(base_size = 16)
+```
+
+```{r}
+#let's treat distance as numerical instead of categorical
+
+avgdist$Dist = as.numeric(as.character(avgdist$Dist))
+
+
+ggplot(avgdist, aes(x = Dist, y = log(Flux), colour = Site)) +
+  geom_point(size = 3, alpha = 0.7) +
+  labs(
+    x = "Distance (m)",   # update units if needed
+    y = "Log of Average Flux (g/cm^3/6 months)",           # update units if needed
+    colour = "Site"
+  ) + 
+  scale_x_continuous(breaks = c(0.5, 2, 6, 12, 18, 24, 48)) +
+  theme_classic()
+```
+
+```{r}
+
+ggplot(avgdist, aes(x = log(Dist), y = log(Flux), colour = Site)) +
+  geom_point(size = 3, alpha = 0.7) +
+  labs(
+    x = "Distance (m)",   # update units if needed
+    y = "Log of Average Flux (g/cm^3/6 months)",           # update units if needed
+    colour = "Site"
+  ) + 
+  scale_x_continuous(breaks = c(0.5, 2, 6, 12, 18, 24, 48)) +
+  theme_classic()
+```
+
+```{r}
+library(lmerTest)
+distmodelcont <- lmer(log(Flux) ~ Dist + (1|Site) + (1|Tran), data = avgdist)
+summary(distmodelcont)
+```
+
+```{r}
+
+distsitemodel = lmer(log(Flux)~Dist+Site+Dist*Site+(1|Tran), data=avgdist)
+summary(distsitemodel)
+```
+
+```{r}
+
+# Generate predictions manually on the log scale
+avgdist$predicted <- predict(distsitemodel)
+
+# Get CIs manually
+preds <- ggpredict(distsitemodel, terms = c("Dist [all]", "Site"), 
+                   back.transform = FALSE)
+
+# Plot
+ggplot() +
+  # Raw data points
+  geom_point(data = avgdist, 
+             aes(x = Dist, y = log(Flux), colour = Site, shape = Site),
+             size = 3, alpha = 0.5) +
+  # Model fit lines
+  geom_line(data = preds, 
+            aes(x = x, y = predicted, colour = group),
+            linewidth = 1) +
+  # Confidence intervals
+  geom_ribbon(data = preds, 
+              aes(x = x, ymin = conf.low, ymax = conf.high, fill = group),
+              alpha = 0.2) +
+  scale_x_continuous(breaks = c(0.5, 2, 6, 12, 18, 24, 48)) +
+  labs(
+    x = "Distance (m)",
+    y = "Log of Average Flux (g/cm^3)",
+    colour = "Site",
+    fill = "Site",
+    shape = "Site"
+  ) +
+  theme_classic(base_size = 16)
+
+```
+
+```         
+```
+
+```{r}
+library(dplyr)
+
+# Create a prediction grid
+pred_grid <- expand.grid(
+  Dist = c(0.5, 2, 6, 12, 18, 24, 48),
+  Site = unique(avgdist$Site),
+  Tran = NA
+)
+
+# Get predictions on log scale with CIs
+preds_manual <- predict(distsitemodel, newdata = pred_grid, 
+                        re.form = ~0,  # fixes random effects to 0 (population level)
+                        se.fit = TRUE)
+
+pred_grid$predicted <- preds_manual$fit
+pred_grid$lower <- preds_manual$fit - 1.96 * preds_manual$se.fit
+pred_grid$upper <- preds_manual$fit + 1.96 * preds_manual$se.fit
+
+# Plot
+ggplot() +
+  geom_point(data = avgdist,
+             aes(x = Dist, y = log(Flux), colour = Site, shape = Site),
+             size = 3, alpha = 0.5) +
+  geom_line(data = pred_grid,
+            aes(x = Dist, y = predicted, colour = Site),
+            linewidth = 1) +
+  geom_ribbon(data = pred_grid,
+              aes(x = Dist, ymin = lower, ymax = upper, fill = Site),
+              alpha = 0.2) +
+  scale_x_continuous(breaks = c(0.5, 2, 6, 12, 18, 24, 48)) +
+  labs(
+    x = "Distance (m)",
+    y = "Log of Average Flux (g/cm^3)",
+    colour = "Site",
+    fill = "Site",
+    shape = "Site"
+  ) +
+  theme_classic(base_size = 18) +
+  theme(axis.text.x = element_text(angle = 90, hjust = 1, size = 15))
+```
+
+```{r}
+
+
+
+```
+
+```{r}
+
+transite = lmer(log(Flux) ~ Tran+Site+Tran*Site + (1|Dist), data = avgdist)
+
+
+```
+
+```{r}
+#plot tran and site against each other 
+
+library(ggplot2)
+library(ggforce)  # for geom_sina
+
+ggplot(avgdist, aes(x = as.factor(Tran), y = log(Flux), fill = Site, colour = Site)) +
+  geom_boxplot(alpha = 0.4, outlier.shape = NA) +  # hide default outlier points
+  geom_sina(alpha = 0.6, size = 2) +               # raw points in sina layout
+  labs(
+    x = "Transect",
+    y = "Log of Average Flux (g/cm^3/6 months)",
+    fill = "Site",
+    colour = "Site"
+  ) +
+  theme_classic(base_size = 18) +
+  theme(axis.text.x = element_text(angle = 45, hjust = 1, size = 18))
+```
+
+transite = lmer(log(Flux) \~ Tran+Site+Tran\*Site + (1\|Dist), data = avgdist)
+
+```{r}
+
+# Check what's still problematic
+sum(thesis_df_clean$Flux <= 0, na.rm = TRUE)  # any remaining zeros/negatives
+sum(is.na(thesis_df_clean$Flux))               # any NAs
+sum(is.infinite(log(thesis_df_clean$Flux)))    # any Inf after log
+sum(is.nan(log(thesis_df_clean$Flux)))         # any NaN after log
+
+# Remove NAs, negatives, zeros and any Inf/NaN after log transformation
+thesis_df_clean <- thesis_df[thesis_df$Flux > 0 & 
+                              !is.na(thesis_df$Flux) &
+                              is.finite(log(thesis_df$Flux)), ]
+
+# Verify it's clean
+sum(is.na(thesis_df_clean$Flux))
+sum(thesis_df_clean$Flux <= 0)
+nrow(thesis_df_clean)
+
+thesis_df_clean$Tran <- as.factor(thesis_df_clean$Tran)
+thesis_df_clean$Site <- as.factor(thesis_df_clean$Site)
+thesis_df_clean$Replicate <- as.factor(thesis_df_clean$Replicate)
+thesis_df_clean$Study.Phase <- as.factor(thesis_df_clean$Study.Phase)
+
+transite1 <- lmer(log(Flux) ~ Tran + Site + Tran*Site + 
+                  (1|Dist) + (1|Replicate) + (1|Study.Phase), 
+                  data = thesis_df_clean)
+summary(transite1)
+
+
+```
+
+```{r}
+ggplot(thesis_df_clean, aes(x = as.factor(Tran), y = log(Flux), fill = Site, colour = Site)) +
+  geom_boxplot(alpha = 0.4, outlier.shape = NA) +
+  geom_sina(alpha = 0.6, size = 2) +
+  facet_wrap(~Site, scales = "free_x") +  # separate panel per site
+  labs(
+    x = "Transect",
+    y = "Log of Average Flux (g/cm^3/month)",
+    fill = "Site",
+    colour = "Site"
+  ) +
+  theme_classic(base_size = 18) +
+  theme(axis.text.x = element_text(angle = 45, hjust = 1, size = 18)) + 
+   theme(axis.text.y = element_text( hjust = 1, size = 12))
+```
+
+```{r, site per month}
+
+ggplot(thesis_df_clean, aes(x = as.factor(Study.Phase), y = log(Flux), color = Site)) +
+  geom_point(alpha = 0.4, outlier.shape = NA) +  # hide default outlier points
+  geom_sina(alpha = 0.6, size = 2) +               # raw points in sina layout
+  labs(
+    x = "Month of Study",
+    y = "Log of Average Flux (g/cm^3/month)",
+    fill = "Site",
+    colour = "Site"
+  ) +
+  theme_classic(base_size = 18) +
+  theme(axis.text.x = element_text(angle = 45, hjust = 1, size = 18))
+```
+
+```{r}
+
+ggplot(thesis_df_clean, aes(x = Dist, y = log(Flux), color = Site)) + facet_wrap("Study.Phase") +
+  geom_point(alpha = 0.4, outlier.shape = NA) +  # hide default outlier points
+  geom_sina(alpha = 0.6, size = 2) +               # raw points in sina layout
+  labs(
+    x = "Month of Study",
+    y = "Log of Average Flux (g/cm^3/month)",
+    fill = "Site",
+    colour = "Site"
+  ) +
+  theme_classic(base_size = 18) +
+  theme(axis.text.x = element_text(angle = 45, hjust = 1, size = 18))
+```
+
+```{r}
+#str(thesis_df_clean)
+
+#for some reason, to switch to numeric from factor; have to FIRST switch to character then to numeric
+thesis_df_clean$Dist = as.character(thesis_df_clean$Dist)
+thesis_df_clean$Dist = as.numeric(thesis_df_clean$Dist)
+```

@@ -1,0 +1,554 @@
+---
+title: "Comparing USGS to Thesis"
+format: html
+editor: visual
+---
+
+## Quarto
+
+Quarto enables you to weave together content and executable code into a finished document. To learn more about Quarto see <https://quarto.org>.
+
+## Running Code
+
+When you click the **Render** button a document will be generated that includes both content and the output of embedded code. You can embed code like this:
+
+```{r, load packages and load up working directory}
+
+library(ggplot2)
+library(tidyverse)
+library(Rmisc)
+library(rstatix)
+library(tidyr)
+library(data.table)
+library(dplyr)
+library(lme4)
+library(stringr)
+install.packages("readxl")
+library(readxl)
+install.packages("lubridate")
+
+knitr::opts_knit$set(root.dir = 'C:/Users/savan/OneDrive - San Francisco State University/ProjectData/GitHub/DepositionSFB/data')
+```
+
+You can add options to executable code like this
+
+```{r, cleaning data}
+# load data
+sed_thesis<- read.csv("C:\\Users\\savan\\OneDrive - San Francisco State University\\Code\\GitHub\\DepositionSFB\\data\\sed_thesis.csv")
+
+sed_usgs <-read.csv("C:\\Users\\savan\\OneDrive - San Francisco State University\\Code\\GitHub\\DepositionSFB\\data\\SFB_sediment_pad_data_usgs.csv")
+
+str(sed_usgs)
+
+str(sed_usgs)
+```
+
+```{r, cleaning data thesis}
+
+# Clean whitespace from character columns only
+sed_thesis$Season   <- str_replace_all(sed_thesis$Season, " ", "")
+sed_thesis$Dist <- str_replace_all(sed_thesis$Dist, " ", "")
+sed_thesis$Tran <- str_replace_all(sed_thesis$Tran, " ", "")
+sed_thesis$Year     <- str_replace_all(sed_thesis$Year, " ", "")
+sed_thesis$Month    <- str_replace_all(sed_thesis$Month, " ", "")
+sed_thesis$Site    <- str_replace_all(sed_thesis$Site, " ", "")
+sed_thesis$Replicate    <- str_replace_all(sed_thesis$Replicate, " ", "")
+
+# Convert types
+sed_thesis$Flux     <- as.numeric(sed_thesis$Flux)
+sed_thesis$Flux     <- round(sed_thesis$Flux)
+sed_thesis$Year     <- as.character(sed_thesis$Year)
+sed_thesis$Dist <- as.numeric(sed_thesis$Dist)
+sed_thesis$Date.removed.from.field <-as.Date(sed_thesis$Date.removed.from.field,format = "%m/%d/%Y")
+sed_thesis$Date.placed.in.field <-as.Date(sed_thesis$Date.placed.in.field,format = "%m/%d/%Y")
+sed_thesis$Study.Phase     <- as.character(sed_thesis$Study.Phase)
+
+str(sed_thesis)
+
+```
+
+```{r,cleaning data usgs}
+
+# Clean whitespace from character columns only
+sed_usgs$Season   <- str_replace_all(sed_usgs$Season, " ", "")
+sed_usgs$Dist <- str_replace_all(sed_usgs$Dist, " ", "")
+sed_usgs$Tran <- str_replace_all(sed_usgs$Tran, " ", "")
+sed_usgs$Year     <- str_replace_all(sed_usgs$Year, " ", "")
+sed_usgs$Month    <- str_replace_all(sed_usgs$Month, " ", "")
+sed_usgs$Site    <- str_replace_all(sed_usgs$Site, " ", "")
+sed_usgs$Replicate    <- str_replace_all(sed_usgs$Replicate, " ", "")
+
+# Convert types
+sed_usgs$Flux     <- as.numeric(sed_usgs$Flux)
+sed_usgs$Flux     <- round(sed_usgs$Flux)
+sed_usgs$Year     <- as.character(sed_usgs$Year)
+sed_usgs$Dist <- as.numeric(sed_usgs$Dist)
+sed_usgs$Date.removed.from.field <-as.Date(sed_usgs$Date.removed.from.field,format = "%m/%d/%Y")
+sed_usgs$Date.placed.in.field <-as.Date(sed_usgs$Date.placed.in.field,format = "%m/%d/%Y")
+
+str(sed_usgs)
+```
+
+```{r, double check variables}
+
+unique(sed_usgs$Site)
+unique(sed_thesis$Site)
+```
+
+```{r, statistics thesis}
+
+#within all the data
+sed_thesis_mean <- mean(sed_thesis$Flux, na.rm = TRUE)
+sed_thesis_mean
+sed_thesis_max  <- max(sed_thesis$Flux, na.rm = TRUE)
+sed_thesis_max
+sed_thesis_min  <- min(sed_thesis$Flux, na.rm = TRUE)
+sed_thesis_min
+sed_thesis_sd <-sd(sed_thesis$Flux, na.rm =TRUE)
+sed_thesis_sd
+
+#sed_stats_site <- sed_thesis %>%
+ # group_by(Site) %>%
+ # summarise(
+   # mean = mean(Flux, na.rm = TRUE),
+   # max  = max(Flux, na.rm = TRUE),
+  #  min  = min(Flux, na.rm = TRUE),
+   # sd   = sd(Flux, na.rm = TRUE))
+#sed_stats_site
+
+```
+
+```{r, statistics usgs}
+
+
+#within all the data
+sed_usgs_mean <- mean(sed_usgs$Flux, na.rm = TRUE)
+sed_usgs_mean
+sed_usgs_max  <- max(sed_usgs$Flux, na.rm = TRUE)
+sed_usgs_max
+sed_usgs_min  <- min(sed_usgs$Flux, na.rm = TRUE)
+sed_usgs_min
+sed_usgs_sd <-sd(sed_usgs$Flux, na.rm =TRUE)
+sed_usgs_sd
+
+#sed_stats_site <- sed_usgs %>%
+ # group_by(Site) %>%
+ # summarise(
+   # mean = mean(Flux, na.rm = TRUE),
+   # max  = max(Flux, na.rm = TRUE),
+  #  min  = min(Flux, na.rm = TRUE),
+   # sd   = sd(Flux, na.rm = TRUE))
+#sed_stats_site
+
+```
+
+```{r, searching for sample dates in usgs-Site C}
+
+
+sed_usgs %>% 
+  filter(Site== "CorteMadera") %>%
+  pull(Date.placed.in.field) %>% 
+  unique() 
+
+sed_usgs %>% 
+  filter(Site== "CorteMadera") %>%
+  pull(Date.removed.from.field) %>% 
+  unique() 
+
+
+
+
+
+```
+
+```{r, searching for sample dates in USGS-Site S}
+
+sed_usgs %>% 
+  filter(Site== "SanPablo") %>%
+  pull(Date.placed.in.field) %>% 
+  unique() 
+
+sed_usgs %>% 
+  filter(Site== "SanPablo") %>%
+  pull(Date.removed.from.field) %>% 
+  unique() 
+```
+
+```{r, thesis and usgs adding marsh edge type and orientation}
+
+sed_thesis <- sed_thesis %>% 
+  mutate(marsh_edge_type = case_when(
+    Site %in% c("CorteMadera", "GiantMarsh") ~ "Scarped", 
+    Site %in% c("Buck'sLanding", "SanPablo") ~ "Ramped", 
+    TRUE ~ "Other"
+  ))
+
+sed_thesis <- sed_thesis %>% 
+  mutate(marsh_orientation = case_when(
+    Site %in% c("CorteMadera", "Buck'sLanding") ~ "East.facing", 
+    Site %in% c("SanPablo") ~ "South.facing", 
+    Site %in% c("GiantMarsh") ~ "West.facing", 
+    TRUE ~ "Other"
+  ))
+
+
+sed_usgs <- sed_usgs %>% 
+  mutate(marsh_edge_type = case_when(
+    Site %in% c("CorteMadera") ~ "Scarped", 
+    Site %in% c("SanPablo") ~ "Ramped", 
+    TRUE ~ "Other"
+  ))
+
+sed_usgs <- sed_usgs %>% 
+  mutate(marsh_orientation = case_when(
+    Site %in% c("CorteMadera") ~ "East.facing", 
+    Site %in% c("SanPablo") ~ "South.facing", 
+    TRUE ~ "Other"
+  ))
+
+
+```
+
+```{r, changing the seasons to just Winter and Summer based on Lacy 2020 and Thorne 2022}
+
+
+sed_thesis <- sed_thesis %>%
+  mutate(
+    Month = as.character(Month), # convert to plain character first 
+    Season = case_when(
+    Month %in% c("November", "December", "January", "February") ~ "Winter", 
+    Month %in% c("March", "April", "May", "June", "July", "August", "September", "October") ~ "Summer", 
+    TRUE  ~NA_character_
+    ))
+
+
+sed_usgs <- sed_usgs %>%
+  mutate(
+    Month = as.character(Month), # convert to plain character first 
+    Season = case_when(
+    Month %in% c("November", "December", "January", "February") ~ "Winter", 
+    Month %in% c("March", "April", "May", "June", "July", "August", "September", "October") ~ "Summer", 
+    TRUE  ~NA_character_
+    ))
+```
+
+```{r, creating a "Study Dataset" column}
+
+sed_thesis$Study.Dataset <- "Thesis"
+
+sed_usgs$Study.Dataset <- "USGS"
+
+
+```
+
+```{r, changing transect for thesis}
+
+sed_thesis <- sed_thesis %>% 
+  mutate(
+    Tran = case_when(
+      Tran == "1" ~ "T1", 
+      Tran == "2" ~ "T2", 
+      TRUE ~ Tran
+    
+  ))
+
+```
+
+```{r, combining thesis and usgs}
+
+colnames(sed_thesis)
+colnames(sed_usgs)
+```
+
+```{r, adding a Study Phase to usgs}
+
+  colnames(sed_usgs)
+
+
+ #If your dates look like "01/15/2023" (MM/DD/YYYY)
+#sed_usgs <- sed_usgs %>%
+  #mutate(Date.placed.in.field = as.Date(Date.placed.in.field, format = "%m/%d/%Y"))
+  #mutate(Date.removed.from.field = as.Date(Date.removed.from.field, format = "%m/%d/%Y"))
+
+
+sed_usgs <- sed_usgs %>% 
+  mutate(Study.Phase = case_when(
+    # CorteMadera
+    Site == "CorteMadera" & Date.placed.in.field >= as.Date("6/29/2022", format = "%m/%d/%Y") & Date.removed.from.field <= as.Date("7/27/2022", format = "%m/%d/%Y") ~ "M1",
+    Site == "CorteMadera" & Date.placed.in.field >= as.Date("7/27/2022", format = "%m/%d/%Y") & Date.removed.from.field <= as.Date("8/24/2022", format = "%m/%d/%Y") ~ "M2",
+    Site == "CorteMadera" & Date.placed.in.field >= as.Date("8/24/2022", format = "%m/%d/%Y") & Date.removed.from.field <= as.Date("9/21/2022", format = "%m/%d/%Y") ~ "M3",
+    Site == "CorteMadera" & Date.placed.in.field >= as.Date("9/21/2022", format = "%m/%d/%Y") & Date.removed.from.field <= as.Date("10/25/2022", format = "%m/%d/%Y") ~ "M4",
+    Site == "CorteMadera" & Date.placed.in.field >= as.Date("10/25/2022", format = "%m/%d/%Y") & Date.removed.from.field <= as.Date("11/30/2022", format = "%m/%d/%Y") ~ "M5",
+    Site == "CorteMadera" & Date.placed.in.field >= as.Date("11/30/2022", format = "%m/%d/%Y") & Date.removed.from.field <= as.Date("12/21/2022", format = "%m/%d/%Y") ~ "M6",
+    Site == "CorteMadera" & Date.placed.in.field >= as.Date("12/21/2022", format = "%m/%d/%Y") & Date.removed.from.field <= as.Date("1/18/2023", format = "%m/%d/%Y") ~ "M7",
+    Site == "CorteMadera" & Date.placed.in.field >= as.Date("1/18/2023", format = "%m/%d/%Y") & Date.removed.from.field <= as.Date("2/17/2023", format = "%m/%d/%Y") ~ "M8",
+    Site == "CorteMadera" & Date.placed.in.field >= as.Date("2/17/2023", format = "%m/%d/%Y") & Date.removed.from.field <= as.Date("3/23/2023", format = "%m/%d/%Y") ~ "M9",
+    Site == "CorteMadera" & Date.placed.in.field >= as.Date("3/23/2023", format = "%m/%d/%Y") & Date.removed.from.field <= as.Date("4/20/2023", format = "%m/%d/%Y") ~ "M10",
+    Site == "CorteMadera" & Date.placed.in.field >= as.Date("4/20/2023", format = "%m/%d/%Y") & Date.removed.from.field <= as.Date("5/18/2023", format = "%m/%d/%Y") ~ "M11",
+    Site == "CorteMadera" & Date.placed.in.field >= as.Date("5/18/2023", format = "%m/%d/%Y") & Date.removed.from.field <= as.Date("6/20/2023", format = "%m/%d/%Y") ~ "M12",
+    # SanPablo
+    Site == "SanPablo" & Date.placed.in.field >= as.Date("6/30/2022", format = "%m/%d/%Y") & Date.removed.from.field <= as.Date("7/28/2022", format = "%m/%d/%Y") ~ "M1",
+    Site == "SanPablo" & Date.placed.in.field >= as.Date("7/28/2022", format = "%m/%d/%Y") & Date.removed.from.field <= as.Date("8/25/2022", format = "%m/%d/%Y") ~ "M2",
+    Site == "SanPablo" & Date.placed.in.field >= as.Date("8/25/2022", format = "%m/%d/%Y") & Date.removed.from.field <= as.Date("9/22/2022", format = "%m/%d/%Y") ~ "M3",
+    Site == "SanPablo" & Date.placed.in.field >= as.Date("9/22/2022", format = "%m/%d/%Y") & Date.removed.from.field <= as.Date("10/26/2022", format = "%m/%d/%Y") ~ "M4",
+    Site == "SanPablo" & Date.placed.in.field >= as.Date("10/26/2022", format = "%m/%d/%Y") & Date.removed.from.field <= as.Date("11/22/2022", format = "%m/%d/%Y") ~ "M5",
+    Site == "SanPablo" & Date.placed.in.field >= as.Date("11/22/2022", format = "%m/%d/%Y") & Date.removed.from.field <= as.Date("12/20/2022", format = "%m/%d/%Y") ~ "M6",
+    Site == "SanPablo" & Date.placed.in.field >= as.Date("12/20/2022", format = "%m/%d/%Y") & Date.removed.from.field <= as.Date("1/17/2023", format = "%m/%d/%Y") ~ "M7",
+    Site == "SanPablo" & Date.placed.in.field >= as.Date("1/17/2023", format = "%m/%d/%Y") & Date.removed.from.field <= as.Date("2/15/2023", format = "%m/%d/%Y") ~ "M8",
+    Site == "SanPablo" & Date.placed.in.field >= as.Date("2/15/2023", format = "%m/%d/%Y") & Date.removed.from.field <= as.Date("3/23/2023", format = "%m/%d/%Y") ~ "M9",
+    Site == "SanPablo" & Date.placed.in.field >= as.Date("3/23/2023", format = "%m/%d/%Y") & Date.removed.from.field <= as.Date("4/21/2023", format = "%m/%d/%Y") ~ "M10",
+    Site == "SanPablo" & Date.placed.in.field >= as.Date("4/21/2023", format = "%m/%d/%Y") & Date.removed.from.field <= as.Date("5/19/2023", format = "%m/%d/%Y") ~ "M11",
+    Site == "SanPablo" & Date.placed.in.field >= as.Date("5/19/2023", format = "%m/%d/%Y") & Date.removed.from.field <= as.Date("6/21/2023", format = "%m/%d/%Y") ~ "M12",
+    TRUE ~ NA_character_
+  ))
+
+sed_thesis$Study.Phase    <- str_replace_all(sed_thesis$Study.Phase, " ", "")
+sed_usgs$Study.Phase    <- str_replace_all(sed_usgs$Study.Phase, " ", "")
+```
+
+```{r}
+# 1. Check the column name is correct
+colnames(sed_usgs)
+
+# 2. Check what the dates actually look like
+head(sed_usgs$Date.placed.in.field)  # replace date_column with your actual column name
+head(sed_usgs$Date.removed.from.field)  # replace date_column with your actual column name
+
+# 3. Check what class it is
+class(sed_usgs$Date.placed.in.field)  # replace date_column with your actual column name
+class(sed_usgs$Date.removed.from.field)  # replace date_column with your actual column name
+```
+
+```{r, merging usgs and thesis}
+
+usgs_thesis <-bind_rows(sed_thesis, sed_usgs)
+
+
+
+head(usgs_thesis)
+nrow(sed_thesis)
+nrow(sed_usgs)
+nrow(usgs_thesis)
+
+unique(usgs_thesis$Study.Phase)
+unique(sed_thesis$Study.Phase)
+unique(sed_usgs$Study.Phase) 
+
+```
+
+```{r}
+colnames(usgs_thesis)
+
+usgs_thesis <- usgs_thesis %>%
+  filter(Study.Phase %in% c("M1", "M2", "M3", "M4", "M5", "M6", 
+                             "M7", "M8", "M9", "M10", "M11", "M12"))
+
+unique(usgs_thesis$Study.Phase)
+```
+
+```{r}
+usgs_thesis_m1_m6 <-usgs_thesis %>% 
+    filter(Study.Phase %in% c("M1", "M2", "M3", "M4", "M5", "M6"))
+
+unique(usgs_thesis_m1_m6$Study.Phase)
+
+usgs_thesis_M1_m6_no150 <- usgs_thesis_m1_m6 %>%
+  dplyr::filter(!Dist %in% c(150))
+
+#install.packages("writexl")
+library(writexl)
+
+write_xlsx(usgs_thesis_m1_m6, "usgs_thesis_m1_m6.xlsx")
+
+getwd()
+browseURL(getwd())
+```
+
+```{r, filter by marsh edge type, usgs and thesis}
+sd(usgs_thesis$Flux, na.rm = TRUE)
+
+ramped_ut <-filter(usgs_thesis, marsh_edge_type == "Ramped")
+ramped_ut
+
+scarped_ut <-filter(usgs_thesis, marsh_edge_type == "Scarped")
+scarped_ut
+
+s_ramped_ut <- sd(ramped_ut$Flux, na.rm = TRUE)
+s_ramped_ut
+
+s_scarped_ut <- sd(scarped_ut$Flux, na.rm = TRUE)
+s_scarped_ut
+```
+
+```{r, flux with usgs values marsh edge type}
+
+sd(sed_usgs$Flux, na.rm = TRUE)
+
+ramped_usgs <-filter(sed_usgs, marsh_edge_type == "Ramped")
+ramped_usgs
+
+scarped_usgs <-filter(sed_usgs, marsh_edge_type == "Scarped")
+scarped_usgs
+
+s_ramped_usgs <- sd(ramped_usgs$Flux, na.rm = TRUE)
+s_ramped_usgs
+
+s_scarped_usgs <- sd(scarped_usgs$Flux, na.rm = TRUE)
+s_scarped_usgs
+```
+
+```{r, flux with thesis values marsh edge type}
+sd(sed_thesis$Flux, na.rm = TRUE)
+
+ramped_thesis <-filter(sed_usgs, marsh_edge_type == "Ramped")
+ramped_thesis
+
+scarped_thesis <-filter(sed_usgs, marsh_edge_type == "Scarped")
+scarped_thesis
+
+s_ramped_thesis <- sd(ramped_ut$Flux, na.rm = TRUE)
+s_ramped_thesis
+
+s_scarped_thesis <- sd(scarped_ut$Flux, na.rm = TRUE)
+s_scarped_thesis
+
+mean_ramped_thesis <-mean(ramped_thesis$Flux)
+mean_ramped_thesis
+
+mean_scarped_thesis <-mean(scarped_thesis$Flux)
+mean_scarped_thesis
+```
+
+```{r, shapiro-wilkes test for normality of distributions}
+
+
+shapiro.test(usgs_thesis_m1_m6$Flux)
+
+shapiro.test(sed_thesis$Flux)
+
+shapiro.test(sed_usgs$Flux)
+
+```
+
+```{r}
+sed_thesis %>% 
+  group_by(Dist, Replicate) %>%
+  summarise(p_shapiro = shapiro.test(Flux)$p.value, .groups = "drop")
+
+sed_usgs %>% 
+  group_by(Dist, Replicate) %>%
+  summarise(p_shapiro = shapiro.test(Flux)$p.value, .groups = "drop")
+
+
+```
+
+```{r, shapiro test with log flux}
+
+usgs_thesis$log_flux <- sign(usgs_thesis$Flux) * log(abs(usgs_thesis$Flux) + 1)
+
+usgs_thesis$log_Flux <- as.numeric(sign(usgs_thesis$Flux) * log(abs(usgs_thesis$Flux) + 1))
+
+shapiro.test(usgs_thesis$log_Flux)
+
+
+
+```
+
+```{r, general linear mixed models}
+library(glmmTMB)
+
+model1 <- glmmTMB(Flux~Replicate + (1| Site/Tran/Dist), 
+        family = gaussian(link = "identity"),  #handles negatives
+                  data = usgs_thesis)
+
+summary(model1)
+anova(model1)
+```
+
+```{r, model 2}
+
+m1 <- lmer(Flux ~ log(Dist + 1) + (1|Site/Tran), data = sed_thesis)
+m1
+
+summary(sed_thesis$Flux)
+summary(sed_thesis$Dist)
+
+```
+
+```{r, mean values per Study phase, usgs and thesis}
+
+usgs_thesis_m1_m6 %>%
+  group_by(Site, Tran, Study.Phase, Month) %>%
+  summarise(AvgFlux = mean(Flux, na.rm = TRUE), .groups = "drop")
+
+
+sed_thesis %>% 
+  group_by(Site, Tran, Study.Phase, Month) %>% 
+  summarise(AvgFlux = mean(Flux, na.rm = TRUE), .groups = "drop")
+# Check how many rows you have
+nrow(usgs_thesis_m1_m6)
+
+# Check what unique values exist in each grouping column
+unique(usgs_thesis_m1_m6$Site)
+unique(usgs_thesis_m1_m6$Tran)
+unique(usgs_thesis_m1_m6$Study.Phase)
+
+# Check the structure of the data
+str(usgs_thesis_m1_m6)
+```
+
+```{r}
+result <- usgs_thesis_m1_m6 %>%
+  group_by(Site, Tran, Study.Phase) %>%
+  summarise(avg_flux = mean(Flux, na.rm = TRUE), .groups = "drop")
+
+# Check how many rows the result has
+nrow(result)
+
+# View the full result
+View(result)
+
+colnames(usgs_thesis_m1_m6)
+
+colnames(usgs_thesis_m1_m6) <- trimws(colnames(usgs_thesis_m1_m6))
+```
+
+```{r}
+ 
+colnames(sed_thesis)
+
+# Check unique values in each grouping column
+unique(sed_thesis$Site)
+unique(sed_thesis$Tran)
+unique(sed_thesis$Study.Phase)
+unique(sed_thesis$Month)
+
+# Check Flux column
+summary(sed_thesis$Flux)
+
+sed_thesis$Site <- trimws(sed_thesis$Site)
+sed_thesis$Tran <- trimws(sed_thesis$Tran)
+sed_thesis$Month <- trimws(sed_thesis$Month)
+```
+
+```{r}
+result <- sed_thesis %>% 
+  group_by(Site, Tran, Study.Phase, Month) %>% 
+  summarise(AvgFlux = mean(Flux, na.rm = TRUE), .groups = "drop")
+
+nrow(result)
+View(result)
+
+# 1. How many rows in sed_thesis?
+nrow(sed_thesis)
+
+# 2. Try the simplest possible group_by with just ONE column
+sed_thesis %>%
+  group_by(Site) %>%
+  summarise(AvgFlux = mean(Flux, na.rm = TRUE))
+
+est_result <- sed_thesis %>%
+  group_by(Site) %>%
+  summarise(AvgFlux = mean(Flux, na.rm = TRUE))
+
+```

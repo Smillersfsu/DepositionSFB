@@ -1,0 +1,162 @@
+---
+title: "Research Question 2 (USGS vs. Thesis)"
+format: docx
+editor: visual
+---
+
+## Quarto
+
+Quarto enables you to weave together content and executable code into a finished document. To learn more about Quarto see <https://quarto.org>.
+
+## Running Code
+
+When you click the **Render** button a document will be generated that includes both content and the output of embedded code. You can embed code like this:
+
+```{r}
+library(ggplot2)
+library(tidyverse)
+library(Rmisc)
+library(rstatix)
+library(tidyr)
+library(data.table)
+library(dplyr)
+library(lme4)
+library(stringr)
+#install.packages("readxl")
+library(readxl)
+#install.packages("lubridate")
+#install.packages("lmerTest")
+library(lmerTest)
+#install.packages("ggeffects")
+library(ggeffects)
+library(ggforce)
+
+knitr::opts_knit$set(root.dir = 'C:/Users/savan/OneDrive - San Francisco State University/ProjectData/GitHub/DepositionSFB/data')
+```
+
+```{r}
+
+
+```
+
+```{r}
+
+thesis_rq2 <- usgs_thesis_M1_m6_no150 %>%
+  filter(!Site %in% c("Buck'sLanding", "GiantMarsh"))
+
+thesis_rq2 <- thesis_rq2 %>% select(-marsh_edge_type, -marsh_orientation,-Study.Dataset)
+
+# Verify they're gone
+unique(thesis_rq2$Site)
+levels(thesis_rq2$Site)
+
+str(thesis_rq2)
+nrow(thesis_rq2) 
+```
+
+```{r, statistics}
+
+shapiro.test(thesis_rq2$Flux)
+
+qqnorm(thesis_rq2$Flux)
+
+qqline(thesis_rq2$Flux)
+
+
+
+```
+
+```{r}
+
+usgsthesis_model<- lmer(Flux ~ Year + Study.Phase + Year*Study.Phase + (1|Season) + (1|Site), data = thesis_rq2)
+summary(usgsthesis_model)
+```
+
+```{r}
+usgsthesis_model2<- lmer(Flux ~ Site + (1|Year) + (1|Season), data = thesis_rq2) 
+summary(usgsthesis_model2)
+```
+
+```{r}
+
+
+# Get estimated marginal means
+emm <- emmeans(usgsthesis_model, ~ Study.Phase * Year)
+emm_df <- as.data.frame(emm)
+
+ggplot(emm_df, aes(x = Study.Phase, y = emmean, color = Year, group = Year)) +
+  geom_point(size = 3, position = position_dodge(0.3)) +
+  geom_errorbar(aes(ymin = lower.CL, ymax = upper.CL), 
+                width = 0.2, position = position_dodge(0.3)) +
+  geom_line(position = position_dodge(0.3)) +
+  labs(title = "Estimated Marginal Means by Study Phase and Year",
+       y = "log(Flux)", x = "Study Phase") +
+  theme_bw()
+
+ggplot(thesis_rq2, aes(x = Site, y = Flux, fill = as.factor(Year))) +
+  geom_boxplot(alpha = 0.5, outlier.shape = NA) +  # remove outlier dots from boxplot
+  geom_jitter(aes(color = as.factor(Year)), 
+              alpha = 0.4,        # more transparent
+              size = 0.8,         # smaller points
+              width = 0.2) +      # less horizontal spread
+  labs(title = str_wrap("Research Question 2: Is Sediment Deposition Consistent Between Years at Corte Madera Marsh and San Pablo NWR?", width = 40),
+       y = "Log of Average Flux (g/m^3/day)", 
+       x = "Site",
+       fill = "Year", color = "Year") +
+scale_y_log10() + 
+  theme_bw() +
+  theme( 
+    axis.title.y = element_text(size = 13),      # match x axis
+    axis.text.y = element_text(size = 13),        # match x axis
+    axis.text.x = element_text(size = 13),        
+    axis.title.x = element_text(size = 13),      
+    legend.text = element_text(size = 12),        
+    legend.title = element_text(size = 13),       
+    plot.title = element_text(hjust = 0.5)
+  )
+```
+
+```{r}
+
+ggplot(usgsthesiscomp, aes(x = Site, y = log(Flux), fill = as.factor(Tran), colour = as.factor(Tran))) +
+  geom_boxplot(alpha = 0.4, outlier.shape = NA) +
+  geom_sina(alpha = 0.6, size = 2) +
+  labs(
+    x = "Site",
+    y = "Log of Average Flux (g/cm³)",
+    fill = "Transect",
+    colour = "Transect"
+  ) +
+  theme_classic(base_size = 18) +
+  theme(
+    axis.text.x = element_text(angle = 45, hjust = 1, size = 14),
+    strip.background = element_blank(),
+    strip.text = element_text(size = 18, face = "bold")
+  )
+```
+
+```{r, last hooraah}
+
+# Check column names of each dataframe
+colnames(sed_thesis)
+colnames(sed_usgs)
+
+# Check dimensions
+ncol(sed_thesis)
+ncol(sed_usgs)
+
+# Find columns in df1 that are NOT in df2
+setdiff(colnames(sed_thesis), colnames(sed_usgs))
+
+# Find columns in df2 that are NOT in df1
+setdiff(colnames(sed_thesis), colnames(sed_usgs))
+
+hoorah_df <- bind_rows(sed_thesis, sed_usgs)
+
+# Check it worked
+nrow(sed_thesis) + nrow(sed_usgs)  # should equal nrow(combined_df)
+colnames(hoorah_df)
+
+
+
+```

@@ -1,0 +1,87 @@
+---
+title: "usgs_thesis_statistics"
+format: html
+editor: visual
+---
+
+```{r, boilerplate}
+
+library(ggplot2)
+library(tidyverse)
+library(Rmisc)
+library(rstatix)
+library(tidyr)
+library(data.table)
+library(dplyr)
+library(lme4)
+library(stringr)
+library(readxl)
+
+knitr::opts_knit$set(root.dir = 'C:/Users/savan/OneDrive - San Francisco State University/ProjectData/GitHub/DepositionSFB/data')
+
+```
+
+You can add options to executable code like this
+
+```{r, marsh edge both}
+
+#usgs and thesis
+
+s_ramped_ut <- sd(ramped_ut$Flux, na.rm = TRUE)
+s_ramped_ut
+
+s_scarped_ut <- sd(scarped_ut$Flux, na.rm = TRUE)
+s_scarped_ut
+
+#usgs only 
+
+s_ramped_usgs <- sd(ramped_usgs$Flux, na.rm = TRUE)
+s_ramped_usgs
+
+s_scarped_usgs <- sd(scarped_usgs$Flux, na.rm = TRUE)
+s_scarped_usgs
+
+#thesis only 
+
+s_ramped_thesis <- sd(ramped_ut$Flux, na.rm = TRUE)
+s_ramped_thesis
+
+s_scarped_thesis <- sd(scarped_ut$Flux, na.rm = TRUE)
+s_scarped_thesis
+
+mean_ramped_thesis <-mean(ramped_thesis$Flux)
+mean_ramped_thesis
+
+mean_scarped_thesis <-mean(scarped_thesis$Flux)
+mean_scarped_thesis
+```
+
+```{r, shapiro-wilkes test for normality of distributions}
+
+
+shapiro.test(usgs_thesis_m1_m6$Flux)
+
+shapiro.test(sed_thesis$Flux)
+
+shapiro.test(sed_usgs$Flux)
+```
+
+```{r}
+sed_thesis %>% 
+  group_by(Dist, Replicate) %>%
+  summarise(p_shapiro = shapiro.test(Flux)$p.value, .groups = "drop")
+
+sed_usgs %>% 
+  group_by(Dist, Replicate) %>%
+  summarise(p_shapiro = shapiro.test(Flux)$p.value, .groups = "drop")
+```
+
+```{r, shapiro test with log flux}
+
+
+usgs_thesis$log_flux <- sign(usgs_thesis$Flux) * log(abs(usgs_thesis$Flux) + 1)
+
+usgs_thesis$log_Flux <- as.numeric(sign(usgs_thesis$Flux) * log(abs(usgs_thesis$Flux) + 1))
+
+shapiro.test(usgs_thesis$log_Flux)
+```

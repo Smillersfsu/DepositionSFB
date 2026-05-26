@@ -1,0 +1,402 @@
+---
+title: "marsh areas"
+format: docx
+editor: visual
+---
+
+## Quarto
+
+Quarto enables you to weave together content and executable code into a finished document. To learn more about Quarto see <https://quarto.org>.
+
+## Running Code
+
+When you click the **Render** button a document will be generated that includes both content and the output of embedded code. You can embed code like this:
+
+```{r}
+# Create a copy with the group variable added
+sed_areas <- sed_thesis
+sed_areas$DistGroup <- ifelse(sed_thesis$Dist %in% c(0.5, 2, 6), "Edge",
+                         ifelse(sed_thesis$Dist %in% c(12, 18, 24), "Platform",
+                         ifelse(sed_thesis$Dist == 48, "Upland", NA)))
+
+sed_areas$DistGroup <- factor(sed_areas$DistGroup, 
+                                 levels = c("Edge", "Platform", "Upland"))
+
+
+```
+
+You can add options to executable code like this
+
+```{r}
+library(ggplot2)
+library(tidyverse)
+library(Rmisc)
+library(rstatix)
+library(tidyr)
+library(data.table)
+library(dplyr)
+library(lme4)
+library(stringr)
+#install.packages("readxl")
+library(readxl)
+#install.packages("lubridate")
+#install.packages("lmerTest")
+library(lmerTest)
+#install.packages("ggeffects")
+library(ggeffects)
+#install.packages("scales")
+library(scales)
+#install.packages("ggh4x")
+library(ggh4x)
+#install.packages("patchwork")
+#install.packages("cowplot")
+#install.packages("rcartocolor")
+library(rcartocolor)
+
+knitr::opts_knit$set(root.dir = 'C:/Users/savan/OneDrive - San Francisco State University/ProjectData/GitHub/DepositionSFB/data')
+```
+
+The `echo: false` option disables the printing of code (only output is displayed).
+
+```         
+```
+
+```{r}
+# Reorder sites
+sed_areas$Site <- factor(sed_areas$Site, levels = c("GiantMarsh", "SanPablo", "Buck'sLanding", "CorteMadera"))
+
+# Plot
+ggplot(sed_areas, aes(x = factor(DistGroup), y = Flux)) +
+  geom_col(position = position_dodge(preserve = "single")) +
+  scale_ylog10() + 
+  facet_grid(Site ~ ., scales = "fixed") +
+  labs(
+    x = "Marsh Areas",
+    y = "Total flux (g/m²/day)",
+    title = "Sediment Flux Across Distances From Marsh Edge at Four Marshes for 6 Monthly Collections (July-November)"
+  ) +
+  theme_minimal(base_size = 64) +
+  theme(
+    plot.title = element_text(hjust = 0.5, size = 78),
+    strip.text = element_text(face = "bold", size = 64),
+    legend.position = "bottom",
+    legend.text = element_text(size = 80),
+    legend.title = element_text(size = 88),
+    legend.key.size = unit(3, "cm"),
+    panel.grid.minor = element_blank(),
+    axis.text.x = element_text(angle = 45, hjust = 1, size = 60),
+    axis.text.y = element_text(size = 60),
+    axis.title = element_text(size = 60)
+  )
+
+ggsave("sed_marshareas2.png", 
+       width = 60, 
+       height = 40, 
+       dpi = 300,
+       limitsize = FALSE)
+```
+
+```{r}
+
+# Plot
+ggplot(sed_areas, aes(x = factor(DistGroup), y = Flux)) +
+  geom_boxplot() + 
+  scale_y_log10() + 
+  facet_grid(Site ~ ., scales = "fixed") +
+  annotation_logticks(sides = "1") +
+  labs(
+    x = "Marsh Areas",
+    y = "Total flux (g/m²/day)",
+    title = "Sediment Flux Across Distances From Marsh Edge at Four Marshes for 6 Monthly Collections (July-November)"
+  ) +
+  theme_minimal(base_size = 64) +
+  theme(
+    plot.title = element_text(hjust = 0.5, size = 78),
+    strip.text = element_text(face = "bold", size = 64),
+    legend.position = "bottom",
+    legend.text = element_text(size = 80),
+    legend.title = element_text(size = 88),
+    legend.key.size = unit(3, "cm"),
+    panel.grid.minor = element_blank(),
+    axis.text.x = element_text(angle = 45, hjust = 1, size = 60),
+    axis.text.y = element_text(size = 60),
+    axis.title = element_text(size = 60)
+  )
+
+ggsave("sed_marshareas3.png", 
+       width = 60, 
+       height = 40, 
+       dpi = 300,
+       limitsize = FALSE)
+
+```
+
+```{r}
+library(ggplot2)
+library(dplyr)
+library(patchwork)  # install.packages("patchwork") if needed
+
+sed_summary <- sed_areas %>%
+  dplyr::group_by(Site, DistGroup) %>%
+  dplyr::summarise(
+    mean_flux = mean(Flux, na.rm = TRUE),
+    sd_flux = sd(Flux, na.rm = TRUE),
+    n = length(Flux),
+    .groups = "drop"
+  ) %>%
+  dplyr::mutate(se_flux = sd_flux / sqrt(n))
+
+# Plot 1: Boxplot faceted by site
+p1 <- ggplot(sed_areas, aes(x = factor(DistGroup, levels = c("Edge", "Platform", "Upland")),
+                             y = Flux)) +
+  geom_boxplot(aes(fill = DistGroup), outlier.shape = 16, outlier.size = 3) +
+  scale_y_log10() + 
+  facet_grid(Site ~ ., scales = "fixed") +
+  annotation_logticks(sides = "1") +
+  labs(
+    x = "Marsh Area",
+    y = "Sediment Flux (g/m²/day)",
+    title = "A) Distribution of Flux by Marsh Area"
+  ) +
+  theme_bw(base_size = 64) +
+  theme(
+    plot.title = element_text(hjust = 0.5, size = 70),
+    strip.text = element_text(face = "bold", size = 64),
+    legend.position = "none",
+    axis.text.x = element_text(angle = 45, hjust = 1, size = 60),
+    axis.text.y = element_text(size = 60),
+    axis.title = element_text(size = 60)
+  )
+
+# Plot 2: Line plot with SE ribbons on log scale
+p2 <- ggplot(sed_summary, aes(x = factor(DistGroup, levels = c("Edge", "Platform", "Upland")),
+                               y = mean_flux, 
+                               colour = Site, 
+                               group = Site,
+                               fill = Site,          # move fill to main aes
+                               ymin = mean_flux - se_flux,   # move ymin/ymax to main aes
+                               ymax = mean_flux + se_flux)) +
+  geom_ribbon(alpha = 0.15, colour = NA) +           # geom_ribbon now inherits everything
+  geom_line(linewidth = 1.5) +
+  geom_point(size = 5) +
+  scale_y_log10() +
+  labs(
+    x = "Marsh Area",
+    y = "Mean Flux — log scale (g/m²/day)",
+    title = "B) Distance Decay Across Sites"
+  ) +
+  theme_bw(base_size = 64) +
+  theme(
+    plot.title = element_text(hjust = 0.5, size = 70),
+    legend.position = "bottom",
+    legend.text = element_text(size = 60),
+    legend.title = element_text(size = 64),
+    legend.key.size = unit(3, "cm"),
+    axis.text.x = element_text(angle = 45, hjust = 1, size = 60),
+    axis.text.y = element_text(size = 60),
+    axis.title = element_text(size = 60)
+  )
+
+# Combine with patchwork
+combined <- p1 + p2 +
+  plot_annotation(
+    title = "Sediment Flux Across Distances From Marsh Edge at Four Marshes",
+    theme = theme(plot.title = element_text(hjust = 0.5, size = 78))
+  )
+
+combined
+
+ggsave("sed_combined_panel.png",
+       plot = combined,
+       width = 80,
+       height = 45,
+       dpi = 300,
+       limitsize = FALSE)
+```
+
+```{r}
+
+sed_summary2 <- sed_areas %>%
+  dplyr::group_by(marsh_edge_type, DistGroup) %>%
+  dplyr::summarise(
+    mean_flux = mean(Flux, na.rm = TRUE),
+    sd_flux = sd(Flux, na.rm = TRUE),
+    n = length(Flux),
+    .groups = "drop"
+  ) %>%
+  dplyr::mutate(se_flux = sd_flux / sqrt(n))
+
+# Plot 1: Boxplot faceted by site
+p1 <- ggplot(sed_areas, aes(x = factor(DistGroup, levels = c("Edge", "Platform", "Upland")),
+                             y = Flux)) +
+  geom_boxplot(aes(fill = DistGroup), outlier.shape = 16, outlier.size = 3) +
+  scale_y_log10() + 
+  facet_grid(marsh_edge_type ~ ., scales = "fixed") +
+  annotation_logticks(sides = "1") +
+  labs(
+    x = "Marsh Area",
+    y = "Sediment Flux (g/m²/day)",
+    title = "A) Distribution of Flux by Marsh Area"
+  ) +
+  theme_bw(base_size = 64) +
+  theme(
+    plot.title = element_text(hjust = 0.5, size = 70),
+    strip.text = element_text(face = "bold", size = 64),
+    legend.position = "none",
+    axis.text.x = element_text(angle = 45, hjust = 1, size = 60),
+    axis.text.y = element_text(size = 60),
+    axis.title = element_text(size = 60)
+  )
+
+# Plot 2: Line plot with SE ribbons on log scale
+p2 <- ggplot(sed_summary2, aes(x = factor(DistGroup, levels = c("Edge", "Platform", "Upland")),
+                               y = mean_flux, 
+                               colour = marsh_edge_type,  
+                               group = marsh_edge_type,
+                               fill = marsh_edge_type,          # move fill to main aes
+                               ymin = mean_flux - se_flux,   # move ymin/ymax to main aes
+                               ymax = mean_flux + se_flux)) +
+  geom_ribbon(alpha = 0.15, colour = NA) +           # geom_ribbon now inherits everything
+  geom_line(linewidth = 1.5) +
+  geom_point(size = 5) +
+  scale_y_log10() +
+  labs(
+    x = "Marsh Area",
+    y = "Mean Flux — log scale (g/m²/day)",
+    title = "B) Distance Decay Across Sites"
+  ) +
+  theme_bw(base_size = 64) +
+  theme(
+    plot.title = element_text(hjust = 0.5, size = 70),
+    legend.position = "bottom",
+    legend.text = element_text(size = 60),
+    legend.title = element_text(size = 64),
+    legend.key.size = unit(3, "cm"),
+    axis.text.x = element_text(angle = 45, hjust = 1, size = 60),
+    axis.text.y = element_text(size = 60),
+    axis.title = element_text(size = 60)
+  )
+
+# Combine with patchwork
+combined <- p1 + p2 +
+  plot_annotation(
+    title = "Sediment Flux Across Distances From Marsh Edge at Four Marshes",
+    theme = theme(plot.title = element_text(hjust = 0.5, size = 78))
+  )
+
+combined
+
+ggsave("sed_combined_panel2.png",
+       plot = combined,
+       width = 80,
+       height = 45,
+       dpi = 300,
+       limitsize = FALSE)
+```
+
+```{r}
+
+sed_summary3 <- sed_areas %>%
+  dplyr::group_by(marsh_orientation, DistGroup) %>%
+  dplyr::summarise(
+    mean_flux = mean(Flux, na.rm = TRUE),
+    sd_flux = sd(Flux, na.rm = TRUE),
+    n = length(Flux),
+    .groups = "drop"
+  ) %>%
+  dplyr::mutate(se_flux = sd_flux / sqrt(n))
+
+# Plot 1: Boxplot faceted by site
+p1 <- ggplot(sed_areas, aes(x = factor(DistGroup, levels = c("Edge", "Platform", "Upland")),
+                             y = Flux)) +
+  geom_boxplot(aes(fill = DistGroup), outlier.shape = 16, outlier.size = 3) +
+  scale_y_log10() + 
+  facet_grid(marsh_orientation ~ ., scales = "fixed") +
+  annotation_logticks(sides = "1") +
+  labs(
+    x = "Marsh Area",
+    y = "Sediment Flux (g/m²/day)",
+    title = "A) Distribution of Flux by Marsh Area"
+  ) +
+  theme_bw(base_size = 64) +
+  theme(
+    plot.title = element_text(hjust = 0.5, size = 70),
+    strip.text = element_text(face = "bold", size = 64),
+    legend.position = "none",
+    axis.text.x = element_text(angle = 45, hjust = 1, size = 60),
+    axis.text.y = element_text(size = 60),
+    axis.title = element_text(size = 60)
+  )
+
+# Plot 2: Line plot with SE ribbons on log scale
+p2 <- ggplot(sed_summary3, aes(x = factor(DistGroup, levels = c("Edge", "Platform", "Upland")),
+                               y = mean_flux, 
+                               colour = marsh_orientation, 
+                               group = marsh_orientation,
+                               fill = marsh_orientation,          # move fill to main aes
+                               ymin = mean_flux - se_flux,   # move ymin/ymax to main aes
+                               ymax = mean_flux + se_flux)) +
+  geom_ribbon(alpha = 0.15, colour = NA) +           # geom_ribbon now inherits everything
+  geom_line(linewidth = 1.5) +
+  geom_point(size = 5) +
+  scale_y_log10() +
+  labs(
+    x = "Marsh Area",
+    y = "Mean Flux — log scale (g/m²/day)",
+    title = "B) Distance Decay Across Sites"
+  ) +
+  theme_bw(base_size = 64) +
+  theme(
+    plot.title = element_text(hjust = 0.5, size = 70),
+    legend.position = "bottom",
+    legend.text = element_text(size = 60),
+    legend.title = element_text(size = 64),
+    legend.key.size = unit(3, "cm"),
+    axis.text.x = element_text(angle = 45, hjust = 1, size = 60),
+    axis.text.y = element_text(size = 60),
+    axis.title = element_text(size = 60)
+  )
+
+# Combine with patchwork
+combined <- p1 + p2 +
+  plot_annotation(
+    title = "Sediment Flux Across Distances From Marsh Edge at Four Marshes",
+    theme = theme(plot.title = element_text(hjust = 0.5, size = 78))
+  )
+
+combined
+
+ggsave("sed_combined_panel3.png",
+       plot = combined,
+       width = 80,
+       height = 45,
+       dpi = 300,
+       limitsize = FALSE)
+```
+
+```{r}
+
+library(lme4)
+
+sed_areas_clean <- sed_areas %>% filter(Flux > 0)
+
+marsh_area1 <- lmer(log(Flux)~ factor(DistGroup) + marsh_edge_type + Season + (1|Site), data = sed_areas_clean)
+summary(marsh_area1)
+
+
+# Null
+m0 <- lmer(log(Flux) ~ 1 + (1|Site), data = sed_areas_clean)
+
+# Spatial structure only
+m1 <- lmer(log(Flux) ~ factor(DistGroup) + (1|Site), data = sed_areas_clean)
+
+# Add edge type interaction
+m2 <- lmer(log(Flux) ~ factor(DistGroup) * marsh_edge_type + (1|Site), data = sed_areas_clean)
+
+# Full model
+m3 <- lmer(log(Flux) ~ factor(DistGroup) * marsh_edge_type + Season + Study.Phase + (1|Site), 
+           data = sed_areas_clean)
+
+# Compare
+AIC(m0, m1, m2, m3)
+```

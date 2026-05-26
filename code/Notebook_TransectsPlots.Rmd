@@ -1,0 +1,855 @@
+---
+title: "Transects PLot Notebook"
+output:
+  html_document:
+    df_print: paged
+---
+
+#San Pablo Bay
+
+```{r}
+# Load necessary libraries
+library(dplyr)
+library(readr)
+library(ggplot2)
+library(reactable)
+library(patchwork)
+library(tinytex)
+
+# Load the dataset
+#Make sure to use double \\ to avoid errors
+rtk_data <- read_csv("C:\\Users\\erika\\Documents\\NERR_Local\\SAVANAHS THESIS\\Erika_Savannah_Local\\Cleaned_CSVs\\SanPablo.csv")
+
+#Render the table to visualize everything is ok
+reactable(rtk_data, 
+          defaultPageSize = 5, 
+          striped = TRUE, 
+          highlight = TRUE, 
+          resizable = TRUE, # Lets you drag column widths!
+          theme = reactableTheme(
+            borderColor = "#dfe2e5",
+            stripedColor = "#f6f8fa",
+            highlightColor = "#f0f5f9"
+          ))
+```
+
+```{r}
+#Finding the starting points of each transect
+starting_points <- rtk_data %>%
+  filter(grepl("-0.5a$", Point_ID)) %>% 
+  select(Transect_ID, Start_Easting = Easting, Start_Northing = Northing) %>%
+  group_by(Transect_ID) %>%
+  slice(1) %>%
+  ungroup()
+
+# Display the starting coordinates
+reactable(starting_points, 
+          pagination = FALSE, 
+          striped = TRUE,
+          fullWidth = FALSE) # Keeps the table compact
+```
+
+```{r}
+
+rtk_data_calc <- rtk_data %>%
+  # Merge the starting coordinates to the main dataset
+  left_join(starting_points, by = "Transect_ID") %>%
+  mutate(
+    # Calculate horizontal distances
+    Distance_AlongTransect_ft = sqrt((Easting - Start_Easting)^2 + (Northing - Start_Northing)^2),
+    Distance_AlongTransect_m = Distance_AlongTransect_ft * (1200/3937),
+    
+    #Convert Elevation from US Survey Feet to Meters
+    Elevation_m = Elevation_ft * (1200/3937)
+  ) %>%
+  # Clean up the temporary starting coordinate columns
+  select(-Start_Easting, -Start_Northing)
+
+# Show the fully calculated data table
+reactable(
+  rtk_data_calc %>% 
+    select(Transect_ID, Point_ID, Distance_AlongTransect_m, Elevation_ft, Elevation_m, Date),
+  defaultPageSize = 10,
+  striped = TRUE,
+  highlight = TRUE,
+  resizable = TRUE,
+  columns = list(
+    Distance_AlongTransect_m = colDef(format = colFormat(digits = 2)),
+    Elevation_m = colDef(format = colFormat(digits = 3)) # Showing 3 decimals for precise elevation
+  )
+)
+```
+
+```{r}
+# Filter data for S1 and extract the sample (a, b, or c)
+plot_data_s1 <- rtk_data_calc %>%
+  filter(Transect_ID == "S1") %>%
+  # This extracts the very last character (a, b, or c) from the Point_ID
+  mutate(Sample_Track = sub(".*([a-c])$", "\\1", Point_ID))
+
+# Create the plot for S1
+cross_section_plot_s1 <- ggplot(plot_data_s1, aes(x = Distance_AlongTransect_m, y = Elevation_ft, color = Sample_Track)) +
+  geom_point(size = 3, alpha = 0.8) +
+  geom_line(aes(group = Sample_Track), alpha = 0.4) + # Connects all 'a' points, 'b' points, etc.
+  labs(
+    title = "Cross Section Transect 1 (S1) - San Pablo Bay",
+    subtitle = "Comparing sample tracks (a, b, c) from the marsh edge (0m)",
+    x = "Distance Along Transect (m)",
+    y = "Elevation (ft)",
+    color = "Sample Track" # Legend title
+  ) +
+  theme_minimal() +
+  scale_color_brewer(palette = "Set1")
+
+# Draw the chart
+cross_section_plot_s1
+```
+```{r}
+# Filter data for S2 and extract the sample(a, b, or c)
+plot_data_s2 <- rtk_data_calc %>%
+  filter(Transect_ID == "S2") %>%
+  mutate(Sample_Track = sub(".*([a-c])$", "\\1", Point_ID))
+
+# Create the plot for S2
+cross_section_plot_s2 <- ggplot(plot_data_s2, aes(x = Distance_AlongTransect_m, y = Elevation_ft, color = Sample_Track)) +
+  geom_point(size = 3, alpha = 0.8) +
+  geom_line(aes(group = Sample_Track), alpha = 0.4) + 
+  labs(
+    title = "Cross Section Transect 2 (S2) - San Pablo Bay",
+    subtitle = "Comparing sample tracks (a, b, c) from the marsh edge (0m)",
+    x = "Distance Along Transect (m)",
+    y = "Elevation (ft)",
+    color = "Sample Track"
+  ) +
+  theme_minimal() +
+  scale_color_brewer(palette = "Dark2") 
+
+# Draw the chart in the notebook
+cross_section_plot_s2
+```
+
+```{r}
+#Stacking the comparisons 
+cross_section_plot_s1 <- ggplot(plot_data_s1, aes(x = Distance_AlongTransect_m, y = Elevation_ft, color = Sample_Track)) +
+  geom_point(size = 3, alpha = 0.8) +
+  geom_line(aes(group = Sample_Track), alpha = 0.4) + 
+  labs(
+    x = "Distance Along Transect (m)",
+    y = "Elevation (ft)",
+    color = "Transect S1"
+  ) +
+  theme_minimal() +
+  scale_color_brewer(palette = "Set1")
+
+
+cross_section_plot_s2 <- ggplot(plot_data_s2, aes(x = Distance_AlongTransect_m, y = Elevation_ft, color = Sample_Track)) +
+  geom_point(size = 3, alpha = 0.8) +
+  geom_line(aes(group = Sample_Track), alpha = 0.4) + 
+  labs(
+    x = "Distance Along Transect (m)",
+    y = "Elevation (ft)",
+    color = "Transect S2" 
+  ) +
+  theme_minimal() +
+  scale_color_brewer(palette = "Dark2")
+
+#Adding Title
+combined_plot <- (cross_section_plot_s1 / cross_section_plot_s2) +
+  plot_annotation(
+    title = "Comparison of Transects S1 and S2 - San Pablo Bay",
+    theme = theme(plot.title = element_text(size = 16, face = "bold"))
+  )
+
+#Adjusting the legend
+perfect_comparison <- combined_plot & 
+  scale_y_continuous(limits = c(5.0, 7.0)) & # Make sure to adjust these limits if needed!
+  theme(
+    legend.justification = c(1, 0), 
+    legend.position = c(0.98, 0.05),
+    legend.background = element_rect(fill = alpha("white", 0.8), color = "gray90"),
+    legend.direction = "horizontal",
+    # Added this to make your new legend titles bold and easy to read
+    legend.title = element_text(face = "bold") 
+  )
+
+# Draw the final plot
+perfect_comparison
+```
+
+```{r}
+# Saving the graphs
+output_folder <- "C:/Users/erika/Documents/NERR_Local/SAVANAHS THESIS/Erika_Savannah_Local/Cleaned_CSVs/Outputs/Plots/SanPablo"
+
+# Check if the folder exists, and create it if it doesn't
+if (!dir.exists(output_folder)) {
+  dir.create(output_folder, recursive = TRUE)
+  cat("Created new folder structure for outputs.\n")
+}
+
+# 1. Save Transect S1 Plot
+ggsave(
+  filename = paste0(output_folder, "/Transect_S1_Profile.png"),
+  plot = cross_section_plot_s1,
+  width = 8,       # Width in inches
+  height = 5,      # Height in inches
+  dpi = 300,       # 300 dpi is standard for print/publication quality
+  bg = "white"     # Ensures the background is solid white, not transparent
+)
+cat("Successfully saved Transect S1.\n")
+
+# 2. Save Transect S2 Plot
+ggsave(
+  filename = paste0(output_folder, "/Transect_S2_Profile.png"),
+  plot = cross_section_plot_s2,
+  width = 8,
+  height = 5,
+  dpi = 300,
+  bg = "white"
+)
+cat("Successfully saved Transect S2.\n")
+
+# 3. Save the Combined Comparison Plot
+ggsave(
+  filename = paste0(output_folder, "/Transects_S1_S2_Comparison.png"),
+  plot = perfect_comparison,
+  width = 10,      # Making this one a bit wider and taller since it contains two plots
+  height = 8,
+  dpi = 300,
+  bg = "white"
+)
+cat("Successfully saved Combined Comparison Plot.\n")
+```
+
+```{r}
+# Define your output folder for the CSVs
+#Note the forward slashes again
+csv_folder <- "C:/Users/erika/Documents/NERR_Local/SAVANAHS THESIS/Erika_Savannah_Local/Cleaned_CSVs/Outputs/CSVs"
+
+# Check if the folder exists, and create it if it doesn't
+if (!dir.exists(csv_folder)) {
+  dir.create(csv_folder, recursive = TRUE)
+  cat("Created new folder structure for CSV outputs.\n")
+}
+
+# Define the full file path including the file name
+# I named it "SanPablo_Calculated.csv" so it doesn't overwrite your raw data
+csv_file_path <- paste0(csv_folder, "/SanPablo_Calculated.csv")
+
+# Save the dataset
+write_csv(rtk_data_calc, file = csv_file_path)
+
+cat("Successfully saved the calculated dataset to:\n", csv_file_path, "\n")
+```
+-----------------------------------------------------------------------------------------------
+
+#Corte Madera
+
+```{r}
+
+# Load the Corte Madera dataset
+rtk_data_cm <- read_csv("C:/Users/erika/Documents/NERR_Local/SAVANAHS THESIS/Erika_Savannah_Local/Cleaned_CSVs/CorteMadera.csv")
+
+# Preview the raw data to ensure it loaded correctly
+reactable(head(rtk_data_cm, 5))
+```
+
+```{r}
+# 1. Extract starting points (looking for lowercase 'a' in the 0.5 sample)
+starting_points_cm <- rtk_data_cm %>%
+  filter(grepl("-0.5a$", Point_ID)) %>% 
+  select(Transect_ID, Start_Easting = Easting, Start_Northing = Northing) %>%
+  group_by(Transect_ID) %>%
+  slice(1) %>%
+  ungroup()
+
+# 2. Calculate horizontal distances AND metric elevations
+rtk_data_calc_cm <- rtk_data_cm %>%
+  left_join(starting_points_cm, by = "Transect_ID") %>%
+  mutate(
+    # Horizontal distances
+    Distance_AlongTransect_ft = sqrt((Easting - Start_Easting)^2 + (Northing - Start_Northing)^2),
+    Distance_AlongTransect_m = Distance_AlongTransect_ft * (1200/3937),
+    
+    # NEW: Calculate Elevation in meters to fill your blank column
+    Elevation_m = Elevation_ft * (1200/3937)
+  ) %>%
+  select(-Start_Easting, -Start_Northing)
+
+# Preview the calculated values to make sure everything populated
+reactable(
+  rtk_data_calc_cm %>% 
+    select(Transect_ID, Point_ID, Distance_AlongTransect_m, Elevation_ft, Elevation_m, Date),
+  defaultPageSize = 5, 
+  striped = TRUE, 
+  highlight = TRUE,
+  columns = list(
+    Distance_AlongTransect_m = colDef(format = colFormat(digits = 2)),
+    Elevation_m = colDef(format = colFormat(digits = 3)) # Added formatting to keep it clean!
+  )
+)
+```
+
+
+```{r}
+# Filter data for C1 and C2
+plot_data_c1 <- rtk_data_calc_cm %>%
+  filter(Transect_ID == "C1") %>%
+  mutate(Sample_Track = sub(".*([a-c])$", "\\1", Point_ID))
+
+plot_data_c2 <- rtk_data_calc_cm %>%
+  filter(Transect_ID == "C2") %>%
+  mutate(Sample_Track = sub(".*([a-c])$", "\\1", Point_ID))
+
+# Create Plot C1 - Using the "Set2" palette for a new location look
+cross_section_plot_c1 <- ggplot(plot_data_c1, aes(x = Distance_AlongTransect_m, y = Elevation_ft, color = Sample_Track)) +
+  geom_point(size = 3, alpha = 0.8) + geom_line(aes(group = Sample_Track), alpha = 0.4) + 
+  labs(x = "Distance Along Transect (meters)", y = "Elevation (feet)", color = "Transect C1") +
+  theme_minimal() + scale_color_brewer(palette = "Set2") 
+
+# Create Plot C2 - Using the "Accent" palette to look distinct from C1
+cross_section_plot_c2 <- ggplot(plot_data_c2, aes(x = Distance_AlongTransect_m, y = Elevation_ft, color = Sample_Track)) +
+  geom_point(size = 3, alpha = 0.8) + geom_line(aes(group = Sample_Track), alpha = 0.4) + 
+  labs(x = "Distance Along Transect (meters)", y = "Elevation (feet)", color = "Transect C2") +
+  theme_minimal() + scale_color_brewer(palette = "Accent")
+
+# Combine them with Patchwork
+perfect_comparison_cm <- (cross_section_plot_c1 / cross_section_plot_c2) +
+  plot_annotation(
+    title = "Comparison of Transects C1 and C2 - Corte Madera",
+    theme = theme(plot.title = element_text(size = 16, face = "bold"))
+  ) & 
+  scale_y_continuous(limits = c(5.0, 5.75)) & 
+  theme(
+    legend.justification = c(1, 0), 
+    legend.position = c(0.98, 0.05),
+    legend.background = element_rect(fill = alpha("white", 0.8), color = "gray90"),
+    legend.direction = "horizontal",
+    legend.title = element_text(face = "bold") 
+  )
+
+# Display the 3 plots in the notebook
+print(cross_section_plot_c1)
+print(cross_section_plot_c2)
+print(perfect_comparison_cm)
+```
+
+```{r}
+# Define your local output folders
+plots_folder <- "C:/Users/erika/Documents/NERR_Local/SAVANAHS THESIS/Erika_Savannah_Local/Cleaned_CSVs/Outputs/Plots/CorteMadera"
+csvs_folder <- "C:/Users/erika/Documents/NERR_Local/SAVANAHS THESIS/Erika_Savannah_Local/Cleaned_CSVs/Outputs/CSVs"
+
+# Create folders if they do not exist
+if (!dir.exists(plots_folder)) dir.create(plots_folder, recursive = TRUE)
+if (!dir.exists(csvs_folder)) dir.create(csvs_folder, recursive = TRUE)
+
+# Save the plots
+ggsave(paste0(plots_folder, "/Transect_C1_Profile.png"), plot = cross_section_plot_c1, width = 8, height = 5, dpi = 300, bg = "white")
+ggsave(paste0(plots_folder, "/Transect_C2_Profile.png"), plot = cross_section_plot_c2, width = 8, height = 5, dpi = 300, bg = "white")
+ggsave(paste0(plots_folder, "/Transects_C1_C2_Comparison.png"), plot = perfect_comparison_cm, width = 10, height = 8, dpi = 300, bg = "white")
+cat("Successfully saved all Corte Madera plots to:\n", plots_folder, "\n\n")
+
+# Save the Calculated CSV
+csv_output_path <- paste0(csvs_folder, "/CorteMadera_Calculated.csv")
+write_csv(rtk_data_calc_cm, file = csv_output_path)
+cat("Successfully saved Corte Madera CSV to:\n", csv_output_path, "\n")
+```
+--------------------------------------------------------------------------------------------------
+#Bucks Landing
+
+```{r}
+# Load the Bucks Landing dataset
+rtk_data_bl <- read_csv("C:/Users/erika/Documents/NERR_Local/SAVANAHS THESIS/Erika_Savannah_Local/Cleaned_CSVs/BucksLanding.csv")
+
+# Preview the raw data to ensure it loaded correctly
+reactable(head(rtk_data_bl, 5))
+```
+
+```{r}
+# 1. Extract starting points (looking for lowercase 'a' in the 0.5 sample)
+starting_points_bl <- rtk_data_bl %>%
+  filter(grepl("-0.5a$", Point_ID)) %>% 
+  select(Transect_ID, Start_Easting = Easting, Start_Northing = Northing) %>%
+  group_by(Transect_ID) %>%
+  slice(1) %>%
+  ungroup()
+
+# 2. Calculate horizontal distances AND metric elevations
+rtk_data_calc_bl <- rtk_data_bl %>%
+  left_join(starting_points_bl, by = "Transect_ID") %>%
+  mutate(
+    Distance_AlongTransect_ft = sqrt((Easting - Start_Easting)^2 + (Northing - Start_Northing)^2),
+    Distance_AlongTransect_m = Distance_AlongTransect_ft * (1200/3937),
+    
+    # Calculate Elevation in meters to fill the column
+    Elevation_m = Elevation_ft * (1200/3937)
+  ) %>%
+  select(-Start_Easting, -Start_Northing)
+
+# Preview the calculated values
+reactable(
+  rtk_data_calc_bl %>% 
+    select(Transect_ID, Point_ID, Distance_AlongTransect_m, Elevation_ft, Elevation_m, Date),
+  defaultPageSize = 5, 
+  striped = TRUE, 
+  highlight = TRUE,
+  columns = list(
+    Distance_AlongTransect_m = colDef(format = colFormat(digits = 2)),
+    Elevation_m = colDef(format = colFormat(digits = 3))
+  )
+)
+```
+```{r}
+# Filter data for B1 and B2, extracting the sample track letters
+# I used [a-z] to ensure it catches the 'd' track in B2
+plot_data_b1 <- rtk_data_calc_bl %>%
+  filter(Transect_ID == "B1" & grepl("[a-z]$", Point_ID)) %>%
+  mutate(Sample_Track = sub(".*([a-z])$", "\\1", Point_ID))
+
+plot_data_b2 <- rtk_data_calc_bl %>%
+  filter(Transect_ID == "B2" & grepl("[a-z]$", Point_ID)) %>%
+  mutate(Sample_Track = sub(".*([a-z])$", "\\1", Point_ID))
+
+# Create Plot B1 - Using the "Paired" palette
+cross_section_plot_b1 <- ggplot(plot_data_b1, aes(x = Distance_AlongTransect_m, y = Elevation_ft, color = Sample_Track)) +
+  geom_point(size = 3, alpha = 0.8) + geom_line(aes(group = Sample_Track), alpha = 0.4) + 
+  labs(x = "Distance Along Transect (meters)", y = "Elevation (feet)", color = "Transect B1") +
+  theme_minimal() + scale_color_brewer(palette = "Paired") 
+
+# Create Plot B2 - Using the "Set1" palette
+cross_section_plot_b2 <- ggplot(plot_data_b2, aes(x = Distance_AlongTransect_m, y = Elevation_ft, color = Sample_Track)) +
+  geom_point(size = 3, alpha = 0.8) + geom_line(aes(group = Sample_Track), alpha = 0.4) + 
+  labs(x = "Distance Along Transect (meters)", y = "Elevation (feet)", color = "Transect B2") +
+  theme_minimal() + scale_color_brewer(palette = "Set1")
+
+# Combine them with Patchwork
+perfect_comparison_bl <- (cross_section_plot_b1 / cross_section_plot_b2) +
+  plot_annotation(
+    title = "Comparison of Transects B1 and B2 - Bucks Landing",
+    theme = theme(plot.title = element_text(size = 16, face = "bold"))
+  ) & 
+  #Set max Y to 6.5 to accommodate Bucks Landing's higher elevations
+  scale_y_continuous(limits = c(5.0, 6.5)) & 
+  theme(
+    legend.justification = c(1, 0), 
+    legend.position = c(0.98, 0.05),
+    legend.background = element_rect(fill = alpha("white", 0.8), color = "gray90"),
+    legend.direction = "horizontal",
+    legend.title = element_text(face = "bold") 
+  )
+
+# Display the 3 plots in the notebook
+print(cross_section_plot_b1)
+print(cross_section_plot_b2)
+print(perfect_comparison_bl)
+```
+
+```{r}
+# Define your local output folders
+plots_folder <- "C:/Users/erika/Documents/NERR_Local/SAVANAHS THESIS/Erika_Savannah_Local/Cleaned_CSVs/Outputs/Plots/BucksLanding"
+csvs_folder <- "C:/Users/erika/Documents/NERR_Local/SAVANAHS THESIS/Erika_Savannah_Local/Cleaned_CSVs/Outputs/CSVs"
+
+# Create folders if they do not exist
+if (!dir.exists(plots_folder)) dir.create(plots_folder, recursive = TRUE)
+if (!dir.exists(csvs_folder)) dir.create(csvs_folder, recursive = TRUE)
+
+# Save the plots
+ggsave(paste0(plots_folder, "/Transect_B1_Profile.png"), plot = cross_section_plot_b1, width = 8, height = 5, dpi = 300, bg = "white")
+ggsave(paste0(plots_folder, "/Transect_B2_Profile.png"), plot = cross_section_plot_b2, width = 8, height = 5, dpi = 300, bg = "white")
+ggsave(paste0(plots_folder, "/Transects_B1_B2_Comparison.png"), plot = perfect_comparison_bl, width = 10, height = 8, dpi = 300, bg = "white")
+cat("Successfully saved all Bucks Landing plots to:\n", plots_folder, "\n\n")
+
+# Save the Calculated CSV
+csv_output_path <- paste0(csvs_folder, "/BucksLanding_Calculated.csv")
+write_csv(rtk_data_calc_bl, file = csv_output_path)
+cat("Successfully saved Bucks Landing CSV to:\n", csv_output_path, "\n")
+```
+--------------------------------------------------------------------------------------------------------------------------------------------------------
+#Giant Marsh 
+
+```{r}
+# Load the Giant Marsh dataset
+rtk_data_gm <- read_csv("C:/Users/erika/Documents/NERR_Local/SAVANAHS THESIS/Erika_Savannah_Local/Cleaned_CSVs/GiantMarsh.csv")
+
+# Preview the raw data to ensure it loaded correctly
+reactable(head(rtk_data_gm, 5))
+```
+
+```{r}
+# 1. Extract starting points (looking for lowercase 'a' in the 0.5 sample)
+starting_points_gm <- rtk_data_gm %>%
+  filter(grepl("-0.5a$", Point_ID)) %>% 
+  select(Transect_ID, Start_Easting = Easting, Start_Northing = Northing) %>%
+  group_by(Transect_ID) %>%
+  slice(1) %>%
+  ungroup()
+
+# 2. Calculate horizontal distances AND metric elevations
+rtk_data_calc_gm <- rtk_data_gm %>%
+  left_join(starting_points_gm, by = "Transect_ID") %>%
+  mutate(
+    Distance_AlongTransect_ft = sqrt((Easting - Start_Easting)^2 + (Northing - Start_Northing)^2),
+    Distance_AlongTransect_m = Distance_AlongTransect_ft * (1200/3937),
+    
+    # Calculate Elevation in meters to fill the column
+    Elevation_m = Elevation_ft * (1200/3937)
+  ) %>%
+  select(-Start_Easting, -Start_Northing)
+
+# Preview the calculated values
+reactable(
+  rtk_data_calc_gm %>% 
+    select(Transect_ID, Point_ID, Distance_AlongTransect_m, Elevation_ft, Elevation_m, Date),
+  defaultPageSize = 5, 
+  striped = TRUE, 
+  highlight = TRUE,
+  columns = list(
+    Distance_AlongTransect_m = colDef(format = colFormat(digits = 2)),
+    Elevation_m = colDef(format = colFormat(digits = 3))
+  )
+)
+```
+
+```{r}
+# Filter data for GM1 and GM2, extracting the sample track letters (a, b, c)
+plot_data_gm1 <- rtk_data_calc_gm %>%
+  filter(Transect_ID == "GM1") %>%
+  mutate(Sample_Track = sub(".*([a-c])$", "\\1", Point_ID))
+
+plot_data_gm2 <- rtk_data_calc_gm %>%
+  filter(Transect_ID == "GM2") %>%
+  mutate(Sample_Track = sub(".*([a-c])$", "\\1", Point_ID))
+
+# Create Plot GM1 - Using the "Dark2" palette
+cross_section_plot_gm1 <- ggplot(plot_data_gm1, aes(x = Distance_AlongTransect_m, y = Elevation_ft, color = Sample_Track)) +
+  geom_point(size = 3, alpha = 0.8) + geom_line(aes(group = Sample_Track), alpha = 0.4) + 
+  labs(x = "Distance Along Transect (meters)", y = "Elevation (feet)", color = "Transect GM1") +
+  theme_minimal() + scale_color_brewer(palette = "Dark2") 
+
+# Create Plot GM2 - Using the "Set1" palette
+cross_section_plot_gm2 <- ggplot(plot_data_gm2, aes(x = Distance_AlongTransect_m, y = Elevation_ft, color = Sample_Track)) +
+  geom_point(size = 3, alpha = 0.8) + geom_line(aes(group = Sample_Track), alpha = 0.4) + 
+  labs(x = "Distance Along Transect (meters)", y = "Elevation (feet)", color = "Transect GM2") +
+  theme_minimal() + scale_color_brewer(palette = "Set1")
+
+# Combine them with Patchwork
+perfect_comparison_gm <- (cross_section_plot_gm1 / cross_section_plot_gm2) +
+  plot_annotation(
+    title = "Comparison of Transects GM1 and GM2 - Giant Marsh",
+    theme = theme(plot.title = element_text(size = 16, face = "bold"))
+  ) & 
+  # --- Set Y-Axis between 6.0 and 7.0 for the higher elevations here ---
+  scale_y_continuous(limits = c(6.0, 7.0)) & 
+  theme(
+    legend.justification = c(1, 0), 
+    legend.position = c(0.98, 0.05),
+    legend.background = element_rect(fill = alpha("white", 0.8), color = "gray90"),
+    legend.direction = "horizontal",
+    legend.title = element_text(face = "bold") 
+  )
+
+# Display the 3 plots in the notebook
+print(cross_section_plot_gm1)
+print(cross_section_plot_gm2)
+print(perfect_comparison_gm)
+```
+```{r}
+# Define your local output folders
+plots_folder <- "C:/Users/erika/Documents/NERR_Local/SAVANAHS THESIS/Erika_Savannah_Local/Cleaned_CSVs/Outputs/Plots/GiantMarsh"
+csvs_folder <- "C:/Users/erika/Documents/NERR_Local/SAVANAHS THESIS/Erika_Savannah_Local/Cleaned_CSVs/Outputs/CSVs"
+
+# Create folders if they do not exist
+if (!dir.exists(plots_folder)) dir.create(plots_folder, recursive = TRUE)
+if (!dir.exists(csvs_folder)) dir.create(csvs_folder, recursive = TRUE)
+
+# Save the plots
+ggsave(paste0(plots_folder, "/Transect_GM1_Profile.png"), plot = cross_section_plot_gm1, width = 8, height = 5, dpi = 300, bg = "white")
+ggsave(paste0(plots_folder, "/Transect_GM2_Profile.png"), plot = cross_section_plot_gm2, width = 8, height = 5, dpi = 300, bg = "white")
+ggsave(paste0(plots_folder, "/Transects_GM1_GM2_Comparison.png"), plot = perfect_comparison_gm, width = 10, height = 8, dpi = 300, bg = "white")
+cat("Successfully saved all Giant Marsh plots to:\n", plots_folder, "\n\n")
+
+# Save the Calculated CSV
+csv_output_path <- paste0(csvs_folder, "/GiantMarsh_Calculated.csv")
+write_csv(rtk_data_calc_gm, file = csv_output_path)
+cat("Successfully saved Giant Marsh CSV to:\n", csv_output_path, "\n")
+```
+----------------------------------------------------------------------------------------------------------------------------------------------------------
+
+Creating a new dataset with all the locations together for later plots:
+
+```{r}
+# 1. Combine all four calculated datasets into one master data frame
+master_rtk_data <- bind_rows(
+  rtk_data_calc,      # San Pablo
+  rtk_data_calc_cm,   # Corte Madera
+  rtk_data_calc_bl,   # Bucks Landing
+  rtk_data_calc_gm    # Giant Marsh
+)
+
+# 2. Preview the master dataset
+# Adding a filter so you can sort by Location or Transect_ID
+reactable(
+  master_rtk_data %>% 
+    select(Location, Transect_ID, Point_ID, Distance_AlongTransect_m, Elevation_ft, Elevation_m, Date),
+  defaultPageSize = 10, 
+  striped = TRUE, 
+  highlight = TRUE,
+  filterable = TRUE, # Turns on search boxes for each column!
+  columns = list(
+    Distance_AlongTransect_m = colDef(format = colFormat(digits = 2)),
+    Elevation_m = colDef(format = colFormat(digits = 3))
+  )
+)
+
+# 3. Save the Master CSV
+csvs_folder <- "C:/Users/erika/Documents/NERR_Local/SAVANAHS THESIS/Erika_Savannah_Local/Cleaned_CSVs/Outputs/CSVs"
+master_csv_path <- paste0(csvs_folder, "/All_Sites_Calculated.csv")
+
+write_csv(master_rtk_data, file = master_csv_path)
+
+cat("Successfully combined all sites!\nMaster CSV saved to:\n", master_csv_path, "\n")
+```
+----------------------------------------------------------------------------------------------------------------------------------------------------
+
+#Replicates comparison
+
+```{r}
+# 1. Filter the master dataset to ONLY include sample 'a'
+plot_data_all_a <- master_rtk_data %>%
+  # grepl("a$", ...) ensures we only keep rows where Point_ID ends with 'a' or 'A'
+  filter(grepl("a$", Point_ID, ignore.case = TRUE))
+
+# 2. Create the Cross-Site Comparison Plot
+cross_site_plot <- ggplot(plot_data_all_a, aes(x = Distance_AlongTransect_m, y = Elevation_ft, color = Transect_ID)) +
+  geom_point(aes(shape = Location), size = 3, alpha = 0.8) + 
+  geom_line(aes(group = Transect_ID), linewidth = 1, alpha = 0.5) + 
+  
+  # Set up labels
+  labs(
+    title = "Cross-Site Elevation Comparison (Replicates 'a' Only)",
+    subtitle = "Comparing elevations across San Pablo, Corte Madera, Bucks Landing, and Giant Marsh",
+    x = "Distance Along Transect (m)",
+    y = "Elevation (ft)",
+    color = "Transect",
+    shape = "Location"
+  ) +
+  theme_minimal() +
+  scale_color_brewer(palette = "Paired") + 
+  
+  # Format the legend to make it easy to read
+  theme(
+    legend.position = "right",
+    legend.title = element_text(face = "bold"),
+    plot.title = element_text(size = 16, face = "bold")
+  )
+
+# 3. Display the plot
+print(cross_site_plot)
+
+# 4. Save the plot to your main Plots folder
+overall_plots_folder <- "C:/Users/erika/Documents/NERR_Local/SAVANAHS THESIS/Erika_Savannah_Local/Cleaned_CSVs/Outputs/Plots/Overall_Comparisons"
+
+# Create the folder if it doesn't exist
+if (!dir.exists(overall_plots_folder)) dir.create(overall_plots_folder, recursive = TRUE)
+
+# Save the high-res image
+ggsave(
+  filename = paste0(overall_plots_folder, "/All_Sites_Track_A_Comparison.png"),
+  plot = cross_site_plot,
+  width = 10,  # Keeping it wide to comfortably fit the legend
+  height = 6,
+  dpi = 300,
+  bg = "white"
+)
+
+cat("Successfully saved the overall comparison plot to:\n", overall_plots_folder, "\n")
+```
+
+```{r}
+# 1. Filter the master dataset to ONLY include sample 'b'
+plot_data_all_b <- master_rtk_data %>%
+  # grepl("b$", ...) ensures we only keep rows where Point_ID ends with 'b' or 'B'
+  filter(grepl("b$", Point_ID, ignore.case = TRUE))
+
+# 2. Create the Cross-Site Comparison Plot for track 'b'
+cross_site_plot_b <- ggplot(plot_data_all_b, aes(x = Distance_AlongTransect_m, y = Elevation_ft, color = Transect_ID)) +
+  geom_point(aes(shape = Location), size = 3, alpha = 0.8) + 
+  geom_line(aes(group = Transect_ID), linewidth = 1, alpha = 0.5) + 
+  
+  # Set up labels
+  labs(
+    title = "Cross-Site Elevation Comparison (Samples 'b' Only)",
+    subtitle = "Comparing elevations across San Pablo, Corte Madera, Bucks Landing, and Giant Marsh",
+    x = "Distance Along Transect (m)",
+    y = "Elevation (ft)",
+    color = "Transect",
+    shape = "Location"
+  ) +
+  theme_minimal() +
+  
+  # Keeping the same "Paired" palette so Transect colors remain consistent with the 'a' plot
+  scale_color_brewer(palette = "Paired") + 
+  
+  # Format the legend to make it easy to read
+  theme(
+    legend.position = "right",
+    legend.title = element_text(face = "bold"),
+    plot.title = element_text(size = 16, face = "bold")
+  )
+
+# 3. Display the plot
+print(cross_site_plot_b)
+
+# 4. Save the plot to your main Plots folder
+overall_plots_folder <- "C:/Users/erika/Documents/NERR_Local/SAVANAHS THESIS/Erika_Savannah_Local/Cleaned_CSVs/Outputs/Plots/Overall_Comparisons"
+
+# Save the high-res image
+ggsave(
+  filename = paste0(overall_plots_folder, "/All_Sites_Track_B_Comparison.png"),
+  plot = cross_site_plot_b,
+  width = 10,  
+  height = 6,
+  dpi = 300,
+  bg = "white"
+)
+
+cat("Successfully saved the overall comparison plot for Track B to:\n", overall_plots_folder, "\n")
+```
+```{r}
+# 1. Filter the master dataset to ONLY include sample 'c'
+plot_data_all_c <- master_rtk_data %>%
+  # grepl("c$", ...) ensures we only keep rows where Point_ID ends with 'c' or 'C'
+  filter(grepl("c$", Point_ID, ignore.case = TRUE))
+
+# 2. Create the Cross-Site Comparison Plot for track 'c'
+cross_site_plot_c <- ggplot(plot_data_all_c, aes(x = Distance_AlongTransect_m, y = Elevation_ft, color = Transect_ID)) +
+  geom_point(aes(shape = Location), size = 3, alpha = 0.8) + 
+  geom_line(aes(group = Transect_ID), linewidth = 1, alpha = 0.5) + 
+  
+  # Set up labels
+  labs(
+    title = "Cross-Site Elevation Comparison (Track 'c' Only)",
+    subtitle = "Comparing elevations across San Pablo, Corte Madera, Bucks Landing, and Giant Marsh",
+    x = "Distance Along Transect (m)",
+    y = "Elevation (ft)",
+    color = "Transect",
+    shape = "Location"
+  ) +
+  theme_minimal() +
+  
+  # Keeping the same "Paired" palette so Transect colors remain consistent
+  scale_color_brewer(palette = "Paired") + 
+  
+  # Format the legend to make it easy to read
+  theme(
+    legend.position = "right",
+    legend.title = element_text(face = "bold"),
+    plot.title = element_text(size = 16, face = "bold")
+  )
+
+# 3. Display the plot in the notebook
+print(cross_site_plot_c)
+
+# 4. Save the plot to your main Plots folder
+overall_plots_folder <- "C:/Users/erika/Documents/NERR_Local/SAVANAHS THESIS/Erika_Savannah_Local/Cleaned_CSVs/Outputs/Plots/Overall_Comparisons"
+
+# Save the high-res image
+ggsave(
+  filename = paste0(overall_plots_folder, "/All_Sites_Track_C_Comparison.png"),
+  plot = cross_site_plot_c,
+  width = 10,  
+  height = 6,
+  dpi = 300,
+  bg = "white"
+)
+
+cat("Successfully saved the overall comparison plot for Track C to:\n", overall_plots_folder, "\n")
+```
+```{r}
+# 1. Start with only track 'a' data
+plot_data_a <- master_rtk_data %>%
+  filter(grepl("a$", Point_ID, ignore.case = TRUE))
+
+# 2. Split into Ramped and Scarped datasets
+data_ramped <- plot_data_a %>%
+  filter(Location %in% c("SanPablo", "BucksLanding"))
+
+data_scarped <- plot_data_a %>%
+  filter(Location %in% c("CorteMadera", "GiantMarsh"))
+
+# 3. Create the Ramped Plot
+plot_ramped <- ggplot(data_ramped, aes(x = Distance_AlongTransect_m, y = Elevation_ft, color = Transect_ID)) +
+  geom_point(aes(shape = Location), size = 3, alpha = 0.8) + 
+  geom_line(aes(group = Transect_ID), linewidth = 1, alpha = 0.5) + 
+  labs(
+    subtitle = "Ramped Sites (San Pablo & Bucks Landing)",
+    x = "Distance Along Transect (m)",
+    y = "Elevation (ft)",
+    color = "Transect",
+    shape = "Location"
+  ) +
+  theme_minimal() +
+  scale_color_brewer(palette = "Paired") +
+  # --- NEW: Added guides to force Location on top (order = 1) ---
+  guides(
+    shape = guide_legend(order = 1),
+    color = guide_legend(order = 2)
+  ) +
+  theme(
+    legend.title = element_text(face = "bold"),
+    legend.position = "bottom",          
+    legend.box = "vertical",             
+    plot.subtitle = element_text(size = 11, face = "italic")
+  )
+
+# 4. Create the Scarped Plot
+plot_scarped <- ggplot(data_scarped, aes(x = Distance_AlongTransect_m, y = Elevation_ft, color = Transect_ID)) +
+  geom_point(aes(shape = Location), size = 3, alpha = 0.8) + 
+  geom_line(aes(group = Transect_ID), linewidth = 1, alpha = 0.5) + 
+  labs(
+    subtitle = "Scarped Sites (Corte Madera & Giant Marsh)",
+    x = "Distance Along Transect (m)",
+    y = "Elevation (ft)",
+    color = "Transect",
+    shape = "Location"
+  ) +
+  theme_minimal() +
+  scale_color_brewer(palette = "Dark2") +
+  # --- NEW: Added guides to force Location on top (order = 1) ---
+  guides(
+    shape = guide_legend(order = 1),
+    color = guide_legend(order = 2)
+  ) +
+  theme(
+    legend.title = element_text(face = "bold"),
+    legend.position = "bottom",        
+    legend.box = "vertical",
+    plot.subtitle = element_text(size = 11, face = "italic")
+  )
+
+# 5. Combine the plots for side-by-side viewing
+combined_morphology_plot <- (plot_ramped | plot_scarped) +
+  plot_annotation(
+    title = "Marsh Morphology Comparison: Ramped vs. Scarped Sites",
+    theme = theme(plot.title = element_text(size = 16, face = "bold"))
+  ) &
+  scale_y_continuous(limits = c(5.0, 7.0)) # Ensures both graphs are on the exact same vertical scale
+
+# 6. Display the combined plot
+print(combined_morphology_plot)
+
+# 7. Save the combined plot to your Overall Comparisons folder
+overall_plots_folder <- "C:/Users/erika/Documents/NERR_Local/SAVANAHS THESIS/Erika_Savannah_Local/Cleaned_CSVs/Outputs/Plots/Overall_Comparisons"
+if (!dir.exists(overall_plots_folder)) dir.create(overall_plots_folder, recursive = TRUE)
+
+ggsave(
+  filename = paste0(overall_plots_folder, "/Morphology_Comparison_Track_A.png"),
+  plot = combined_morphology_plot,
+  width = 12,  
+  height = 7,  
+  dpi = 300,
+  bg = "white"
+)
+
+cat("Successfully saved the updated Ramped vs. Scarped comparison plot to:\n", overall_plots_folder, "\n")
+```
+

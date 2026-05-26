@@ -1,0 +1,385 @@
+---
+title: "Distance Per Site"
+format: html
+editor: visual
+---
+
+## Quarto
+
+Quarto enables you to weave together content and executable code into a finished document. To learn more about Quarto see <https://quarto.org>.
+
+## Running Code
+
+When you click the **Render** button a document will be generated that includes both content and the output of embedded code. You can embed code like this:
+
+```{r}
+# goal: Plot data on sediment flux vs. distance from marsh for each transect separately at each site – could run model at that limited level to see if patterns or differences emerge
+```
+
+You can add options to executable code like this
+
+```{r}
+
+library(ggplot2)
+library(tidyverse)
+library(Rmisc)
+library(rstatix)
+library(tidyr)
+library(data.table)
+library(dplyr)
+library(lme4)
+library(stringr)
+#install.packages("readxl")
+library(readxl)
+#install.packages("lubridate")
+#install.packages("lmerTest")
+library(lmerTest)
+#install.packages("ggeffects")
+library(ggeffects)
+install.packages("scales")
+library(scales)
+install.packages("ggh4x")
+library(ggh4x)
+install.packages("patchwork")
+install.packages("cowplot")
+install.packages("rcartocolor")
+library(rcartocolor)
+
+knitr::opts_knit$set(root.dir = 'C:/Users/savan/OneDrive - San Francisco State University/ProjectData/GitHub/DepositionSFB/data')
+```
+
+```{r}
+
+library(ggplot2)
+library(dplyr)
+
+# Ensure Month/Phase is ordered correctly
+sed_thesis <- sed_thesis %>%
+  mutate(Study.Phase = factor(Study.Phase, levels = c("M1","M2","M3","M4","M5","M6")))
+
+
+ggplot(sed_thesis, aes(x = as.numeric(as.character(Dist)), y = Flux, color = Study.Phase, group = interaction(Study.Phase, Tran))) +
+  geom_line(linewidth = 0.8) +
+  geom_point(size = 2) +
+  scale_x_continuous(
+    trans = scales::trans_new(
+    "log1p",
+    transform = function(x) log(x + 1),
+    inverse = function(x) exp(x) - 1),                     # log(Dist + 1) — matches your model exactly
+    breaks = c(0.5, 2, 6, 12, 18, 24, 48),             # your actual distance points
+    labels = c("0.5", "2", "6", "12", "18", "24", "48")
+  ) +
+  scale_y_continuous(limits = c(0, NA)) +
+  scale_color_manual(
+    name = "Study phase",
+    values = c(
+      "M1" = "#4E79A7",
+      "M2" = "#F28E2B",
+      "M3" = "#59A14F",
+      "M4" = "#E15759",
+      "M5" = "#B07AA1",
+      "M6" = "#76B7B2"
+    )
+  ) +
+  facet_wrap(~ Site, ncol = 2) +
+  labs(
+    x = "Distance from source (m)",
+    y = "Flux (g/m²/day)",
+    title = "Sediment flux decay by site and study phase"
+  ) +
+  theme_minimal(base_size = 13) +
+  theme(
+    plot.title = element_text(hjust = 0.5, size = 14),
+    strip.text = element_text(face = "bold"),
+    legend.position = "bottom",
+    panel.grid.minor = element_blank()
+  )
+
+
+sed_thesis <- sed_thesis %>%
+  mutate(Study.Phase = factor(Study.Phase, levels = c("M1","M2","M3","M4","M5","M6")),
+         Dist = factor(Dist, levels = c(0.5, 2, 6, 12, 18, 24, 48)))  # distance as factor for boxplot grouping
+
+
+# --- OPTION 1: All phases overlaid, faceted by site ---
+# Good if you want to compare phases within each site
+# May get busy with 6 phases × 7 distances × 2 transects
+
+ggplot(sed_thesis, aes(x = Dist, y = Flux, fill = Study.Phase)) +
+  geom_boxplot(
+    outlier.size = 1.5,
+    outlier.alpha = 0.6,
+    linewidth = 0.5,
+    position = position_dodge(width = 0.85)
+  ) +
+  scale_fill_manual(
+    name = "Study phase",
+    values = c(
+      "M1" = "#4E79A7",
+      "M2" = "#F28E2B",
+      "M3" = "#59A14F",
+      "M4" = "#E15759",
+      "M5" = "#B07AA1",
+      "M6" = "#76B7B2"
+    )
+  ) +
+  facet_wrap(~ Site, ncol = 2, scales = "free_y") +
+  labs(
+    x = "Distance from source (m)",
+    y = "Flux (g/m²/day)",
+    title = "Sediment flux by site and study phase"
+  ) +
+  theme_minimal(base_size = 13) +
+  theme(
+    plot.title = element_text(hjust = 0.5),
+    strip.text = element_text(face = "bold"),
+    legend.position = "bottom",
+    panel.grid.minor = element_blank()
+  )
+
+
+# --- OPTION 2: Faceted by site AND phase ---
+# Cleaner if option 1 is too crowded
+# Each panel = one site × one phase combination
+
+
+# Update summary to include standard error
+sed_summary <- sed_thesis %>%
+  dplyr::group_by(Site, Dist, Tran, Study.Phase) %>%
+  dplyr::summarise(
+    total_flux = sum(Flux, na.rm = TRUE),
+    mean_flux = mean(Flux, na.rm = TRUE),
+    se_flux = sd(Flux, na.rm = TRUE) / sqrt(n()),
+    .groups = "drop"
+  )
+
+# Reorder sites
+sed_summary$Site <- factor(sed_summary$Site, levels = c("GiantMarsh", "SanPablo", "Buck'sLanding", "CorteMadera"))
+
+# Plot
+ggplot(sed_summary, aes(x = factor(Dist), y = total_flux, fill = Study.Phase)) +
+  geom_col(position = position_dodge(preserve = "single")) +
+  geom_errorbar(
+    aes(ymin = mean_flux - se_flux, ymax = mean_flux + se_flux),
+    position = position_dodge(preserve = "single"),
+    width = 0.25,
+    linewidth = 0.8
+  ) +
+  scale_fill_carto_d(palette = "PurpOr", name = "Study Phase") +
+  coord_cartesian(ylim = c(0, 100)) +
+  facet_grid(Site ~ .) +
+  labs(
+    x = "Distance Along Transect (m)",
+    y = "Total flux (g/m²/day)",
+    title = "Sediment Flux Across Distances From Marsh Edge at Four Marshes for 6 Monthly Collections (July-November)"
+  ) +
+  theme_minimal(base_size = 64) +
+  theme(
+    plot.title = element_text(hjust = 0.5, size = 78),
+    strip.text = element_text(face = "bold", size = 64),
+    legend.position = "bottom",
+    legend.text = element_text(size = 80),
+    legend.title = element_text(size = 88),
+    legend.key.size = unit(3, "cm"),
+    panel.grid.minor = element_blank(),
+    axis.text.x = element_text(angle = 45, hjust = 1, size = 60),
+    axis.text.y = element_text(size = 60),
+    axis.title = element_text(size = 60)
+  )
+
+ggsave("sed_dist_study.phase_full.png", 
+       width = 60, 
+       height = 40, 
+       dpi = 300,
+       limitsize = FALSE)
+```
+
+```{r}
+# Plot
+ggplot(sed_summary[sed_summary$Site == "GiantMarsh",], aes(x = factor(Dist), y = total_flux, fill = Study.Phase)) +
+  geom_col(position = position_dodge(preserve = "single")) +
+  geom_errorbar(
+    aes(ymin = mean_flux - se_flux, ymax = mean_flux + se_flux),
+    position = position_dodge(preserve = "single"),
+    width = 0.25,
+    linewidth = 0.8
+  ) +
+  scale_fill_carto_d(palette = "PurpOr", name = "Study Phase") +
+   facet_grid(Tran ~ .) + 
+  labs(
+    x = "Distance Along Transect (m)",
+    y = "Total flux (g/m²/day)",
+    title = "Sediment Flux Across Distances From Marsh Edge at Giant Marsh for 6 Monthly Collections (July-November)"
+  ) +
+  theme_minimal(base_size = 64) +
+  theme(
+    plot.title = element_text(hjust = 0.5, size = 78),
+    strip.text = element_text(face = "bold", size = 64),
+    legend.position = "bottom",
+    legend.text = element_text(size = 80),
+    legend.title = element_text(size = 88),
+    legend.key.size = unit(3, "cm"),
+    panel.grid.minor = element_blank(),
+    axis.text.x = element_text(angle = 45, hjust = 1, size = 60),
+    axis.text.y = element_text(size = 60),
+    axis.title = element_text(size = 60)
+  )
+
+ggsave("sed_dist_study.phase_G.png", 
+       width = 60, 
+       height = 40, 
+       dpi = 300,
+       limitsize = FALSE)
+```
+
+```{r}
+ggplot(sed_summary[sed_summary$Site == "SanPablo",], aes(x = factor(Dist), y = total_flux, fill = Study.Phase)) +
+  geom_col(position = position_dodge(preserve = "single")) +
+  geom_errorbar(
+    aes(ymin = mean_flux - se_flux, ymax = mean_flux + se_flux),
+    position = position_dodge(preserve = "single"),
+    width = 0.25,
+    linewidth = 0.8
+  ) +
+  scale_fill_carto_d(palette = "PurpOr", name = "Study Phase") +
+  facet_grid(Tran ~ .) + 
+  labs(
+    x = "Distance Along Transect (m)",
+    y = "Total flux (g/m²/day)",
+    title = "Sediment Flux Across Distances From Marsh Edge at San Pablo NWR for 6 Monthly Collections (July-November)"
+  ) +
+  theme_minimal(base_size = 64) +
+  theme(
+    plot.title = element_text(hjust = 0.5, size = 78),
+    strip.text = element_text(face = "bold", size = 64),
+    legend.position = "bottom",
+    legend.text = element_text(size = 80),
+    legend.title = element_text(size = 88),
+    legend.key.size = unit(3, "cm"),
+    panel.grid.minor = element_blank(),
+    axis.text.x = element_text(angle = 45, hjust = 1, size = 60),
+    axis.text.y = element_text(size = 60),
+    axis.title = element_text(size = 60)
+  )
+
+ggsave("sed_dist_study.phase_S.png", 
+       width = 60, 
+       height = 40, 
+       dpi = 300,
+       limitsize = FALSE)
+
+```
+
+```{r}
+
+ggplot(sed_summary[sed_summary$Site == "Buck'sLanding",], aes(x = factor(Dist), y = total_flux, fill = Study.Phase)) +
+  geom_col(position = position_dodge(preserve = "single")) +
+  geom_errorbar(
+    aes(ymin = mean_flux - se_flux, ymax = mean_flux + se_flux),
+    position = position_dodge(preserve = "single"),
+    width = 0.25,
+    linewidth = 0.8
+  ) +
+  scale_fill_carto_d(palette = "PurpOr", name = "Study Phase") + 
+  facet_grid(Tran ~ .) +
+  labs(
+    x = "Distance Along Transect (m)",
+    y = "Total Flux (g/m²/day)",
+    title = "Sediment Flux Across Distances From Marsh Edge at Buck's Landing for 6 Monthly Collections (July-November)"
+  ) +
+  theme_minimal(base_size = 64) +
+  theme(
+    plot.title = element_text(hjust = 0.5, size = 78),
+    strip.text = element_text(face = "bold", size = 64),
+    legend.position = "bottom",
+    legend.text = element_text(size = 80),
+    legend.title = element_text(size = 88),
+    legend.key.size = unit(3, "cm"),
+    panel.grid.minor = element_blank(),
+    axis.text.x = element_text(angle = 45, hjust = 1, size = 60),
+    axis.text.y = element_text(size = 60),
+    axis.title = element_text(size = 60)
+  )
+
+ggsave("sed_dist_study.phase_B.png", 
+       width = 60, 
+       height = 40, 
+       dpi = 300,
+       limitsize = FALSE)
+```
+
+```{r}
+ggplot(sed_summary[sed_summary$Site == "CorteMadera",], aes(x = factor(Dist), y = total_flux, fill = Study.Phase)) +
+  geom_col(position = position_dodge(preserve = "single")) +
+  geom_errorbar(
+    aes(ymin = mean_flux - se_flux, ymax = mean_flux + se_flux),
+    position = position_dodge(preserve = "single"),
+    width = 0.25,
+    linewidth = 0.8
+  ) +
+  scale_fill_carto_d(palette = "PurpOr", name = "Study Phase") +
+  facet_grid(Tran ~ .) + 
+  labs(
+    x = "Distance Along Transect (m)",
+    y = "Total flux (g/m²/day)",
+    title = "Sediment Flux Across Distances From Marsh Edge at Corte Madera Marsh for 6 Monthly Collections (July-November)"
+  ) +
+  theme_minimal(base_size = 64) +
+  theme(
+    plot.title = element_text(hjust = 0.5, size = 78),
+    strip.text = element_text(face = "bold", size = 64),
+    legend.position = "bottom",
+    legend.text = element_text(size = 80),
+    legend.title = element_text(size = 88),
+    legend.key.size = unit(3, "cm"),
+    panel.grid.minor = element_blank(),
+    axis.text.x = element_text(angle = 45, hjust = 1, size = 60),
+    axis.text.y = element_text(size = 60),
+    axis.title = element_text(size = 60)
+  )
+
+ggsave("sed_dist_study.phase_C.png", 
+       width = 60, 
+       height = 40, 
+       dpi = 300,
+       limitsize = FALSE)
+```
+
+```{r, sediment at each replicate over time}
+
+ggplot(sed_summary[sed_summary$Site == "CorteMadera",], aes(x = Dist, y = total_flux, fill = Study.Phase)) +
+  geom_col(position = position_dodge(preserve = "single")) +
+  geom_errorbar(
+    aes(ymin = mean_flux - se_flux, ymax = mean_flux + se_flux),
+    position = position_dodge(preserve = "single"),
+    width = 0.25,
+    linewidth = 0.8
+  ) +
+  scale_fill_carto_d(palette = "PurpOr", name = "Study Phase") +
+  facet_grid(Tran ~ .) + 
+  labs(
+    x = "Distance Along Transect (m)",
+    y = "Total flux (g/m²/day)",
+    title = "Sediment Flux At Each Distance From Marsh Edge at Corte Madera Marsh Across Monthly Collections (July-November)"
+  ) +
+  theme_minimal(base_size = 64) +
+  theme(
+    plot.title = element_text(hjust = 0.5, size = 78),
+    strip.text = element_text(face = "bold", size = 64),
+    legend.position = "bottom",
+    legend.text = element_text(size = 80),
+    legend.title = element_text(size = 88),
+    legend.key.size = unit(3, "cm"),
+    panel.grid.minor = element_blank(),
+    axis.text.x = element_text(angle = 45, hjust = 1, size = 60),
+    axis.text.y = element_text(size = 60),
+    axis.title = element_text(size = 60)
+  )
+
+ggsave("sed_dist_study.phase_dist_C.png", 
+       width = 60, 
+       height = 40, 
+       dpi = 300,
+       limitsize = FALSE)
+
+```

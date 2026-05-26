@@ -1,0 +1,137 @@
+---
+title: "Thesis Draft"
+format: pdf
+editor: visual
+---
+
+```{r, Load r packages}
+library(ggplot2)
+library(tidyverse)
+library(Rmisc)
+library(rstatix)
+library(tidyr)
+library(data.table)
+library(dplyr)
+library(lme4)
+library(stringr)
+
+```
+
+```{r, set working directory}
+knitr::opts_knit$set(root.dir = 'C:/Users/savan/OneDrive/Documents/Code/GitHub/DepositionSFB/data')
+```
+
+```{r, upload preliminary site transect data}
+
+GM_prelim <- read.csv("C:/Users/savan/OneDrive/Documents/Code/GitHub/DepositionSFB/data/GM prelim.csv")
+GM_prelim
+
+SP_prelim <- read.csv ("C:/Users/savan/OneDrive/Documents/Code/GitHub/DepositionSFB/data/SP prelim.csv")
+SP_prelim
+```
+
+```{r, prep data GM}
+
+GM_prelim <- GM_prelim %>%
+  arrange(Transect.ID, Point_ID) %>%
+  group_by(Transect.ID) %>%
+  mutate(
+    dx = c(0, diff(Easting)),
+    dy = c(0, diff(Northing)),
+    Distance = cumsum(sqrt(dx^2 + dy^2))
+  ) %>%
+  ungroup()
+```
+
+
+```{r, prep data SP}
+SP_prelim <- SP_prelim %>%
+  arrange(Transect.ID, Point_ID) %>%
+  group_by(Transect.ID) %>%
+  mutate(
+    dx = c(0, diff(Easting)),
+    dy = c(0, diff(Northing)),
+    Distance = cumsum(sqrt(dx^2 + dy^2))
+  ) %>%
+  ungroup() %>% 
+  filter(!Transect.ID %in% c("BM_Pre", "BM_Post"))
+```
+
+
+```{r, plot SP}
+
+SP_preplot <- SP_prelim %>% 
+  filter(Transect.ID %in% c("A", "B", "C")) %>% 
+  ggplot(aes(x = Distance, y = Elevation_m, color= Transect.ID)) +
+  geom_smooth() +
+  geom_point(size = 2) +
+  facet_wrap(~ Transect.ID, scales = "fixed") +
+  labs(
+    title = "Elevation Profiles by Transect-San Pablo NWR",
+    x = "Distance Along Transect (m)",
+    y = "Elevation (m)"
+  ) +
+  theme_minimal()
+SP_preplot
+```
+
+
+
+```{r, plot GM Elevations}
+
+GM_preplot <- GM_prelim %>% 
+  filter(Transect.ID %in% c("A", "B", "C", "D")) %>% 
+  ggplot(aes(x = Distance, y = Elevation_m, color=Transect.ID)) +
+  geom_smooth() +
+  geom_point(size = 2) +
+  facet_wrap(~ Transect.ID, scales = "fixed") +
+  labs(
+    title = "Elevation Profiles by Transect",
+    x = "Distance Along Transect (m)",
+    y = "Elevation (m)"
+  ) +
+  theme_minimal()
+GM_preplot
+```
+
+```{r}
+GM_preplot2<- GM_prelim %>% 
+  filter(Transect.ID %in% c("A", "B", "C", "D")) %>% 
+  ggplot(aes(x = Distance, y = Elevation_m)) +
+  geom_smooth(aes(group = Transect.ID, color = Transect.ID)) +
+  geom_point(aes(color = Transect.ID), size = 2) +
+  labs(
+    title = "Elevation Profile by Transect- Giant Marsh (GM) Site",
+    x = "Distance Along Transect (m)",
+    y = "Elevation (m)"
+  ) +
+  theme_minimal() + 
+  scale_x_continuous(
+    breaks = seq(0, max(GM_prelim$Distance), by = 10),  # customize tick marks
+    expand = expansion(mult = c(0.05, 0.05))            # adds space on edges
+  )
+GM_preplot2
+```
+
+
+
+```{r, plot SP again }
+
+SP_preplot2<-SP_prelim %>% 
+  filter(Transect.ID %in% c("A", "B", "C")) %>% 
+  ggplot(aes(x = Distance, y = Elevation_m)) +
+  geom_smooth(aes(group = Transect.ID, color = Transect.ID)) +
+  geom_point(aes(color = Transect.ID), size = 2) +
+  labs(
+    title = "Elevation Profile by Transect- San Pablo National Wildlife Refuge (SP) Site",
+    x = "Distance Along Transect (m)",
+    y = "Elevation (m)"
+  ) +
+  theme_minimal() + 
+  scale_x_continuous(
+    breaks = seq(0, max(SP_prelim$Distance), by = 10),  # customize tick marks
+    expand = expansion(mult = c(0.05, 0.05))            # adds space on edges
+  )
+SP_preplot2
+```
+

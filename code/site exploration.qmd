@@ -1,0 +1,38 @@
+---
+title: "Site exploration"
+format: html
+editor: visual
+---
+
+## Quarto
+
+Quarto enables you to weave together content and executable code into a finished document. To learn more about Quarto see <https://quarto.org>.
+
+## Running Code
+
+When you click the **Render** button a document will be generated that includes both content and the output of embedded code. You can embed code like this:
+
+```{r}
+dist_tran_c = usgs_thesis_M1_m6_no150 %>%
+  filter(Site == "CM") %>%
+  ggplot(aes(x = Dist, y = Flux, color = Month)) + 
+  geom_point(position = position_jitter(w = 0.05, h = 0)) +
+  geom_smooth(method = "lm", se = TRUE) +
+  scale_y_log10() + 
+  labs(
+    x = "Distance from Marsh Edge (meters)",
+    y = "Flux (g/m^2/day)",
+    title = "Sediment Deposition Rates Across Plant Structure\n(Maximum Height)"
+  ) + 
+  facet_wrap(~Tran, ncol = 2) 
+dist_tran_c
+```
+
+You can add options to executable code like this
+
+```{r}
+#| echo: false
+2 * 2
+```
+
+The `echo: false` option disables the printing of code (only output is displayed).

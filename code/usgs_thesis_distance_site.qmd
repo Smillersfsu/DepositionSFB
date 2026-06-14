@@ -18,9 +18,9 @@ When you click the **Render** button a document will be generated that includes 
 
 You can add options to executable code like this
 
-```{r}
+```{r, load packages}
 
-library(ggplot2)
+library(patchwork)
 library(tidyverse)
 library(Rmisc)
 library(rstatix)
@@ -29,29 +29,17 @@ library(data.table)
 library(dplyr)
 library(lme4)
 library(stringr)
-#install.packages("readxl")
 library(readxl)
-#install.packages("lubridate")
-#install.packages("lmerTest")
 library(lmerTest)
-#install.packages("ggeffects")
 library(ggeffects)
-install.packages("scales")
 library(scales)
-install.packages("ggh4x")
 library(ggh4x)
-install.packages("patchwork")
-install.packages("cowplot")
-install.packages("rcartocolor")
 library(rcartocolor)
 
 knitr::opts_knit$set(root.dir = 'C:/Users/savan/OneDrive - San Francisco State University/ProjectData/GitHub/DepositionSFB/data')
 ```
 
 ```{r}
-
-library(ggplot2)
-library(dplyr)
 
 # Ensure Month/Phase is ordered correctly
 sed_thesis <- sed_thesis %>%

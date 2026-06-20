@@ -96,7 +96,7 @@ library(tinytex) #LaTeX engine for PDF knitting
 
 
 
-```{r, working directory}
+```{r, working directory and consistent plot theme}
 
 knitr::opts_chunk$set(echo = TRUE)
 knitr::opts_knit$set(root.dir = 'C:/Users/savan/OneDrive - San Francisco State University/ProjectData/GitHub/DepositionSFB/data')
@@ -106,8 +106,96 @@ knitr::opts_knit$set(root.dir = 'C:/Users/savan/OneDrive - San Francisco State U
 
 
 
-```{r pressure, echo=FALSE}
-plot(pressure)
+```{r, load raw data and prep}
+
+sed_thesis <- read.csv("C:\\Users\\savan\\OneDrive - San Francisco State University\\ProjectData\\GitHub\\DepositionSFB\\data\\thesis_sed.csv")
+
+str(sed_thesis)
+
+
+# Clean whitespace from character columns only
+sed_thesis$Dist <- str_replace_all(sed_thesis$Dist, " ", "")
+sed_thesis$Tran <- str_replace_all(sed_thesis$Tran, " ", "")
+sed_thesis$Year     <- str_replace_all(sed_thesis$Year, " ", "")
+sed_thesis$Site    <- str_replace_all(sed_thesis$Site, " ", "")
+sed_thesis$Replicate    <- str_replace_all(sed_thesis$Replicate, " ", "")
+sed_thesis$Flux   <- str_replace_all(sed_thesis$Flux, " ", "")
+
+# Change to factor (independent variables) and numeric (dependent variables)
+
+sed_thesis$Dist = as.character(sed_thesis$Dist)
+sed_thesis$Date.placed.in.field = as.Date(sed_thesis$Date.placed.in.field)
+sed_thesis$Date.removed.from.field = as.Date(sed_thesis$Date.removed.from.field)
+sed_thesis$Study.Phase <- as.factor(sed_thesis$Study.Phase)
+sed_thesis$Site <- as.factor(sed_thesis$Site)
+sed_thesis$Tran <- as.factor(sed_thesis$Tran)
+sed_thesis$Dist <- as.factor(sed_thesis$Dist)
+sed_thesis$Replicate<- as.factor(sed_thesis$Replicate)
+sed_thesis$Year<- as.factor(sed_thesis$Year)
+sed_thesis$Flux <- as.numeric(sed_thesis$Flux)
+
+# Changing the from site abbreviations to Descriptive Site Names
+
+sed_thesis <- sed_thesis %>% 
+  mutate(Site = case_when(
+    Site %in% c("C") ~ "CorteMadera",
+    Site %in% c("G") ~ "GiantMarsh", 
+    Site %in% c("B") ~ "Buck'sLanding", 
+    Site %in% c("S") ~ "SanPablo", 
+    TRUE ~ "Other"
+  ))
+
+# Making a Marsh Edge Type Categorization 
+
+sed_thesis <- sed_thesis %>% 
+  mutate(marsh_edge_type = case_when(
+    Site %in% c("CorteMadera", "GiantMarsh") ~ "Scarped", 
+    Site %in% c("Buck'sLanding", "SanPablo") ~ "Ramped", 
+    TRUE ~ "Other"
+  ), 
+  marsh_edge_type = factor(marsh_edge_type, levels = c("Scarped", "Ramped"))
+  )
+
+#Making a Marsh Orientation Categorization
+
+sed_thesis <- sed_thesis %>% 
+  mutate(marsh_orientation = case_when(
+    Site %in% c("CorteMadera", "Buck'sLanding") ~ "East.facing", 
+    Site %in% c("SanPablo") ~ "South.facing", 
+    Site %in% c("GiantMarsh") ~ "West.facing", 
+    TRUE ~ "Other"
+  ), 
+    marsh_orientation = factor(marsh_orientation, levels = c("East.facing", "South.facing", "West.facing"))
+)
+
+# Adding a Phenological Period column
+
+sed_thesis <- sed_thesis %>% 
+    mutate(PhenPeriod= case_when(
+      Study.Phase %in% c("M1", "M2", "M3") ~ "Late_Dry", 
+      Study.Phase %in% c("M4", "M5", "M6") ~ "Tran"
+      Study.Phase %in% c("M7", "M8", "M9") ~ "Wet"
+      Study.Phase %in% c("M10", "M11", "M12") ~ "Growth"
+    ), 
+    PhenPeriod = factor(PhenPeriod, levels = c("Late_Dry", "Tran", "Wet", "Growth"))
+    )
+
+#check before plotting or modeling 
+str(sed_thesis) 
+glimpse(sed_thesis)
+summary(sed_thesis)
+colSums(is.na(sed_thesis))
+
+# Check replication to prevent design problems
+
+sed_thesis %>% count(Flux, Year, Site) 
+sed_thesis %>% count(Year, Study.Phase)
+sed_thesis %>% count(Tran, Replicate)
+
+
+write_xlsx(master_sed, "C:\\Users\savan\\OneDrive - San Francisco State University\\ProjectData\\GitHub\\DepositionSFB\\data\\master_sed")
+
+
 ```
 
 

@@ -83,7 +83,7 @@ dat <- raw_dat %>%
     water_level = as.numeric(water_level),
     elevation = as.numeric(elevation)
   )
-
+ 
 # Optional: set biologically meaningful reference levels.
 # dat$treatment <- factor(dat$treatment, levels = c("control", "partial", "full"))
 # dat$grazer_treatment <- factor(dat$grazer_treatment, levels = c("no_treat", "cage", "no_cage", "egc"))

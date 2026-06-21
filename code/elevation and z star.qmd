@@ -21,7 +21,7 @@ library(ggplot2)
 library(reactable)
 library(patchwork)
 library(tinytex)
-
+ 
 # Load the dataset
 #Make sure to use double \\ to avoid errors
 rtk_data <- read_csv("C:\\Users\\savan\\OneDrive - San Francisco State University\\ProjectData\\GitHub\\DepositionSFB\\data\\All_Sites_Calculated (with z star).csv")

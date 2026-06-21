@@ -5,16 +5,13 @@ date: "2026-06-20"
 output: 
   pdf_document: 
     output_dir: "C:/Users/savan/OneDrive - San Francisco State University/ProjectData\/GitHub/DepositionSFB/images"
-
 ---
-
 
 ```{r}
 # Master Sediment Database Cleaning Workflow
 # Package groups are organized by primary function:
 # Data import → Spatial Data and Mapping →  Cleaning → Analysis → Visualization → Mapping → Reporting
 ```
-
 
 ```{r, load packages and working directory}
 
@@ -27,6 +24,7 @@ library(readxl) # import excel spreadsheets
 library(data.table) #quick manipulation of large datasets
 library(stringr) # text and string processing 
 library(lubridate) # data and time handling 
+library(writexl) # exports editted databases into excel files
 
 #######################################################
 
@@ -94,8 +92,6 @@ library(tinytex) #LaTeX engine for PDF knitting
 
 ## R Markdown
 
-
-
 ```{r, working directory and consistent plot theme}
 
 knitr::opts_chunk$set(echo = TRUE)
@@ -103,8 +99,6 @@ knitr::opts_knit$set(root.dir = 'C:/Users/savan/OneDrive - San Francisco State U
 ```
 
 ## Including Plots
-
-
 
 ```{r, load raw data and prep}
 
@@ -120,12 +114,16 @@ sed_thesis$Year     <- str_replace_all(sed_thesis$Year, " ", "")
 sed_thesis$Site    <- str_replace_all(sed_thesis$Site, " ", "")
 sed_thesis$Replicate    <- str_replace_all(sed_thesis$Replicate, " ", "")
 sed_thesis$Flux   <- str_replace_all(sed_thesis$Flux, " ", "")
+sed_thesis$Study.Phase   <- str_replace_all(sed_thesis$Study.Phase, " ", "")
 
 # Change to factor (independent variables) and numeric (dependent variables)
 
 sed_thesis$Dist = as.character(sed_thesis$Dist)
-sed_thesis$Date.placed.in.field = as.Date(sed_thesis$Date.placed.in.field)
-sed_thesis$Date.removed.from.field = as.Date(sed_thesis$Date.removed.from.field)
+sed_thesis$Date.placed.in.field = as.Date(sed_thesis$Date.placed.in.field, 
+  format = "%m/%d/%Y"   # need this so R doesn't automatically assume format
+  )
+sed_thesis$Date.removed.from.field = as.Date(sed_thesis$Date.removed.from.field,            format = "%m/%d/%Y"   # need this so R doesn't automatically assume format
+)
 sed_thesis$Study.Phase <- as.factor(sed_thesis$Study.Phase)
 sed_thesis$Site <- as.factor(sed_thesis$Site)
 sed_thesis$Tran <- as.factor(sed_thesis$Tran)
@@ -171,13 +169,25 @@ sed_thesis <- sed_thesis %>%
 # Adding a Phenological Period column
 
 sed_thesis <- sed_thesis %>% 
-    mutate(PhenPeriod= case_when(
-      Study.Phase %in% c("M1", "M2", "M3") ~ "Late_Dry", 
-      Study.Phase %in% c("M4", "M5", "M6") ~ "Tran"
-      Study.Phase %in% c("M7", "M8", "M9") ~ "Wet"
-      Study.Phase %in% c("M10", "M11", "M12") ~ "Growth"
+    mutate(Phen_Period= case_when(
+      Study.Phase %in% c("M1", "M2", "M3") ~ "Late_Dry\n(Months 1-3)", 
+      Study.Phase %in% c("M4", "M5", "M6") ~ "Tran\n(Months 4-6)", 
+      Study.Phase %in% c("M7", "M8", "M9") ~ "Wet\n(Months 7-9)", 
+      Study.Phase %in% c("M10") ~ "Growth\n(Months 10-12)"
     ), 
-    PhenPeriod = factor(PhenPeriod, levels = c("Late_Dry", "Tran", "Wet", "Growth"))
+    Phen_Period = factor(Phen_Period, levels = c("Late_Dry\n(Months 1-3)", "Tran\n(Months 4-6)", "Wet\n(Months 7-9)", "Growth\n(Months 10-12)")
+    ))
+    
+
+# Adding a Marsh Area category
+
+sed_thesis <- sed_thesis %>% 
+    mutate(Marsh_Area = case_when (
+      Dist %in% c("0.5", "2", "6") ~ "Edge", 
+      Dist %in% c("12", "18", "24") ~ "Platform", 
+      Dist %in% c("48") ~ "Upland"
+    ), 
+    Marsh_Area = factor(Marsh_Area, levels = c("Edge", "Platform", "Upland")) 
     )
 
 #check before plotting or modeling 
@@ -186,16 +196,447 @@ glimpse(sed_thesis)
 summary(sed_thesis)
 colSums(is.na(sed_thesis))
 
+summary(sed_thesis$Date.placed.in.field)
+summary(sed_thesis$Date.removed.from.field)
+
+sed_thesis[is.na(sed_thesis$Date.placed.in.field), 
+           "Date.placed.in.field"]
+
+sed_thesis[is.na(sed_thesis$Date.removed.from.field), 
+           "Date.removed.from.field"]
+
 # Check replication to prevent design problems
 
-sed_thesis %>% count(Flux, Year, Site) 
-sed_thesis %>% count(Year, Study.Phase)
-sed_thesis %>% count(Tran, Replicate)
+#sed_thesis %>% count(Flux, Year) 
+#sed_thesis %>% count(Year, Study.Phase)
+#sed_thesis %>% count(Tran, Replicate)
 
 
-write_xlsx(master_sed, "C:\\Users\savan\\OneDrive - San Francisco State University\\ProjectData\\GitHub\\DepositionSFB\\data\\master_sed")
+readr::write_csv(master_thesis, "C:\\Users\\savan\\OneDrive - San Francisco State University\\ProjectData\\GitHub\\DepositionSFB\\data\\master_thesis.csv"
+                 ) 
 
 
 ```
 
+```{r, double check factor variable levels for Master Data Sheet}
 
+
+# Deposition alone 
+
+master_thesis <- read.csv("C:\\Users\\savan\\OneDrive - San Francisco State University\\ProjectData\\GitHub\\DepositionSFB\\data\\master_thesis.csv")
+
+# Reassign factors to appropriate variables 
+
+master_thesis$Date.placed.in.field = as.Date(master_thesis$Date.placed.in.field, 
+        format = "%m/%d/%Y"   # need this so R doesn't automatically assume format
+)
+master_thesis$Date.removed.from.field = as.Date(master_thesis$Date.removed.from.field,            
+        format = "%m/%d/%Y"   # need this so R doesn't automatically assume format
+)
+master_thesis$Study.Phase <- factor(master_thesis$Study.Phase, levels = c("M1", "M2", "M3", "M4", "M5", "M6","M7", "M8", "M9", "M10", "M11", "M12"))
+master_thesis$Site <- as.factor(master_thesis$Site)
+master_thesis$Tran <- as.factor(master_thesis$Tran)
+master_thesis$Dist <- as.factor(master_thesis$Dist)
+master_thesis$Replicate<- as.factor(master_thesis$Replicate)
+master_thesis$Year<- as.factor(master_thesis$Year)
+master_thesis$Flux <- as.numeric(master_thesis$Flux)
+master_thesis$Phen_Period <- factor(master_thesis$Phen_Period, levels = c("Late_Dry\n(Months 1-3)", "Tran\n(Months 4-6)", "Wet\n(Months 7-9)", "Growth\n(Months 10-12)"))
+master_thesis$marsh_edge_type <- as.factor(master_thesis$marsh_edge_type)
+master_thesis$marsh_orientation <- as.factor(master_thesis$marsh_orientation)
+master_thesis$Marsh_Area <- as.factor(master_thesis$Marsh_Area)
+
+
+```
+
+```{r, Distributions}
+
+
+sed_basic= ggplot(master_thesis, aes(x = Flux)) +
+  geom_histogram(bins = 30) +
+  theme_minimal() +
+  labs(x = expression(Flux~(g/m^3)), y = "Count") 
+  
+sed_basic
+
+# Deposition by Edge Type 
+
+sed_edge= ggplot(master_thesis, aes(x = marsh_edge_type, y = Flux)) +
+  geom_boxplot() + 
+  geom_jitter(width = 0.15, alpha = 0.5) +
+  theme_minimal() +
+  labs(x = "Marsh Edge Type", y = expression(Flux~(g/m^3))) 
+
+sed_edge
+
+
+# Deposition by Elevation (do this later once you've figured out z*) 
+
+#sed_z= ggplot(master_thesis, aes(x = z*, y = Flux, color = marsh_edge_type)) +
+  #geom_boxplot() + 
+  #geom_jitter(width = 0.15, alpha = 0.5) +
+ # theme_minimal() +
+  #labs(x = "z*", y = expression(Flux~(g/m^3))) 
+
+#sed_z
+
+# Deposition by Distance from Marsh Edge 
+
+sed_dist_edge= ggplot(master_thesis, aes(x = Dist, y = Flux, color = marsh_edge_type)) +
+  geom_boxplot() + 
+  geom_jitter(width = 0.15, alpha = 0.5) +
+  theme_minimal() +
+  labs(x = "Distance from the Marsh Edge (m) ", y = expression(Flux~(g/m^3))) 
+
+sed_dist_edge
+
+# Deposition by Phenological Time
+
+sed_time= ggplot(master_thesis, aes(x = Phen_Period, y = Flux)) +
+  geom_boxplot() + 
+  geom_jitter(width = 0.15, alpha = 0.5) +
+  theme_minimal() +
+  labs(x = "Phenological Period ", y = expression(Flux~(g/m^3))) 
+
+sed_time
+
+
+# Deposition by Marsh Area
+
+sed_edge_area= ggplot(master_thesis, aes(x = Marsh_Area, y = Flux, color = marsh_edge_type)) +
+  geom_boxplot() + 
+  geom_jitter(width = 0.15, alpha = 0.5) +
+  theme_minimal() +
+  labs(x = "Marsh Area ", y = expression(Flux~(g/m^3))) 
+
+sed_edge_area
+
+
+# Deposition by Phenological Time by Site
+
+sed_site_time= ggplot(master_thesis, aes(x = Phen_Period, y = Flux, color = Site)) +
+  geom_boxplot() + 
+  geom_jitter(width = 0.15, alpha = 0.5) +
+  theme_minimal() +
+  labs(x = "Phenological Period ", y = expression(Flux~(g/m^3))) 
+
+sed_site_time
+
+
+# Deposition by Marsh Area by Site
+
+sed_site_area= ggplot(master_thesis, aes(x = Marsh_Area, y = Flux, color = Site)) +
+  geom_boxplot() + 
+  geom_jitter(width = 0.15, alpha = 0.5) +
+  theme_minimal() +
+  labs(x = "Marsh Area ", y = expression(Flux~(g/m^3))) 
+
+sed_site_area
+
+
+# Deposition by Study Phase by Site
+
+sed_phase_site= ggplot(master_thesis, aes(x = Study.Phase, y = Flux, color = Site)) +
+  geom_boxplot() + 
+  geom_jitter(width = 0.15, alpha = 0.5) +
+  theme_minimal() +
+  labs(x = "Study Phase ", y = expression(Flux~(g/m^3))) 
+
+sed_phase_site
+
+# Deposition by Study Phase by Site (log)
+
+sed_phase_site_log = ggplot(master_thesis, aes(x = Study.Phase, y = Flux, color = Site)) +
+  geom_boxplot() + 
+  geom_jitter(width = 0.15, alpha = 0.5) +
+  scale_y_log10() +
+  theme_minimal() +
+  labs(x = "Study Phase ", y = expression(Flux~(g/m^3))) 
+sed_phase_site_log
+
+# Deposition by Study Phase by Marsh Edge Type
+
+sed_phase_edge= ggplot(master_thesis, aes(x = Study.Phase, y = Flux, color = marsh_edge_type)) +
+  geom_boxplot() + 
+  geom_jitter(width = 0.15, alpha = 0.5) +
+  theme_minimal() +
+  labs(x = "Marsh Edge Type ", y = expression(Flux~(g/m^3))) 
+sed_phase_edge
+
+
+# Deposition by Study Phase Across Marsh Area
+
+sed_phase_area= ggplot(master_thesis, aes(x = Marsh_Area, y = Flux, color = Study.Phase)) +
+  facet_wrap(~Site) +
+  geom_boxplot() + 
+  geom_jitter(width = 0.15, alpha = 0.5) +
+  theme_minimal() +
+  labs(x = "Marsh Area ", y = expression(Flux~(g/m^3))
+  ) 
+       
+sed_phase_area
+```
+
+```{r, Seeing data without Giant Marsh }
+
+plot_data_noG <- master_thesis %>%
+  filter(!(Site == "GiantMarsh"))
+
+
+sed_basic_noG= ggplot(plot_data_noG, aes(x = Flux)) +
+  geom_histogram(bins = 30) +
+  theme_minimal() +
+  labs(x = expression(Flux~(g/m^3)), y = "Count") 
+
+sed_basic_noG
+
+# Deposition by Edge Type 
+
+sed_edge_noG= ggplot(plot_data_noG, aes(x = marsh_edge_type, y = Flux)) +
+  geom_boxplot() + 
+  geom_jitter(width = 0.15, alpha = 0.5) +
+  theme_minimal() +
+  labs(x = "Marsh Edge Type", y = expression(Flux~(g/m^3))) 
+
+sed_edge_noG
+
+
+# Deposition by Elevation (do this later once you've figured out z*) 
+
+#sed_z_noG= ggplot(plot_data_noG, aes(x = z*, y = Flux, color = marsh_edge_type)) +
+#geom_boxplot() + 
+#geom_jitter(width = 0.15, alpha = 0.5) +
+# theme_minimal() +
+#labs(x = "z*", y = expression(Flux~(g/m^3))) 
+
+#sed_z_noG
+
+# Deposition by Distance from Marsh Edge 
+
+sed_dist_edge_noG= ggplot(plot_data_noG, aes(x = Dist, y = Flux, color = marsh_edge_type)) +
+  geom_boxplot() + 
+  geom_jitter(width = 0.15, alpha = 0.5) +
+  theme_minimal() +
+  labs(x = "Distance from the Marsh Edge (m) ", y = expression(Flux~(g/m^3))) 
+
+sed_dist_edge_noG
+
+# Deposition by Phenological Time
+
+sed_time_noG= ggplot(plot_data_noG, aes(x = Phen_Period, y = Flux)) +
+  geom_boxplot() + 
+  geom_jitter(width = 0.15, alpha = 0.5) +
+  theme_minimal() +
+  labs(x = "Phenological Period ", y = expression(Flux~(g/m^3))) 
+
+sed_time_noG
+
+
+# Deposition by Marsh Area
+
+sed_edge_area_noG= ggplot(plot_data_noG, aes(x = Marsh_Area, y = Flux, color = marsh_edge_type)) +
+  geom_boxplot() + 
+  geom_jitter(width = 0.15, alpha = 0.5) +
+  theme_minimal() +
+  labs(x = "Marsh Area ", y = expression(Flux~(g/m^3))) 
+
+sed_edge_area_noG
+
+
+# Deposition by Phenological Time by Site
+
+sed_site_time_noG= ggplot(plot_data_noG, aes(x = Phen_Period, y = Flux, color = Site)) +
+  geom_boxplot() + 
+  geom_jitter(width = 0.15, alpha = 0.5) +
+  theme_minimal() +
+  labs(x = "Phenological Period ", y = expression(Flux~(g/m^3))) 
+
+sed_site_time_noG
+
+
+# Deposition by Marsh Area by Site
+
+sed_site_area_noG= ggplot(plot_data_noG, aes(x = Marsh_Area, y = Flux, color = Site)) +
+  geom_boxplot() + 
+  geom_jitter(width = 0.15, alpha = 0.5) +
+  theme_minimal() +
+  labs(x = "Marsh Area ", y = expression(Flux~(g/m^3))) 
+
+sed_site_area_noG
+
+
+# Deposition by Study Phase by Site
+
+sed_phase_site_noG= ggplot(plot_data_noG, aes(x = Study.Phase, y = Flux, color = Site)) +
+  geom_boxplot() + 
+  geom_jitter(width = 0.15, alpha = 0.5) +
+  theme_minimal() +
+  labs(x = "Study Phase ", y = expression(Flux~(g/m^3))) 
+
+sed_phase_site_noG
+
+# Deposition by Study Phase by Site (log)
+
+sed_phase_site_log_noG = ggplot(plot_data_noG, aes(x = Study.Phase, y = Flux, color = Site)) +
+  geom_boxplot() + 
+  geom_jitter(width = 0.15, alpha = 0.5) +
+  scale_y_log10() +
+  theme_minimal() +
+  labs(x = "Study Phase ", y = expression(Flux~(g/m^3))) 
+sed_phase_site_log_noG
+
+# Deposition by Study Phase by Marsh Edge Type
+
+sed_phase_edge_noG= ggplot(plot_data_noG, aes(x = Study.Phase, y = Flux, color = marsh_edge_type)) +
+  geom_boxplot() + 
+  geom_jitter(width = 0.15, alpha = 0.5) +
+  theme_minimal() +
+  labs(x = "Study Phase", y = expression(Flux~(g/m^3))) 
+sed_phase_edge_noG
+
+
+# Deposition by Study Phase Across Marsh Area
+
+sed_phase_area_noG= ggplot(plot_data_noG, aes(x = Marsh_Area, y = Flux, color = Study.Phase)) +
+  facet_wrap(~Site) +
+  geom_boxplot() + 
+  geom_jitter(width = 0.15, alpha = 0.5) +
+  theme_minimal() +
+  labs(x = "Marsh Area ", y = expression(Flux~(g/m^3))
+  ) 
+
+sed_phase_area_noG
+
+
+```
+
+```{r, seeing data without Giant Marsh, Transect 2}
+
+plot_data_noG2 <- master_thesis %>%
+  filter(!(Site == "GiantMarsh" & Tran == "2"))
+
+
+sed_basic_noG2= ggplot(plot_data_noG2, aes(x = Flux)) +
+  geom_histogram(bins = 30) +
+  theme_minimal() +
+  labs(x = expression(Flux~(g/m^3)), y = "Count") 
+
+sed_basic_noG2
+
+# Deposition by Edge Type 
+
+sed_edge_noG2= ggplot(plot_data_noG2, aes(x = marsh_edge_type, y = Flux)) +
+  geom_boxplot() + 
+  geom_jitter(width = 0.15, alpha = 0.5) +
+  theme_minimal() +
+  labs(x = "Marsh Edge Type", y = expression(Flux~(g/m^3))) 
+
+sed_edge_noG2
+
+
+# Deposition by Elevation (do this later once you've figured out z*) 
+
+#sed_z_noG2= ggplot(plot_data_noG2, aes(x = z*, y = Flux, color = marsh_edge_type)) +
+#geom_boxplot() + 
+#geom_jitter(width = 0.15, alpha = 0.5) +
+# theme_minimal() +
+#labs(x = "z*", y = expression(Flux~(g/m^3))) 
+
+#sed_z_noG2
+
+# Deposition by Distance from Marsh Edge 
+
+sed_dist_edge_noG2= ggplot(plot_data_noG2, aes(x = Dist, y = Flux, color = marsh_edge_type)) +
+  geom_boxplot() + 
+  geom_jitter(width = 0.15, alpha = 0.5) +
+  theme_minimal() +
+  labs(x = "Distance from the Marsh Edge (m) ", y = expression(Flux~(g/m^3))) 
+
+sed_dist_edge_noG2
+
+# Deposition by Phenological Time
+
+sed_time_noG2= ggplot(plot_data_noG2, aes(x = Phen_Period, y = Flux)) +
+  geom_boxplot() + 
+  geom_jitter(width = 0.15, alpha = 0.5) +
+  theme_minimal() +
+  labs(x = "Phenological Period ", y = expression(Flux~(g/m^3))) 
+
+sed_time_noG2
+
+
+# Deposition by Marsh Area
+
+sed_edge_area_noG2= ggplot(plot_data_noG2, aes(x = Marsh_Area, y = Flux, color = marsh_edge_type)) +
+  geom_boxplot() + 
+  geom_jitter(width = 0.15, alpha = 0.5) +
+  theme_minimal() +
+  labs(x = "Marsh Area ", y = expression(Flux~(g/m^3))) 
+
+sed_edge_area_noG2
+
+
+# Deposition by Phenological Time by Site
+
+sed_site_time_noG2= ggplot(plot_data_noG2, aes(x = Phen_Period, y = Flux, color = Site)) +
+  geom_boxplot() + 
+  geom_jitter(width = 0.15, alpha = 0.5) +
+  theme_minimal() +
+  labs(x = "Phenological Period ", y = expression(Flux~(g/m^3))) 
+
+sed_site_time_noG2
+
+
+# Deposition by Marsh Area by Site
+
+sed_site_area_noG2= ggplot(plot_data_noG2, aes(x = Marsh_Area, y = Flux, color = Site)) +
+  geom_boxplot() + 
+  geom_jitter(width = 0.15, alpha = 0.5) +
+  theme_minimal() +
+  labs(x = "Marsh Area ", y = expression(Flux~(g/m^3))) 
+
+sed_site_area_noG2
+
+
+# Deposition by Study Phase by Site
+
+sed_phase_site_noG2= ggplot(plot_data_noG2, aes(x = Study.Phase, y = Flux, color = Site)) +
+  geom_boxplot() + 
+  geom_jitter(width = 0.15, alpha = 0.5) +
+  theme_minimal() +
+  labs(x = "Study Phase ", y = expression(Flux~(g/m^3))) 
+
+sed_phase_site_noG2
+
+# Deposition by Study Phase by Site (log)
+
+sed_phase_site_log_noG2 = ggplot(plot_data_noG2, aes(x = Study.Phase, y = Flux, color = Site)) +
+  geom_boxplot() + 
+  geom_jitter(width = 0.15, alpha = 0.5) +
+  scale_y_log10() +
+  theme_minimal() +
+  labs(x = "Study Phase ", y = expression(Flux~(g/m^3))) 
+sed_phase_site_log_noG2
+
+# Deposition by Study Phase by Marsh Edge Type
+
+sed_phase_edge_noG2= ggplot(plot_data_noG2, aes(x = Study.Phase, y = Flux, color = marsh_edge_type)) +
+  geom_boxplot() + 
+  geom_jitter(width = 0.15, alpha = 0.5) +
+  theme_minimal() +
+  labs(x = "Marsh Edge Type ", y = expression(Flux~(g/m^3))) 
+sed_phase_edge_noG2
+
+
+# Deposition by Study Phase Across Marsh Area
+
+sed_phase_area_noG2= ggplot(plot_data_noG2, aes(x = Marsh_Area, y = Flux, color = Study.Phase)) +
+  facet_wrap(~Site) +
+  geom_boxplot() + 
+  geom_jitter(width = 0.15, alpha = 0.5) +
+  theme_minimal() +
+  labs(x = "Marsh Area ", y = expression(Flux~(g/m^3))
+  ) 
+
+sed_phase_area_noG2
+
+```

@@ -1,0 +1,129 @@
+---
+title: "master_thesis_regressions"
+author: "Savannah K. Miller"
+date: "2026-06-22"
+output: html_document
+---
+
+```{r, load packages and working directory}
+
+# data import and database management 
+# reading files, reshaping data, and efficient data handling 
+
+#######################################################
+
+library(readxl) # import excel spreadsheets
+library(data.table) #quick manipulation of large datasets
+library(stringr) # text and string processing 
+library(lubridate) # data and time handling 
+library(writexl) # exports editted databases into excel files
+
+#######################################################
+
+# General data science workflow 
+# Collection of packages for data manipulation and plotting
+
+#######################################################
+
+library(tidyverse)
+
+#######################################################
+
+#Statistical analyses and mixed models 
+# Hypothesis testing, summaries, and model fitting 
+
+#######################################################
+
+library(gt) # displaying formatted tables for statistics 
+library(rstatix) # statistical tests and assumption checking
+library(lmerTest) # p-values and tests for lme4 models 
+library(lme4) # linear and generalized mixed-effects models
+library(ggeffects) # predicted values and marginal effects 
+
+#######################################################
+
+# Data visualization 
+# Plot creation, figure assembly, and publication formatting 
+
+#######################################################
+
+library(patchwork) #comvine ggplots into multi-panel figures
+library(cowplot) # figure arrangement and plot annotations
+library(rcartocolor) # color palettes
+library(ggh4x) # advanced ggplot extensions
+library(scales) # axis labels, formatting, and scaling 
+
+#######################################################
+# Spatial data and mapping 
+# GIS data handling and map visualization
+#######################################################
+
+library(sf) #spatial vector data
+library(ggmap) #basemaps and geographic visualization
+library(ggspatial) #spatial annotations and map elements
+library(leaflet) #interactive web maps
+
+#######################################################
+
+#Tables and report outputs 
+# Interactive tables and report presentation 
+
+#######################################################
+
+library(reactable) #interactive tables for reports
+
+#######################################################
+# R markdown and document rendering 
+# PDF generation and LaTeX support 
+#######################################################
+
+library(tinytex) #LaTeX engine for PDF knitting
+```
+
+## R Markdown
+
+This is an R Markdown document. Markdown is a simple formatting syntax for authoring HTML, PDF, and MS Word documents. For more details on using R Markdown see <http://rmarkdown.rstudio.com>.
+
+When you click the **Knit** button a document will be generated that includes both content as well as the output of any embedded R code chunks within the document. You can embed an R code chunk like this:
+
+```{r, working directory and master data file}
+
+knitr::opts_chunk$set(echo = TRUE)
+knitr::opts_knit$set(root.dir = 'C:/Users/savan/OneDrive - San Francisco State University/ProjectData/GitHub/DepositionSFB/data')
+
+
+# Deposition alone 
+
+master_thesis <- read.csv("C:\\Users\\savan\\OneDrive - San Francisco State University\\ProjectData\\GitHub\\DepositionSFB\\data\\master_thesis.csv")
+
+# Reassign factors to appropriate variables 
+
+master_thesis$Date.placed.in.field = as.Date(master_thesis$Date.placed.in.field, 
+                                             format = "%m/%d/%Y"   # need this so R doesn't automatically assume format
+)
+master_thesis$Date.removed.from.field = as.Date(master_thesis$Date.removed.from.field,            
+                                                format = "%m/%d/%Y"   # need this so R doesn't automatically assume format
+)
+master_thesis$Study.Phase <- factor(master_thesis$Study.Phase, levels = c("M1", "M2", "M3", "M4", "M5", "M6","M7", "M8", "M9", "M10", "M11", "M12"))
+master_thesis$Site <- as.factor(master_thesis$Site)
+master_thesis$Tran <- as.factor(master_thesis$Tran)
+master_thesis$Dist <- as.factor(master_thesis$Dist)
+master_thesis$Replicate<- as.factor(master_thesis$Replicate)
+master_thesis$Year<- as.factor(master_thesis$Year)
+master_thesis$Flux <- as.numeric(master_thesis$Flux)
+master_thesis$Phen_Period <- factor(master_thesis$Phen_Period, levels = c("Late_Dry\n(Months 1-3)", "Tran\n(Months 4-6)", "Wet\n(Months 7-9)", "Growth\n(Months 10-12)"))
+master_thesis$marsh_edge_type <- as.factor(master_thesis$marsh_edge_type)
+master_thesis$marsh_orientation <- as.factor(master_thesis$marsh_orientation)
+master_thesis$Marsh_Area <- as.factor(master_thesis$Marsh_Area)
+
+```
+
+## Including Plots
+
+You can also embed plots, for example:
+
+```{r pressure, echo=FALSE}
+plot(pressure)
+```
+
+Note that the `echo = FALSE` parameter was added to the code chunk to prevent printing of the R code that generated the plot.

@@ -179,9 +179,6 @@ total_summary <- master_thesis %>%
   summarise(
     mean_flux = mean(Flux, na.rm = TRUE),
     se_flux = sd(Flux, na.rm = TRUE)/sqrt(n()),
-    .groups = "drop"
-  )
-
 ggplot(
   total_summary,
   aes(
@@ -205,7 +202,10 @@ ggplot(
   labs(
     x = "Study Phase",
     y = expression(Mean~Flux~(g/m^3))
+  )    .groups = "drop"
   )
+
+
 ```
 
 ```{r, aggregate per Marsh Edge Type}

@@ -166,18 +166,42 @@ sed_thesis <- sed_thesis %>%
     marsh_orientation = factor(marsh_orientation, levels = c("East.facing", "South.facing", "West.facing"))
 )
 
-# Adding a Phenological Period column
+# Adding a Hydrological Period column
 
 sed_thesis <- sed_thesis %>% 
-    mutate(Phen_Period= case_when(
+  mutate(
+    Hydro_Period = case_when(
       Study.Phase %in% c("M1", "M2", "M3") ~ "Late_Dry\n(Months 1-3)", 
       Study.Phase %in% c("M4", "M5", "M6") ~ "Tran\n(Months 4-6)", 
       Study.Phase %in% c("M7", "M8", "M9") ~ "Wet\n(Months 7-9)", 
-      Study.Phase %in% c("M10") ~ "Growth\n(Months 10-12)"
-    ), 
-    Phen_Period = factor(Phen_Period, levels = c("Late_Dry\n(Months 1-3)", "Tran\n(Months 4-6)", "Wet\n(Months 7-9)", "Growth\n(Months 10-12)")
-    ))
-    
+      Study.Phase %in% c("M10", "M11", "M12") ~ "Growth\n(Months 10-12)",
+      TRUE ~ NA_character_
+    ),
+    Hydro_Period = factor(
+      Hydro_Period,
+      levels = c(
+        "Late_Dry\n(Months 1-3)",
+        "Tran\n(Months 4-6)",
+        "Wet\n(Months 7-9)",
+        "Growth\n(Months 10-12)"
+      )
+    )
+  )
+
+# Adding a Summer/Winter Season
+
+sed_thesis <- sed_thesis %>% 
+  mutate(
+    Season = case_when(
+      Study.Phase %in% c("M1", "M2", "M3", "M10", "M11", "M12") ~ "Summer", 
+      Study.Phase %in% c("M4", "M5", "M6", "M7", "M8", "M9") ~ "Winter",
+      TRUE ~ NA_character_
+    ),
+    Season = factor(
+      Season,
+      levels = c("Summer", "Winter")
+    )
+  )
 
 # Adding a Marsh Area category
 
@@ -211,6 +235,7 @@ sed_thesis[is.na(sed_thesis$Date.removed.from.field),
 #sed_thesis %>% count(Year, Study.Phase)
 #sed_thesis %>% count(Tran, Replicate)
 
+master_thesis <- sed_thesis
 
 readr::write_csv(master_thesis, "C:\\Users\\savan\\OneDrive - San Francisco State University\\ProjectData\\GitHub\\DepositionSFB\\data\\master_thesis.csv"
                  ) 
@@ -227,23 +252,48 @@ master_thesis <- read.csv("C:\\Users\\savan\\OneDrive - San Francisco State Univ
 
 # Reassign factors to appropriate variables 
 
-master_thesis$Date.placed.in.field = as.Date(master_thesis$Date.placed.in.field, 
-        format = "%m/%d/%Y"   # need this so R doesn't automatically assume format
-)
-master_thesis$Date.removed.from.field = as.Date(master_thesis$Date.removed.from.field,            
-        format = "%m/%d/%Y"   # need this so R doesn't automatically assume format
-)
-master_thesis$Study.Phase <- factor(master_thesis$Study.Phase, levels = c("M1", "M2", "M3", "M4", "M5", "M6","M7", "M8", "M9", "M10", "M11", "M12"))
-master_thesis$Site <- as.factor(master_thesis$Site)
-master_thesis$Tran <- as.factor(master_thesis$Tran)
-master_thesis$Dist <- as.factor(master_thesis$Dist)
-master_thesis$Replicate<- as.factor(master_thesis$Replicate)
-master_thesis$Year<- as.factor(master_thesis$Year)
-master_thesis$Flux <- as.numeric(master_thesis$Flux)
-master_thesis$Phen_Period <- factor(master_thesis$Phen_Period, levels = c("Late_Dry\n(Months 1-3)", "Tran\n(Months 4-6)", "Wet\n(Months 7-9)", "Growth\n(Months 10-12)"))
-master_thesis$marsh_edge_type <- as.factor(master_thesis$marsh_edge_type)
-master_thesis$marsh_orientation <- as.factor(master_thesis$marsh_orientation)
-master_thesis$Marsh_Area <- as.factor(master_thesis$Marsh_Area)
+master_thesis <- master_thesis %>%
+  mutate(
+    Date.placed.in.field = as.Date(master_thesis$Date.placed.in.field, 
+                                                 format = "%m/%d/%Y"   # need this so R doesn't automatically assume format
+    ), Date.removed.from.field = as.Date(master_thesis$Date.removed.from.field,            
+                                                    format = "%m/%d/%Y"   # need this so R doesn't automatically assume format
+    ), 
+    Study.Phase = factor(
+      Study.Phase,
+      levels = c("M1", "M2", "M3", "M4", "M5", "M6",
+                 "M7", "M8", "M9", "M10", "M11", "M12")
+    ),
+    Hydro_Period = factor(
+      Hydro_Period,
+      levels = c(
+        "Late_Dry\n(Months 1-3)",
+        "Tran\n(Months 4-6)",
+        "Wet\n(Months 7-9)",
+        "Growth\n(Months 10-12)"
+      )
+    ),
+    Season = factor(
+      Season,
+      levels = c("Summer", "Winter")
+    ),
+    Site = factor(Site),
+    Tran = factor(Tran),
+    Dist = factor(Dist),
+    Replicate = factor(Replicate),
+    Year = factor(Year),
+    marsh_edge_type = factor(marsh_edge_type, levels = c("Scarped", "Ramped")),
+    marsh_orientation = factor(
+      marsh_orientation,
+      levels = c("East.facing", "South.facing", "West.facing")
+    ),
+    Marsh_Area = factor(
+      Marsh_Area,
+      levels = c("Edge", "Platform", "Upland")
+    ),
+    Flux = as.numeric(Flux)
+  )
+
 
 
 ```
@@ -289,15 +339,25 @@ sed_dist_edge= ggplot(master_thesis, aes(x = Dist, y = Flux, color = marsh_edge_
 
 sed_dist_edge
 
-# Deposition by Phenological Time
+# Deposition by Hydrological Time
 
-sed_time= ggplot(master_thesis, aes(x = Phen_Period, y = Flux)) +
+sed_time= ggplot(master_thesis, aes(x = Hydro_Period, y = Flux)) +
   geom_boxplot() + 
   geom_jitter(width = 0.15, alpha = 0.5) +
   theme_minimal() +
-  labs(x = "Phenological Period ", y = expression(Flux~(g/m^3))) 
+  labs(x = "Hydrological Period ", y = expression(Flux~(g/m^3))) 
 
 sed_time
+
+# Deposition by Season
+
+sed_season= ggplot(master_thesis, aes(x = Season, y = Flux)) +
+  geom_boxplot() + 
+  geom_jitter(width = 0.15, alpha = 0.5) +
+  theme_minimal() +
+  labs(x = "Season ", y = expression(Flux~(g/m^3))) 
+
+sed_season
 
 
 # Deposition by Marsh Area
@@ -311,15 +371,26 @@ sed_edge_area= ggplot(master_thesis, aes(x = Marsh_Area, y = Flux, color = marsh
 sed_edge_area
 
 
-# Deposition by Phenological Time by Site
+# Deposition by Hydrological Time by Site
 
-sed_site_time= ggplot(master_thesis, aes(x = Phen_Period, y = Flux, color = Site)) +
+sed_site_time= ggplot(master_thesis, aes(x = Hydro_Period, y = Flux, color = Site)) +
   geom_boxplot() + 
   geom_jitter(width = 0.15, alpha = 0.5) +
   theme_minimal() +
-  labs(x = "Phenological Period ", y = expression(Flux~(g/m^3))) 
+  labs(x = "Hydrological Period ", y = expression(Flux~(g/m^3))) 
 
 sed_site_time
+
+
+# Deposition by Season by Site
+
+sed_site_season= ggplot(master_thesis, aes(x = Season, y = Flux, color = Site)) +
+  geom_boxplot() + 
+  geom_jitter(width = 0.15, alpha = 0.5) +
+  theme_minimal() +
+  labs(x = "Season ", y = expression(Flux~(g/m^3))) 
+
+sed_site_season
 
 
 # Deposition by Marsh Area by Site
@@ -420,15 +491,25 @@ sed_dist_edge_noG= ggplot(plot_data_noG, aes(x = Dist, y = Flux, color = marsh_e
 
 sed_dist_edge_noG
 
-# Deposition by Phenological Time
+# Deposition by Hydrological Time
 
-sed_time_noG= ggplot(plot_data_noG, aes(x = Phen_Period, y = Flux)) +
+sed_time_noG= ggplot(plot_data_noG, aes(x = Hydro_Period, y = Flux)) +
   geom_boxplot() + 
   geom_jitter(width = 0.15, alpha = 0.5) +
   theme_minimal() +
-  labs(x = "Phenological Period ", y = expression(Flux~(g/m^3))) 
+  labs(x = "Hydrological Period ", y = expression(Flux~(g/m^3))) 
 
 sed_time_noG
+
+# Deposition by Season
+
+sed_season_noG= ggplot(plot_data_noG, aes(x = Season, y = Flux)) +
+  geom_boxplot() + 
+  geom_jitter(width = 0.15, alpha = 0.5) +
+  theme_minimal() +
+  labs(x = "Season ", y = expression(Flux~(g/m^3))) 
+
+sed_season_noG
 
 
 # Deposition by Marsh Area
@@ -442,15 +523,26 @@ sed_edge_area_noG= ggplot(plot_data_noG, aes(x = Marsh_Area, y = Flux, color = m
 sed_edge_area_noG
 
 
-# Deposition by Phenological Time by Site
+# Deposition by Hydrological Time by Site
 
-sed_site_time_noG= ggplot(plot_data_noG, aes(x = Phen_Period, y = Flux, color = Site)) +
+sed_site_time_noG= ggplot(plot_data_noG, aes(x = Hydro_Period, y = Flux, color = Site)) +
   geom_boxplot() + 
   geom_jitter(width = 0.15, alpha = 0.5) +
   theme_minimal() +
-  labs(x = "Phenological Period ", y = expression(Flux~(g/m^3))) 
+  labs(x = "Hydrological Period ", y = expression(Flux~(g/m^3))) 
 
 sed_site_time_noG
+
+
+# Deposition by Season by Site
+
+sed_site_season_noG= ggplot(plot_data_noG, aes(x = Season, y = Flux, color = Site)) +
+  geom_boxplot() + 
+  geom_jitter(width = 0.15, alpha = 0.5) +
+  theme_minimal() +
+  labs(x = "Season ", y = expression(Flux~(g/m^3))) 
+
+sed_site_season_noG
 
 
 # Deposition by Marsh Area by Site
@@ -553,15 +645,25 @@ sed_dist_edge_noG2= ggplot(plot_data_noG2, aes(x = Dist, y = Flux, color = marsh
 
 sed_dist_edge_noG2
 
-# Deposition by Phenological Time
+# Deposition by Hydrological Time
 
-sed_time_noG2= ggplot(plot_data_noG2, aes(x = Phen_Period, y = Flux)) +
+sed_time_noG2= ggplot(plot_data_noG2, aes(x = Hydro_Period, y = Flux)) +
   geom_boxplot() + 
   geom_jitter(width = 0.15, alpha = 0.5) +
   theme_minimal() +
-  labs(x = "Phenological Period ", y = expression(Flux~(g/m^3))) 
+  labs(x = "Hydrological Period ", y = expression(Flux~(g/m^3))) 
 
 sed_time_noG2
+
+# Deposition by Season
+
+sed_season_noG2= ggplot(plot_data_noG2, aes(x = Season, y = Flux)) +
+  geom_boxplot() + 
+  geom_jitter(width = 0.15, alpha = 0.5) +
+  theme_minimal() +
+  labs(x = "Season ", y = expression(Flux~(g/m^3))) 
+
+sed_season_noG2
 
 
 # Deposition by Marsh Area
@@ -575,15 +677,26 @@ sed_edge_area_noG2= ggplot(plot_data_noG2, aes(x = Marsh_Area, y = Flux, color =
 sed_edge_area_noG2
 
 
-# Deposition by Phenological Time by Site
+# Deposition by Hydrological Time by Site
 
-sed_site_time_noG2= ggplot(plot_data_noG2, aes(x = Phen_Period, y = Flux, color = Site)) +
+sed_site_time_noG2= ggplot(plot_data_noG2, aes(x = Hydro_Period, y = Flux, color = Site)) +
   geom_boxplot() + 
   geom_jitter(width = 0.15, alpha = 0.5) +
   theme_minimal() +
-  labs(x = "Phenological Period ", y = expression(Flux~(g/m^3))) 
+  labs(x = "Hydrological Period ", y = expression(Flux~(g/m^3))) 
 
 sed_site_time_noG2
+
+
+# Deposition by Season by Site
+
+sed_site_season_noG2= ggplot(plot_data_noG2, aes(x = Season, y = Flux, color = Site)) +
+  geom_boxplot() + 
+  geom_jitter(width = 0.15, alpha = 0.5) +
+  theme_minimal() +
+  labs(x = "Season ", y = expression(Flux~(g/m^3))) 
+
+sed_site_season_noG2
 
 
 # Deposition by Marsh Area by Site
@@ -665,8 +778,8 @@ general_summary
 
 # Phenological Summary
 
-phen_summary <- master_thesis %>%
-  dplyr::group_by(Phen_Period) %>%
+hydro_summary <- master_thesis %>%
+  dplyr::group_by(Hydro_Period) %>%
   dplyr::summarise(
     n = dplyr::n(),
     Mean = round(mean(Flux, na.rm = TRUE), 3),
@@ -678,7 +791,7 @@ phen_summary <- master_thesis %>%
     .groups = "drop"
   )
 
-phen_summary
+hydro_summary
 
 
 # site summary 
@@ -762,7 +875,7 @@ flux_summary_table
 #publishable summary table for Phenological Period
 
 flux_period_table <- master_thesis %>%
-  dplyr::group_by(Phen_Period) %>%
+  dplyr::group_by(Hydro_Period) %>%
   dplyr::summarise(
     n = dplyr::n(),
     Mean = mean(Flux, na.rm = TRUE),
@@ -775,10 +888,10 @@ flux_period_table <- master_thesis %>%
   ) %>%
   gt() %>%
   tab_header(
-    title = "Sediment Flux by Phenological Period"
+    title = "Sediment Flux by Hydrologic Period"
   ) %>%
   cols_label(
-    Phen_Period = "Phenological Period",
+    Hydro_Period = "Hydrologic Period",
     n = "n",
     Mean = "Mean",
     SD = "SD",
@@ -878,10 +991,10 @@ flux_site_table
 
 ```{r, tests for normality}
 
-flux_site_phen <- master_thesis %>%
+flux_site_hydro <- master_thesis %>%
   dplyr::group_by(
     Site,
-    Phen_Period
+    Hydro_Period
   ) %>%
   dplyr::summarise(
     n = dplyr::n(),
@@ -915,5 +1028,5 @@ flux_site_phen <- master_thesis %>%
     source_note = "Flux units: g/m³"
     )
 
-flux_site_phen
+flux_site_hydro
 ```

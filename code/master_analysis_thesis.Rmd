@@ -136,10 +136,10 @@ sed_thesis$Flux <- as.numeric(sed_thesis$Flux)
 
 sed_thesis <- sed_thesis %>% 
   mutate(Site = case_when(
-    Site %in% c("C") ~ "CorteMadera",
-    Site %in% c("G") ~ "GiantMarsh", 
-    Site %in% c("B") ~ "Buck'sLanding", 
-    Site %in% c("S") ~ "SanPablo", 
+    Site %in% c("C") ~ "Corte Madera",
+    Site %in% c("G") ~ "Giant Marsh", 
+    Site %in% c("B") ~ "Buck's Landing", 
+    Site %in% c("S") ~ "San Pablo", 
     TRUE ~ "Other"
   ))
 
@@ -147,8 +147,8 @@ sed_thesis <- sed_thesis %>%
 
 sed_thesis <- sed_thesis %>% 
   mutate(marsh_edge_type = case_when(
-    Site %in% c("CorteMadera", "GiantMarsh") ~ "Scarped", 
-    Site %in% c("Buck'sLanding", "SanPablo") ~ "Ramped", 
+    Site %in% c("Corte Madera", "Giant Marsh") ~ "Scarped", 
+    Site %in% c("Buck's Landing", "San Pablo") ~ "Ramped", 
     TRUE ~ "Other"
   ), 
   marsh_edge_type = factor(marsh_edge_type, levels = c("Scarped", "Ramped"))
@@ -158,9 +158,9 @@ sed_thesis <- sed_thesis %>%
 
 sed_thesis <- sed_thesis %>% 
   mutate(marsh_orientation = case_when(
-    Site %in% c("CorteMadera", "Buck'sLanding") ~ "East.facing", 
-    Site %in% c("SanPablo") ~ "South.facing", 
-    Site %in% c("GiantMarsh") ~ "West.facing", 
+    Site %in% c("Corte Madera", "Buck's Landing") ~ "East.facing", 
+    Site %in% c("San Pablo") ~ "South.facing", 
+    Site %in% c("Giant Marsh") ~ "West.facing", 
     TRUE ~ "Other"
   ), 
     marsh_orientation = factor(marsh_orientation, levels = c("East.facing", "South.facing", "West.facing"))

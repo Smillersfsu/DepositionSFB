@@ -1,0 +1,400 @@
+---
+title: "master_analysis_usgs"
+format: pdf
+editor: visual
+---
+
+## Quarto
+
+Quarto enables you to weave together content and executable code into a finished document. To learn more about Quarto see <https://quarto.org>.
+
+## Running Code
+
+When you click the **Render** button a document will be generated that includes both content and the output of embedded code. You can embed code like this:
+
+```{r, load packages and working directory}
+
+# data import and database management 
+# reading files, reshaping data, and efficient data handling 
+
+#######################################################
+
+library(readxl) # import excel spreadsheets
+library(data.table) #quick manipulation of large datasets
+library(stringr) # text and string processing 
+library(lubridate) # data and time handling 
+library(writexl) # exports editted databases into excel files
+
+#######################################################
+
+# General data science workflow 
+# Collection of packages for data manipulation and plotting
+
+#######################################################
+
+library(tidyverse)
+
+#######################################################
+
+#Statistical analyses and mixed models 
+# Hypothesis testing, summaries, and model fitting 
+
+#######################################################
+
+library(gt) # displaying formatted tables for statistics 
+library(rstatix) # statistical tests and assumption checking
+library(lmerTest) # p-values and tests for lme4 models 
+library(lme4) # linear and generalized mixed-effects models
+library(ggeffects) # predicted values and marginal effects 
+
+#######################################################
+
+# Data visualization 
+# Plot creation, figure assembly, and publication formatting 
+
+#######################################################
+
+library(patchwork) #comvine ggplots into multi-panel figures
+library(cowplot) # figure arrangement and plot annotations
+library(rcartocolor) # color palettes
+library(ggh4x) # advanced ggplot extensions
+library(scales) # axis labels, formatting, and scaling 
+
+#######################################################
+# Spatial data and mapping 
+# GIS data handling and map visualization
+#######################################################
+
+library(sf) #spatial vector data
+library(ggmap) #basemaps and geographic visualization
+library(ggspatial) #spatial annotations and map elements
+library(leaflet) #interactive web maps
+
+#######################################################
+
+#Tables and report outputs 
+# Interactive tables and report presentation 
+
+#######################################################
+
+library(reactable) #interactive tables for reports
+
+#######################################################
+# R markdown and document rendering 
+# PDF generation and LaTeX support 
+#######################################################
+
+library(tinytex) #LaTeX engine for PDF knitting
+
+
+
+```
+
+You can add options to executable code like this
+
+```{r, working directory and consistent plot theme}
+
+knitr::opts_chunk$set(echo = TRUE)
+knitr::opts_knit$set(root.dir = 'C:/Users/savan/OneDrive - San Francisco State University/ProjectData/GitHub/DepositionSFB/data')
+```
+
+```{r, load raw data and prep}
+
+sed_usgs <- read.csv("C:/Users/savan/OneDrive - San Francisco State University/ProjectData/GitHub/DepositionSFB/data/usgs_SFB_sediment_pad_data.csv")
+
+str(sed_usgs)
+
+
+# Clean whitespace from character columns only
+sed_usgs$Dist <- str_replace_all(sed_usgs$Dist, " ", "")
+sed_usgs$Tran <- str_replace_all(sed_usgs$Tran, " ", "")
+sed_usgs$Year     <- str_replace_all(sed_usgs$Year, " ", "")
+sed_usgs$Site    <- str_replace_all(sed_usgs$Site, " ", "")
+sed_usgs$Replicate    <- str_replace_all(sed_usgs$Replicate, " ", "")
+sed_usgs$Flux   <- str_replace_all(sed_usgs$Flux, " ", "")
+
+
+# Change to factor (independent variables) and numeric (dependent variables)
+
+sed_usgs$Dist = as.character(sed_usgs$Dist)
+sed_usgs$Date.placed.in.field = as.Date(sed_usgs$Date.placed.in.field, 
+                                          format = "%m/%d/%Y"   # need this so R doesn't automatically assume format
+)
+sed_usgs$Date.removed.from.field = as.Date(sed_usgs$Date.removed.from.field,            format = "%m/%d/%Y"   # need this so R doesn't automatically assume format
+)
+
+sed_usgs$Site <- as.factor(sed_usgs$Site)
+sed_usgs$Tran <- as.factor(sed_usgs$Tran)
+sed_usgs$Dist <- as.factor(sed_usgs$Dist)
+sed_usgs$Replicate<- as.factor(sed_usgs$Replicate)
+sed_usgs$Year<- as.factor(sed_usgs$Year)
+sed_usgs$Flux <- as.numeric(sed_usgs$Flux)
+
+
+# Making a Marsh Edge Type Categorization 
+
+sed_usgs <- sed_usgs %>% 
+  mutate(marsh_edge_type = case_when(
+    Site %in% c("CorteMadera") ~ "Scarped", 
+    Site %in% c("SanPablo") ~ "Ramped", 
+    TRUE ~ "Other"
+  ), 
+  marsh_edge_type = factor(marsh_edge_type, levels = c("Scarped", "Ramped"))
+  )
+
+#Making a Marsh Orientation Categorization
+
+sed_usgs <- sed_usgs %>% 
+  mutate(marsh_orientation = case_when(
+    Site %in% c("CorteMadera") ~ "East.facing", 
+    Site %in% c("SanPablo") ~ "South.facing", 
+    TRUE ~ "Other"
+  ), 
+  marsh_orientation = factor(marsh_orientation, levels = c("East.facing", "South.facing", "West.facing"))
+  )
+
+
+# Adding a Marsh Area category
+
+sed_usgs <- sed_usgs %>% 
+  mutate(Marsh_Area = case_when (
+    Dist %in% c("0.5", "2", "6") ~ "Edge", 
+    Dist %in% c("12", "18", "24") ~ "Platform", 
+    Dist %in% c("48") ~ "Upland"
+  ), 
+  Marsh_Area = factor(Marsh_Area, levels = c("Edge", "Platform", "Upland")) 
+  )
+
+
+
+
+#If your dates look like "01/15/2023" (MM/DD/YYYY)
+#sed_usgs <- sed_usgs %>%
+#mutate(Date.placed.in.field = as.Date(Date.placed.in.field, format = "%m/%d/%Y"))
+#mutate(Date.removed.from.field = as.Date(Date.removed.from.field, format = "%m/%d/%Y"))
+
+
+sed_usgs <- sed_usgs %>% 
+  mutate(Study.Phase = case_when(
+    Site == "CorteMadera" & Date.placed.in.field >= as.Date("6/29/2022", format = "%m/%d/%Y") & Date.removed.from.field <= as.Date("7/27/2022", format = "%m/%d/%Y") ~ "M1",
+    Site == "CorteMadera" & Date.placed.in.field >= as.Date("7/27/2022", format = "%m/%d/%Y") & Date.removed.from.field <= as.Date("8/24/2022", format = "%m/%d/%Y") ~ "M2",
+    Site == "CorteMadera" & Date.placed.in.field >= as.Date("8/24/2022", format = "%m/%d/%Y") & Date.removed.from.field <= as.Date("9/21/2022", format = "%m/%d/%Y") ~ "M3",
+    Site == "CorteMadera" & Date.placed.in.field >= as.Date("9/21/2022", format = "%m/%d/%Y") & Date.removed.from.field <= as.Date("10/25/2022", format = "%m/%d/%Y") ~ "M4",
+    Site == "CorteMadera" & Date.placed.in.field >= as.Date("10/25/2022", format = "%m/%d/%Y") & Date.removed.from.field <= as.Date("11/30/2022", format = "%m/%d/%Y") ~ "M5",
+    Site == "CorteMadera" & Date.placed.in.field >= as.Date("11/30/2022", format = "%m/%d/%Y") & Date.removed.from.field <= as.Date("12/21/2022", format = "%m/%d/%Y") ~ "M6",
+    Site == "CorteMadera" & Date.placed.in.field >= as.Date("12/21/2022", format = "%m/%d/%Y") & Date.removed.from.field <= as.Date("1/18/2023", format = "%m/%d/%Y") ~ "M7",
+    Site == "CorteMadera" & Date.placed.in.field >= as.Date("1/18/2023", format = "%m/%d/%Y") & Date.removed.from.field <= as.Date("2/17/2023", format = "%m/%d/%Y") ~ "M8",
+    Site == "CorteMadera" & Date.placed.in.field >= as.Date("2/17/2023", format = "%m/%d/%Y") & Date.removed.from.field <= as.Date("3/23/2023", format = "%m/%d/%Y") ~ "M9",
+    Site == "CorteMadera" & Date.placed.in.field >= as.Date("3/23/2023", format = "%m/%d/%Y") & Date.removed.from.field <= as.Date("4/20/2023", format = "%m/%d/%Y") ~ "M10",
+    Site == "CorteMadera" & Date.placed.in.field >= as.Date("4/20/2023", format = "%m/%d/%Y") & Date.removed.from.field <= as.Date("5/18/2023", format = "%m/%d/%Y") ~ "M11",
+    Site == "CorteMadera" & Date.placed.in.field >= as.Date("5/18/2023", format = "%m/%d/%Y") & Date.removed.from.field <= as.Date("6/20/2023", format = "%m/%d/%Y") ~ "M12",
+    # San Pablo
+    Site == "SanPablo" & Date.placed.in.field >= as.Date("6/30/2022", format = "%m/%d/%Y") & Date.removed.from.field <= as.Date("7/28/2022", format = "%m/%d/%Y") ~ "M1",
+    Site == "SanPablo" & Date.placed.in.field >= as.Date("7/28/2022", format = "%m/%d/%Y") & Date.removed.from.field <= as.Date("8/25/2022", format = "%m/%d/%Y") ~ "M2",
+    Site == "SanPablo" & Date.placed.in.field >= as.Date("8/25/2022", format = "%m/%d/%Y") & Date.removed.from.field <= as.Date("9/22/2022", format = "%m/%d/%Y") ~ "M3",
+    Site == "SanPablo" & Date.placed.in.field >= as.Date("9/22/2022", format = "%m/%d/%Y") & Date.removed.from.field <= as.Date("10/26/2022", format = "%m/%d/%Y") ~ "M4",
+    Site == "SanPablo" & Date.placed.in.field >= as.Date("10/26/2022", format = "%m/%d/%Y") & Date.removed.from.field <= as.Date("11/22/2022", format = "%m/%d/%Y") ~ "M5",
+    Site == "SanPablo" & Date.placed.in.field >= as.Date("11/22/2022", format = "%m/%d/%Y") & Date.removed.from.field <= as.Date("12/20/2022", format = "%m/%d/%Y") ~ "M6",
+    Site == "SanPablo" & Date.placed.in.field >= as.Date("12/20/2022", format = "%m/%d/%Y") & Date.removed.from.field <= as.Date("1/17/2023", format = "%m/%d/%Y") ~ "M7",
+    Site == "SanPablo" & Date.placed.in.field >= as.Date("1/17/2023", format = "%m/%d/%Y") & Date.removed.from.field <= as.Date("2/15/2023", format = "%m/%d/%Y") ~ "M8",
+    Site == "SanPablo" & Date.placed.in.field >= as.Date("2/15/2023", format = "%m/%d/%Y") & Date.removed.from.field <= as.Date("3/23/2023", format = "%m/%d/%Y") ~ "M9",
+    Site == "SanPablo" & Date.placed.in.field >= as.Date("3/23/2023", format = "%m/%d/%Y") & Date.removed.from.field <= as.Date("4/21/2023", format = "%m/%d/%Y") ~ "M10",
+    Site == "SanPablo" & Date.placed.in.field >= as.Date("4/21/2023", format = "%m/%d/%Y") & Date.removed.from.field <= as.Date("5/19/2023", format = "%m/%d/%Y") ~ "M11",
+    Site == "SanPablo" & Date.placed.in.field >= as.Date("5/19/2023", format = "%m/%d/%Y") & Date.removed.from.field <= as.Date("6/21/2023", format = "%m/%d/%Y") ~ "M12",
+    TRUE ~ NA_character_
+  ))
+
+sed_usgs$Study.Phase <- str_replace_all(sed_usgs$Study.Phase, " ", "")
+sed_usgs$Study.Phase <- factor(sed_usgs$Study.Phase, levels = paste0("M", 1:12))
+# Check replication to prevent design problems
+
+
+#sed_usgs %>% count(Flux, Year) 
+#sed_usgs %>% count(Year, Study.Phase)
+#sed_usgs %>% count(Tran, Replicate)
+
+master_usgs <- sed_usgs
+
+
+str(master_usgs)
+table(master_usgs$Site)
+table(master_usgs$marsh_edge_type)
+table(master_usgs$marsh_orientation)
+table(master_usgs$Study.Phase)
+
+
+readr::write_csv(master_usgs, "C:\\Users\\savan\\OneDrive - San Francisco State University\\ProjectData\\GitHub\\DepositionSFB\\data\\master_usgs.csv"
+) 
+
+str(master_usgs)
+
+
+
+```
+
+```{r}
+sed_basic= ggplot(master_usgs, aes(x = Flux)) +
+  geom_histogram(bins = 30) +
+  theme_minimal() +
+  labs(x = expression(Flux~(g/m^3)), y = "Count") 
+
+sed_basic
+# Deposition by Edge Type 
+sed_edge= ggplot(master_usgs, aes(x = marsh_edge_type, y = Flux)) +
+  geom_boxplot() + 
+  geom_jitter(width = 0.15, alpha = 0.5) +
+  theme_minimal() +
+  labs(x = "Marsh Edge Type", y = expression(Flux~(g/m^3))) 
+sed_edge
+# Deposition by Elevation (do this later once you've figured out z*) 
+#sed_z= ggplot(master_usgs, aes(x = z*, y = Flux, color = marsh_edge_type)) +
+#geom_boxplot() + 
+#geom_jitter(width = 0.15, alpha = 0.5) +
+# theme_minimal() +
+#labs(x = "z*", y = expression(Flux~(g/m^3))) 
+#sed_z
+# Deposition by Distance from Marsh Edge 
+sed_dist_edge= ggplot(master_usgs, aes(x = Dist, y = Flux, color = marsh_edge_type)) +
+  geom_boxplot() + 
+  geom_jitter(width = 0.15, alpha = 0.5) +
+  theme_minimal() +
+  labs(x = "Distance from the Marsh Edge (m) ", y = expression(Flux~(g/m^3))) 
+sed_dist_edge
+# Deposition by Hydrological Time
+
+# Deposition by Season
+sed_season= ggplot(master_usgs, aes(x = Season, y = Flux)) +
+  geom_boxplot() + 
+  geom_jitter(width = 0.15, alpha = 0.5) +
+  theme_minimal() +
+  labs(x = "Season ", y = expression(Flux~(g/m^3))) 
+sed_season
+# Deposition by Marsh Area
+sed_edge_area= ggplot(master_usgs, aes(x = Marsh_Area, y = Flux, color = marsh_edge_type)) +
+  geom_boxplot() + 
+  geom_jitter(width = 0.15, alpha = 0.5) +
+  theme_minimal() +
+  labs(x = "Marsh Area ", y = expression(Flux~(g/m^3))) 
+sed_edge_area
+
+# Deposition by Season by Site
+sed_site_season= ggplot(master_usgs, aes(x = Season, y = Flux, color = Site)) +
+  geom_boxplot() + 
+  geom_jitter(width = 0.15, alpha = 0.5) +
+  theme_minimal() +
+  labs(x = "Season ", y = expression(Flux~(g/m^3))) 
+sed_site_season
+# Deposition by Marsh Area by Site
+sed_site_area= ggplot(master_usgs, aes(x = Marsh_Area, y = Flux, color = Site)) +
+  geom_boxplot() + 
+  geom_jitter(width = 0.15, alpha = 0.5) +
+  theme_minimal() +
+  labs(x = "Marsh Area ", y = expression(Flux~(g/m^3))) 
+sed_site_area
+# Deposition by Study Phase by Site
+sed_phase_site = master_usgs %>%
+  filter(!is.na(Study.Phase)) %>%
+  ggplot(aes(x = Study.Phase, y = Flux, color = Site)) +
+  geom_boxplot() + 
+  geom_jitter(width = 0.15, alpha = 0.5) +
+  theme_minimal() +
+  labs(x = "Study Phase ", y = expression(Flux~(g/m^3))) 
+sed_phase_site
+# Deposition by Study Phase by Site (log)
+sed_phase_site_log = master_usgs %>%
+  filter(!is.na(Study.Phase)) %>%
+  ggplot(aes(x = Study.Phase, y = Flux, color = Site)) +
+  geom_boxplot() + 
+  geom_jitter(width = 0.15, alpha = 0.5) +
+  scale_y_log10() +
+  theme_minimal() +
+  labs(x = "Study Phase ", y = expression(Flux~(g/m^3))) 
+sed_phase_site_log
+# Deposition by Study Phase by Marsh Edge Type
+sed_phase_edge = master_usgs %>%
+  filter(!is.na(Study.Phase)) %>%
+  ggplot(aes(x = Study.Phase, y = Flux, color = marsh_edge_type)) +
+  geom_boxplot() + 
+  geom_jitter(width = 0.15, alpha = 0.5) +
+  theme_minimal() +
+  labs(x = "Marsh Edge Type ", y = expression(Flux~(g/m^3))) 
+sed_phase_edge
+# Deposition by Study Phase Across Marsh Area
+sed_phase_area = master_usgs %>%
+  filter(!is.na(Study.Phase)) %>%
+  ggplot(aes(x = Marsh_Area, y = Flux, color = Study.Phase)) +
+  facet_wrap(~Site) +
+  geom_boxplot() + 
+  geom_jitter(width = 0.15, alpha = 0.5) +
+  theme_minimal() +
+  labs(x = "Marsh Area ", y = expression(Flux~(g/m^3))
+  ) 
+
+sed_phase_area
+```
+
+```{r}
+
+ggplot(
+  master_usgs,
+  aes(
+    Dist,
+    Flux
+  )
+) +
+  geom_point(alpha = 0.3) +
+  geom_smooth(method = "lm") +
+  facet_wrap(~ Site, scales = "free_y") +
+  theme_minimal()
+
+dist_summary <- master_usgs %>%
+  group_by(Site, Dist) %>%
+  summarise(
+    mean_flux = mean(Flux, na.rm = TRUE),
+    se_flux = sd(Flux, na.rm = TRUE) / sqrt(n()),
+    .groups = "drop"
+  )
+
+ggplot(
+  dist_summary,
+  aes(
+    x = Dist,
+    y = mean_flux
+  )
+) +
+  geom_line() +
+  geom_point(size = 3) +
+  geom_errorbar(
+    aes(
+      ymin = mean_flux - se_flux,
+      ymax = mean_flux + se_flux
+    ),
+    width = 0.2
+  ) +
+  facet_wrap(~ Site, scales = "free_y") +
+  theme_minimal() +
+  labs(
+    x = "Distance from Marsh Edge (m)",
+    y = expression(Mean~Flux~(g/m^3))
+  )
+
+
+phase_summary <- master_usgs %>%
+  group_by(Study.Phase) %>%
+  summarise(
+    mean_flux = mean(Flux, na.rm = TRUE),
+    se_flux = sd(Flux, na.rm = TRUE)/sqrt(n())
+  )
+
+ggplot(phase_summary,
+       aes(Study.Phase, mean_flux)) +
+  geom_point(size = 3) +
+  geom_errorbar(
+    aes(
+      ymin = mean_flux - se_flux,
+      ymax = mean_flux + se_flux
+    ),
+    width = 0.2
+  )
+
+```

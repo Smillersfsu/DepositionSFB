@@ -278,14 +278,14 @@ ggplot(ma_summary,
 ```{r, Study Phase}
 
 phase_summary <- master_thesis %>%
+  filter(!Site %in% c("Buck'sLanding", "GiantMarsh")) %>%
   group_by(Study.Phase) %>%
   summarise(
     mean_flux = mean(Flux, na.rm = TRUE),
-    se_flux = sd(Flux, na.rm = TRUE)/sqrt(n())
+    se_flux = sd(Flux, na.rm = TRUE) / sqrt(n())
   )
 
-ggplot(phase_summary,
-       aes(Study.Phase, mean_flux)) +
+ggplot(phase_summary, aes(Study.Phase, mean_flux)) +
   geom_point(size = 3) +
   geom_errorbar(
     aes(
@@ -294,7 +294,6 @@ ggplot(phase_summary,
     ),
     width = 0.2
   )
-
 ```
 
 ```{r}

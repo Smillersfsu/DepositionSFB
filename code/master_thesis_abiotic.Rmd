@@ -1,0 +1,303 @@
+---
+title: "master_thesis_abiotic"
+author: "Savannah K. Miller"
+date: "2026-06-24"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+library(httr)
+library(jsonlite)
+library(dplyr)
+```
+
+
+```{r}
+
+
+library(httr)
+library(jsonlite)
+library(dplyr)
+
+cdo_token <- "gbomlSahRoNqHntPqhNYszYpaSkhufSr"
+api_endpoint <- "https://www.ncdc.noaa.gov/cdo-web/api/v2/data"
+
+resp <- GET(api_endpoint,
+  add_headers(token = cdo_token),
+  query = list(
+    datasetid = "GHCND",
+    stationid = "GHCND:USW00023272",
+    startdate = "2022-12-25",
+    enddate = "2023-01-05",
+    datatypeid = "PRCP",
+    units = "standard",
+    limit = 1000
+  ))
+
+status_code(resp)
+content(resp, "text", encoding = "UTF-8")
+
+station_check <- GET("https://www.ncdc.noaa.gov/cdo-web/api/v2/stations/GHCND:USC00047740",
+  add_headers(token = cdo_token))
+
+status_code(station_check)
+content(station_check, "text", encoding = "UTF-8")
+```
+
+```{r}
+precip_2022 <- fromJSON(content(resp, "text", encoding = "UTF-8"))$results %>%
+  mutate(
+    date = as.Date(date),
+    value = as.numeric(value)
+  ) %>%
+  select(date, value)
+
+precip_2022
+
+```
+
+
+This is an R Markdown document. Markdown is a simple formatting syntax for authoring HTML, PDF, and MS Word documents. For more details on using R Markdown see <http://rmarkdown.rstudio.com>.
+
+When you click the **Knit** button a document will be generated that includes both content as well as the output of any embedded R code chunks within the document. You can embed an R code chunk like this:
+
+```{r, 2026 data}
+resp_2026 <- GET(api_endpoint,
+  add_headers(token = cdo_token),
+  query = list(
+    datasetid = "GHCND",
+    stationid = "GHCND:USW00023272",
+    startdate = "2025-12-30",
+    enddate = "2026-01-10",
+    datatypeid = "PRCP",
+    units = "standard",
+    limit = 1000
+  ))
+
+status_code(resp_2026)
+precip_2026 <- fromJSON(content(resp_2026, "text", encoding = "UTF-8"))$results %>%
+  mutate(
+    date = as.Date(date),
+    value = as.numeric(value)
+  ) %>%
+  select(date, value)
+
+precip_2026
+```
+
+## Including Plots
+
+You can also embed plots, for example:
+
+```{r, plotting 2022 and 2026 rain data}
+
+library(ggplot2)
+
+precip_2022$event <- "Dec 2022 / Jan 2023"
+precip_2026$event <- "Jan 2026"
+
+combined_precip <- bind_rows(precip_2022, precip_2026) %>%
+  group_by(event) %>%
+  mutate(day_num = row_number()) %>%  # aligns both events on a comparable x-axis
+  ungroup()
+
+ggplot(combined_precip, aes(x = day_num, y = value, fill = event)) +
+  geom_col(position = "dodge") +
+  labs(
+    title = "Daily Precipitation: Dec 2022/Jan 2023 vs Jan 2026",
+    x = "Day of Event Window",
+    y = "Precipitation (inches)",
+    fill = "Event"
+  ) +
+  theme_minimal(base_size = 14)
+```
+
+```{r, 2022 NOAA monthly summary pull}
+
+station_gsom_check <- GET("https://www.ncdc.noaa.gov/cdo-web/api/v2/stations/GHCND:USW00023272",
+  add_headers(token = cdo_token),
+  query = list(datasetid = "GSOM"))
+
+status_code(station_gsom_check)
+content(station_gsom_check, "text", encoding = "UTF-8")
+
+# Pull a full year of daily data (we know this works)
+precip_full2022 <- get_noaa_precip("2022-07-01", "2023-06-30", "GHCND:USW00023272", cdo_token)
+
+# Aggregate to monthly totals yourself
+library(lubridate)
+
+monthly_data2022 <- precip_full2022 %>%
+  mutate(month = floor_date(date, "month")) %>%
+  group_by(month) %>%
+  summarise(monthly_total_in = sum(value, na.rm = TRUE), .groups = "drop")
+
+monthly_data
+
+plot_2022 <- ggplot(monthly_data2022, aes(x = month, y = monthly_total_in)) +
+  geom_col(fill = "steelblue") +
+  scale_x_date(
+    date_labels = "%b %Y",
+    date_breaks = "1 month",
+    limits = as.Date(c("2022-07-01", "2023-06-30"))
+  ) +
+  scale_y_continuous(limits = c(0, 12)) +
+  labs(
+    title = "Monthly Precipitation: July 2022 – June 2023",
+    x = "Month",
+    y = "Total Precipitation (inches)"
+  ) +
+  theme_minimal(base_size = 14) +
+  theme(axis.text.x = element_text(angle = 45, hjust = 1))
+
+ggsave("monthly_precip_2022_2023.png", plot = plot_2022, width = 8, height = 5, dpi = 300)
+```
+
+
+```{r}
+
+today <- Sys.Date()
+end_date <- min(as.Date("2026-06-30"), today)
+
+precip_full2026 <- get_noaa_precip("2025-07-01", as.character(end_date), "GHCND:USW00023272", cdo_token)
+
+# Sanity check on the RIGHT object
+precip_full2026 %>%
+  mutate(month = floor_date(date, "month")) %>%
+  count(month)
+
+# Actually build monthly_data2026 from precip_full2026 — this step was missing
+monthly_data2026 <- precip_full2026 %>%
+  mutate(month = floor_date(date, "month")) %>%
+  group_by(month) %>%
+  summarise(monthly_total_in = sum(value, na.rm = TRUE), .groups = "drop") %>%
+  mutate(complete = ifelse(month == floor_date(today, "month"), "Partial month", "Complete"))
+
+monthly_data2026   # print and visually confirm before plotting
+
+plot_2026 <- ggplot(monthly_data2026, aes(x = month, y = monthly_total_in, fill = complete)) +
+  geom_col() +
+  scale_fill_manual(values = c("Complete" = "steelblue", "Partial month" = "gray70")) +
+  scale_x_date(date_labels = "%b %Y", date_breaks = "1 month") +
+  scale_y_continuous(limits = c(0, 12)) +
+  labs(title = "Monthly Precipitation: July 2025 – June 2026", x = "Month", y = "Inches", fill = NULL) +
+  theme_minimal(base_size = 14) +
+  theme(axis.text.x = element_text(angle = 45, hjust = 1))
+
+ggsave("monthly_precip_2025_2026.png", plot = plot_2026, width = 8, height = 5, dpi = 300)
+```
+
+
+```{r}
+
+# Save as CSV (most portable, easy to reopen in R or Excel)
+write.csv(precip_full2022, "precip_daily_2022_2023.csv", row.names = FALSE)
+write.csv(precip_full2026, "precip_daily_2025_2026.csv", row.names = FALSE)
+write.csv(monthly_data2022, "precip_monthly_2022_2023.csv", row.names = FALSE)
+write.csv(monthly_data2026, "precip_monthly_2025_2026.csv", row.names = FALSE)
+
+```
+
+
+```{r, let's try something (revisit this)}
+
+# You need a date range or representative date for each Study.Phase
+# Example structure - adjust to your actual phase-to-date mapping
+
+phase_dates <- cm_data %>%
+  group_by(Study.Phase) %>%
+  summarise(Study.Phase = min("M1"), end_date = max("M10"), .groups = "drop")
+
+# Sum precipitation within each phase's date window
+precip_by_phase <- phase_dates %>%
+  rowwise() %>%
+  mutate(
+    total_precip = sum(precip_full2022$value[precip_full2022$date >= M1 & 
+                                                precip_full2022$date <= end_date], na.rm = TRUE)
+  ) %>%
+  ungroup()
+
+# Join precip onto your flux summary
+time_dist_summary <- time_dist_summary %>%
+  left_join(precip_by_phase %>% select(Study.Phase, total_precip), by = "Study.Phase")
+
+
+
+ggplot(time_dist_summary, aes(x = Study.Phase)) +
+  geom_col(aes(y = total_precip), fill = "steelblue", alpha = 0.4) +
+  geom_smooth(aes(y = mean_flux, group = 1), method = "loess", se = FALSE, color = "darkred", linewidth = 1) +
+  geom_point(aes(y = mean_flux), color = "darkred", size = 2) +
+  facet_wrap(~ Dist, scales = "free_y", ncol = 2) +
+  scale_y_continuous(
+    name = "Precipitation (in)",
+    sec.axis = sec_axis(~ ., name = expression(Mean~Flux~(g/m^3)))
+  ) +
+  theme_minimal(base_size = 14) +
+  theme(
+    axis.text.x = element_text(angle = 45, hjust = 1),
+    strip.text = element_text(face = "bold")
+  ) +
+  labs(title = paste("Flux & Precipitation Through Time by Distance at", "Corte Madera"), x = "Study Phase")
+
+```
+
+
+
+```{r, tides}
+library(purrr)
+
+get_noaa_water_level <- function(start_date, end_date, station = "9414290") {
+  api_endpoint <- "https://api.tidesandcurrents.noaa.gov/api/prod/datagetter"
+  resp <- GET(api_endpoint, query = list(
+    begin_date = start_date,
+    end_date = end_date,
+    station = station,
+    product = "water_level",
+    datum = "MLLW",
+    units = "english",
+    time_zone = "lst_ldt",
+    format = "json"
+  ))
+  fromJSON(content(resp, "text", encoding = "UTF-8"))$data %>%
+    mutate(
+      t = as.POSIXct(t, format = "%Y-%m-%d %H:%M", tz = "America/Los_Angeles"),
+      v = as.numeric(v)
+    ) %>%
+    rename(datetime = t, water_level_ft = v) %>%
+    select(datetime, water_level_ft)
+}
+
+# Build monthly date chunks for July 2022 - June 2023
+month_starts <- seq(as.Date("2022-07-01"), as.Date("2023-06-01"), by = "month")
+month_ends <- ceiling_date(month_starts, "month") - 1
+
+# Pull each month and stack them
+tide_full2022 <- map2_dfr(month_starts, month_ends, function(start, end) {
+  get_noaa_water_level(format(start, "%Y%m%d"), format(end, "%Y%m%d"))
+})
+```
+```{r}
+
+monthly_tide2022 <- tide_full2022 %>%
+  mutate(month = floor_date(as.Date(datetime), "month")) %>%
+  group_by(month) %>%
+  summarise(
+    monthly_max_ft = max(water_level_ft, na.rm = TRUE),
+    monthly_mean_ft = mean(water_level_ft, na.rm = TRUE),
+    .groups = "drop"
+  )
+```
+
+```{r}
+
+ggplot(monthly_tide2022, aes(x = month, y = monthly_max_ft)) +
+  geom_col(fill = "darkcyan") +
+  scale_x_date(date_labels = "%b %Y", date_breaks = "1 month") +
+  labs(
+    title = "Monthly Maximum Water Level: July 2022 – June 2023",
+    x = "Month", y = "Max Water Level (ft, MLLW)"
+  ) +
+  theme_minimal(base_size = 14) +
+  theme(axis.text.x = element_text(angle = 45, hjust = 1))
+```
+

@@ -339,7 +339,7 @@ cmraincloud_tran = ggplot(
     y = "Study Phase"
   ) +
   theme(legend.position = "none") +
-  coord_cartesian(xlim = c(0, NA))
+  coord_cartesian(xlim = c(0, 125))
 cmraincloud_tran
 ```
 
@@ -381,6 +381,7 @@ ggplot(
     width = 0.2
   ) +
   theme_minimal(base_size = 14) +
+  coord_cartesian(ylim = c(0,30)) +
   labs(
     title = paste("Mean Flux Through Time at", "Corte Madera"),
     subtitle = "Negative flux values set to zero",
@@ -447,6 +448,7 @@ ggplot(
     width = 0.2
   ) +
   theme_minimal(base_size = 14) +
+  coord_cartesian(ylim = c(0,9.5)) +
   labs(
     title = paste("Mean Flux by Distance from Marsh Edge at", "Corte Madera"),
     x = "Distance from Marsh Edge (m)",
@@ -523,6 +525,7 @@ ggplot(
   ) +
   facet_wrap(~ Dist, scales = "free_y", ncol = 2) +
   theme_minimal(base_size = 14) +
+  coord_cartesian(ylim = c(0,60)) +
   theme(
     axis.text.x = element_text(angle = 45, hjust = 1),
     strip.text = element_text(face = "bold")
@@ -562,7 +565,8 @@ ggplot(
     ),
     width = 0.2
   ) +
-  theme_minimal(base_size = 14) +
+  theme_minimal(base_size = 14) + 
+  coord_cartesian(ylim = c(0,30)) +
   labs(
     title = paste("Flux Through Time by Transect at", "Corte Madera"),
     x = "Study Phase",
@@ -582,6 +586,7 @@ ggplot(
   geom_point(alpha = 0.4) +
   geom_smooth(method = "lm", se = TRUE) +
   theme_minimal(base_size = 14) +
+  coord_cartesian(ylim = c(0,120)) +
   labs(
     title = paste("Raw Flux vs Distance at", "Corte Madera"),
     x = "Distance from Marsh Edge (m)",
@@ -949,7 +954,7 @@ ggplot(
 #     y = expression(Flux~(g/m^3))
 #   )
 
-```
+``` 
 
 
 

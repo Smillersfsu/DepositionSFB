@@ -114,7 +114,7 @@ master_thesis$Dist <- as.factor(master_thesis$Dist)
 master_thesis$Replicate<- as.factor(master_thesis$Replicate)
 master_thesis$Year<- as.factor(master_thesis$Year)
 master_thesis$Flux <- as.numeric(master_thesis$Flux)
-master_thesis$Phen_Period <- factor(master_thesis$Phen_Period, levels = c("Late_Dry\n(Months 1-3)", "Tran\n(Months 4-6)", "Wet\n(Months 7-9)", "Growth\n(Months 10-12)"))
+#master_thesis$Phen_Period <- factor(master_thesis$Phen_Period, levels = c("Late_Dry\n(Months 1-3)", "Tran\n(Months 4-6)", "Wet\n(Months 7-9)", "Growth\n(Months 10-12)"))
 master_thesis$marsh_edge_type <- as.factor(master_thesis$marsh_edge_type)
 master_thesis$marsh_orientation <- as.factor(master_thesis$marsh_orientation)
 master_thesis$Marsh_Area <- as.factor(master_thesis$Marsh_Area)
@@ -277,15 +277,33 @@ ggplot(ma_summary,
 
 ```{r, Study Phase}
 
-phase_summary <- master_thesis %>%
-  filter(!Site %in% c("Buck'sLanding", "GiantMarsh")) %>%
-  group_by(Study.Phase) %>%
+phase_compare <- master_thesis %>%
+  mutate(
+    Marsh_Group = case_when(
+      Site %in% c("San Pablo", "Corte Madera") ~ "San Pablo + Corte Madera",
+      Site %in% c("Buck's Landing", "Giant Marsh") ~ "Buck's Landing + Giant Marsh",
+      TRUE ~ NA_character_
+    )
+  ) %>%
+  filter(!is.na(Marsh_Group)) %>%
+  group_by(Marsh_Group, Study.Phase) %>%
   summarise(
     mean_flux = mean(Flux, na.rm = TRUE),
-    se_flux = sd(Flux, na.rm = TRUE) / sqrt(n())
+    se_flux = sd(Flux, na.rm = TRUE) / sqrt(n()),
+    n = n(),
+    .groups = "drop"
   )
 
-ggplot(phase_summary, aes(Study.Phase, mean_flux)) +
+phase_compareplot = ggplot(
+  phase_compare,
+  aes(
+    x = Study.Phase,
+    y = mean_flux,
+    color = Marsh_Group,
+    group = Marsh_Group
+  )
+) +
+  geom_line() +
   geom_point(size = 3) +
   geom_errorbar(
     aes(
@@ -293,6 +311,55 @@ ggplot(phase_summary, aes(Study.Phase, mean_flux)) +
       ymax = mean_flux + se_flux
     ),
     width = 0.2
+  ) +
+  theme_minimal() +
+  labs(
+    x = "Study Phase",
+    y = expression(Mean~Flux~(g/m^3)),
+    color = "Marsh Group"
+  )
+
+phase_compareplot 
+
+
+phase_compare_noGM1 <- master_thesis %>%
+  filter(!(Site == "GiantMarsh" & Tran == "2")) %>%
+  group_by(
+    Site,
+    Tran,
+    Study.Phase
+  ) %>%
+  summarise(
+    mean_flux = mean(Flux, na.rm = TRUE),
+    se_flux = sd(Flux, na.rm = TRUE) / sqrt(n()),
+    n = n(),
+    .groups = "drop"
+  )
+
+ggplot(
+  phase_compare,
+  aes(
+    x = Study.Phase,
+    y = mean_flux,
+    color = Tran,
+    group = Tran
+  )
+) +
+  geom_line() +
+  geom_point(size = 3) +
+  geom_errorbar(
+    aes(
+      ymin = mean_flux - se_flux,
+      ymax = mean_flux + se_flux
+    ),
+    width = 0.2
+  ) +
+  facet_wrap(~ Site, scales = "free_y") +
+  theme_minimal() +
+  labs(
+    x = "Study Phase",
+    y = expression(Mean~Flux~(g/m^3)),
+    color = "Transect"
   )
 ```
 
@@ -316,4 +383,213 @@ ggplot(site_summary,
     width = 0.2
   )
 
+```
+
+```{r}
+
+transect_summary <- master_thesis %>%
+  mutate(
+    Flux = ifelse(Flux < 0, 0, Flux)
+  ) %>%
+  filter(Tran %in% c("1", "2")) %>%
+  group_by(
+    Tran,
+    Site,
+    Study.Phase
+  ) %>%
+  summarise(
+    mean_flux = mean(Flux, na.rm = TRUE),
+    se_flux = sd(Flux, na.rm = TRUE) / sqrt(n()),
+    n = n(),
+    .groups = "drop"
+  )
+
+ggplot(
+  transect_summary,
+  aes(
+    x = Study.Phase,
+    y = mean_flux,
+    color = Site,
+    group = Site
+  )
+) +
+  geom_line() +
+  geom_point(size = 3) +
+  geom_errorbar(
+    aes(
+      ymin = mean_flux - se_flux,
+      ymax = mean_flux + se_flux
+    ),
+    width = 0.2
+  ) +
+  facet_wrap(~ Tran, scales = "free_y") +
+  theme_minimal() +
+  labs(
+    x = "Study Phase",
+    y = expression(Mean~Flux~(g/m^3)),
+    color = "Site"
+  )
+
+
+
+
+transect_summary2 <- master_thesis %>%
+  mutate(
+    Flux = ifelse(Flux < 0, 0, Flux)
+  ) %>%
+  filter(Dist %in% c("0.5", "2", "6", "12", "18", "24", "48")) %>%
+  group_by(
+    Dist,
+    Site,
+    Study.Phase
+  ) %>%
+  summarise(
+    mean_flux = mean(Flux, na.rm = TRUE),
+    se_flux = sd(Flux, na.rm = TRUE) / sqrt(n()),
+    n = n(),
+    .groups = "drop"
+  )
+
+ggplot(
+  transect_summary2,
+  aes(
+    x = Study.Phase,
+    y = mean_flux,
+    color = Site,
+    group = Site
+  )
+) +
+  geom_line() +
+  geom_point(size = 3) +
+  geom_errorbar(
+    aes(
+      ymin = mean_flux - se_flux,
+      ymax = mean_flux + se_flux
+    ),
+    width = 0.2
+  ) +
+  facet_wrap(~ Dist, scales = "free_y") +
+  theme_minimal() +
+  labs(
+    x = "Distance",
+    y = expression(Mean~Flux~(g/m^3)),
+    color = "Study Phase"
+  )
+
+
+master_thesis$Dist <- factor(
+  master_thesis$Dist,
+  levels = c("0.5", "2", "6", "12", "18", "24", "48")
+)
+
+transect_summary2 <- master_thesis %>%
+  mutate(
+    Flux_zeroed = ifelse(Flux < 0, 0, Flux)
+  ) %>%
+  filter(Dist %in% c("0.5", "2", "6", "12", "18", "24", "48")) %>%
+  group_by(Dist, Site, Study.Phase) %>%
+  summarise(
+    mean_flux = mean(Flux_zeroed, na.rm = TRUE),
+    se_flux = sd(Flux_zeroed, na.rm = TRUE) / sqrt(n()),
+    n = n(),
+    .groups = "drop"
+  )
+
+dist_plot_log <- ggplot(
+  transect_summary2,
+  aes(
+    x = Study.Phase,
+    y = mean_flux,
+    color = Site,
+    group = Site
+  )
+) +
+  geom_line(linewidth = 0.8) +
+  geom_point(size = 3) +
+  geom_errorbar(
+    aes(
+      ymin = pmax(mean_flux - se_flux, 0.001),
+      ymax = mean_flux + se_flux
+    ),
+    width = 0.2,
+    linewidth = 0.5
+  ) +
+  facet_wrap(~ Dist, scales = "free_y", ncol = 2) +
+  scale_y_log10() +
+  theme_minimal(base_size = 14) +
+  theme(
+    axis.text.x = element_text(angle = 45, hjust = 1),
+    strip.text = element_text(size = 13, face = "bold"),
+    legend.position = "bottom"
+  ) +
+  labs(
+    title = "Mean Sediment Flux Across Study Phase by Distance from Marsh Edge",
+    subtitle = "Negative flux values set to zero; y-axis shown on log scale",
+    x = "Study Phase",
+    y = expression(Mean~Flux~(g/m^3)),
+    color = "Site"
+  )
+
+dist_plot_log
+
+
+transect_summary_no_giant <- master_thesis %>%
+  mutate(
+    Flux_zeroed = ifelse(Flux < 0, 0, Flux)
+  ) %>%
+  filter(
+    Site != "Giant Marsh",
+    Dist %in% c("0.5", "2", "6", "12", "18", "24", "48")
+  ) %>%
+  group_by(Dist, Site, Study.Phase) %>%
+  summarise(
+    mean_flux = mean(Flux_zeroed, na.rm = TRUE),
+    se_flux = sd(Flux_zeroed, na.rm = TRUE) / sqrt(n()),
+    n = n(),
+    .groups = "drop"
+  )
+
+dist_plot_no_giant <- ggplot(
+  transect_summary_no_giant,
+  aes(
+    x = Study.Phase,
+    y = mean_flux,
+    color = Site,
+    group = Site
+  )
+) +
+  geom_line(linewidth = 0.8) +
+  geom_point(size = 3) +
+  geom_errorbar(
+    aes(
+      ymin = mean_flux - se_flux,
+      ymax = mean_flux + se_flux
+    ),
+    width = 0.2,
+    linewidth = 0.5
+  ) +
+  facet_wrap(~ Dist, scales = "free_y", ncol = 2) +
+  theme_minimal(base_size = 14) +
+  theme(
+    axis.text.x = element_text(angle = 45, hjust = 1),
+    strip.text = element_text(size = 13, face = "bold"),
+    legend.position = "bottom"
+  ) +
+  labs(
+    title = "Mean Sediment Flux Across Study Phase by Distance from Marsh Edge",
+    subtitle = "GiantMarsh removed; negative flux values set to zero",
+    x = "Study Phase",
+    y = expression(Mean~Flux~(g/m^3)),
+    color = "Site"
+  )
+
+dist_plot_no_giant
+
+ggsave(
+  "distance_flux_log_plot.png",
+  dist_plot_log,
+  width = 12,
+  height = 9,
+  dpi = 300
+)
 ```

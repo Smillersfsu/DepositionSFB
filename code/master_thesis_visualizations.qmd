@@ -593,3 +593,134 @@ ggsave(
   dpi = 300
 )
 ```
+
+```{r}
+
+# all the sites 
+
+hydro_summary <- master_thesis %>%
+  mutate(
+    Flux_zeroed = ifelse(Flux < 0, 0.001, Flux)
+  ) %>%
+  group_by(
+    Hydro_Period,
+    Site
+  ) %>%
+  summarise(
+    mean_flux = mean(Flux_zeroed, na.rm = TRUE),
+    se_flux = sd(Flux_zeroed, na.rm = TRUE) / sqrt(n()),
+    n = n(),
+    .groups = "drop"
+  )
+
+hydro_plot_log <- ggplot(
+  hydro_summary,
+  aes(
+    x = Hydro_Period,
+    y = mean_flux,
+    color = Site,
+    group = Site
+  )
+) +
+  geom_line(linewidth = 1) +
+  geom_point(size = 3) +
+  geom_errorbar(
+    aes(
+      ymin = pmax(mean_flux - se_flux, 0.001),
+      ymax = mean_flux + se_flux
+    ),
+    width = 0.2
+  ) +
+  scale_y_log10() +
+  theme_minimal(base_size = 14) +
+  labs(
+    title = "Mean Flux by Hydrologic Period",
+    subtitle = "Log-scaled y-axis",
+    x = "Hydrologic Period",
+    y = expression(Mean~Flux~(g/m^3)),
+    color = "Site"
+  )
+
+hydro_plot_log
+
+
+# remove giant marsh 
+
+hydro_summary_no_giant <- master_thesis %>%
+  filter(Site != "Giant Marsh") %>%
+  mutate(
+    Flux_zeroed = ifelse(Flux < 0, 0, Flux)
+  ) %>%
+  group_by(
+    Hydro_Period,
+    Site
+  ) %>%
+  summarise(
+    mean_flux = mean(Flux_zeroed, na.rm = TRUE),
+    se_flux = sd(Flux_zeroed, na.rm = TRUE) / sqrt(n()),
+    n = n(),
+    .groups = "drop"
+  )
+
+
+hydro_plot_no_giant <- ggplot(
+  hydro_summary_no_giant,
+  aes(
+    x = Hydro_Period,
+    y = mean_flux,
+    color = Site,
+    group = Site
+  )
+) +
+  geom_line(linewidth = 1) +
+  geom_point(size = 3) +
+  geom_errorbar(
+    aes(
+      ymin = mean_flux - se_flux,
+      ymax = mean_flux + se_flux
+    ),
+    width = 0.2
+  ) +
+  theme_minimal(base_size = 14) +
+  labs(
+    title = "Mean Flux by Hydrologic Period",
+    subtitle = "GiantMarsh removed",
+    x = "Hydrologic Period",
+    y = expression(Mean~Flux~(g/m^3)),
+    color = "Site"
+  )
+
+hydro_plot_no_giant
+
+# faceted by site 
+
+hydro_plot_facet <- ggplot(
+  hydro_summary,
+  aes(
+    x = Hydro_Period,
+    y = mean_flux,
+    group = 1
+  )
+) +
+  geom_line(linewidth = 1) +
+  geom_point(size = 3) +
+  geom_errorbar(
+    aes(
+      ymin = mean_flux - se_flux,
+      ymax = mean_flux + se_flux
+    ),
+    width = 0.2
+  ) +
+  facet_wrap(
+    ~ Site,
+    scales = "free_y"
+  ) +
+  theme_minimal(base_size = 14) +
+  labs(
+    title = "Mean Flux by Hydrologic Period",
+    x = "Hydrologic Period",
+    y = expression(Mean~Flux~(g/m^3))
+  )
+
+hydro_plot_facet
+```

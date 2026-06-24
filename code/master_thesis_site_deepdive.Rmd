@@ -126,7 +126,7 @@ You can also embed plots, for example:
 
 # Filter to just Buck's Landing first
 buckslanding_data <- master_thesis %>%
-  filter(Site == "Buck'sLanding")
+  filter(Site == "Buck's Landing")
 
 # Summarize by Transect and Study.Phase instead of by Site
 buckslanding_summary <- buckslanding_data %>%
@@ -310,7 +310,7 @@ cm_raincloud = ggplot(
     y = Study.Phase,
     fill = Study.Phase
   )
-) +
+) +  
   geom_density_ridges(alpha = 0.7, scale = 1.2) +
   theme_ridges() +
   labs(
@@ -343,3 +343,644 @@ cmraincloud_tran = ggplot(
 cmraincloud_tran
 ```
 
+```{r}
+# basic
+
+basic_fluxcm = ggplot(cm_data, aes(x = Flux)) +
+  geom_histogram(bins = 30) +
+  theme_minimal(base_size = 14) +
+  labs(
+    title = paste("Flux Distribution at", "Corte Madera"),
+    x = expression(Flux~(g/m^3)),
+    y = "Count"
+  )
+basic_fluxcm
+
+# flux through time 
+
+phase_summary <- cm_data %>%
+  group_by(Study.Phase) %>%
+  summarise(
+    mean_flux = mean(Flux, na.rm = TRUE),
+    se_flux = sd(Flux, na.rm = TRUE) / sqrt(n()),
+    n = n(),
+    .groups = "drop"
+  )
+
+ggplot(
+  phase_summary,
+  aes(x = Study.Phase, y = mean_flux, group = 1)
+) +
+  geom_line(linewidth = 0.8) +
+  geom_point(size = 3) +
+  geom_errorbar(
+    aes(
+      ymin = mean_flux - se_flux,
+      ymax = mean_flux + se_flux
+    ),
+    width = 0.2
+  ) +
+  theme_minimal(base_size = 14) +
+  labs(
+    title = paste("Mean Flux Through Time at", "Corte Madera"),
+    subtitle = "Negative flux values set to zero",
+    x = "Study Phase",
+    y = expression(Mean~Flux~(g/m^3))
+  )
+
+# flux by hydro_period 
+
+hydro_summary <- cm_data %>%
+  group_by(Hydro_Period) %>%
+  summarise(
+    mean_flux = mean(Flux, na.rm = TRUE),
+    se_flux = sd(Flux, na.rm = TRUE) / sqrt(n()),
+    n = n(),
+    .groups = "drop"
+  )
+
+ggplot(
+  hydro_summary,
+  aes(x = Hydro_Period, y = mean_flux, group = 1)
+) +
+  geom_line(linewidth = 0.8) +
+  geom_point(size = 3) +
+  geom_errorbar(
+    aes(
+      ymin = mean_flux - se_flux,
+      ymax = mean_flux + se_flux
+    ),
+    width = 0.2
+  ) +
+  theme_minimal(base_size = 14) +
+  theme(
+    axis.text.x = element_text(angle = 30, hjust = 1)
+  ) +
+  labs(
+    title = paste("Mean Flux by Hydrologic Period at", "Corte Madera"),
+    x = "Hydrologic Period",
+    y = expression(Mean~Flux~(g/m^3))
+  )
+
+# flux by distance 
+
+dist_summary <- cm_data %>%
+  group_by(Dist) %>%
+  summarise(
+    mean_flux = mean(Flux, na.rm = TRUE),
+    se_flux = sd(Flux, na.rm = TRUE) / sqrt(n()),
+    n = n(),
+    .groups = "drop"
+  )
+
+ggplot(
+  dist_summary,
+  aes(x = Dist, y = mean_flux, group = 1)
+) +
+  geom_line(linewidth = 0.8) +
+  geom_point(size = 3) +
+  geom_errorbar(
+    aes(
+      ymin = mean_flux - se_flux,
+      ymax = mean_flux + se_flux
+    ),
+    width = 0.2
+  ) +
+  theme_minimal(base_size = 14) +
+  labs(
+    title = paste("Mean Flux by Distance from Marsh Edge at", "Corte Madera"),
+    x = "Distance from Marsh Edge (m)",
+    y = expression(Mean~Flux~(g/m^3))
+  )
+
+# flux by distance and hydro
+
+dist_hydro_summary <- cm_data %>%
+  group_by(Dist, Hydro_Period) %>%
+  summarise(
+    mean_flux = mean(Flux, na.rm = TRUE),
+    se_flux = sd(Flux, na.rm = TRUE) / sqrt(n()),
+    n = n(),
+    .groups = "drop"
+  )
+
+ggplot(
+  dist_hydro_summary,
+  aes(
+    x = Dist,
+    y = mean_flux,
+    color = Hydro_Period,
+    group = Hydro_Period
+  )
+) +
+  geom_line(linewidth = 0.8) +
+  geom_point(size = 3) +
+  geom_errorbar(
+    aes(
+      ymin = mean_flux - se_flux,
+      ymax = mean_flux + se_flux
+    ),
+    width = 0.2
+  ) +
+  theme_minimal(base_size = 14) +
+  theme(
+    legend.position = "bottom"
+  ) +
+  labs(
+    title = paste("Distance x Hydrologic Period at", "Corte Madera"),
+    x = "Distance from Marsh Edge (m)",
+    y = expression(Mean~Flux~(g/m^3)),
+    color = "Hydrologic Period"
+  )
+
+# flux through time by distance 
+
+time_dist_summary <- cm_data %>%
+  group_by(Dist, Study.Phase) %>%
+  summarise(
+    mean_flux = mean(Flux, na.rm = TRUE),
+    se_flux = sd(Flux, na.rm = TRUE) / sqrt(n()),
+    n = n(),
+    .groups = "drop"
+  )
+
+ggplot(
+  time_dist_summary,
+  aes(
+    x = Study.Phase,
+    y = mean_flux,
+    group = 1
+  )
+) +
+  geom_line(linewidth = 0.8) +
+  geom_point(size = 3) +
+  geom_errorbar(
+    aes(
+      ymin = mean_flux - se_flux,
+      ymax = mean_flux + se_flux
+    ),
+    width = 0.2
+  ) +
+  facet_wrap(~ Dist, scales = "free_y", ncol = 2) +
+  theme_minimal(base_size = 14) +
+  theme(
+    axis.text.x = element_text(angle = 45, hjust = 1),
+    strip.text = element_text(face = "bold")
+  ) +
+  labs(
+    title = paste("Flux Through Time by Distance at", "Corte Madera"),
+    x = "Study Phase",
+    y = expression(Mean~Flux~(g/m^3))
+  )
+
+# flux through time by transect 
+
+tran_summary <- cm_data %>%
+  group_by(Tran, Study.Phase) %>%
+  summarise(
+    mean_flux = mean(Flux, na.rm = TRUE),
+    se_flux = sd(Flux, na.rm = TRUE) / sqrt(n()),
+    n = n(),
+    .groups = "drop"
+  )
+
+ggplot(
+  tran_summary,
+  aes(
+    x = Study.Phase,
+    y = mean_flux,
+    color = Tran,
+    group = Tran
+  )
+) +
+  geom_line(linewidth = 0.8) +
+  geom_point(size = 3) +
+  geom_errorbar(
+    aes(
+      ymin = mean_flux - se_flux,
+      ymax = mean_flux + se_flux
+    ),
+    width = 0.2
+  ) +
+  theme_minimal(base_size = 14) +
+  labs(
+    title = paste("Flux Through Time by Transect at", "Corte Madera"),
+    x = "Study Phase",
+    y = expression(Mean~Flux~(g/m^3)),
+    color = "Transect"
+  )
+
+# raw flux and distance 
+
+ggplot(
+  cm_data,
+  aes(
+    x = as.numeric(as.character(Dist)),
+    y = Flux
+  )
+) +
+  geom_point(alpha = 0.4) +
+  geom_smooth(method = "lm", se = TRUE) +
+  theme_minimal(base_size = 14) +
+  labs(
+    title = paste("Raw Flux vs Distance at", "Corte Madera"),
+    x = "Distance from Marsh Edge (m)",
+    y = expression(Flux~(g/m^3))
+  )
+
+# once elevation is complete 
+
+# ggplot(
+#   one_site,
+#   aes(
+#     x = Elevation,
+#     y = Flux
+#   )
+# ) +
+#   geom_point(alpha = 0.4) +
+#   geom_smooth(method = "lm", se = TRUE) +
+#   theme_minimal(base_size = 14) +
+#   labs(
+#     title = paste("Flux vs Elevation at", "Corte Madera"),
+#     x = "Elevation",
+#     y = expression(Flux~(g/m^3))
+#   )
+
+# once veg is cleaned and entered 
+
+# one_site <- one_site %>%
+#   mutate(
+#     Veg_Structure = Percent_Cover * Avg_Height
+#   )
+
+# ggplot(
+#   one_site,
+#   aes(
+#     x = Percent_Cover,
+#     y = Flux
+#   )
+# ) +
+#   geom_point(alpha = 0.4) +
+#   geom_smooth(method = "lm", se = TRUE) +
+#   theme_minimal(base_size = 14) +
+#   labs(
+#     title = paste("Flux vs Percent Cover at", "Corte Madera"),
+#     x = "Percent Vegetation Cover",
+#     y = expression(Flux~(g/m^3))
+#   )
+
+# ggplot(
+#   one_site,
+#   aes(
+#     x = Veg_Structure,
+#     y = Flux
+#   )
+# ) +
+#   geom_point(alpha = 0.4) +
+#   geom_smooth(method = "lm", se = TRUE) +
+#   theme_minimal(base_size = 14) +
+#   labs(
+#     title = paste("Flux vs Vegetation Structure at", "Corte Madera"),
+#     x = "Vegetation Structure Index (Cover x Height)",
+#     y = expression(Flux~(g/m^3))
+#   )
+```
+
+```{r, for b data}
+
+# basic
+
+basic_fluxb = ggplot(buckslanding_data, aes(x = Flux)) +
+  geom_histogram(bins = 30) +
+  theme_minimal(base_size = 14) +
+  labs(
+    title = paste("Flux Distribution at", "Buck's Landing"),
+    x = expression(Flux~(g/m^3)),
+    y = "Count"
+  )
+basic_fluxb
+
+# flux through time 
+
+phase_summaryb <- buckslanding_data %>%
+  group_by(Study.Phase) %>%
+  summarise(
+    mean_flux = mean(Flux, na.rm = TRUE),
+    se_flux = sd(Flux, na.rm = TRUE) / sqrt(n()),
+    n = n(),
+    .groups = "drop"
+  )
+
+ggplot(
+  phase_summaryb,
+  aes(x = Study.Phase, y = mean_flux, group = 1)
+) +
+  geom_line(linewidth = 0.8) +
+  geom_point(size = 3) +
+  geom_errorbar(
+    aes(
+      ymin = mean_flux - se_flux,
+      ymax = mean_flux + se_flux
+    ),
+    width = 0.2
+  ) +
+  theme_minimal(base_size = 14) +
+  labs(
+    title = paste("Mean Flux Through Time at", "Buck's Landing"),
+    subtitle = "Negative flux values set to zero",
+    x = "Study Phase",
+    y = expression(Mean~Flux~(g/m^3))
+  )
+
+# flux by hydro_period 
+
+hydro_summary <- buckslanding_data %>%
+  group_by(Hydro_Period) %>%
+  summarise(
+    mean_flux = mean(Flux, na.rm = TRUE),
+    se_flux = sd(Flux, na.rm = TRUE) / sqrt(n()),
+    n = n(),
+    .groups = "drop"
+  )
+
+ggplot(
+  hydro_summary,
+  aes(x = Hydro_Period, y = mean_flux, group = 1)
+) +
+  geom_line(linewidth = 0.8) +
+  geom_point(size = 3) +
+  geom_errorbar(
+    aes(
+      ymin = mean_flux - se_flux,
+      ymax = mean_flux + se_flux
+    ),
+    width = 0.2
+  ) +
+  theme_minimal(base_size = 14) +
+  theme(
+    axis.text.x = element_text(angle = 30, hjust = 1)
+  ) +
+  labs(
+    title = paste("Mean Flux by Hydrologic Period at", "Buck's Landing"),
+    x = "Hydrologic Period",
+    y = expression(Mean~Flux~(g/m^3))
+  )
+
+# flux by distance 
+
+dist_summary <- buckslanding_data %>%
+  group_by(Dist) %>%
+  summarise(
+    mean_flux = mean(Flux, na.rm = TRUE),
+    se_flux = sd(Flux, na.rm = TRUE) / sqrt(n()),
+    n = n(),
+    .groups = "drop"
+  )
+
+ggplot(
+  dist_summary,
+  aes(x = Dist, y = mean_flux, group = 1)
+) +
+  geom_line(linewidth = 0.8) +
+  geom_point(size = 3) +
+  geom_errorbar(
+    aes(
+      ymin = mean_flux - se_flux,
+      ymax = mean_flux + se_flux
+    ),
+    width = 0.2
+  ) +
+  theme_minimal(base_size = 14) +
+  labs(
+    title = paste("Mean Flux by Distance from Marsh Edge at", "Buck's Landing"),
+    x = "Distance from Marsh Edge (m)",
+    y = expression(Mean~Flux~(g/m^3))
+  )
+
+# flux by distance and hydro
+
+dist_hydro_summary <- buckslanding_data %>%
+  group_by(Dist, Hydro_Period) %>%
+  summarise(
+    mean_flux = mean(Flux, na.rm = TRUE),
+    se_flux = sd(Flux, na.rm = TRUE) / sqrt(n()),
+    n = n(),
+    .groups = "drop"
+  )
+
+ggplot(
+  dist_hydro_summary,
+  aes(
+    x = Dist,
+    y = mean_flux,
+    color = Hydro_Period,
+    group = Hydro_Period
+  )
+) +
+  geom_line(linewidth = 0.8) +
+  geom_point(size = 3) +
+  geom_errorbar(
+    aes(
+      ymin = mean_flux - se_flux,
+      ymax = mean_flux + se_flux
+    ),
+    width = 0.2
+  ) +
+  theme_minimal(base_size = 14) +
+  theme(
+    legend.position = "bottom"
+  ) +
+  labs(
+    title = paste("Distance x Hydrologic Period at", "Buck's Landing"),
+    x = "Distance from Marsh Edge (m)",
+    y = expression(Mean~Flux~(g/m^3)),
+    color = "Hydrologic Period"
+  )
+
+# flux through time by distance 
+
+time_dist_summary <- buckslanding_data %>%
+  group_by(Dist, Study.Phase) %>%
+  summarise(
+    mean_flux = mean(Flux, na.rm = TRUE),
+    se_flux = sd(Flux, na.rm = TRUE) / sqrt(n()),
+    n = n(),
+    .groups = "drop"
+  )
+
+ggplot(
+  time_dist_summary,
+  aes(
+    x = Study.Phase,
+    y = mean_flux,
+    group = 1
+  )
+) +
+  geom_line(linewidth = 0.8) +
+  geom_point(size = 3) +
+  geom_errorbar(
+    aes(
+      ymin = mean_flux - se_flux,
+      ymax = mean_flux + se_flux
+    ),
+    width = 0.2
+  ) +
+  facet_wrap(~ Dist, scales = "free_y", ncol = 2) +
+  theme_minimal(base_size = 14) +
+  theme(
+    axis.text.x = element_text(angle = 45, hjust = 1),
+    strip.text = element_text(face = "bold")
+  ) +
+  labs(
+    title = paste("Flux Through Time by Distance at", "Buck's Landing"),
+    x = "Study Phase",
+    y = expression(Mean~Flux~(g/m^3))
+  )
+
+# flux through time by transect 
+
+tran_summary <- buckslanding_data %>%
+  group_by(Tran, Study.Phase) %>%
+  summarise(
+    mean_flux = mean(Flux, na.rm = TRUE),
+    se_flux = sd(Flux, na.rm = TRUE) / sqrt(n()),
+    n = n(),
+    .groups = "drop"
+  )
+
+ggplot(
+  tran_summary,
+  aes(
+    x = Study.Phase,
+    y = mean_flux,
+    color = Tran,
+    group = Tran
+  )
+) +
+  geom_line(linewidth = 0.8) +
+  geom_point(size = 3) +
+  geom_errorbar(
+    aes(
+      ymin = mean_flux - se_flux,
+      ymax = mean_flux + se_flux
+    ),
+    width = 0.2
+  ) +
+  theme_minimal(base_size = 14) +
+  labs(
+    title = paste("Flux Through Time by Transect at", "Buck's Landing"),
+    x = "Study Phase",
+    y = expression(Mean~Flux~(g/m^3)),
+    color = "Transect"
+  )
+
+# raw flux and distance 
+
+ggplot(
+  buckslanding_data,
+  aes(
+    x = as.numeric(as.character(Dist)),
+    y = Flux
+  )
+) +
+  geom_point(alpha = 0.4) +
+  geom_smooth(method = "lm", se = TRUE) +
+  theme_minimal(base_size = 14) +
+  labs(
+    title = paste("Raw Flux vs Distance at", "Buck's Landing"),
+    x = "Distance from Marsh Edge (m)",
+    y = expression(Flux~(g/m^3))
+  )
+
+# once elevation is complete 
+
+# ggplot(
+#   one_site,
+#   aes(
+#     x = Elevation,
+#     y = Flux
+#   )
+# ) +
+#   geom_point(alpha = 0.4) +
+#   geom_smooth(method = "lm", se = TRUE) +
+#   theme_minimal(base_size = 14) +
+#   labs(
+#     title = paste("Flux vs Elevation at", "Buck's Landing"),
+#     x = "Elevation",
+#     y = expression(Flux~(g/m^3))
+#   )
+
+# once veg is cleaned and entered 
+
+# one_site <- one_site %>%
+#   mutate(
+#     Veg_Structure = Percent_Cover * Avg_Height
+#   )
+
+# ggplot(
+#   one_site,
+#   aes(
+#     x = Percent_Cover,
+#     y = Flux
+#   )
+# ) +
+#   geom_point(alpha = 0.4) +
+#   geom_smooth(method = "lm", se = TRUE) +
+#   theme_minimal(base_size = 14) +
+#   labs(
+#     title = paste("Flux vs Percent Cover at", "Buck's Landing"),
+#     x = "Percent Vegetation Cover",
+#     y = expression(Flux~(g/m^3))
+#   )
+
+# ggplot(
+#   one_site,
+#   aes(
+#     x = Veg_Structure,
+#     y = Flux
+#   )
+# ) +
+#   geom_point(alpha = 0.4) +
+#   geom_smooth(method = "lm", se = TRUE) +
+#   theme_minimal(base_size = 14) +
+#   labs(
+#     title = paste("Flux vs Vegetation Structure at", "Buck's Landing"),
+#     x = "Vegetation Structure Index (Cover x Height)",
+#     y = expression(Flux~(g/m^3))
+#   )
+
+```
+
+
+
+
+
+
+```{r}
+
+# for stats/regression stuff later 
+
+lm_dist <- lm(
+  Flux ~ as.numeric(as.character(Dist)),
+  data = cm_data
+)
+
+summary(lm_dist)
+
+dist_lm_table <- tibble(
+  Site = "Corte Madera",
+  Model = "Flux ~ Distance",
+  R_squared = summary(lm_dist)$r.squared,
+  Adj_R_squared = summary(lm_dist)$adj.r.squared,
+  p_value = coef(summary(lm_dist))[2, 4]
+)
+
+dist_lm_table %>%
+  gt() %>%
+  tab_header(
+    title = "Exploratory Linear Regression Summary"
+  ) %>%
+  fmt_number(
+    columns = c(R_squared, Adj_R_squared, p_value),
+    decimals = 4
+  )

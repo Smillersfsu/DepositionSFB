@@ -117,7 +117,6 @@ ggplot(combined_precip, aes(x = day_num, y = value, fill = event)) +
 station_gsom_check <- GET("https://www.ncdc.noaa.gov/cdo-web/api/v2/stations/GHCND:USW00023272",
   add_headers(token = cdo_token),
   query = list(datasetid = "GSOM"))
-
 status_code(station_gsom_check)
 content(station_gsom_check, "text", encoding = "UTF-8")
 
@@ -126,15 +125,13 @@ precip_full2022 <- get_noaa_precip("2022-07-01", "2023-06-30", "GHCND:USW0002327
 
 # Aggregate to monthly totals yourself
 library(lubridate)
-
 monthly_data2022 <- precip_full2022 %>%
   mutate(month = floor_date(date, "month")) %>%
   group_by(month) %>%
   summarise(monthly_total_in = sum(value, na.rm = TRUE), .groups = "drop")
+monthly_data2022
 
-monthly_data
-
-plot_2022 <- ggplot(monthly_data2022, aes(x = month, y = monthly_total_in)) +
+monthly_precip_2022_2023 <- ggplot(monthly_data2022, aes(x = month, y = monthly_total_in)) +
   geom_col(fill = "steelblue") +
   scale_x_date(
     date_labels = "%b %Y",
@@ -144,11 +141,17 @@ plot_2022 <- ggplot(monthly_data2022, aes(x = month, y = monthly_total_in)) +
   scale_y_continuous(limits = c(0, 12)) +
   labs(
     title = "Monthly Precipitation: July 2022 – June 2023",
+    subtitle = stringr::str_wrap("Source: NOAA NCEI, San Francisco Downtown Station GHCND:USW00023272 | https://www.weather.gov/wrh/climate?wfo=mtr", width = 60),
     x = "Month",
     y = "Total Precipitation (inches)"
   ) +
   theme_minimal(base_size = 14) +
-  theme(axis.text.x = element_text(angle = 45, hjust = 1))
+  theme(
+    axis.text.x = element_text(angle = 45, hjust = 1),
+    plot.subtitle = element_text(size = 10, color = "gray40")
+  )
+
+monthly_precip_2022_2023
 
 ggsave("monthly_precip_2022_2023.png", plot = plot_2022, width = 8, height = 5, dpi = 300)
 ```
@@ -167,7 +170,7 @@ precip_full2026 %>%
   count(month)
 
 # Actually build monthly_data2026 from precip_full2026 — this step was missing
-monthly_data2026 <- precip_full2026 %>%
+monthly_precip_2025_2026 <- precip_full2026 %>%
   mutate(month = floor_date(date, "month")) %>%
   group_by(month) %>%
   summarise(monthly_total_in = sum(value, na.rm = TRUE), .groups = "drop") %>%
@@ -180,9 +183,15 @@ plot_2026 <- ggplot(monthly_data2026, aes(x = month, y = monthly_total_in, fill 
   scale_fill_manual(values = c("Complete" = "steelblue", "Partial month" = "gray70")) +
   scale_x_date(date_labels = "%b %Y", date_breaks = "1 month") +
   scale_y_continuous(limits = c(0, 12)) +
-  labs(title = "Monthly Precipitation: July 2025 – June 2026", x = "Month", y = "Inches", fill = NULL) +
+  labs(
+    title = "Monthly Precipitation: July 2022 – June 2023",
+    subtitle = stringr::str_wrap("Source: NOAA NCEI, San Francisco Downtown Station GHCND:USW00023272 | https://www.weather.gov/wrh/climate?wfo=mtr", width = 60),
+    x = "Month",
+    y = "Total Precipitation (inches)"
+  )
   theme_minimal(base_size = 14) +
   theme(axis.text.x = element_text(angle = 45, hjust = 1))
+monthly_precip_2025_2026
 
 ggsave("monthly_precip_2025_2026.png", plot = plot_2026, width = 8, height = 5, dpi = 300)
 ```
@@ -209,13 +218,13 @@ phase_dates <- cm_data %>%
   summarise(Study.Phase = min("M1"), end_date = max("M10"), .groups = "drop")
 
 # Sum precipitation within each phase's date window
-precip_by_phase <- phase_dates %>%
-  rowwise() %>%
-  mutate(
-    total_precip = sum(precip_full2022$value[precip_full2022$date >= M1 & 
-                                                precip_full2022$date <= end_date], na.rm = TRUE)
-  ) %>%
-  ungroup()
+#precip_by_phase <- phase_dates %>%
+#  rowwise() %>%
+#  mutate(
+ #   total_precip = sum(precip_full2022$value[precip_full2022$date >= M1 & 
+  #                                              precip_full2022$date <= end_date], na.rm = TRUE)
+ # ) %>%
+#  ungroup()
 
 # Join precip onto your flux summary
 time_dist_summary <- time_dist_summary %>%
@@ -243,7 +252,7 @@ ggplot(time_dist_summary, aes(x = Study.Phase)) +
 
 
 
-```{r, tides}
+```{r, tides 2022}
 library(purrr)
 
 get_noaa_water_level <- function(start_date, end_date, station = "9414290") {
@@ -294,10 +303,72 @@ ggplot(monthly_tide2022, aes(x = month, y = monthly_max_ft)) +
   geom_col(fill = "darkcyan") +
   scale_x_date(date_labels = "%b %Y", date_breaks = "1 month") +
   labs(
-    title = "Monthly Maximum Water Level: July 2022 – June 2023",
+    title = "Monthly Maximum Water Level: July 2022 – June 2023", 
+    subtitle = stringr::str_wrap("Source: NOAA CO-OPS, San Francisco Station 9414290 | https://tidesandcurrents.noaa.gov/stationhome.html?id=9414290", width = 60),
     x = "Month", y = "Max Water Level (ft, MLLW)"
   ) +
   theme_minimal(base_size = 14) +
   theme(axis.text.x = element_text(angle = 45, hjust = 1))
+```
+
+
+```{r, tides 2026}
+
+library(purrr)
+
+get_noaa_water_level <- function(start_date, end_date, station = "9414290") {
+  api_endpoint <- "https://api.tidesandcurrents.noaa.gov/api/prod/datagetter"
+  resp <- GET(api_endpoint, query = list(
+    begin_date = start_date,
+    end_date = end_date,
+    station = station,
+    product = "water_level",
+    datum = "MLLW",
+    units = "english",
+    time_zone = "lst_ldt",
+    format = "json"
+  ))
+  fromJSON(content(resp, "text", encoding = "UTF-8"))$data %>%
+    mutate(
+      t = as.POSIXct(t, format = "%Y-%m-%d %H:%M", tz = "America/Los_Angeles"),
+      v = as.numeric(v)
+    ) %>%
+    rename(datetime = t, water_level_ft = v) %>%
+    select(datetime, water_level_ft)
+}
+
+# Build monthly date chunks for July 2025 - June 2026
+month_starts <- seq(as.Date("2025-07-01"), as.Date("2026-06-01"), by = "month")
+month_ends <- ceiling_date(month_starts, "month") - 1
+
+# Pull each month and stack them
+tide_full2025_6 <- map2_dfr(month_starts, month_ends, function(start, end) {
+  get_noaa_water_level(format(start, "%Y%m%d"), format(end, "%Y%m%d"))
+})
+
+# monthly tide rates 2026
+monthly_tide2026 <- tide_full2025_6 %>%
+  mutate(month = floor_date(as.Date(datetime), "month")) %>%
+  group_by(month) %>%
+  summarise(
+    monthly_max_ft = max(water_level_ft, na.rm = TRUE),
+    monthly_mean_ft = mean(water_level_ft, na.rm = TRUE),
+    .groups = "drop"
+  )
+
+
+tide_sf_2026 = ggplot(monthly_tide2026, aes(x = month, y = monthly_max_ft)) +
+  geom_col(fill = "darkcyan") +
+  scale_x_date(date_labels = "%b %Y", date_breaks = "1 month") +
+  labs(
+    title = "Monthly Maximum Water Level: July 2025 – June 2026",
+    subtitle = stringr::str_wrap("Source: NOAA CO-OPS, San Francisco Station 9414290 | https://tidesandcurrents.noaa.gov/stationhome.html?id=9414290", width = 60),
+    x = "Month", y = "Max Water Level (ft, MLLW)"
+  ) +
+  theme_minimal(base_size = 14) +
+  theme(axis.text.x = element_text(angle = 45, hjust = 1))
+
+
+ggsave("tide_sf_2026.png", plot = plot_2026, width = 8, height = 5, dpi = 300)
 ```
 

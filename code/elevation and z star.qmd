@@ -61,7 +61,7 @@ cross_site_plot_z <- ggplot(plot_data_all_a, aes(x = Distance_AlongTransect_m, y
   )
 
 # 3. Display the plot
-print(cross_site_plot)
+print(cross_site_plot_z)
 
 # 4. Save the plot to your main Plots folder
 overall_plots_folder <- "C:\\Users\\savan\\OneDrive - San Francisco State University\\ProjectData\\GitHub\\DepositionSFB\\images"
@@ -71,7 +71,7 @@ if (!dir.exists(overall_plots_folder)) dir.create(overall_plots_folder, recursiv
 
 # Save the high-res image
 ggsave(("C:\\Users\\savan\\OneDrive - San Francisco State University\\ProjectData\\GitHub\\DepositionSFB\\images\\All_Sites_Track_A_Comparison_z.png"),
-  plot = cross_site_plot,
+  plot = cross_site_plot_z,
   width = 10,  # Keeping it wide to comfortably fit the legend
   height = 6,
   dpi = 300,
@@ -121,7 +121,7 @@ overall_plots_folder <- "C:\\Users\\savan\\OneDrive - San Francisco State Univer
 
 # Save the high-res image
 ggsave(("C:\\Users\\savan\\OneDrive - San Francisco State University\\ProjectData\\GitHub\\DepositionSFB\\images\\All_Sites_Track_B_Comparison.png"),
-  plot = cross_site_plot_b,
+  plot = cross_site_plot_b_z,
   width = 10,  
   height = 6,
   dpi = 300,
@@ -170,7 +170,7 @@ overall_plots_folder <- "C:\\Users\\savan\\OneDrive - San Francisco State Univer
 
 # Save the high-res image
 ggsave(("C:\\Users\\savan\\OneDrive - San Francisco State University\\ProjectData\\GitHub\\DepositionSFB\\imagesAll_Sites_Track_C_Comparison.png"),
-  plot = cross_site_plot_c,
+  plot = cross_site_plot_c_z,
   width = 10,  
   height = 6,
   dpi = 300,
@@ -181,7 +181,7 @@ ggsave(("C:\\Users\\savan\\OneDrive - San Francisco State University\\ProjectDat
 #{r}
 # 1. Start with only track 'a' data
 plot_data_a <- rtk_data %>%
-  filter(grepl("a$", Point_ID, ignore.case = TRUE))
+  filter(grepl("a$", Rep, ignore.case = TRUE))
 
 # 2. Split into Ramped and Scarped datasets
 data_ramped <- plot_data_a %>%
@@ -191,9 +191,9 @@ data_scarped <- plot_data_a %>%
   filter(Location %in% c("CorteMadera", "GiantMarsh"))
 
 # 3. Create the Ramped Plot
-plot_ramped_z <- ggplot(data_ramped, aes(x = Distance_AlongTransect_m, y = z_star, color = Transect_ID)) +
-  geom_point(aes(shape = Location), size = 3, alpha = 0.8) + 
-  geom_line(aes(group = Transect_ID), linewidth = 1, alpha = 0.5) + 
+plot_ramped_z <- ggplot(data_ramped, aes(x = Dist, y = z_star, color = Tran)) +
+  geom_point(aes(shape = Site), size = 3, alpha = 0.8) + 
+  geom_line(aes(group = Tran), linewidth = 1, alpha = 0.5) + 
   labs(
     subtitle = "Ramped Sites (San Pablo & Bucks Landing)",
     x = "Distance Along Transect (m)",
@@ -216,9 +216,9 @@ plot_ramped_z <- ggplot(data_ramped, aes(x = Distance_AlongTransect_m, y = z_sta
   )
 
 # 4. Create the Scarped Plot
-plot_scarped_z <- ggplot(data_scarped, aes(x = Distance_AlongTransect_m, y = z_star, color = Transect_ID)) +
-  geom_point(aes(shape = Location), size = 3, alpha = 0.8) + 
-  geom_line(aes(group = Transect_ID), linewidth = 1, alpha = 0.5) + 
+plot_scarped_z <- ggplot(data_scarped, aes(x = Dist, y = z_star, color = Tran)) +
+  geom_point(aes(shape = Site), size = 3, alpha = 0.8) + 
+  geom_line(aes(group = Tran), linewidth = 1, alpha = 0.5) + 
   labs(
     subtitle = "Scarped Sites (Corte Madera & Giant Marsh)",
     x = "Distance Along Transect (m)",
@@ -241,7 +241,7 @@ plot_scarped_z <- ggplot(data_scarped, aes(x = Distance_AlongTransect_m, y = z_s
   )
 
 # 5. Combine the plots for side-by-side viewing
-combined_morphology_plot_z <- (plot_ramped | plot_scarped) +
+combined_morphology_plot_z <- (plot_ramped_z | plot_scarped_z) +
   plot_annotation(
     title = "Marsh Morphology Comparison: Ramped vs. Scarped Sites with z* Calculation",
     theme = theme(plot.title = element_text(size = 16, face = "bold"))
@@ -270,56 +270,64 @@ ggsave(("C:\\Users\\savan\\OneDrive - San Francisco State University\\ProjectDat
 library(dplyr)
 library(stringr)
 
-allowed_sites      <- c("C", "B", "Gm", "S")
-allowed_transects  <- c("T1", "T2")
-allowed_distances  <- c(0.5, 2, 6, 12, 18, 24, 48)
-allowed_replicates <- c("a", "b", "c")
-
-rtk_data_detail <- rtk_data |>
+sed_thesis_keyed <- sed_thesis |>
   mutate(
-    Site      = str_extract(Point_ID, "^[A-Za-z]+"),
-    Transect  = as.integer(str_extract(Point_ID, "(?<=[A-Za-z])\\d+")),
-    Dist  = as.numeric(str_extract(Point_ID, "(?<=-)[\\.\\d]+")),
-    Replicate = str_extract(Point_ID, "[a-z]+$")
-  ) |>
-  mutate(
-    Site      = if_else(Site %in% allowed_sites, Site, NA_character_),
-    Transect  = factor(if_else(Transect %in% c(1, 2), paste0("T", Transect), NA_character_),
-                       levels = allowed_transects),
-    Dist  = factor(if_else(Dist %in% allowed_distances, Dist, NA_real_),
-                       levels = allowed_distances),
-    Replicate = if_else(Replicate %in% allowed_replicates, Replicate, NA_character_)
+    Site      = str_remove_all(as.character(Site), " "),
+    Tran      = paste0("T", as.character(Tran)),
+    Dist      = as.numeric(as.character(Dist)),
+    Replicate = as.character(Replicate)
   )
 
-rtk_data_detail <- rtk_data_detail |>
-  mutate(Tran = case_when(
-    Transect == "1" ~ "T1",
-    Transect == "2" ~ "T2",
-    .default = Transect  # keeps anything else unchanged
-  ))
+rtk_detail <- rtk_data_detail |>
+  mutate(
+    Site      = as.character(Site),
+    Tran      = as.character(Tran),
+    Dist      = as.numeric(as.character(Dist)),
+    Replicate = as.character(Replicate)
+  ) |>
+  select(Site, Tran, Dist, Replicate, Elevation_m, z_star)
 
-rtk_data_detail <- rtk_data_detail |>
-  mutate(Site = case_when(
-    Site == "C" ~ "CorteMadera",
-    Site == "B" ~ "Buck'sLanding",
-    Site == "S" ~ "SanPablo",
-    Site == "Gm" ~ "GiantMarsh", 
-    .default = Site  # keeps anything else unchanged
-  ))
-
-rtk_data_detail <- rtk_data_detail |>
-  select(-Transect)
+sort(unique(sed_thesis_keyed$Site));      sort(unique(rtk_detail$Site))
+sort(unique(sed_thesis_keyed$Tran));      sort(unique(rtk_detail$Tran))
+sort(unique(sed_thesis_keyed$Dist));      sort(unique(rtk_detail$Dist))
+sort(unique(sed_thesis_keyed$Replicate)); sort(unique(rtk_detail$Replicate))
 ```
 
 ```{r, combine the rtk database values with thesis_df}
 
 library(dplyr)
 
-elev_z_flux <- sed_thesis |>
-  left_join(rtk_data_detail |> select(Site, Tran, Dist, Replicate, Elevation_m, z_star),
-            by = c("Site", "Tran", "Dist", "Replicate"))
-         
+elev_z_flux <- sed_thesis_keyed |>
+  left_join(rtk_detail, by = c("Site", "Tran", "Dist", "Replicate"))
 
+sum(!is.na(elev_z_flux$Elevation_m))
+nrow(elev_z_flux)
+
+# sediment rows with no RTK match
+sed_thesis_keyed |>
+  anti_join(rtk_detail, by = c("Site", "Tran", "Dist", "Replicate"))
+```
+
+```{r}
+
+elev_z_flux <- sed_thesis_keyed |>
+  left_join(rtk_detail, by = c("Site", "Tran", "Dist", "Replicate"))
+
+sum(!is.na(elev_z_flux$Elevation_m))
+nrow(elev_z_flux)
+
+elev_z_flux |>
+  filter(is.na(Elevation_m)) |>
+  distinct(Site, Tran, Dist, Replicate)
+
+rtk_detail |>
+  filter(Site == "CorteMadera")   # swap in one of the unmatched Site values you saw above
+
+sort(unique(sed_thesis$Site))
+sort(unique(rtk_data_detail$Site))
+sort(unique(sed_thesis_keyed$Dist));      sort(unique(rtk_detail$Dist))
+sort(unique(sed_thesis_keyed$Tran));      sort(unique(rtk_detail$Tran))
+sort(unique(sed_thesis_keyed$Replicate)); sort(unique(rtk_detail$Replicate))
 ```
 
 ```{r, basic play with z star and elevation}
@@ -461,7 +469,7 @@ ggplot(pred, aes(x = x, y = predicted, color = group, fill = group)) +
 library(ggdist)
 library(ggplot2)
 
-flux_sites_season = ggplot(elev_z_flux_clean, aes(x = Study.Phase, y = log(Flux),
+flux_sites_season = ggplot(elev_z_flux_clean, aes(x =z_star , y = log(Flux),
                                fill = marsh_edge_type,
                                color = marsh_edge_type)) +
   geom_boxplot(width = 0.4, outlier.shape = NA,
@@ -585,3 +593,360 @@ ggsave("flux_total_dist.png",
   #  plot.subtitle = element_text(hjust = 0.5, size = 11, color = "gray40")
  # )
 ```
+
+
+```{r}
+# ------------------------------------------------------------
+# Plot flux (elevation/accretion surplus, mm/yr) vs z* for ONE site,
+# with a linear trend line and R^2 annotation -- styled after Thorne et al.
+#
+# Expected input: a CSV with at least these columns:
+#   site   : site/category name, e.g. "SFB Elevation", "SC Accretion"
+#   z_star : position within tidal frame (x-axis)
+#   flux   : elevation/accretion surplus rate, mm/yr (y-axis)
+#
+# Edit the CONFIG block below, then run the whole script (Ctrl+Shift+S
+# or Cmd+Shift+S in RStudio, or step through with Ctrl+Enter).
+# ------------------------------------------------------------
+
+# install.packages(c("ggplot2", "dplyr"))  # uncomment to install if needed
+library(ggplot2)
+library(dplyr)
+
+# ------------------------- CONFIG -------------------------
+csv_path     <- "your_data.csv"      # path to your data file
+"Site"  <- "site"               # column that identifies the site/group
+site_to_plot <- "SFB Elevation"      # the single site you want to isolate
+x_column     <- "z_star"             # z* column name
+y_column     <- "flux"               # flux column name
+# ------------------------------------------------------------
+
+
+if (!"CorteMadera" %in% elev_z_flux[["Site"]]) {
+  stop(paste0(
+    "No rows found for site '", "CorteMadera", "'. ",
+    "Available sites: ", paste(unique(elev_z_flux[["Site"]]), collapse = ", ")
+  ))
+}
+
+c_df <- elev_z_flux %>%
+  filter(.data[["Site"]] == "CorteMadera") %>%
+  select(x = all_of("z_star"), y = all_of("Flux")) %>%
+  na.omit()
+
+# --- Fit linear model and get R^2 ---
+fit <- lm(y ~ x, data = c_df)
+r_squared <- summary(fit)$r.squared
+slope     <- coef(fit)[2]
+intercept <- coef(fit)[1]
+p_value   <- summary(fit)$coefficients[2, 4]
+
+cat("Site:", "CorteMadera", "\n")
+cat("n =", nrow(c_df), "\n")
+cat(sprintf("slope = %.4f, intercept = %.4f\n", slope, intercept))
+cat(sprintf("R^2 = %.4f, p = %.4g\n", r_squared, p_value))
+
+# --- Build plot ---
+r2_label <- paste0("R^2 == ", round(r_squared, 2))
+
+p <- ggplot(c_df, aes(x = x, y = y)) +
+  geom_hline(yintercept = 0, color = "gray40", linewidth = 0.5) +
+  geom_point(size = 3, color = "#3b6fa0", alpha = 0.9) +
+  geom_smooth(method = "lm", se = FALSE, color = "black", linewidth = 1) +
+  annotate(
+    "text",
+    x = min(c_df$x) + 0.05 * diff(range(c_df$x)),
+    y = max(c_df$y) * 0.9,
+    label = r2_label,
+    parse = TRUE,
+    hjust = 0,
+    size = 5,
+    color = "dimgray"
+  ) +
+  labs(
+    title = "CorteMadera",
+    x = "z*",
+    y = "Flux"
+  ) +
+  theme_minimal(base_size = 13) +
+  theme(
+    panel.background = element_rect(fill = "#e9e9e9", color = NA),
+    plot.background  = element_rect(fill = "white", color = NA),
+    panel.grid.major = element_line(color = "white"),
+    panel.grid.minor = element_line(color = "white"),
+    plot.title = element_text(hjust = 0.5)
+  )
+
+print(p)
+
+# Save to file
+ggsave("flux_vs_zstar.png", plot = p, width = 8, height = 6, dpi = 200)
+```
+
+
+```{r, for san pablo }
+
+# ------------------------------------------------------------
+# Plot flux (elevation/accretion surplus, mm/yr) vs z* for ONE site,
+# with a linear trend line and R^2 annotation -- styled after Thorne et al.
+#
+# Expected input: a CSV with at least these columns:
+#   site   : site/category name, e.g. "SFB Elevation", "SC Accretion"
+#   z_star : position within tidal frame (x-axis)
+#   flux   : elevation/accretion surplus rate, mm/yr (y-axis)
+#
+# Edit the CONFIG block below, then run the whole script (Ctrl+Shift+S
+# or Cmd+Shift+S in RStudio, or step through with Ctrl+Enter).
+# ------------------------------------------------------------
+
+# install.packages(c("ggplot2", "dplyr"))  # uncomment to install if needed
+library(ggplot2)
+library(dplyr)
+
+# ------------------------- CONFIG -------------------------
+csv_path     <- "your_data.csv"      # path to your data file
+"Site"  <- "site"               # column that identifies the site/group
+site_to_plot <- "SFB Elevation"      # the single site you want to isolate
+x_column     <- "z_star"             # z* column name
+y_column     <- "flux"               # flux column name
+# ------------------------------------------------------------
+
+
+if (!"SanPablo" %in% elev_z_flux[["Site"]]) {
+  stop(paste0(
+    "No rows found for site '", "SanPablo", "'. ",
+    "Available sites: ", paste(unique(elev_z_flux[["Site"]]), collapse = ", ")
+  ))
+}
+
+s_df <- elev_z_flux %>%
+  filter(.data[["Site"]] == "SanPablo") %>%
+  select(x = all_of("z_star"), y = all_of("Flux")) %>%
+  na.omit()
+
+# --- Fit linear model and get R^2 ---
+fit <- lm(y ~ x, data = s_df)
+r_squared <- summary(fit)$r.squared
+slope     <- coef(fit)[2]
+intercept <- coef(fit)[1]
+p_value   <- summary(fit)$coefficients[2, 4]
+
+cat("Site:", "CorteMadera", "\n")
+cat("n =", nrow(s_df), "\n")
+cat(sprintf("slope = %.4f, intercept = %.4f\n", slope, intercept))
+cat(sprintf("R^2 = %.4f, p = %.4g\n", r_squared, p_value))
+
+# --- Build plot ---
+r2_label <- paste0("R^2 == ", round(r_squared, 2))
+
+p <- ggplot(s_df, aes(x = x, y = y)) +
+  geom_hline(yintercept = 0, color = "gray40", linewidth = 0.5) +
+  geom_point(size = 3, color = "#3b6fa0", alpha = 0.9) +
+  geom_smooth(method = "lm", se = FALSE, color = "black", linewidth = 1) +
+  annotate(
+    "text",
+    x = min(s_df$x) + 0.05 * diff(range(s_df$x)),
+    y = max(s_df$y) * 0.9,
+    label = r2_label,
+    parse = TRUE,
+    hjust = 0,
+    size = 5,
+    color = "dimgray"
+  ) +
+  labs(
+    title = "San Pablo",
+    x = "z*",
+    y = "Flux"
+  ) +
+  theme_minimal(base_size = 13) +
+  theme(
+    panel.background = element_rect(fill = "#e9e9e9", color = NA),
+    plot.background  = element_rect(fill = "white", color = NA),
+    panel.grid.major = element_line(color = "white"),
+    panel.grid.minor = element_line(color = "white"),
+    plot.title = element_text(hjust = 0.5)
+  )
+
+print(p)
+
+# Save to file
+ggsave("flux_vs_zstar_sites.png", plot = p, width = 8, height = 6, dpi = 200)
+```
+
+
+
+```{r, for giant marsh }
+
+
+# ------------------------------------------------------------
+# Plot flux (elevation/accretion surplus, mm/yr) vs z* for ONE site,
+# with a linear trend line and R^2 annotation -- styled after Thorne et al.
+#
+# Expected input: a CSV with at least these columns:
+#   site   : site/category name, e.g. "SFB Elevation", "SC Accretion"
+#   z_star : position within tidal frame (x-axis)
+#   flux   : elevation/accretion surplus rate, mm/yr (y-axis)
+#
+# Edit the CONFIG block below, then run the whole script (Ctrl+Shift+S
+# or Cmd+Shift+S in RStudio, or step through with Ctrl+Enter).
+# ------------------------------------------------------------
+
+# install.packages(c("ggplot2", "dplyr"))  # uncomment to install if needed
+#library(ggplot2)
+#library(dplyr)
+
+# ------------------------- CONFIG -------------------------
+csv_path     <- "your_data.csv"      # path to your data file
+"Site"  <- "site"               # column that identifies the site/group
+site_to_plot <- "SFB Elevation"      # the single site you want to isolate
+x_column     <- "z_star"             # z* column name
+y_column     <- "flux"               # flux column name
+# ------------------------------------------------------------
+
+
+if (!"GiantMarsh" %in% elev_z_flux[["Site"]]) {
+  stop(paste0(
+    "No rows found for site '", "GiantMarsh", "'. ",
+    "Available sites: ", paste(unique(elev_z_flux[["Site"]]), collapse = ", ")
+  ))
+}
+
+g_df <- elev_z_flux %>%
+  filter(.data[["Site"]] == "GiantMarsh") %>%
+  select(x = all_of("z_star"), y = all_of("Flux")) %>%
+  na.omit()
+
+# --- Fit linear model and get R^2 ---
+fit <- lm(y ~ x, data = g_df)
+r_squared <- summary(fit)$r.squared
+slope     <- coef(fit)[2]
+intercept <- coef(fit)[1]
+p_value   <- summary(fit)$coefficients[2, 4]
+
+cat("Site:", "GiantMarsh", "\n")
+cat("n =", nrow(s_df), "\n")
+cat(sprintf("slope = %.4f, intercept = %.4f\n", slope, intercept))
+cat(sprintf("R^2 = %.4f, p = %.4g\n", r_squared, p_value))
+
+# --- Build plot ---
+r2_label <- paste0("R^2 == ", round(r_squared, 2))
+
+p <- ggplot(g_df, aes(x = x, y = y)) +
+  geom_hline(yintercept = 0, color = "gray40", linewidth = 0.5) +
+  geom_point(size = 3, color = "#3b6fa0", alpha = 0.9) +
+  geom_smooth(method = "lm", se = FALSE, color = "black", linewidth = 1) +
+  annotate(
+    "text",
+    x = min(g_df$x) + 0.05 * diff(range(s_df$x)),
+    y = max(g_df$y) * 0.9,
+    label = r2_label,
+    parse = TRUE,
+    hjust = 0,
+    size = 5,
+    color = "dimgray"
+  ) +
+  labs(
+    title = "Giant Marsh",
+    x = "z*",
+    y = "Flux"
+  ) +
+  theme_minimal(base_size = 13) +
+  theme(
+    panel.background = element_rect(fill = "#e9e9e9", color = NA),
+    plot.background  = element_rect(fill = "white", color = NA),
+    panel.grid.major = element_line(color = "white"),
+    panel.grid.minor = element_line(color = "white"),
+    plot.title = element_text(hjust = 0.5)
+  )
+
+print(p)
+
+# Save to file
+ggsave("flux_vs_zstar_g_sites.png", plot = p, width = 8, height = 6, dpi = 200)
+```
+
+
+```{r, for buck's landing}
+
+# ------------------------------------------------------------
+# Plot flux (elevation/accretion surplus, mm/yr) vs z* for ONE site,
+# with a linear trend line and R^2 annotation -- styled after Thorne et al.
+#
+# Expected input: a CSV with at least these columns:
+#   site   : site/category name, e.g. "SFB Elevation", "SC Accretion"
+#   z_star : position within tidal frame (x-axis)
+#   flux   : elevation/accretion surplus rate, mm/yr (y-axis)
+#
+# Edit the CONFIG block below, then run the whole script (Ctrl+Shift+S
+# or Cmd+Shift+S in RStudio, or step through with Ctrl+Enter).
+# ------------------------------------------------------------
+
+# install.packages(c("ggplot2", "dplyr"))  # uncomment to install if needed
+#library(ggplot2)
+#library(dplyr)
+
+
+if (!"Buck'sLanding" %in% elev_z_flux[["Site"]]) {
+  stop(paste0(
+    "No rows found for site '", "Buck'sLanding", "'. ",
+    "Available sites: ", paste(unique(elev_z_flux[["Site"]]), collapse = ", ")
+  ))
+}
+
+b_df <- elev_z_flux %>%
+  filter(.data[["Site"]] == "Buck'sLanding") %>%
+  select(x = all_of("z_star"), y = all_of("Flux")) %>%
+  na.omit()
+
+# --- Fit linear model and get R^2 ---
+fit <- lm(y ~ x, data = b_df)
+r_squared <- summary(fit)$r.squared
+slope     <- coef(fit)[2]
+intercept <- coef(fit)[1]
+p_value   <- summary(fit)$coefficients[2, 4]
+
+cat("Site:", "CorteMadera", "\n")
+cat("n =", nrow(s_df), "\n")
+cat(sprintf("slope = %.4f, intercept = %.4f\n", slope, intercept))
+cat(sprintf("R^2 = %.4f, p = %.4g\n", r_squared, p_value))
+
+# --- Build plot ---
+r2_label <- paste0("R^2 == ", round(r_squared, 2))
+
+p <- ggplot(b_df, aes(x = x, y = y)) +
+  geom_hline(yintercept = 0, color = "gray40", linewidth = 0.5) +
+  geom_point(size = 3, color = "#3b6fa0", alpha = 0.9) +
+  geom_smooth(method = "lm", se = FALSE, color = "black", linewidth = 1) +
+  annotate(
+    "text",
+    x = min(b_df$x) + 0.05 * diff(range(s_df$x)),
+    y = max(b_df$y) * 0.9,
+    label = r2_label,
+    parse = TRUE,
+    hjust = 0,
+    size = 5,
+    color = "dimgray"
+  ) +
+  labs(
+    title = "Buck's Landing",
+    x = "z*",
+    y = "Flux"
+  ) +
+  theme_minimal(base_size = 13) +
+  theme(
+    panel.background = element_rect(fill = "#e9e9e9", color = NA),
+    plot.background  = element_rect(fill = "white", color = NA),
+    panel.grid.major = element_line(color = "white"),
+    panel.grid.minor = element_line(color = "white"),
+    plot.title = element_text(hjust = 0.5)
+  )
+
+print(p)
+
+# Save to file
+ggsave("flux_vs_zstar_b_sites.png", plot = p, width = 8, height = 6, dpi = 200)
+```
+
+
+```
+

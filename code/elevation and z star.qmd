@@ -270,7 +270,7 @@ ggsave(("C:\\Users\\savan\\OneDrive - San Francisco State University\\ProjectDat
 library(dplyr)
 library(stringr)
 
-sed_thesis_keyed <- sed_thesis |>
+sed_thesis_keyed <- master_thesis |>
   mutate(
     Site      = str_remove_all(as.character(Site), " "),
     Tran      = paste0("T", as.character(Tran)),
@@ -947,6 +947,48 @@ print(p)
 ggsave("flux_vs_zstar_b_sites.png", plot = p, width = 8, height = 6, dpi = 200)
 ```
 
+```{r}
+# Filter to just Corte Madera first
+cm_elev <- elev_z_flux %>%
+  filter(Site == "CorteMadera")
 
+# Summarize by Transect and Study.Phase instead of by Site
+cm_summary_elev <- cm_elev %>%
+  group_by(
+    Tran,
+    Study.Phase
+  ) %>%
+summarise(
+  mean_flux = mean(Flux[Flux >= 0], na.rm = TRUE),
+  se_flux = sd(Flux[Flux >= 0], na.rm = TRUE) / sqrt(sum(Flux >= 0, na.rm = TRUE)),
+  .groups = "drop"
+)
+
+ggplot(
+  cm_summary_elev,
+  aes(
+    x = Study.Phase,
+    y = mean_flux,
+    color = Tran,
+    group = Tran
+  )
+) +
+  geom_line() +
+  geom_point(size = 3) +
+  geom_errorbar(
+    aes(
+      ymin = mean_flux - se_flux,
+      ymax = mean_flux + se_flux
+    ),
+    width = 0.2
+  ) +
+  theme_minimal() +  coord_cartesian(xlim = c(0, NA)) +
+  labs(
+    title = "Corte Madera",
+    x = "Study Phase",
+    y = expression(Mean~Flux~(g/m^3)) 
+  )
 ```
+
+
 

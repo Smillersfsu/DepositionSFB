@@ -233,19 +233,19 @@ str(master_usgs)
 ```
 
 ```{r}
-sed_basic= ggplot(master_usgs, aes(x = Flux)) +
+sed_basic_usgs= ggplot(master_usgs, aes(x = Flux)) +
   geom_histogram(bins = 30) +
   theme_minimal() +
   labs(x = expression(Flux~(g/m^3)), y = "Count") 
 
-sed_basic
+sed_basic_usgs
 # Deposition by Edge Type 
-sed_edge= ggplot(master_usgs, aes(x = marsh_edge_type, y = Flux)) +
+sed_edge_usgs = ggplot(master_usgs, aes(x = marsh_edge_type, y = Flux)) +
   geom_boxplot() + 
   geom_jitter(width = 0.15, alpha = 0.5) +
   theme_minimal() +
   labs(x = "Marsh Edge Type", y = expression(Flux~(g/m^3))) 
-sed_edge
+sed_edge_usgs
 # Deposition by Elevation (do this later once you've figured out z*) 
 #sed_z= ggplot(master_usgs, aes(x = z*, y = Flux, color = marsh_edge_type)) +
 #geom_boxplot() + 
@@ -253,55 +253,61 @@ sed_edge
 # theme_minimal() +
 #labs(x = "z*", y = expression(Flux~(g/m^3))) 
 #sed_z
+
 # Deposition by Distance from Marsh Edge 
-sed_dist_edge= ggplot(master_usgs, aes(x = Dist, y = Flux, color = marsh_edge_type)) +
+sed_dist_edge_usgs= ggplot(master_usgs, aes(x = Dist, y = Flux, color = marsh_edge_type)) +
   geom_boxplot() + 
   geom_jitter(width = 0.15, alpha = 0.5) +
   theme_minimal() +
   labs(x = "Distance from the Marsh Edge (m) ", y = expression(Flux~(g/m^3))) 
-sed_dist_edge
+sed_dist_edge_usgs
 # Deposition by Hydrological Time
 
 # Deposition by Season
-sed_season= ggplot(master_usgs, aes(x = Season, y = Flux)) +
+sed_season_usgs= ggplot(master_usgs, aes(x = Season, y = Flux)) +
   geom_boxplot() + 
   geom_jitter(width = 0.15, alpha = 0.5) +
   theme_minimal() +
   labs(x = "Season ", y = expression(Flux~(g/m^3))) 
-sed_season
+sed_season_usgs
+
 # Deposition by Marsh Area
-sed_edge_area= ggplot(master_usgs, aes(x = Marsh_Area, y = Flux, color = marsh_edge_type)) +
+sed_edge_area_usgs= ggplot(master_usgs, aes(x = Marsh_Area, y = Flux, color = marsh_edge_type)) +
   geom_boxplot() + 
   geom_jitter(width = 0.15, alpha = 0.5) +
   theme_minimal() +
   labs(x = "Marsh Area ", y = expression(Flux~(g/m^3))) 
-sed_edge_area
+sed_edge_area_usgs
 
 # Deposition by Season by Site
-sed_site_season= ggplot(master_usgs, aes(x = Season, y = Flux, color = Site)) +
+sed_site_season_usgs= ggplot(master_usgs, aes(x = Season, y = Flux, color = Site)) +
   geom_boxplot() + 
   geom_jitter(width = 0.15, alpha = 0.5) +
   theme_minimal() +
   labs(x = "Season ", y = expression(Flux~(g/m^3))) 
-sed_site_season
+sed_site_season_usgs
+
 # Deposition by Marsh Area by Site
-sed_site_area= ggplot(master_usgs, aes(x = Marsh_Area, y = Flux, color = Site)) +
+sed_site_area_usgs= ggplot(master_usgs, aes(x = Marsh_Area, y = Flux, color = Site)) +
   geom_boxplot() + 
   geom_jitter(width = 0.15, alpha = 0.5) +
   theme_minimal() +
   labs(x = "Marsh Area ", y = expression(Flux~(g/m^3))) 
-sed_site_area
+sed_site_area_usgs
+
+
 # Deposition by Study Phase by Site
-sed_phase_site = master_usgs %>%
+sed_phase_site_usgs = master_usgs %>%
   filter(!is.na(Study.Phase)) %>%
   ggplot(aes(x = Study.Phase, y = Flux, color = Site)) +
   geom_boxplot() + 
   geom_jitter(width = 0.15, alpha = 0.5) +
   theme_minimal() +
   labs(x = "Study Phase ", y = expression(Flux~(g/m^3))) 
-sed_phase_site
+sed_phase_site_usgs
+
 # Deposition by Study Phase by Site (log)
-sed_phase_site_log = master_usgs %>%
+sed_phase_site_log_usgs = master_usgs %>%
   filter(!is.na(Study.Phase)) %>%
   ggplot(aes(x = Study.Phase, y = Flux, color = Site)) +
   geom_boxplot() + 
@@ -309,18 +315,21 @@ sed_phase_site_log = master_usgs %>%
   scale_y_log10() +
   theme_minimal() +
   labs(x = "Study Phase ", y = expression(Flux~(g/m^3))) 
-sed_phase_site_log
+sed_phase_site_log_usgs
+
 # Deposition by Study Phase by Marsh Edge Type
-sed_phase_edge = master_usgs %>%
+
+sed_phase_edge_usgs = master_usgs %>%
   filter(!is.na(Study.Phase)) %>%
   ggplot(aes(x = Study.Phase, y = Flux, color = marsh_edge_type)) +
   geom_boxplot() + 
   geom_jitter(width = 0.15, alpha = 0.5) +
   theme_minimal() +
   labs(x = "Marsh Edge Type ", y = expression(Flux~(g/m^3))) 
-sed_phase_edge
+sed_phase_edge_usgs
+
 # Deposition by Study Phase Across Marsh Area
-sed_phase_area = master_usgs %>%
+sed_phase_area_usgs = master_usgs %>%
   filter(!is.na(Study.Phase)) %>%
   ggplot(aes(x = Marsh_Area, y = Flux, color = Study.Phase)) +
   facet_wrap(~Site) +
@@ -330,7 +339,7 @@ sed_phase_area = master_usgs %>%
   labs(x = "Marsh Area ", y = expression(Flux~(g/m^3))
   ) 
 
-sed_phase_area
+sed_phase_area_usgs
 ```
 
 ```{r}
@@ -347,7 +356,7 @@ ggplot(
   facet_wrap(~ Site, scales = "free_y") +
   theme_minimal()
 
-dist_summary <- master_usgs %>%
+usgs_dist_summary <- master_usgs %>%
   group_by(Site, Dist) %>%
   summarise(
     mean_flux = mean(Flux, na.rm = TRUE),
@@ -356,7 +365,7 @@ dist_summary <- master_usgs %>%
   )
 
 ggplot(
-  dist_summary,
+  usgs_dist_summary,
   aes(
     x = Dist,
     y = mean_flux
@@ -379,14 +388,14 @@ ggplot(
   )
 
 
-phase_summary <- master_usgs %>%
+usgs_phase_summary <- master_usgs %>%
   group_by(Study.Phase) %>%
   summarise(
     mean_flux = mean(Flux, na.rm = TRUE),
     se_flux = sd(Flux, na.rm = TRUE)/sqrt(n())
   )
 
-ggplot(phase_summary,
+ggplot(usgs_phase_summary,
        aes(Study.Phase, mean_flux)) +
   geom_point(size = 3) +
   geom_errorbar(
@@ -397,4 +406,135 @@ ggplot(phase_summary,
     width = 0.2
   )
 
+```
+
+```{r}
+
+
+# flux through time 
+
+phase_summary_usgs <- master_usgs %>%
+  filter(Site == "CorteMadera") %>%
+  group_by(Study.Phase) %>%
+  summarise(
+    mean_flux = mean(Flux, na.rm = TRUE),
+    se_flux = sd(Flux, na.rm = TRUE) / sqrt(n()),
+    n = n(),
+    .groups = "drop"
+  )
+
+meanflux_time_c_usgs = ggplot(
+  phase_summary,
+  aes(x = Study.Phase, y = mean_flux, group = 1)
+) +
+  geom_line(linewidth = 0.8) +
+  geom_point(size = 3) +
+  geom_errorbar(
+    aes(
+      ymin = mean_flux - se_flux,
+      ymax = mean_flux + se_flux
+    ),
+    width = 0.2
+  ) +
+  theme_minimal(base_size = 14) +
+  coord_cartesian(ylim = c(0,30)) +
+  labs(
+    title = paste("Mean Flux Through Time at", "Corte Madera"),
+    subtitle = "Negative flux values set to zero",
+    x = "Study Phase",
+    y = expression(Mean~Flux~(g/m^3))
+  )
+meanflux_time_c_usgs
+
+# Save the high-res image
+ggsave(("C:\\Users\\savan\\OneDrive - San Francisco State University\\ProjectData\\GitHub\\DepositionSFB\\images\\meanflux_time_c_usgs.png"),
+       plot = meanflux_time_c_usgs,
+       width = 10,  
+       height = 6,
+       dpi = 300,
+       bg = "white"
+)
+```
+
+```{r, more detailed plots for time and space}
+
+# mean flux per distance (study phase-time)
+
+usgstime_dist_summary <- master_usgs %>%
+  group_by(Dist, Study.Phase) %>%
+  summarise(
+    mean_flux = mean(Flux, na.rm = TRUE),
+    se_flux = sd(Flux, na.rm = TRUE) / sqrt(n()),
+    .groups = "drop"
+  )
+
+usgsmeanflux_dist_sp_c = ggplot(
+  usgstime_dist_summary,
+  aes(x = Dist, y = mean_flux, group = 1)
+) +
+  geom_line(linewidth = 0.8) +
+  geom_point(size = 3) +
+  geom_errorbar(
+    aes(
+      ymin = mean_flux - se_flux,
+      ymax = mean_flux + se_flux
+    ),
+    width = 0.2
+  ) +
+  facet_wrap(vars(Study.Phase), scales = "fixed") +
+  theme_minimal(base_size = 14) +
+  coord_cartesian(ylim = c(0,9.5)) +
+  labs(
+    title = paste("Mean Flux by Distance from Marsh Edge at", "Corte Madera Per Study Phase"),
+    x = "Distance from Marsh Edge (m)",
+    y = expression(Mean~Flux~(g/m^3))
+  )
+
+usgsmeanflux_dist_sp_c
+
+
+# Save the high-res image
+ggsave(("C:\\Users\\savan\\OneDrive - San Francisco State University\\ProjectData\\GitHub\\DepositionSFB\\images\\usgsmeanflux_dist_sp_c.png"),
+       plot = meanflux_dist_sp_c,
+       width = 10,  
+       height = 6,
+       dpi = 300,
+       bg = "white"
+)
+
+#mean flux per study phase (distance)
+
+usgsmeanflux_sp_dist_c = ggplot(
+  usgstime_dist_summary,
+  aes(x = Study.Phase, y = mean_flux, group = 1)
+) +
+  geom_line(linewidth = 0.8) +
+  geom_point(size = 3) +
+  geom_errorbar(
+    aes(
+      ymin = mean_flux - se_flux,
+      ymax = mean_flux + se_flux
+    ),
+    width = 0.2
+  ) +
+  facet_wrap(vars(Dist), scales = "fixed") +
+  theme_minimal(base_size = 14) +
+  labs(
+    title = paste("Mean Flux by Distance from Marsh Edge at", "Corte Madera"),
+    x = "Distance from Marsh Edge (m)",
+    y = expression(Mean~Flux~(g/m^3))
+  )
+
+
+
+usgsmeanflux_sp_dist_c
+
+# Save the high-res image
+ggsave(("C:\\Users\\savan\\OneDrive - San Francisco State University\\ProjectData\\GitHub\\DepositionSFB\\images\\usgsmeanflux_sp_dist_c.png"),
+       plot = meanflux_dist_c,
+       width = 10,  
+       height = 6,
+       dpi = 300,
+       bg = "white"
+)
 ```

@@ -1,0 +1,692 @@
+---
+title: "master_thesis_site_deepdive"
+author: "Savannah K. Miller"
+date: "2026-06-22"
+output: html_document
+---
+
+```{r, working directory and packages}
+
+
+
+# data import and database management 
+# reading files, reshaping data, and efficient data handling 
+
+#######################################################
+
+library(readxl) # import excel spreadsheets
+library(data.table) #quick manipulation of large datasets
+library(stringr) # text and string processing 
+library(lubridate) # data and time handling 
+library(writexl) # exports editted databases into excel files
+
+#######################################################
+
+# General data science workflow 
+# Collection of packages for data manipulation and plotting
+
+#######################################################
+
+library(tidyverse)
+
+#######################################################
+
+#Statistical analyses and mixed models 
+# Hypothesis testing, summaries, and model fitting 
+
+#######################################################
+
+library(gt) # displaying formatted tables for statistics 
+library(rstatix) # statistical tests and assumption checking
+library(lmerTest) # p-values and tests for lme4 models 
+library(lme4) # linear and generalized mixed-effects models
+library(ggeffects) # predicted values and marginal effects 
+
+#######################################################
+
+# Data visualization 
+# Plot creation, figure assembly, and publication formatting 
+
+#######################################################
+
+library(patchwork) #combine ggplots into multi-panel figures
+library(cowplot) # figure arrangement and plot annotations
+library(rcartocolor) # color palettes
+library(ggh4x) # advanced ggplot extensions
+library(scales) # axis labels, formatting, and scaling 
+library(ggridges)
+
+#######################################################
+# Spatial data and mapping 
+# GIS data handling and map visualization
+#######################################################
+
+library(sf) #spatial vector data
+library(ggmap) #basemaps and geographic visualization
+library(ggspatial) #spatial annotations and map elements
+library(leaflet) #interactive web maps
+
+#######################################################
+
+#Tables and report outputs 
+# Interactive tables and report presentation 
+
+#######################################################
+
+library(reactable) #interactive tables for reports
+
+#######################################################
+# R markdown and document rendering 
+# PDF generation and LaTeX support 
+#######################################################
+
+library(tinytex) #LaTeX engine for PDF knitting
+```
+
+## R Markdown
+
+This is an R Markdown document. Markdown is a simple formatting syntax for authoring HTML, PDF, and MS Word documents. For more details on using R Markdown see <http://rmarkdown.rstudio.com>.
+
+When you click the **Knit** button a document will be generated that includes both content as well as the output of any embedded R code chunks within the document. You can embed an R code chunk like this:
+
+```{r, load the datasheet}
+
+master_thesis <- read.csv("C:\\Users\\savan\\OneDrive - San Francisco State University\\ProjectData\\GitHub\\DepositionSFB\\data\\master_thesis.csv")
+
+
+# Reassign factors to appropriate variables 
+
+master_thesis$Date.placed.in.field = as.Date(master_thesis$Date.placed.in.field, 
+                                             format = "%m/%d/%Y"   # need this so R doesn't automatically assume format
+)
+master_thesis$Date.removed.from.field = as.Date(master_thesis$Date.removed.from.field,            
+                                                format = "%m/%d/%Y"   # need this so R doesn't automatically assume format
+)
+master_thesis$Study.Phase <- factor(master_thesis$Study.Phase, levels = c("M1", "M2", "M3", "M4", "M5", "M6","M7", "M8", "M9", "M10", "M11", "M12"))
+master_thesis$Site <- as.factor(master_thesis$Site)
+master_thesis$Tran <- as.factor(master_thesis$Tran)
+master_thesis$Dist <- as.factor(master_thesis$Dist)
+master_thesis$Replicate<- as.factor(master_thesis$Replicate)
+master_thesis$Year<- as.factor(master_thesis$Year)
+master_thesis$Flux <- as.numeric(master_thesis$Flux)
+master_thesis$Hydro_Period <- factor(master_thesis$Hydro_Period, levels = c("Late_Dry\n(Months 1-3)", "Tran\n(Months 4-6)", "Wet\n(Months 7-9)", "Growth\n(Months 10-12)"))
+master_thesis$marsh_edge_type <- as.factor(master_thesis$marsh_edge_type)
+master_thesis$marsh_orientation <- as.factor(master_thesis$marsh_orientation)
+master_thesis$Marsh_Area <- as.factor(master_thesis$Marsh_Area)
+
+
+```
+
+## Including Plots
+
+You can also embed plots, for example:
+
+```{r, site B}
+
+
+# Filter to just Buck's Landing first
+buckslanding_data <- master_thesis %>%
+  filter(Site == "Buck's Landing")
+
+# Summarize by Transect and Study.Phase instead of by Site
+buckslanding_summary <- buckslanding_data %>%
+  group_by(
+    Tran,
+    Study.Phase
+  ) %>%
+summarise(
+  mean_flux = mean(Flux[Flux >= 0], na.rm = TRUE),
+  se_flux = sd(Flux[Flux >= 0], na.rm = TRUE) / sqrt(sum(Flux >= 0, na.rm = TRUE)),
+  .groups = "drop"
+)
+
+ggplot(
+  buckslanding_summary,
+  aes(
+    x = Study.Phase,
+    y = mean_flux,
+    color = Tran,
+    group = Tran
+  )
+) +
+  geom_line() +
+  geom_point(size = 3) +
+  geom_errorbar(
+    aes(
+      ymin = mean_flux - se_flux,
+      ymax = mean_flux + se_flux
+    ),
+    width = 0.2
+  ) +
+  theme_minimal() +  coord_cartesian(xlim = c(0, NA)) +
+  labs(
+    title = "Buck's Landing",
+    x = "Study Phase",
+    y = expression(Mean~Flux~(g/m^3)) 
+  )
+```
+
+```{r}
+
+
+b_raincloud = ggplot(
+  buckslanding_data,
+  aes(
+    x = Flux,
+    y = Study.Phase,
+    fill = Study.Phase
+  )
+) +
+  geom_density_ridges(alpha = 0.7, scale = 1.2) +
+  theme_ridges() +
+  labs(
+    title = "Buck's Landing",
+    x = expression(Flux~(g/m^3)),
+    y = "Study Phase"
+  ) +
+  theme(legend.position = "none") +
+  coord_cartesian(xlim = c(0, NA))
+b_raincloud
+
+braincloud_phase = ggplot(
+  buckslanding_data,
+  aes(
+    x = Flux,
+    y = Study.Phase,
+    fill = Study.Phase
+  )
+) +
+  geom_density_ridges(alpha = 0.7, scale = 1.2) +
+  facet_wrap(~ Tran) +
+  theme_ridges() +
+  labs(
+    title = "Buck's Landing",
+    x = expression(Flux~(g/m^3)),
+    y = "Study Phase"
+  ) +
+  theme(legend.position = "none") +
+  coord_cartesian(xlim = c(0, NA))
+braincloud_phase
+
+
+braincloud_dist = ggplot(
+  buckslanding_data,
+  aes(
+    x = Flux,
+    y = Dist,
+    fill = Dist
+  )
+) +
+  geom_density_ridges(alpha = 0.7, scale = 1.2) +
+  facet_wrap(~ Tran) +
+  theme_ridges() +
+  labs(
+    title = "Buck's Landing",
+    x = expression(Flux~(g/m^3)),
+    y = "Study Phase"
+  ) +
+  theme(legend.position = "none") +
+  coord_cartesian(xlim = c(0, NA))
+braincloud_dist
+
+
+braincloud_dist_time = ggplot(
+  buckslanding_data,
+  aes(
+    x = Flux,
+    y = Dist,
+    fill = Dist
+  )
+) +
+  geom_density_ridges(alpha = 0.7, scale = 1.2) +
+  facet_wrap(~ Study.Phase) +
+  theme_ridges() +
+  labs(
+    title = "Buck's Landing",
+    x = expression(Flux~(g/m^3)),
+    y = "Study Phase"
+  ) +
+  theme(legend.position = "none") +
+  coord_cartesian(xlim = c(0, NA))
+braincloud_dist_time
+
+```
+
+
+```{r, for b data}
+
+# basic
+
+basic_fluxb = ggplot(buckslanding_data, aes(x = Flux)) +
+  geom_histogram(bins = 30) +
+  theme_minimal(base_size = 14) +
+  labs(
+    title = paste("Flux Distribution at", "Buck's Landing"),
+    x = expression(Flux~(g/m^3)),
+    y = "Count"
+  )
+basic_fluxb
+
+# flux through time 
+
+phase_summaryb <- buckslanding_data %>%
+  group_by(Study.Phase) %>%
+  summarise(
+    mean_flux = mean(Flux, na.rm = TRUE),
+    se_flux = sd(Flux, na.rm = TRUE) / sqrt(n()),
+    n = n(),
+    .groups = "drop"
+  )
+
+ggplot(
+  phase_summaryb,
+  aes(x = Study.Phase, y = mean_flux, group = 1)
+) +
+  geom_line(linewidth = 0.8) +
+  geom_point(size = 3) +
+  geom_errorbar(
+    aes(
+      ymin = mean_flux - se_flux,
+      ymax = mean_flux + se_flux
+    ),
+    width = 0.2
+  ) +
+  theme_minimal(base_size = 14) +
+  labs(
+    title = paste("Mean Flux Through Time at", "Buck's Landing"),
+    subtitle = "Negative flux values set to zero",
+    x = "Study Phase",
+    y = expression(Mean~Flux~(g/m^3))
+  )
+
+# flux by hydro_period 
+
+hydro_summary <- buckslanding_data %>%
+  group_by(Hydro_Period) %>%
+  summarise(
+    mean_flux = mean(Flux, na.rm = TRUE),
+    se_flux = sd(Flux, na.rm = TRUE) / sqrt(n()),
+    n = n(),
+    .groups = "drop"
+  )
+
+ggplot(
+  hydro_summary,
+  aes(x = Hydro_Period, y = mean_flux, group = 1)
+) +
+  geom_line(linewidth = 0.8) +
+  geom_point(size = 3) +
+  geom_errorbar(
+    aes(
+      ymin = mean_flux - se_flux,
+      ymax = mean_flux + se_flux
+    ),
+    width = 0.2
+  ) +
+  theme_minimal(base_size = 14) +
+  theme(
+    axis.text.x = element_text(angle = 30, hjust = 1)
+  ) +
+  labs(
+    title = paste("Mean Flux by Hydrologic Period at", "Buck's Landing"),
+    x = "Hydrologic Period",
+    y = expression(Mean~Flux~(g/m^3))
+  )
+
+# flux by distance 
+
+dist_summary <- buckslanding_data %>%
+  group_by(Dist) %>%
+  summarise(
+    mean_flux = mean(Flux, na.rm = TRUE),
+    se_flux = sd(Flux, na.rm = TRUE) / sqrt(n()),
+    n = n(),
+    .groups = "drop"
+  )
+
+ggplot(
+  dist_summary,
+  aes(x = Dist, y = mean_flux, group = 1)
+) +
+  geom_line(linewidth = 0.8) +
+  geom_point(size = 3) +
+  geom_errorbar(
+    aes(
+      ymin = mean_flux - se_flux,
+      ymax = mean_flux + se_flux
+    ),
+    width = 0.2
+  ) +
+  theme_minimal(base_size = 14) +
+  labs(
+    title = paste("Mean Flux by Distance from Marsh Edge at", "Buck's Landing"),
+    x = "Distance from Marsh Edge (m)",
+    y = expression(Mean~Flux~(g/m^3))
+  )
+
+# flux by distance and hydro
+
+dist_hydro_summary <- buckslanding_data %>%
+  group_by(Dist, Hydro_Period) %>%
+  summarise(
+    mean_flux = mean(Flux, na.rm = TRUE),
+    se_flux = sd(Flux, na.rm = TRUE) / sqrt(n()),
+    n = n(),
+    .groups = "drop"
+  )
+
+ggplot(
+  dist_hydro_summary,
+  aes(
+    x = Dist,
+    y = mean_flux,
+    color = Hydro_Period,
+    group = Hydro_Period
+  )
+) +
+  geom_line(linewidth = 0.8) +
+  geom_point(size = 3) +
+  geom_errorbar(
+    aes(
+      ymin = mean_flux - se_flux,
+      ymax = mean_flux + se_flux
+    ),
+    width = 0.2
+  ) +
+  theme_minimal(base_size = 14) +
+  theme(
+    legend.position = "bottom"
+  ) +
+  labs(
+    title = paste("Distance x Hydrologic Period at", "Buck's Landing"),
+    x = "Distance from Marsh Edge (m)",
+    y = expression(Mean~Flux~(g/m^3)),
+    color = "Hydrologic Period"
+  )
+
+# flux through time by distance 
+
+time_dist_summary <- buckslanding_data %>%
+  group_by(Dist, Study.Phase) %>%
+  summarise(
+    mean_flux = mean(Flux, na.rm = TRUE),
+    se_flux = sd(Flux, na.rm = TRUE) / sqrt(n()),
+    n = n(),
+    .groups = "drop"
+  )
+
+ggplot(
+  time_dist_summary,
+  aes(
+    x = Study.Phase,
+    y = mean_flux,
+    group = 1
+  )
+) +
+  geom_line(linewidth = 0.8) +
+  geom_point(size = 3) +
+  geom_errorbar(
+    aes(
+      ymin = mean_flux - se_flux,
+      ymax = mean_flux + se_flux
+    ),
+    width = 0.2
+  ) +
+  facet_wrap(~ Dist, scales = "free_y", ncol = 2) +
+  theme_minimal(base_size = 14) +
+  theme(
+    axis.text.x = element_text(angle = 45, hjust = 1),
+    strip.text = element_text(face = "bold")
+  ) +
+  labs(
+    title = paste("Flux Through Time by Distance at", "Buck's Landing"),
+    x = "Study Phase",
+    y = expression(Mean~Flux~(g/m^3))
+  )
+
+# flux through time by transect 
+
+tran_summary <- buckslanding_data %>%
+  group_by(Tran, Study.Phase) %>%
+  summarise(
+    mean_flux = mean(Flux, na.rm = TRUE),
+    se_flux = sd(Flux, na.rm = TRUE) / sqrt(n()),
+    n = n(),
+    .groups = "drop"
+  )
+
+ggplot(
+  tran_summary,
+  aes(
+    x = Study.Phase,
+    y = mean_flux,
+    color = Tran,
+    group = Tran
+  )
+) +
+  geom_line(linewidth = 0.8) +
+  geom_point(size = 3) +
+  geom_errorbar(
+    aes(
+      ymin = mean_flux - se_flux,
+      ymax = mean_flux + se_flux
+    ),
+    width = 0.2
+  ) +
+  theme_minimal(base_size = 14) +
+  labs(
+    title = paste("Flux Through Time by Transect at", "Buck's Landing"),
+    x = "Study Phase",
+    y = expression(Mean~Flux~(g/m^3)),
+    color = "Transect"
+  )
+
+# raw flux and distance 
+
+c_flux_distance = ggplot(
+  buckslanding_data,
+  aes(
+    x = as.numeric(as.character(Dist)),
+    y = Flux
+  )
+) +
+  geom_point(alpha = 0.4) +
+  geom_smooth(method = "lm", se = TRUE) +
+  theme_minimal(base_size = 14) +
+  labs(
+    title = paste("Raw Flux vs Distance at", "Buck's Landing"),
+    x = "Distance from Marsh Edge (m)",
+    y = expression(Flux~(g/m^3))
+  )
+c_flux_distance
+
+# Save the high-res image
+ggsave(("C:\\Users\\savan\\OneDrive - San Francisco State University\\ProjectData\\GitHub\\DepositionSFB\\images\\All_Sites_Track_C_Comparison.png"),
+  plot = cross_site_plot_c_z,
+  width = 10,  
+  height = 6,
+  dpi = 300,
+  bg = "white"
+)
+
+# once elevation is complete 
+
+# ggplot(
+#   one_site,
+#   aes(
+#     x = Elevation,
+#     y = Flux
+#   )
+# ) +
+#   geom_point(alpha = 0.4) +
+#   geom_smooth(method = "lm", se = TRUE) +
+#   theme_minimal(base_size = 14) +
+#   labs(
+#     title = paste("Flux vs Elevation at", "Buck's Landing"),
+#     x = "Elevation",
+#     y = expression(Flux~(g/m^3))
+#   )
+
+# once veg is cleaned and entered 
+
+# one_site <- one_site %>%
+#   mutate(
+#     Veg_Structure = Percent_Cover * Avg_Height
+#   )
+
+# ggplot(
+#   one_site,
+#   aes(
+#     x = Percent_Cover,
+#     y = Flux
+#   )
+# ) +
+#   geom_point(alpha = 0.4) +
+#   geom_smooth(method = "lm", se = TRUE) +
+#   theme_minimal(base_size = 14) +
+#   labs(
+#     title = paste("Flux vs Percent Cover at", "Buck's Landing"),
+#     x = "Percent Vegetation Cover",
+#     y = expression(Flux~(g/m^3))
+#   )
+
+# ggplot(
+#   one_site,
+#   aes(
+#     x = Veg_Structure,
+#     y = Flux
+#   )
+# ) +
+#   geom_point(alpha = 0.4) +
+#   geom_smooth(method = "lm", se = TRUE) +
+#   theme_minimal(base_size = 14) +
+#   labs(
+#     title = paste("Flux vs Vegetation Structure at", "Buck's Landing"),
+#     x = "Vegetation Structure Index (Cover x Height)",
+#     y = expression(Flux~(g/m^3))
+#   )
+
+``` 
+
+```{r, buck's landing profile (edit with the right parameters!)}
+# Step 1: Create numeric distance, then average elevation across the 3 replicates within each Transect x Distance
+elevation_profile <- cm_elev %>%
+  mutate(Dist_numeric = as.numeric(as.character(Dist))) %>%
+  group_by(Tran, Dist_numeric) %>%
+  summarise(
+    mean_elevation = mean(Elevation_m, na.rm = TRUE),
+    se_elevation = sd(Elevation_m, na.rm = TRUE) / sqrt(n()),
+    .groups = "drop"
+  )
+
+# Step 2: Plot
+elevation_profile_c = ggplot(
+  elevation_profile,
+  aes(
+    x = Dist_numeric,
+    y = mean_elevation,
+    color = Tran,
+    fill = Tran
+  )
+) +
+  geom_line(linewidth = 1) +
+  geom_point(size = 3.5, shape = 21, color = "black", stroke = 0.4) +
+  geom_errorbar(
+    aes(
+      ymin = mean_elevation - se_elevation,
+      ymax = mean_elevation + se_elevation
+    ),
+    width = 1,
+    linewidth = 0.6
+  ) +
+  scale_color_viridis_d(option = "D", end = 0.7) +
+  scale_fill_viridis_d(option = "D", end = 0.7) +
+  scale_x_continuous(breaks = sort(unique(elevation_profile$Dist_numeric))) +
+  scale_y_continuous(n.breaks = 10) +
+  theme_minimal(base_size = 16) +
+  theme(
+    legend.position = "bottom",
+    legend.title = element_text(face = "bold"),
+    axis.text = element_text(size = 12),
+    panel.grid.minor = element_blank()
+  ) +
+  labs(
+    title = paste("Marsh Surface Elevation Profile at", "Corte Madera"),
+    subtitle = "Mean elevation \u00b1 SE across 3 replicates per sampling area",
+    x = "Distance from Marsh Edge (m)",
+    y = "Elevation (m)",
+    color = "Transect",
+    fill = "Transect"
+  )
+elevation_profile_c
+
+ggsave(("C:\\Users\\savan\\OneDrive - San Francisco State University\\ProjectData\\GitHub\\DepositionSFB\\images\\elevation_profile_c.png"),
+  plot = elevation_profile_c,
+  width = 14,
+  height = 9,
+  dpi = 300,
+  bg = "white"
+)
+
+
+
+
+# for z star accounting 
+
+zstar_profile <- cm_elev %>%
+  mutate(Dist_numeric = as.numeric(as.character(Dist))) %>%
+  group_by(Tran, Dist_numeric) %>%
+  summarise(
+    mean_zstar = mean(z_star, na.rm = TRUE),
+    se_zstar = sd(z_star, na.rm = TRUE) / sqrt(n()),
+    .groups = "drop"
+  )
+
+zstar_profile_c = ggplot(
+  zstar_profile,
+  aes(
+    x = Dist_numeric,
+    y = mean_zstar,
+    color = Tran,
+    fill = Tran
+  )
+) +
+  geom_line(linewidth = 1) +
+  geom_point(size = 3.5, shape = 21, color = "black", stroke = 0.4) +
+  geom_errorbar(
+    aes(
+      ymin = mean_zstar - se_zstar,
+      ymax = mean_zstar + se_zstar
+    ),
+    width = 1,
+    linewidth = 0.6
+  ) +
+  scale_color_viridis_d(option = "D", end = 0.7) +
+  scale_fill_viridis_d(option = "D", end = 0.7) +
+  scale_x_continuous(breaks = sort(unique(zstar_profile$Dist_numeric))) +
+  scale_y_continuous(n.breaks = 10) +
+  theme_minimal(base_size = 16) +
+  theme(
+    legend.position = "bottom",
+    legend.title = element_text(face = "bold"),
+    axis.text = element_text(size = 12),
+    panel.grid.minor = element_blank()
+  ) +
+  labs(
+    title = paste("Relative Tidal Elevation (Z*) Profile at", "Corte Madera"),
+    subtitle = "Mean Z* \u00b1 SE across 3 replicates per sampling area",
+    x = "Distance from Marsh Edge (m)",
+    y = "Z* (Relative Tidal Elevation)",
+    color = "Transect",
+    fill = "Transect"
+  )
+zstar_profile_c
+
+ggsave(("C:\\Users\\savan\\OneDrive - San Francisco State University\\ProjectData\\GitHub\\DepositionSFB\\images\\zstar_profile_c.png"),
+  plot = zstar_profile_c,
+  width = 14,
+  height = 9,
+  dpi = 300,
+  bg = "white"
+)
+```

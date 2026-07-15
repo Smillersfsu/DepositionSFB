@@ -159,7 +159,7 @@ ggplot(
   labs(
     title = "Corte Madera",
     x = "Study Phase",
-    y = expression(Mean~Flux~(g/m^3)) 
+    y = expression(Mean~Flux~(g/m^2)) 
   )
 
 ```
@@ -180,7 +180,7 @@ cm_raincloud = ggplot(
   theme_ridges() +
   labs(
     title = "Corte Madera",
-    x = expression(Flux~(g/m^3)),
+    x = expression(Flux~(g/m^2)),
     y = "Study Phase"
   ) +
   theme(legend.position = "none") +
@@ -200,7 +200,7 @@ cmraincloud_tran = ggplot(
   theme_ridges() +
   labs(
     title = "Corte Madera",
-    x = expression(Flux~(g/m^3)),
+    x = expression(Flux~(g/m^2)),
     y = "Study Phase"
   ) +
   theme(legend.position = "none") +
@@ -216,7 +216,7 @@ basic_fluxcm = ggplot(cm_data, aes(x = Flux)) +
   theme_minimal(base_size = 14) +
   labs(
     title = paste("Flux Distribution at", "Corte Madera"),
-    x = expression(Flux~(g/m^3)),
+    x = expression(Flux~(g/m^2)),
     y = "Count"
   )
 basic_fluxcm
@@ -260,7 +260,7 @@ meanflux_time_c = ggplot(
     title = paste("Mean Flux Through Time at", "Corte Madera"),
     subtitle = "Negative flux values set to zero",
     x = "Study Phase",
-    y = expression(Mean~Flux~(g/m^3))
+    y = expression(Mean~Flux~(g/m^2))
   )
 
 meanflux_time_c
@@ -305,7 +305,7 @@ meanflux_hydro_c = ggplot(
   labs(
     title = paste("Mean Flux by Hydrologic Period at", "Corte Madera"),
     x = "Hydrologic Period",
-    y = expression(Mean~Flux~(g/m^3))
+    y = expression(Mean~Flux~(g/m^2))
   )
 
 meanflux_hydro_c
@@ -348,7 +348,7 @@ meanflux_dist_c = ggplot(
   labs(
     title = paste("Mean Flux by Distance from Marsh Edge at", "Corte Madera"),
     x = "Distance from Marsh Edge (m)",
-    y = expression(Mean~Flux~(g/m^3))
+    y = expression(Mean~Flux~(g/m^2))
   )
 
 meanflux_dist_c
@@ -398,7 +398,7 @@ flux_dist_hydro_c = ggplot(
   labs(
     title = paste("Distance x Hydrologic Period at", "Corte Madera"),
     x = "Distance from Marsh Edge (m)",
-    y = expression(Mean~Flux~(g/m^3)),
+    y = expression(Mean~Flux~(g/m^2)),
     color = "Hydrologic Period"
   )
 
@@ -470,7 +470,7 @@ flux_dist_gradient_c = ggplot(
     title = paste("Flux at Discrete Marsh-Edge Sampling Points at", "Corte Madera"),
     subtitle = "7 sampling areas across 50 m; error bars = ±1 SE",
     x = "Distance from Marsh Edge (m)",
-    y = expression(Mean~Flux~(g/m^3)),
+    y = expression(Mean~Flux~(g/m^2)),
     color = "Study Phase",
     fill = "Study Phase"
   )
@@ -501,7 +501,7 @@ flux_heatmap_c = ggplot(
     size = 5,
     fontface = "bold"
   ) +
-  scale_fill_viridis_c(option = "magma", name = expression(Mean~Flux~(g/m^3))) +
+  scale_fill_viridis_c(option = "magma", name = expression(Mean~Flux~(g/m^2))) +
   theme_minimal(base_size = 16) +
   theme(
     axis.text.x = element_text(angle = 45, hjust = 1, size = 12),
@@ -559,7 +559,7 @@ flux_tran_time_c = ggplot(
   labs(
     title = paste("Flux Through Time by Transect at", "Corte Madera"),
     x = "Study Phase",
-    y = expression(Mean~Flux~(g/m^3)),
+    y = expression(Mean~Flux~(g/m^2)),
     color = "Transect"
   )
 flux_tran_time_c
@@ -590,7 +590,7 @@ rawflux_dist_c = ggplot(
   labs(
     title = paste("Raw Flux vs Distance at", "Corte Madera"),
     x = "Distance from Marsh Edge (m)",
-    y = expression(Flux~(g/m^3))
+    y = expression(Flux~(g/m^2))
   )
 rawflux_dist_c
 
@@ -617,7 +617,7 @@ flux_elev_c = ggplot(cm_elev,
    labs(
      title = paste("Flux vs Elevation at", "Corte Madera"),
      x = "Elevation_m",
-     y = expression(Flux~(g/m^3))
+     y = expression(Flux~(g/m^2))
    )
 
 flux_elev_c
@@ -646,7 +646,7 @@ flux_z_c = ggplot(
    labs(
      title = paste("Flux vs Elevation at", "Corte Madera"),
      x = "z_star",
-     y = expression(Flux~(g/m^3))
+     y = expression(Flux~(g/m^2))
    )
 
 flux_z_c
@@ -680,7 +680,7 @@ ggsave(("C:\\Users\\savan\\OneDrive - San Francisco State University\\ProjectDat
 #   labs(
 #     title = paste("Flux vs Percent Cover at", "Corte Madera"),
 #     x = "Percent Vegetation Cover",
-#     y = expression(Flux~(g/m^3))
+#     y = expression(Flux~(g/m^2))
 #   )
 
 # ggplot(
@@ -696,7 +696,7 @@ ggsave(("C:\\Users\\savan\\OneDrive - San Francisco State University\\ProjectDat
 #   labs(
 #     title = paste("Flux vs Vegetation Structure at", "Corte Madera"),
 #     x = "Vegetation Structure Index (Cover x Height)",
-#     y = expression(Flux~(g/m^3))
+#     y = expression(Flux~(g/m^2))
 #   )
 ```
 
@@ -847,7 +847,7 @@ meanflux_dist_sp_c = ggplot(
   labs(
     title = paste("Mean Flux by Distance from Marsh Edge at", "Corte Madera Per Study Phase"),
     x = "Distance from Marsh Edge (m)",
-    y = expression(Mean~Flux~(g/m^3))
+    y = expression(Mean~Flux~(g/m^2))
   )
 
 meanflux_dist_sp_c
@@ -882,7 +882,7 @@ meanflux_sp_dist_c = ggplot(
   labs(
     title = paste("Mean Flux by Distance from Marsh Edge at", "Corte Madera"),
     x = "Distance from Marsh Edge (m)",
-    y = expression(Mean~Flux~(g/m^3))
+    y = expression(Mean~Flux~(g/m^2))
   )
 
 meanflux_sp_dist_c
@@ -898,6 +898,6 @@ ggsave(("C:\\Users\\savan\\OneDrive - San Francisco State University\\ProjectDat
 ```
 
 
-```{r, more detailed plots for time and space}
+```{r, 
 ```
  

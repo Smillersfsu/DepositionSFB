@@ -131,6 +131,16 @@ sed_thesis$Dist <- as.factor(sed_thesis$Dist)
 sed_thesis$Replicate<- as.factor(sed_thesis$Replicate)
 sed_thesis$Year<- as.factor(sed_thesis$Year)
 sed_thesis$Flux <- as.numeric(sed_thesis$Flux)
+sed_thesis$Master_Flag <- as.factor(sed_thesis$Master_Flag)
+sed_thesis$NegValue_Num <- as.numeric(sed_thesis$NegValue_Num)
+sed_thesis$DryTime_Obsv <- as.numeric(sed_thesis$DryTime_Obsv)
+sed_thesis$Position_Obsv <- as.numeric(sed_thesis$Position_Obsv)
+sed_thesis$OpenBag_Obsv <- as.numeric(sed_thesis$OpenBag_Obsv)
+sed_thesis$Drop_Obsv <- as.numeric(sed_thesis$Drop_Obsv) 
+sed_thesis$Bio_Obsv <-as.numeric(sed_thesis$Bio_Obsv)
+sed_thesis$Flood_Obsv <- as.numeric(sed_thesis$Flood_Obsv)
+sed_thesis$RB_Num <- as.numeric(sed_thesis$RB_Num)
+sed_thesis$Filter_Num <- as.numeric(sed_thesis$Filter_Num)
 
 # Changing the from site abbreviations to Descriptive Site Names
 
@@ -212,8 +222,7 @@ sed_thesis[is.na(sed_thesis$Date.removed.from.field),
 #sed_thesis %>% count(Tran, Replicate)
 
 
-readr::write_csv(master_thesis, "C:\\Users\\savan\\OneDrive - San Francisco State University\\ProjectData\\GitHub\\DepositionSFB\\data\\master_thesis.csv"
-                 ) 
+readr::write_csv(sed_thesis, "C:\\Users\\savan\\OneDrive - San Francisco State University\\ProjectData\\GitHub\\DepositionSFB\\data\\master_thesis.csv")
 
 
 ```
@@ -244,6 +253,16 @@ master_thesis$Phen_Period <- factor(master_thesis$Phen_Period, levels = c("Late_
 master_thesis$marsh_edge_type <- as.factor(master_thesis$marsh_edge_type)
 master_thesis$marsh_orientation <- as.factor(master_thesis$marsh_orientation)
 master_thesis$Marsh_Area <- as.factor(master_thesis$Marsh_Area)
+master_thesis$Master_Flag <- as.factor(master_thesis$Master_Flag)
+master_thesis$NegValue_Num <- as.numeric(master_thesis$NegValue_Num)
+master_thesis$DryTime_Obsv <- as.numeric(master_thesis$DryTime_Obsv)
+master_thesis$Position_Obsv <- as.numeric(master_thesis$Position_Obsv)
+master_thesis$OpenBag_Obsv <- as.numeric(master_thesis$OpenBag_Obsv)
+master_thesis$Drop_Obsv <- as.numeric(master_thesis$Drop_Obsv) 
+master_thesis$Bio_Obsv <-as.numeric(master_thesis$Bio_Obsv)
+master_thesis$Flood_Obsv <- as.numeric(master_thesis$Flood_Obsv)
+master_thesis$RB_Num <- as.numeric(master_thesis$RB_Num)
+master_thesis$Filter_Num <- as.numeric(master_thesis$Filter_Num)
 
 
 ```

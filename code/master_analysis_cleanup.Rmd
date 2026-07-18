@@ -103,7 +103,8 @@ knitr::opts_knit$set(root.dir = 'C:/Users/savan/OneDrive - San Francisco State U
 ```{r, load raw data and prep}
 
 sed_thesis <- read.csv("C:\\Users\\savan\\OneDrive - San Francisco State University\\ProjectData\\GitHub\\DepositionSFB\\data\\thesis_sed.csv")
-
+head(sed_thesis$Date.removed.from.field, 20)
+sum(sed_thesis$Date.removed.from.field == "" | is.na(sed_thesis$Date.removed.from.field))
 str(sed_thesis)
 
 

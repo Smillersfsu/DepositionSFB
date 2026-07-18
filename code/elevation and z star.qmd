@@ -594,7 +594,6 @@ ggsave("flux_total_dist.png",
  # )
 ```
 
-
 ```{r}
 # ------------------------------------------------------------
 # Plot flux (elevation/accretion surplus, mm/yr) vs z* for ONE site,
@@ -682,7 +681,6 @@ print(p)
 # Save to file
 ggsave("flux_vs_zstar.png", plot = p, width = 8, height = 6, dpi = 200)
 ```
-
 
 ```{r, for san pablo }
 
@@ -773,8 +771,6 @@ print(p)
 ggsave("flux_vs_zstar_sites.png", plot = p, width = 8, height = 6, dpi = 200)
 ```
 
-
-
 ```{r, for giant marsh }
 
 
@@ -864,7 +860,6 @@ print(p)
 # Save to file
 ggsave("flux_vs_zstar_g_sites.png", plot = p, width = 8, height = 6, dpi = 200)
 ```
-
 
 ```{r, for buck's landing}
 
@@ -989,6 +984,3 @@ ggplot(
     y = expression(Mean~Flux~(g/m^3)) 
   )
 ```
-
-
-

@@ -1138,77 +1138,7 @@ ggsave(("C:\\Users\\savan\\OneDrive - San Francisco State University\\ProjectDat
 ```
 
 
-```{r, more detailed plots for time and space}
-# mean flux per distance (study phase-time)
 
-meanflux_dist_sp_c = ggplot(
-  time_dist_summary,
-  aes(x = Dist, y = mean_flux, group = 1)
-) +
-  geom_line(linewidth = 0.8) +
-  geom_point(size = 3) +
-  geom_errorbar(
-    aes(
-      ymin = mean_flux - se_flux,
-      ymax = mean_flux + se_flux
-    ),
-    width = 0.2
-  ) +
-  facet_wrap(~Study.Phase) +
-  theme_minimal(base_size = 14) +
-  coord_cartesian(ylim = c(0,9.5)) +
-  labs(
-    title = paste("Mean Flux by Distance from Marsh Edge at", "Corte Madera Per Study Phase"),
-    x = "Distance from Marsh Edge (m)",
-    y = expression(Mean~Flux~(g/m^2))
-  )
-
-meanflux_dist_sp_c
-
-# Save the high-res image
-ggsave(("C:\\Users\\savan\\OneDrive - San Francisco State University\\ProjectData\\GitHub\\DepositionSFB\\images\\meanflux_dist_sp_c.png"),
-  plot = meanflux_dist_sp_c,
-  width = 10,  
-  height = 6,
-  dpi = 300,
-  bg = "white"
-)
-
-#mean flux per study phase (distance)
-
-meanflux_sp_dist_c = ggplot(
-  time_dist_summary,
-  aes(x = Study.Phase, y = mean_flux, group = 1)
-) +
-  geom_line(linewidth = 0.8) +
-  geom_point(size = 3) +
-  geom_errorbar(
-    aes(
-      ymin = mean_flux - se_flux,
-      ymax = mean_flux + se_flux
-    ),
-    width = 0.2
-  ) +
-   facet_wrap(~Dist) +
-  theme_minimal(base_size = 14) +
-  coord_cartesian(ylim = c(0,9.5)) +
-  labs(
-    title = paste("Mean Flux by Distance from Marsh Edge at", "Corte Madera"),
-    x = "Distance from Marsh Edge (m)",
-    y = expression(Mean~Flux~(g/m^2))
-  )
-
-meanflux_sp_dist_c
-
-# Save the high-res image
-ggsave(("C:\\Users\\savan\\OneDrive - San Francisco State University\\ProjectData\\GitHub\\DepositionSFB\\images\\meanflux_sp_dist_c.png"),
-  plot = meanflux_dist_c,
-  width = 10,  
-  height = 6,
-  dpi = 300,
-  bg = "white"
-)
-```
 ```{r, data flags}
 
 flag_cols <- c("Filter_Num", "RB_Num", "Flood_Obsv", "Bio_Obsv", "Drop_Obsv", "OpenBag_Obsv", "Position_Obsv", "DryTime_Obsv", "NegValue_Num")
@@ -1272,7 +1202,24 @@ cm_total_flags_time
 ```
 
 ```{r}
-cm_z_flux_long <- long_cm |>
+#############################################################
+# PREPARE ELEVATION AND QC FLAG DATA
+#############################################################
+
+library(tidyverse)
+library(lubridate)
+
+# Variables identifying one sediment observation
+join_keys <- c(
+  "Site",
+  "Tran",
+  "Dist",
+  "Replicate"
+)
+
+# Add elevation to the original wide sediment dataset.
+# Only z_star is brought over, preventing unwanted .x/.y columns.
+cm_z_flux <- cm_data |>
   left_join(
     cm_elev |>
       select(
@@ -1282,9 +1229,145 @@ cm_z_flux_long <- long_cm |>
         Replicate,
         z_star
       ),
-    by = c("Site", "Tran", "Dist", "Replicate"),
+    by = join_keys,
     relationship = "many-to-one"
   )
+
+
+# Original QC flag columns
+flag_cols <- c(
+  "Filter_Num",
+  "RB_Num",
+  "Flood_Obsv",
+  "Bio_Obsv",
+  "Drop_Obsv",
+  "OpenBag_Obsv",
+  "Position_Obsv",
+  "DryTime_Obsv",
+  "NegValue_Num"
+)
+
+
+# Reader-friendly names
+flag_labels <- c(
+  "Filter_Num"    = "Filter Issues",
+  "RB_Num"        = "Rubber Band Issues",
+  "Flood_Obsv"    = "Flood/Ponding",
+  "Bio_Obsv"      = "Biological Matter",
+  "Drop_Obsv"     = "Recorded Drop in Field/Lab",
+  "OpenBag_Obsv"  = "Open Ziploc Bag Observed",
+  "Position_Obsv" = "Position Changed",
+  "DryTime_Obsv"  = "Multiple Drying Times Needed",
+  "NegValue_Num"  = "Negative Flux Values Calculated"
+)
+
+
+# Field issues use greens and blues.
+# Laboratory and processing issues use artificial warm,
+# magenta, and neutral colors.
+flag_colors <- c(
+  # Field issues
+  "Filter Issues"                   = "#66A61E",
+  "Rubber Band Issues"              = "#B2DF8A",
+  "Flood/Ponding"                   = "#2C7FB8",
+  "Biological Matter"               = "#238B45",
+  "Recorded Drop in Field/Lab"      = "#1F9E89",
+  "Position Changed"                = "#41B6C4",
+
+  # Laboratory and data-processing issues
+  "Open Ziploc Bag Observed"        = "#CC79A7",
+  "Multiple Drying Times Needed"    = "#E69F00",
+  "Negative Flux Values Calculated" = "#4D4D4D"
+)
+
+flag_levels <- names(flag_colors)
+
+
+# Convert the wide flag columns to long format
+cm_z_flux_long <- cm_z_flux |>
+  pivot_longer(
+    cols = all_of(flag_cols),
+    names_to = "Flag_Code",
+    values_to = "Flag_Value"
+  ) |>
+  mutate(
+    Flag_Type = recode(
+      Flag_Code,
+      !!!flag_labels
+    ),
+    Flag_Type = factor(
+      Flag_Type,
+      levels = flag_levels
+    ),
+    Date.removed.from.field = as_date(
+      Date.removed.from.field
+    )
+  )
+
+
+# Keep only recorded flags
+flagged_cm <- cm_z_flux_long |>
+  filter(Flag_Value == 1)
+
+
+#############################################################
+# SUMMARY TABLES USED BY THE PLOTS
+#############################################################
+
+# Flags by distance
+flag_summary_distance <- flagged_cm |>
+  count(
+    Dist,
+    Flag_Type,
+    name = "n"
+  )
+
+
+# Flags by sampling date
+flag_summary_time <- flagged_cm |>
+  count(
+    Date.removed.from.field,
+    Flag_Type,
+    name = "n"
+  )
+
+
+# Flags by transect and phenological period
+flag_counts_period <- flagged_cm |>
+  count(
+    Tran,
+    Phen_Period,
+    Flag_Type,
+    name = "n"
+  )
+
+
+# Flags by transect and sampling date
+flag_counts_day <- flagged_cm |>
+  count(
+    Tran,
+    Date.removed.from.field,
+    Flag_Type,
+    name = "n"
+  )
+
+
+# Flag proportions within each transect and sampling date
+flag_props_day <- flagged_cm |>
+  count(
+    Tran,
+    Date.removed.from.field,
+    Flag_Type,
+    name = "n"
+  ) |>
+  group_by(
+    Tran,
+    Date.removed.from.field
+  ) |>
+  mutate(
+    prop = n / sum(n)
+  ) |>
+  ungroup()
 ```
 
 
@@ -1293,204 +1376,637 @@ cm_z_flux_long <- long_cm |>
 
 #############################################################
 # QC FLAG VISUALIZATIONS
-# Sediment deposition / flux data by transect
-# Assumes flux_data already has a `flag_status` column built
-# per the case_when() logic from earlier (single "worst flag"
-# per observation), plus: transect, distance_from_edge_m,
-# elevation_z_star, hydrologic_period, date_collected, flux
 #############################################################
 
-library(tidyverse)
-library(lubridate)
-
-# ---- Shared color palette (reuse everywhere for consistency) ----
-flag_colors <- c(
-  # ----- Field Issues -----
-  "Flood/Ponding"                = "#2C7FB8",  # blue
-  "Position Changed"             = "#41B6C4",  # teal
-  "Biological Matter"            = "#238B45",  # green
-  "Filter Issues"                = "#66A61E",  # sage green
-  "Rubber Band Issues"           = "#B2DF8A",  # light olive
-  "Recorded Drop in Field/Lab"   = "#1F9E89",  # turquoise
-
-  # ----- Laboratory Issues -----
-  "Open Ziploc Bag Observed"        = "#CC79A7",  # magenta
-  "Multiple Drying Times Needed"    = "#E69F00",  # orange
-  "Negative Flux Values Calculated" = "#4D4D4D"   # charcoal
-)
-
-flag_levels <- names(flag_colors)
-
-flagged_long <- cm_z_flux_long %>%
-  mutate(flag_status = factor(flag_status, levels = flag_levels))
+# Shared theme for all QC plots
+flag_theme <- theme_minimal(base_size = 13) +
+  theme(
+    legend.title = element_text(face = "bold"),
+    strip.text = element_text(face = "bold"),
+    axis.title = element_text(face = "bold")
+  )
 
 
 #############################################################
-# 1. SMALL MULTIPLES: flag type x hydrologic period
-#    (swap facet variable for day_collected version below)
+# 1. FLAG OCCURRENCES BY DISTANCE
 #############################################################
 
-# Count of each flag type within each hydrologic period x transect
-flag_counts_period <- cm_z_flux_long %>%
-  count(Tran, Phen_Period, flag_status, name = "n")
+cm_total_flags <- ggplot(
+  flag_summary_distance,
+  aes(
+    x = Dist,
+    y = n,
+    fill = Flag_Type
+  )
+) +
+  geom_col(
+    position = position_dodge(width = 0.9),
+    width = 0.8
+  ) +
+  scale_fill_manual(
+    values = flag_colors,
+    limits = flag_levels,
+    drop = FALSE
+  ) +
+  flag_theme +
+  labs(
+    title = "QC Flag Occurrences by Distance",
+    x = "Distance from Marsh Edge (m)",
+    y = "Number of Flag Occurrences",
+    fill = "Flag Type"
+  )
 
-ggplot(flag_counts_period, aes(x = flag_status, y = n, fill = flag_status)) +
+cm_total_flags
+
+
+#############################################################
+# 2. FLAG OCCURRENCES THROUGH TIME
+#############################################################
+
+cm_total_flags_time <- ggplot(
+  flag_summary_time,
+  aes(
+    x = Date.removed.from.field,
+    y = n,
+    fill = Flag_Type
+  )
+) +
+  geom_col(
+    position = position_dodge(width = 0.9),
+    width = 20
+  ) +
+  scale_fill_manual(
+    values = flag_colors,
+    limits = flag_levels,
+    drop = FALSE
+  ) +
+  scale_x_date(
+    date_breaks = "1 month",
+    date_labels = "%b %Y"
+  ) +
+  flag_theme +
+  theme(
+    axis.text.x = element_text(
+      angle = 45,
+      hjust = 1
+    )
+  ) +
+  labs(
+    title = "QC Flag Occurrences Through Time",
+    x = "Date Removed from Field",
+    y = "Number of Flag Occurrences",
+    fill = "Flag Type"
+  )
+
+cm_total_flags_time
+
+
+#############################################################
+# 3. SMALL MULTIPLES:
+#    FLAG TYPE BY PHENOLOGICAL PERIOD AND TRANSECT
+#############################################################
+
+cm_flags_period_transect <- ggplot(
+  flag_counts_period,
+  aes(
+    x = Flag_Type,
+    y = n,
+    fill = Flag_Type
+  )
+) +
   geom_col() +
-  scale_fill_manual(values = flag_colors, guide = "none") +
-  facet_grid(Phen_Period ~ Tran) +
-  labs(title = "Flag Frequency by Hydrologic Period and Transect",
-       x = NULL, y = "Count") +
-  theme_minimal() +
-  theme(axis.text.x = element_text(angle = 45, hjust = 1, size = 7),
-        strip.text = element_text(face = "bold"))
+  scale_fill_manual(
+    values = flag_colors,
+    limits = flag_levels,
+    drop = FALSE,
+    guide = "none"
+  ) +
+  facet_grid(
+    Phen_Period ~ Tran,
+    scales = "free_y"
+  ) +
+  flag_theme +
+  theme(
+    axis.text.x = element_text(
+      angle = 45,
+      hjust = 1,
+      size = 7
+    )
+  ) +
+  labs(
+    title = "QC Flag Frequency by Phenological Period and Transect",
+    x = NULL,
+    y = "Number of Flag Occurrences"
+  )
 
-# ---- Day-collected version ----
-# If you want actual calendar days (not just period), bin by date
-flag_counts_day <- cm_z_flux_long %>%
-  mutate(day_collected = as_date(Date.removed.from.field.x)) %>%
-  count(Tran, Date.removed.from.field.x, flag_status, name = "n")
+cm_flags_period_transect
 
-ggplot(flag_counts_day, aes(x = flag_status, y = n, fill = flag_status)) +
+
+#############################################################
+# 4. FLAG TYPE BY SAMPLING DAY AND TRANSECT
+#
+# Faceting by every date can become very large.
+#############################################################
+
+cm_flags_day_transect <- ggplot(
+  flag_counts_day,
+  aes(
+    x = Flag_Type,
+    y = n,
+    fill = Flag_Type
+  )
+) +
   geom_col() +
-  scale_fill_manual(values = flag_colors, guide = "none") +
-  facet_grid(Date.removed.from.field ~ Tran) +   # can get tall w/ many dates
-  labs(title = "Flag Frequency by Sampling Day and Transect",
-       x = NULL, y = "Count") +
-  theme_minimal() +
-  theme(axis.text.x = element_text(angle = 45, hjust = 1, size = 6),
-        strip.text.y = element_text(size = 6, angle = 0))
+  scale_fill_manual(
+    values = flag_colors,
+    limits = flag_levels,
+    drop = FALSE,
+    guide = "none"
+  ) +
+  facet_grid(
+    Date.removed.from.field ~ Tran,
+    scales = "free_y"
+  ) +
+  flag_theme +
+  theme(
+    axis.text.x = element_text(
+      angle = 45,
+      hjust = 1,
+      size = 6
+    ),
+    strip.text.y = element_text(
+      size = 7,
+      angle = 0
+    )
+  ) +
+  labs(
+    title = "QC Flag Frequency by Sampling Day and Transect",
+    x = NULL,
+    y = "Number of Flag Occurrences"
+  )
 
-# NOTE: if you have many unique dates, facet_grid gets unwieldy.
-# Consider facet_wrap(~ day_collected, ncol = 5) instead, or bin
-# dates into weeks: mutate(week = floor_date(date_collected, "week"))
-
-
-#############################################################
-# 2. BOXPLOT: flux by flag status, faceted by transect
-#############################################################
-
-ggplot(cm_z_flux_long, aes(x = flag_status, y = Flux, fill = flag_status)) +
-  geom_boxplot(outlier.alpha = 0.4, width = 0.6) +
-  geom_jitter(width = 0.15, alpha = 0.25, size = 1) +
-  scale_fill_manual(values = flag_colors, guide = "none") +
-  facet_wrap(~ Tran) +
-  labs(title = "Flux Distribution by Flag Status",
-       subtitle = "Faceted by transect",
-       x = NULL, y = expression(Flux~(g/m^2))) +
-  theme_minimal() +
-  theme(axis.text.x = element_text(angle = 45, hjust = 1))
-
-
-#############################################################
-# 3. SCATTER: elevation (z*) vs distance from edge, colored by flag
-#    "gray-out-the-good-data" approach for clarity
-#############################################################
-
-ggplot(cm_z_flux_long, aes(x = Dist, y = z_star)) +
-  geom_point(data = filter(cm_z_flux_long, flag_status == "Passed QC"),
-             color = "grey85", alpha = 0.5, size = 1.8) +
-  geom_point(data = filter(cm_z_flux_long, flag_status != "Passed QC"),
-             aes(color = flag_status), size = 2.3, alpha = 0.9) +
-  scale_color_manual(values = flag_colors, name = "QC Flag") +
-  facet_wrap(~ Tran) +
-  labs(title = "Elevation (z*) vs. Distance from Marsh Edge",
-       subtitle = "Flagged observations highlighted",
-       x = "Distance from Marsh Edge (m)", y = "Elevation (z*)") +
-  theme_minimal()
+cm_flags_day_transect
 
 
 #############################################################
-# 4. TIMELINE / CALENDAR STRIP: date x transect, fill = flag
+# 5. FLUX DISTRIBUTION BY FLAG TYPE
+#
+# An observation with multiple flags appears once for each
+# recorded flag. This is intentional in the long dataset.
 #############################################################
 
-flux_data <- cm_z_flux_long %>%
-  mutate(day_collected = as_date(Date.removed.from.field))
+cm_flux_by_flag <- ggplot(
+  flagged_cm,
+  aes(
+    x = Flag_Type,
+    y = Flux,
+    fill = Flag_Type
+  )
+) +
+  geom_boxplot(
+    outlier.shape = NA,
+    width = 0.65,
+    alpha = 0.8
+  ) +
+  geom_jitter(
+    width = 0.15,
+    alpha = 0.3,
+    size = 1
+  ) +
+  scale_fill_manual(
+    values = flag_colors,
+    limits = flag_levels,
+    drop = FALSE,
+    guide = "none"
+  ) +
+  facet_wrap(
+    ~ Tran,
+    scales = "free_y"
+  ) +
+  flag_theme +
+  theme(
+    axis.text.x = element_text(
+      angle = 45,
+      hjust = 1
+    )
+  ) +
+  labs(
+    title = "Flux Distribution by QC Flag Type",
+    subtitle = "Panels represent individual transects",
+    x = NULL,
+    y = expression(Flux~(g/m^2))
+  )
 
-ggplot(cm_z_flux_long, aes(x = Date.removed.from.field, y = Tran, fill = flag_status)) +
-  geom_tile(color = "white", height = 0.8) +
-  scale_fill_manual(values = flag_colors, name = "QC Flag") +
-  scale_x_date(date_breaks = "1 month", date_labels = "%b %Y") +
-  labs(title = "QC Flag Timeline by Transect",
-       x = "Date Collected", y = NULL) +
-  theme_minimal() +
-  theme(axis.text.x = element_text(angle = 45, hjust = 1),
-        panel.grid = element_blank())
-
-# If multiple observations share a transect+date (e.g. several
-# sampling points per day), geom_tile will just take the last
-# value plotted. To show flag *proportions* per day instead:
-
-flag_props_day <- cm_z_flux_long %>%
-  count(Tran, Date.removed.from.field, flag_status) %>%
-  group_by(Tran, Date.placed.in.field.x) %>%
-  mutate(prop = n / sum(n)) %>%
-  ungroup()
-
-ggplot(flag_props_day, aes(x = Date.removed.from.field, y = Tran, fill = flag_status, alpha = prop)) +
-  geom_tile(color = "white") +
-  scale_fill_manual(values = flag_colors, name = "QC Flag") +
-  scale_alpha(range = c(0.3, 1), guide = "none") +
-  scale_x_date(date_breaks = "1 month", date_labels = "%b %Y") +
-  labs(title = "QC Flag Proportions by Day and Transect",
-       x = "Date Collected", y = NULL) +
-  theme_minimal() +
-  theme(axis.text.x = element_text(angle = 45, hjust = 1),
-        panel.grid = element_blank())
+cm_flux_by_flag
 
 
 #############################################################
-# 5. FLAG CO-OCCURRENCE (requires boolean flag columns, not
-#    the collapsed "worst flag" version — use your wide data
-#    e.g. flag_negative, flag_sensor_drift, flag_outlier,
-#    flag_field_note as TRUE/FALSE columns)
+# 6. ELEVATION VS DISTANCE, WITH FLAGGED OBSERVATIONS
+#
+# Because the long table has one row per flag variable,
+# use flagged_cm so only recorded flags are displayed.
 #############################################################
 
-# --- Option A: simple co-occurrence heatmap (flag x flag matrix) ---
-flag_cols <- c("flag_negative", "flag_sensor_drift",
-               "flag_outlier", "flag_field_note")
+cm_flags_z_distance <- ggplot(
+  flagged_cm,
+  aes(
+    x = as.numeric(as.character(Dist)),
+    y = z_star,
+    color = Flag_Type
+  )
+) +
+  geom_point(
+    size = 2.3,
+    alpha = 0.85,
+    position = position_jitter(
+      width = 0.15,
+      height = 0
+    )
+  ) +
+  scale_color_manual(
+    values = flag_colors,
+    limits = flag_levels,
+    drop = FALSE
+  ) +
+  facet_wrap(
+    ~ Tran
+  ) +
+  flag_theme +
+  labs(
+    title = "Elevation and Distance of Flagged Observations",
+    subtitle = "Only observations with recorded QC flags are shown",
+    x = "Distance from Marsh Edge (m)",
+    y = expression("Elevation (" * z^"*" * ")"),
+    color = "Flag Type"
+  )
 
-flag_matrix <- cm_z_flux_long %>%
-  select(all_of(flag_cols)) %>%
-  mutate(across(everything(), as.numeric)) %>%
+cm_flags_z_distance
+
+
+#############################################################
+# 7. TIMELINE OF FLAG COUNTS BY TRANSECT
+#
+# Tile fill represents the total number of recorded flags,
+# avoiding overlap when several flags occur on one date.
+#############################################################
+
+flag_totals_day <- flagged_cm |>
+  count(
+    Tran,
+    Date.removed.from.field,
+    name = "total_flags"
+  )
+
+cm_flag_timeline <- ggplot(
+  flag_totals_day,
+  aes(
+    x = Date.removed.from.field,
+    y = Tran,
+    fill = total_flags
+  )
+) +
+  geom_tile(
+    color = "white",
+    height = 0.8
+  ) +
+  scale_fill_gradient(
+    low = "grey95",
+    high = "#4D4D4D"
+  ) +
+  scale_x_date(
+    date_breaks = "1 month",
+    date_labels = "%b %Y"
+  ) +
+  flag_theme +
+  theme(
+    axis.text.x = element_text(
+      angle = 45,
+      hjust = 1
+    ),
+    panel.grid = element_blank()
+  ) +
+  labs(
+    title = "Total QC Flags Through Time by Transect",
+    x = "Date Removed from Field",
+    y = NULL,
+    fill = "Total Flags"
+  )
+
+cm_flag_timeline
+
+
+#############################################################
+# 8. FLAG COMPOSITION BY DATE AND TRANSECT
+#
+# A stacked bar is more appropriate than overlapping tiles
+# for showing proportions of several flag types.
+#############################################################
+
+cm_flag_proportions <- ggplot(
+  flag_props_day,
+  aes(
+    x = Date.removed.from.field,
+    y = prop,
+    fill = Flag_Type
+  )
+) +
+  geom_col(
+    width = 20
+  ) +
+  scale_fill_manual(
+    values = flag_colors,
+    limits = flag_levels,
+    drop = FALSE
+  ) +
+  scale_y_continuous(
+    labels = scales::percent_format()
+  ) +
+  scale_x_date(
+    date_breaks = "1 month",
+    date_labels = "%b %Y"
+  ) +
+  facet_wrap(
+    ~ Tran,
+    ncol = 1
+  ) +
+  flag_theme +
+  theme(
+    axis.text.x = element_text(
+      angle = 45,
+      hjust = 1
+    )
+  ) +
+  labs(
+    title = "Composition of QC Flags by Date and Transect",
+    x = "Date Removed from Field",
+    y = "Percentage of Recorded Flags",
+    fill = "Flag Type"
+  )
+
+cm_flag_proportions
+
+
+#############################################################
+# 9. FLAG CO-OCCURRENCE MATRIX
+#
+# This section uses the original wide cm_z_flux dataset.
+#############################################################
+
+flag_matrix <- cm_z_flux |>
+  select(
+    all_of(flag_cols)
+  ) |>
+  mutate(
+    across(
+      everything(),
+      ~ as.integer(replace_na(.x, 0) == 1)
+    )
+  ) |>
   as.matrix()
 
-co_occurrence <- t(flag_matrix) %*% flag_matrix   # crossproduct = co-occurrence counts
+co_occurrence <- t(flag_matrix) %*% flag_matrix
 
-co_occurrence_df <- as.data.frame(co_occurrence) %>%
-  rownames_to_column("flag_1") %>%
-  pivot_longer(-flag_1, names_to = "flag_2", values_to = "n")
+co_occurrence_df <- as.data.frame(co_occurrence) |>
+  rownames_to_column("Flag_Code_1") |>
+  pivot_longer(
+    cols = -Flag_Code_1,
+    names_to = "Flag_Code_2",
+    values_to = "n"
+  ) |>
+  mutate(
+    Flag_1 = recode(
+      Flag_Code_1,
+      !!!flag_labels
+    ),
+    Flag_2 = recode(
+      Flag_Code_2,
+      !!!flag_labels
+    ),
+    Flag_1 = factor(
+      Flag_1,
+      levels = flag_levels
+    ),
+    Flag_2 = factor(
+      Flag_2,
+      levels = flag_levels
+    )
+  )
 
-ggplot(co_occurrence_df, aes(x = flag_1, y = flag_2, fill = n)) +
-  geom_tile(color = "white") +
-  geom_text(aes(label = n), size = 3) +
-  scale_fill_gradient(low = "grey95", high = "#7570b3", name = "Co-occurrences") +
-  labs(title = "Flag Co-occurrence Matrix",
-       x = NULL, y = NULL) +
-  theme_minimal() +
-  theme(axis.text.x = element_text(angle = 45, hjust = 1))
+cm_flag_cooccurrence <- ggplot(
+  co_occurrence_df,
+  aes(
+    x = Flag_1,
+    y = Flag_2,
+    fill = n
+  )
+) +
+  geom_tile(
+    color = "white"
+  ) +
+  geom_text(
+    aes(label = n),
+    size = 3
+  ) +
+  scale_fill_gradient(
+    low = "grey95",
+    high = "#7570B3"
+  ) +
+  coord_equal() +
+  flag_theme +
+  theme(
+    axis.text.x = element_text(
+      angle = 45,
+      hjust = 1
+    )
+  ) +
+  labs(
+    title = "QC Flag Co-occurrence Matrix",
+    x = NULL,
+    y = NULL,
+    fill = "Co-occurrences"
+  )
 
-# --- Option B: UpSet-style plot (better for >3 flag types) ---
-# install.packages("ggupset")  # if not already installed
-library(ggupset)
+cm_flag_cooccurrence
 
-upset_data <- cm_z_flux_long %>%
-  select(all_of(flag_cols)) %>%
-  rowwise() %>%
-  mutate(flags_present = list(flag_cols[c_across(everything())])) %>%
-  ungroup()
-
-ggplot(upset_data, aes(x = flags_present)) +
-  geom_bar(fill = "#7570b3") +
-  scale_x_upset(order_by = "freq") +
-  labs(title = "Flag Co-occurrence (UpSet Plot)",
-       x = NULL, y = "Number of Observations") +
-  theme_minimal()
 
 #############################################################
-# END
+# 10. OPTIONAL UPSET-STYLE CO-OCCURRENCE PLOT
 #############################################################
 
+# Install once if needed:
+# install.packages("ggupset")
+
+# library(ggupset)
+
+# upset_data <- cm_z_flux |>
+#   mutate(
+#     flags_present = pmap(
+#       select(., all_of(flag_cols)),
+#       function(...) {
+#         values <- c(...)
+#         active_codes <- flag_cols[
+#           replace_na(values, 0) == 1
+#         ]
+#
+#         unname(flag_labels[active_codes])
+#       }
+#     )
+#   ) |>
+#   filter(lengths(flags_present) > 0)
+#
+# cm_flag_upset <- ggplot(
+#   upset_data,
+#   aes(x = flags_present)
+# ) +
+#   geom_bar(fill = "#7570B3") +
+#   scale_x_upset(
+#     order_by = "freq"
+#   ) +
+#   flag_theme +
+#   labs(
+#     title = "QC Flag Co-occurrence",
+#     x = NULL,
+#     y = "Number of Observations"
+#   )
+#
+# cm_flag_upset
 
 ```
 
  
+```{r}
+
+# Determine the complete observed flux range
+flux_range <- range(
+  cm_z_flux$Flux,
+  na.rm = TRUE
+)
+
+# Add padding so the minimum and maximum points are not clipped
+flux_padding <- diff(flux_range) * 0.05
+
+if (flux_padding == 0) {
+  flux_padding <- 1
+}
+
+flux_limits <- c(
+  flux_range[1] - flux_padding,
+  flux_range[2] + flux_padding
+)
+
+# Candidate axis labels spanning negative, low, and high flux values
+candidate_flux_breaks <- c(
+  -50, -20, -10, -5, -2, -1,
+  0,
+  1, 2, 5, 10, 20, 30, 50, 100
+)
+
+flux_breaks <- candidate_flux_breaks[
+  candidate_flux_breaks >= flux_limits[1] &
+    candidate_flux_breaks <= flux_limits[2]
+]
+
+# Shared y-axis used in both figures
+shared_flux_scale <- scale_y_continuous(
+  trans = scales::pseudo_log_trans(
+    sigma = 1,
+    base = 10
+  ),
+  breaks = flux_breaks,
+  limits = flux_limits,
+  expand = expansion(mult = c(0.02, 0.04))
+)
+```
+
+
+```{r}
+
+flux_flags_distance <- ggplot() +
+
+  # Complete dataset shown underneath
+  geom_point(
+    data = cm_z_flux,
+    aes(
+      x = Dist_numeric,
+      y = Flux
+    ),
+    color = "grey55",
+    shape = 16,
+    alpha = 0.4,
+    size = 2.1,
+    position = position_jitter(
+      width = 0.12,
+      height = 0
+    )
+  ) +
+
+  # Flagged observations shown on top
+  geom_point(
+    data = flagged_cm,
+    aes(
+      x = Dist_numeric,
+      y = Flux,
+      color = Flag_Type,
+      shape = Flag_Type
+    ),
+    alpha = 0.95,
+    size = 3.2,
+    stroke = 1.1,
+    position = position_jitter(
+      width = 0.12,
+      height = 0
+    )
+  ) +
+
+  scale_color_manual(
+    values = flag_colors,
+    limits = flag_levels,
+    drop = FALSE,
+    name = "QC Flag"
+  ) +
+
+  scale_shape_manual(
+    values = flag_shapes,
+    limits = flag_levels,
+    drop = FALSE,
+    name = "QC Flag"
+  ) +
+
+  scale_x_continuous(
+    breaks = sort(unique(cm_z_flux$Dist_numeric)),
+    expand = expansion(mult = c(0.04, 0.04))
+  ) +
+
+  shared_flux_scale +
+
+  facet_wrap(
+    ~ Tran,
+    ncol = 1
+  ) +
+
+  theme_minimal(base_size = 13) +
+
+  theme(
+    strip.text = element_text(
+      face = "bold",
+      size = 12
+    ),
+    legend.position = "right",
+    axis.title = element_text(face = "bold"),
+    panel.grid.minor = element_blank()
+  ) +
+
+  labs(
+    title = "Sediment Flux by Distance from Marsh Edge",
+    subtitle = paste(
+      "Pseudo-logarithmic y-axis preserves low, zero,",
+      "negative, and high flux observations"
+    ),
+    x = "Distance from Marsh Edge (m)",
+    y = expression(Flux~(g/m^2))
+  )
+
+flux_flags_distance
+
+```
+

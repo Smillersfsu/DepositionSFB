@@ -28,8 +28,6 @@ rtk_data <- read_csv("C:\\Users\\savan\\OneDrive - San Francisco State Universit
 
 ```
 
-You can add options to executable code like this
-
 ```{r}
 # 1. Filter the master dataset to ONLY include sample 'a'
 plot_data_all_a <- rtk_data %>%
@@ -181,7 +179,7 @@ ggsave(("C:\\Users\\savan\\OneDrive - San Francisco State University\\ProjectDat
 #{r}
 # 1. Start with only track 'a' data
 plot_data_a <- rtk_data %>%
-  filter(grepl("a$", Rep, ignore.case = TRUE))
+  filter(grepl("a$", Point_ID, ignore.case = TRUE))
 
 # 2. Split into Ramped and Scarped datasets
 data_ramped <- plot_data_a %>%
@@ -265,11 +263,18 @@ ggsave(("C:\\Users\\savan\\OneDrive - San Francisco State University\\ProjectDat
 
 ```
 
-```{r, separating the columns}
+```{r}
 
-library(dplyr)
-library(stringr)
 
+rtk_detail <- rtk_data |>
+  mutate(
+    `Point_ID` = str_squish(as.character(`Point_ID`)),
+    Site       = str_squish(as.character(Site)), 
+    Tran       = paste0("T", str_extract(`Point_ID`, "(?<=^[A-Za-z])\\d+")),
+    Dist       = as.numeric(str_extract(`Point_ID`, "(?<=-)\\d+\\.?\\d*")),
+    Replicate  = str_extract(`Point_ID`, "[A-Za-z]+$")
+  ) |>
+  select(`Point_ID`, Site, Tran, Dist, Replicate, Elevation_m, z_star)
 sed_thesis_keyed <- master_thesis |>
   mutate(
     Site      = str_remove_all(as.character(Site), " "),
@@ -278,19 +283,14 @@ sed_thesis_keyed <- master_thesis |>
     Replicate = as.character(Replicate)
   )
 
-rtk_detail <- rtk_data_detail |>
-  mutate(
-    Site      = as.character(Site),
-    Tran      = as.character(Tran),
-    Dist      = as.numeric(as.character(Dist)),
-    Replicate = as.character(Replicate)
-  ) |>
-  select(Site, Tran, Dist, Replicate, Elevation_m, z_star)
+# Any rows where parsing failed (would show up as NA)?
+rtk_detail |> filter(if_any(c(Site, Tran, Dist, Replicate), is.na))
 
-sort(unique(sed_thesis_keyed$Site));      sort(unique(rtk_detail$Site))
-sort(unique(sed_thesis_keyed$Tran));      sort(unique(rtk_detail$Tran))
-sort(unique(sed_thesis_keyed$Dist));      sort(unique(rtk_detail$Dist))
-sort(unique(sed_thesis_keyed$Replicate)); sort(unique(rtk_detail$Replicate))
+# Spot check: does the parsed info reconstruct the original Point ID?
+rtk_detail |>
+  mutate(check = paste0(Site, str_remove(Tran, "^T"), "-", Dist, Replicate)) |>
+  filter(check != `Point_ID`) |>
+  select(`Point_ID`, check)
 ```
 
 ```{r, combine the rtk database values with thesis_df}
@@ -306,28 +306,6 @@ nrow(elev_z_flux)
 # sediment rows with no RTK match
 sed_thesis_keyed |>
   anti_join(rtk_detail, by = c("Site", "Tran", "Dist", "Replicate"))
-```
-
-```{r}
-
-elev_z_flux <- sed_thesis_keyed |>
-  left_join(rtk_detail, by = c("Site", "Tran", "Dist", "Replicate"))
-
-sum(!is.na(elev_z_flux$Elevation_m))
-nrow(elev_z_flux)
-
-elev_z_flux |>
-  filter(is.na(Elevation_m)) |>
-  distinct(Site, Tran, Dist, Replicate)
-
-rtk_detail |>
-  filter(Site == "CorteMadera")   # swap in one of the unmatched Site values you saw above
-
-sort(unique(sed_thesis$Site))
-sort(unique(rtk_data_detail$Site))
-sort(unique(sed_thesis_keyed$Dist));      sort(unique(rtk_detail$Dist))
-sort(unique(sed_thesis_keyed$Tran));      sort(unique(rtk_detail$Tran))
-sort(unique(sed_thesis_keyed$Replicate)); sort(unique(rtk_detail$Replicate))
 ```
 
 ```{r, basic play with z star and elevation}

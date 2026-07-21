@@ -91,6 +91,22 @@ When you click the **Knit** button a document will be generated that includes bo
 
 ```{r, load the datasheet}
 
+master_thesis = readr::write_csv(sed_thesis, "C:\\Users\\savan\\OneDrive - San Francisco State University\\ProjectData\\GitHub\\DepositionSFB\\data\\master_thesis.csv")
+
+str(master_thesis$Date.placed.in.field)
+head(master_thesis$Date.placed.in.field, 10)
+sum(is.na(master_thesis$Date.placed.in.field))
+
+```
+
+## R Markdown
+
+This is an R Markdown document. Markdown is a simple formatting syntax for authoring HTML, PDF, and MS Word documents. For more details on using R Markdown see <http://rmarkdown.rstudio.com>.
+
+When you click the **Knit** button a document will be generated that includes both content as well as the output of any embedded R code chunks within the document. You can embed an R code chunk like this:
+
+```{r, load the datasheet}
+
 master_thesis <- read.csv("C:\\Users\\savan\\OneDrive - San Francisco State University\\ProjectData\\GitHub\\DepositionSFB\\data\\master_thesis.csv")
 
 
@@ -117,22 +133,33 @@ master_thesis$Marsh_Area <- as.factor(master_thesis$Marsh_Area)
 
 ```
 
-## Including Plots
 
-You can also embed plots, for example:
 
 ```{r, site B}
 
-
 # Filter to just Buck's Landing first
-buckslanding_data <- master_thesis %>%
-  filter(Site == "Buck's Landing")
+b_data <- master_thesis %>%
+  filter(Site == "Buck'sLanding")
 
-# Summarize by Transect and Study.Phase instead of by Site
-buckslanding_summary <- buckslanding_data %>%
+b_data <- b_data %>%
+  mutate(
+    Study.Phase = factor(
+      Study.Phase,
+      levels = str_sort(unique(Study.Phase), numeric = TRUE)
+    ),
+    Tran = factor(Tran)
+  )
+
+
+b_data$Dist <- as.numeric(as.character(b_data$Dist))
+  
+b_data$Date.removed.from.field <- as.Date(b_data$Date.removed.from.field, format = "%Y-%m-%d")
+
+# Summarize by Transect and Date.removed.from.field instead of by Site
+b_summary <- b_data %>%
   group_by(
     Tran,
-    Study.Phase
+    Date.removed.from.field
   ) %>%
 summarise(
   mean_flux = mean(Flux[Flux >= 0], na.rm = TRUE),
@@ -141,273 +168,676 @@ summarise(
 )
 
 ggplot(
-  buckslanding_summary,
+  b_summary,
   aes(
-    x = Study.Phase,
+    x = Date.removed.from.field,
     y = mean_flux,
     color = Tran,
     group = Tran
   )
 ) +
-  geom_line() +
   geom_point(size = 3) +
   geom_errorbar(
     aes(
       ymin = mean_flux - se_flux,
       ymax = mean_flux + se_flux
     ),
-    width = 0.2
+    width = 3
   ) +
-  theme_minimal() +  coord_cartesian(xlim = c(0, NA)) +
+  scale_x_date(
+    breaks = unique(b_summary$Date.removed.from.field),
+    date_labels = "%b %d",
+    guide = guide_axis(n.dodge = 2)
+  ) + 
+  theme_minimal() +
+  theme(
+    axis.text.x = element_text(angle = 45, hjust = 1),
+    panel.grid.major.x = element_blank(),
+    panel.grid.minor.x = element_blank()
+  ) +  
   labs(
     title = "Buck's Landing",
-    x = "Study Phase",
-    y = expression(Mean~Flux~(g/m^3)) 
+    x = "Date Removed from Field",
+    y = expression(Mean~Flux~(g/m^2)),
+    caption = "Error bars represent ± 1 standard error of the mean"
   )
-```
 
-```{r}
-
-
-b_raincloud = ggplot(
-  buckslanding_data,
-  aes(
-    x = Flux,
-    y = Study.Phase,
-    fill = Study.Phase
-  )
-) +
-  geom_density_ridges(alpha = 0.7, scale = 1.2) +
-  theme_ridges() +
-  labs(
-    title = "Buck's Landing",
-    x = expression(Flux~(g/m^3)),
-    y = "Study Phase"
-  ) +
-  theme(legend.position = "none") +
-  coord_cartesian(xlim = c(0, NA))
-b_raincloud
-
-braincloud_phase = ggplot(
-  buckslanding_data,
-  aes(
-    x = Flux,
-    y = Study.Phase,
-    fill = Study.Phase
-  )
-) +
-  geom_density_ridges(alpha = 0.7, scale = 1.2) +
-  facet_wrap(~ Tran) +
-  theme_ridges() +
-  labs(
-    title = "Buck's Landing",
-    x = expression(Flux~(g/m^3)),
-    y = "Study Phase"
-  ) +
-  theme(legend.position = "none") +
-  coord_cartesian(xlim = c(0, NA))
-braincloud_phase
-
-
-braincloud_dist = ggplot(
-  buckslanding_data,
-  aes(
-    x = Flux,
-    y = Dist,
-    fill = Dist
-  )
-) +
-  geom_density_ridges(alpha = 0.7, scale = 1.2) +
-  facet_wrap(~ Tran) +
-  theme_ridges() +
-  labs(
-    title = "Buck's Landing",
-    x = expression(Flux~(g/m^3)),
-    y = "Study Phase"
-  ) +
-  theme(legend.position = "none") +
-  coord_cartesian(xlim = c(0, NA))
-braincloud_dist
-
-
-braincloud_dist_time = ggplot(
-  buckslanding_data,
-  aes(
-    x = Flux,
-    y = Dist,
-    fill = Dist
-  )
-) +
-  geom_density_ridges(alpha = 0.7, scale = 1.2) +
-  facet_wrap(~ Study.Phase) +
-  theme_ridges() +
-  labs(
-    title = "Buck's Landing",
-    x = expression(Flux~(g/m^3)),
-    y = "Study Phase"
-  ) +
-  theme(legend.position = "none") +
-  coord_cartesian(xlim = c(0, NA))
-braincloud_dist_time
+readr::write_csv(b_data, "C:\\Users\\savan\\OneDrive - San Francisco State University\\ProjectData\\GitHub\\DepositionSFB\\data\\master_thesis_b.csv")
 
 ```
 
 
 ```{r, for b data}
 
+# Standard caption for plots containing error bars
+se_caption <- paste(
+  "Points represent transect-level mean flux.",
+  "Error bars represent +/- 1 standard error calculated from observations within each transect."
+)
+
+# Common theme
+flux_theme <- theme_minimal(base_size = 14) +
+  theme(
+    axis.text = element_text(size = 11),
+    axis.title = element_text(size = 13),
+    plot.caption = element_text(
+      size = 10,
+      hjust = 0,
+      margin = margin(t = 8)
+    ),
+    panel.grid.minor = element_blank(),
+    legend.position = "bottom"
+  )
+
 # basic
 
-basic_fluxb = ggplot(buckslanding_data, aes(x = Flux)) +
-  geom_histogram(bins = 30) +
-  theme_minimal(base_size = 14) +
+basic_flux_b <- ggplot(
+  b_data,
+  aes(x = Flux)
+) +
+  geom_histogram(
+    bins = 30,
+    color = "black",
+    linewidth = 0.3
+  ) +
+  facet_wrap(~ Tran) +
+  flux_theme +
   labs(
-    title = paste("Flux Distribution at", "Buck's Landing"),
-    x = expression(Flux~(g/m^3)),
+    title = "Flux Distribution by Transect at Buck's Landing",
+    x = expression(Flux~(g/m^2)),
     y = "Count"
   )
-basic_fluxb
+
+basic_flux_b
+
+# Save the high-res image
+ggsave(("C:\\Users\\savan\\OneDrive - San Francisco State University\\ProjectData\\GitHub\\DepositionSFB\\images\\basic_flux_b.png"),
+  plot = basic_flux_b,
+  width = 10,  
+  height = 6,
+  dpi = 300,
+  bg = "white"
+)
 
 # flux through time 
 
-phase_summaryb <- buckslanding_data %>%
-  group_by(Study.Phase) %>%
+removal_summary_b <- b_data %>%
+  group_by(Tran, Date.removed.from.field) %>%
   summarise(
+    n_flux = sum(!is.na(Flux)),
     mean_flux = mean(Flux, na.rm = TRUE),
-    se_flux = sd(Flux, na.rm = TRUE) / sqrt(n()),
-    n = n(),
+    se_flux = if_else(
+      n_flux > 1,
+      sd(Flux, na.rm = TRUE) / sqrt(n_flux),
+      NA_real_
+    ),
     .groups = "drop"
   )
 
-ggplot(
-  phase_summaryb,
-  aes(x = Study.Phase, y = mean_flux, group = 1)
+meanflux_time_b <- ggplot(
+  removal_summary_b,
+  aes(
+    x = Date.removed.from.field,
+    y = mean_flux,
+    color = factor(Tran)
+  )
 ) +
-  geom_line(linewidth = 0.8) +
-  geom_point(size = 3) +
   geom_errorbar(
     aes(
       ymin = mean_flux - se_flux,
       ymax = mean_flux + se_flux
     ),
-    width = 0.2
+    width = 2,
+    linewidth = 0.6,
+    position = position_dodge(width = 3),
+    na.rm = TRUE
   ) +
-  theme_minimal(base_size = 14) +
-  labs(
-    title = paste("Mean Flux Through Time at", "Buck's Landing"),
-    subtitle = "Negative flux values set to zero",
-    x = "Study Phase",
-    y = expression(Mean~Flux~(g/m^3))
-  )
-
-# flux by hydro_period 
-
-hydro_summary <- buckslanding_data %>%
-  group_by(Hydro_Period) %>%
-  summarise(
-    mean_flux = mean(Flux, na.rm = TRUE),
-    se_flux = sd(Flux, na.rm = TRUE) / sqrt(n()),
-    n = n(),
-    .groups = "drop"
-  )
-
-ggplot(
-  hydro_summary,
-  aes(x = Hydro_Period, y = mean_flux, group = 1)
-) +
-  geom_line(linewidth = 0.8) +
-  geom_point(size = 3) +
-  geom_errorbar(
-    aes(
-      ymin = mean_flux - se_flux,
-      ymax = mean_flux + se_flux
-    ),
-    width = 0.2
+  geom_point(
+    size = 3,
+    position = position_dodge(width = 3)
   ) +
-  theme_minimal(base_size = 14) +
+  scale_x_date(
+    breaks = sort(unique(removal_summary$Date.removed.from.field)),
+    date_labels = "%b %d\n%Y",
+    expand = expansion(mult = c(0.03, 0.03))
+  ) +
+  coord_cartesian(ylim = c(0, 30)) +
+  flux_theme +
   theme(
-    axis.text.x = element_text(angle = 30, hjust = 1)
+    axis.text.x = element_text(
+      angle = 45,
+      hjust = 1,
+      vjust = 1
+    )
   ) +
   labs(
-    title = paste("Mean Flux by Hydrologic Period at", "Buck's Landing"),
-    x = "Hydrologic Period",
-    y = expression(Mean~Flux~(g/m^3))
+    title = "Mean Flux Through Time by Transect at Buck's Landing",
+    subtitle = "Negative flux values set to zero",
+    x = "Date removed from field",
+    y = expression(Mean~Flux~(g/m^2)),
+    color = "Transect",
+    caption = se_caption
   )
+
+meanflux_time_b
+
+# Save the high-res image
+ggsave(("C:\\Users\\savan\\OneDrive - San Francisco State University\\ProjectData\\GitHub\\DepositionSFB\\images\\meanflux_time_b.png"),
+  plot = meanflux_time_b,
+  width = 10,  
+  height = 6,
+  dpi = 300,
+  bg = "white"
+)
+
+# flux by Phen_Period 
+
+hydro_summary_b <- b_data %>%
+  group_by(Tran, Phen_Period) %>%
+  summarise(
+    n_flux = sum(!is.na(Flux)),
+    mean_flux = mean(Flux, na.rm = TRUE),
+    se_flux = if_else(
+      n_flux > 1,
+      sd(Flux, na.rm = TRUE) / sqrt(n_flux),
+      NA_real_
+    ),
+    .groups = "drop"
+  )
+
+meanflux_hydro_b <- ggplot(
+  hydro_summary_b,
+  aes(
+    x = Phen_Period,
+    y = mean_flux,
+    color = factor(Tran)
+  )
+) +
+  geom_errorbar(
+    aes(
+      ymin = mean_flux - se_flux,
+      ymax = mean_flux + se_flux
+    ),
+    width = 0.15,
+    linewidth = 0.6,
+    position = position_dodge(width = 0.65),
+    na.rm = TRUE
+  ) +
+  geom_point(
+    size = 3,
+    position = position_dodge(width = 0.65)
+  ) +
+  flux_theme +
+  theme(
+    axis.text.x = element_text(
+      angle = 30,
+      hjust = 1
+    )
+  ) +
+  labs(
+    title = "Mean Flux by Hydrologic Period and Transect at Buck's Landing",
+    x = "Hydrologic Period",
+    y = expression(Mean~Flux~(g/m^2)),
+    color = "Transect",
+    caption = se_caption
+  )
+
+meanflux_hydro_b
+
+meanflux_time_b2 <- ggplot(
+  removal_summary_b,
+  aes(
+    x = Date.removed.from.field,
+    y = mean_flux
+  )
+) +
+  geom_errorbar(
+    aes(
+      ymin = mean_flux - se_flux,
+      ymax = mean_flux + se_flux
+    ),
+    width = 2,
+    linewidth = 0.6,
+    na.rm = TRUE
+  ) +
+  geom_point(size = 3) +
+  facet_wrap(~ Tran) +
+  scale_x_date(
+    breaks = sort(unique(removal_summary$Date.removed.from.field)),
+    date_labels = "%b %d\n%Y",
+    expand = expansion(mult = c(0.03, 0.03))
+  ) +
+  coord_cartesian(ylim = c(0, 30)) +
+  flux_theme +
+  theme(
+    axis.text.x = element_text(
+      angle = 45,
+      hjust = 1,
+      size = 8
+    )
+  ) +
+  labs(
+    title = "Mean Flux Through Time by Transect at Buck's Landing",
+    subtitle = "Negative flux values set to zero",
+    x = "Date removed from field",
+    y = expression(Mean~Flux~(g/m^2)),
+    caption = se_caption
+  )
+
+meanflux_time_b2
+
+# Save the high-res image
+ggsave(("C:\\Users\\savan\\OneDrive - San Francisco State University\\ProjectData\\GitHub\\DepositionSFB\\images\\meanflux_time_b2.png"),
+  plot = meanflux_time_b2,
+  width = 10,  
+  height = 6,
+  dpi = 300,
+  bg = "white"
+)
+
+
 
 # flux by distance 
 
-dist_summary <- buckslanding_data %>%
-  group_by(Dist) %>%
+dist_summary_b <- b_data %>%
+  group_by(Tran, Dist) %>%
   summarise(
+    n_flux = sum(!is.na(Flux)),
     mean_flux = mean(Flux, na.rm = TRUE),
-    se_flux = sd(Flux, na.rm = TRUE) / sqrt(n()),
-    n = n(),
-    .groups = "drop"
-  )
-
-ggplot(
-  dist_summary,
-  aes(x = Dist, y = mean_flux, group = 1)
-) +
-  geom_line(linewidth = 0.8) +
-  geom_point(size = 3) +
-  geom_errorbar(
-    aes(
-      ymin = mean_flux - se_flux,
-      ymax = mean_flux + se_flux
+    se_flux = if_else(
+      n_flux > 1,
+      sd(Flux, na.rm = TRUE) / sqrt(n_flux),
+      NA_real_
     ),
-    width = 0.2
-  ) +
-  theme_minimal(base_size = 14) +
-  labs(
-    title = paste("Mean Flux by Distance from Marsh Edge at", "Buck's Landing"),
-    x = "Distance from Marsh Edge (m)",
-    y = expression(Mean~Flux~(g/m^3))
-  )
-
-# flux by distance and hydro
-
-dist_hydro_summary <- buckslanding_data %>%
-  group_by(Dist, Hydro_Period) %>%
-  summarise(
-    mean_flux = mean(Flux, na.rm = TRUE),
-    se_flux = sd(Flux, na.rm = TRUE) / sqrt(n()),
-    n = n(),
     .groups = "drop"
   )
 
-ggplot(
-  dist_hydro_summary,
+meanflux_dist_b <- ggplot(
+  dist_summary_b,
   aes(
     x = Dist,
     y = mean_flux,
-    color = Hydro_Period,
-    group = Hydro_Period
+    color = factor(Tran)
   )
 ) +
-  geom_line(linewidth = 0.8) +
-  geom_point(size = 3) +
   geom_errorbar(
     aes(
       ymin = mean_flux - se_flux,
       ymax = mean_flux + se_flux
     ),
-    width = 0.2
+    width = 1,
+    linewidth = 0.6,
+    position = position_dodge(width = 1.5),
+    na.rm = TRUE
+  ) +
+  geom_point(
+    size = 3,
+    position = position_dodge(width = 1.5)
+  ) +
+  scale_x_continuous(
+    breaks = sort(unique(dist_summary$Dist_numeric))
+  ) +
+  coord_cartesian(ylim = c(0, 9.5)) +
+  flux_theme +
+  labs(
+    title = "Mean Flux by Distance and Transect at Buck's Landing",
+    x = "Distance from Marsh Edge (m)",
+    y = expression(Mean~Flux~(g/m^2)),
+    color = "Transect",
+    caption = se_caption
+  )
+
+meanflux_dist_b
+
+# Save the high-res image
+ggsave(("C:\\Users\\savan\\OneDrive - San Francisco State University\\ProjectData\\GitHub\\DepositionSFB\\images\\meanflux_dist_b.png"),
+  plot = meanflux_dist_b,
+  width = 10,  
+  height = 6,
+  dpi = 300,
+  bg = "white"
+)
+
+# flux by z_star
+
+b_elev <- elev_z_flux %>%
+  filter(Site == "Buck'sLanding")
+
+z_summary_b <- b_elev %>%
+  group_by(Tran, z_star) %>%
+  summarise(
+    n_flux = sum(!is.na(Flux)),
+    mean_flux = mean(Flux, na.rm = TRUE),
+    se_flux = if_else(
+      n_flux > 1,
+      sd(Flux, na.rm = TRUE) / sqrt(n_flux),
+      NA_real_
+    ),
+    .groups = "drop"
+  )
+
+meanflux_z_b <- ggplot(
+  z_summary_b,
+  aes(
+    x = mean_flux,
+    y = z_star,
+    color = Tran
+  )
+) +
+  geom_errorbarh(
+    aes(
+      xmin = mean_flux - se_flux,
+      xmax = mean_flux + se_flux
+    ),
+    height = 0.01,
+    linewidth = 0.6,
+    na.rm = TRUE
+  ) +
+  geom_point(
+    size = 3,
+    alpha = 0.8
+  ) +
+  scale_y_continuous(
+    n.breaks = 8
   ) +
   theme_minimal(base_size = 14) +
   theme(
-    legend.position = "bottom"
+    legend.position = "bottom",
+    panel.grid.minor = element_blank(),
+    plot.caption = element_text(hjust = 0)
   ) +
   labs(
-    title = paste("Distance x Hydrologic Period at", "Buck's Landing"),
-    x = "Distance from Marsh Edge (m)",
-    y = expression(Mean~Flux~(g/m^3)),
-    color = "Hydrologic Period"
+    title = expression("Mean Flux by "*z^"*"*" and Transect at Buck's Landing"),
+    x = expression(Mean~Flux~(g/m^2)),
+    y = expression(z^"*"),
+    color = "Transect",
+    caption = paste(
+      "Points represent mean flux within each transect and z* value.",
+      "Horizontal error bars represent +/- 1 standard error."
+    )
   )
+
+meanflux_z_b
+
+# Save the high-res image
+ggsave(("C:\\Users\\savan\\OneDrive - San Francisco State University\\ProjectData\\GitHub\\DepositionSFB\\images\\meanflux_z_b.png"),
+  plot = meanflux_z_b,
+  width = 10,  
+  height = 6,
+  dpi = 300,
+  bg = "white"
+)
+
+# raw flux by z star
+
+flux_z_b = ggplot(b_elev,
+       aes(x = z_star,
+           y = Flux,
+           color = Tran)) +
+  geom_point(size = 3, alpha = 0.7) +
+  geom_smooth(
+    method = "lm",
+    se = FALSE
+  ) +
+  theme_minimal()
+
+flux_z_b
+
+# Save the high-res image
+ggsave(("C:\\Users\\savan\\OneDrive - San Francisco State University\\ProjectData\\GitHub\\DepositionSFB\\images\\flux_z_b.png"),
+  plot = flux_z_b,
+  width = 10,  
+  height = 6,
+  dpi = 300,
+  bg = "white"
+)
+
+# raw flux with z as a GAM ( )
+
+flux_z_b_gam = ggplot(b_elev,
+       aes(x = z_star,
+           y = Flux)) +
+  geom_point(aes(color = Tran),
+             size = 3,
+             alpha = 0.7) +
+  geom_smooth(
+    method = "gam",
+    formula = y ~ s(x),
+    color = "black"
+  )
+
+flux_z_b_gam
+
+# Save the high-res image
+ggsave(("C:\\Users\\savan\\OneDrive - San Francisco State University\\ProjectData\\GitHub\\DepositionSFB\\images\\flux_z_b_gam.png"),
+  plot = flux_z_b_gam,
+  width = 10,  
+  height = 6,
+  dpi = 300,
+  bg = "white"
+)
+
+
+# flux by distance and hydro
+
+dist_hydro_summary_b <- b_data %>%
+  group_by(Tran, Dist, Phen_Period) %>%
+  summarise(
+    n_flux = sum(!is.na(Flux)),
+    mean_flux = mean(Flux, na.rm = TRUE),
+    se_flux = if_else(
+      n_flux > 1,
+      sd(Flux, na.rm = TRUE) / sqrt(n_flux),
+      NA_real_
+    ),
+    .groups = "drop"
+  )
+
+flux_dist_hydro_b <- ggplot(
+  dist_hydro_summary_b,
+  aes(
+    x = Dist,
+    y = mean_flux,
+    color = factor(Tran)
+  )
+) +
+  geom_errorbar(
+    aes(
+      ymin = mean_flux - se_flux,
+      ymax = mean_flux + se_flux
+    ),
+    width = 1,
+    linewidth = 0.6,
+    position = position_dodge(width = 1.5),
+    na.rm = TRUE
+  ) +
+  geom_point(
+    size = 3,
+    position = position_dodge(width = 1.5)
+  ) +
+  facet_wrap(~ Phen_Period) +
+  scale_x_continuous(
+    breaks = sort(unique(dist_hydro_summary$Dist_numeric))
+  ) +
+  flux_theme +
+  labs(
+    title = "Flux by Distance, Hydrologic Period, and Transect",
+    subtitle = "Buck's Landing",
+    x = "Distance from Marsh Edge (m)",
+    y = expression(Mean~Flux~(g/m^2)),
+    color = "Transect",
+    caption = se_caption
+  )
+
+flux_dist_hydro_b
+
+# Save the high-res image
+ggsave(("C:\\Users\\savan\\OneDrive - San Francisco State University\\ProjectData\\GitHub\\DepositionSFB\\images\\flux_dist_hydro_b.png"),
+  plot = flux_dist_hydro_b,
+  width = 10,  
+  height = 6,
+  dpi = 300,
+  bg = "white"
+)
 
 # flux through time by distance 
 
-time_dist_summary <- buckslanding_data %>%
-  group_by(Dist, Study.Phase) %>%
+time_dist_summary_b <- b_data %>%
+  group_by(Dist, Date.removed.from.field) %>%
+  summarise(
+    mean_flux = mean(Flux, na.rm = TRUE),
+    se_flux = sd(Flux, na.rm = TRUE) / sqrt(n()),
+    n = n(),
+    .groups = "drop"
+  ) %>%
+ mutate(
+    Date_plot = factor(
+      format(Date.removed.from.field, "%b %Y"),
+      levels = format(sort(unique(Date.removed.from.field)), "%b %Y")
+    )
+ )
+
+time_dist_summary_b <- b_data %>%
+  group_by(
+    Tran,
+    Dist,
+    Date.removed.from.field
+  ) %>%
+  summarise(
+    n_flux = sum(!is.na(Flux)),
+    mean_flux = mean(Flux, na.rm = TRUE),
+    se_flux = if_else(
+      n_flux > 1,
+      sd(Flux, na.rm = TRUE) / sqrt(n_flux),
+      NA_real_
+    ),
+    .groups = "drop"
+  ) %>%
+  mutate(
+    Date_plot = factor(
+      format(Date.removed.from.field, "%b %d, %Y"),
+      levels = format(
+        sort(unique(Date.removed.from.field)),
+        "%b %d, %Y"
+      )
+    )
+  )
+
+flux_dist_gradient_b <- ggplot(
+  time_dist_summary_b,
+  aes(
+    x = Dist,
+    y = mean_flux,
+    color = Date_plot
+  )
+) +
+  geom_errorbar(
+    aes(
+      ymin = mean_flux - se_flux,
+      ymax = mean_flux + se_flux
+    ),
+    width = 1.2,
+    linewidth = 0.6,
+    position = position_dodge(width = 2),
+    na.rm = TRUE
+  ) +
+  geom_point(
+    aes(fill = Date_plot),
+    size = 3.5,
+    shape = 21,
+    color = "black",
+    stroke = 0.4,
+    position = position_dodge(width = 2)
+  ) +
+  facet_wrap(~ Tran) +
+  scale_color_viridis_d(
+    option = "D",
+    end = 0.85
+  ) +
+  scale_fill_viridis_d(
+    option = "D",
+    end = 0.85
+  ) +
+  scale_x_continuous(
+    breaks = sort(unique(time_dist_summary$Dist_numeric)),
+    limits = c(-2, 52)
+  ) +
+  scale_y_continuous(n.breaks = 10) +
+  flux_theme +
+  theme(
+    legend.title = element_text(face = "bold"),
+    legend.text = element_text(size = 9),
+    legend.key.width = unit(1.1, "cm")
+  ) +
+  guides(
+    color = guide_legend(nrow = 2),
+    fill = guide_legend(nrow = 2)
+  ) +
+  labs(
+    title = "Flux at Discrete Marsh-Edge Sampling Points",
+    subtitle = "Buck's Landing; seven sampling distances across 50 m",
+    x = "Distance from Marsh Edge (m)",
+    y = expression(Mean~Flux~(g/m^2)),
+    color = "Collection date",
+    fill = "Collection date",
+    caption = se_caption
+  )
+
+flux_dist_gradient_b
+
+# Save the high-res image
+ggsave(("C:\\Users\\savan\\OneDrive - San Francisco State University\\ProjectData\\GitHub\\DepositionSFB\\images\\flux_dist_gradient_b.png"),
+  plot = flux_dist_gradient_b,
+  width = 14,
+  height = 9,
+  dpi = 300,
+  bg = "white"
+)
+
+# heat map and distance
+flux_heatmap_b = ggplot(
+  time_dist_summary_b,
+  aes(
+    x = Date.removed.from.field,
+    y = Dist,
+    fill = mean_flux
+  )
+) +
+  geom_tile(color = "white", linewidth = 0.8) +
+  geom_text(
+    aes(label = round(mean_flux, 1)),
+    color = "white",
+    size = 5,
+    fontface = "bold"
+  ) +
+  scale_fill_viridis_c(option = "magma", name = expression(Mean~Flux~(g/m^2))) +
+  theme_minimal(base_size = 16) +
+  theme(
+    axis.text.x = element_text(angle = 45, hjust = 1, size = 12),
+    axis.text.y = element_text(size = 12),
+    panel.grid = element_blank(),
+    legend.position = "right",
+    legend.key.height = unit(1.5, "cm")
+  ) +
+  labs(
+    title = paste("Flux Heatmap: Study Phase x Distance at", "Buck's Landing"),
+    x = "Date removed from Field",
+    y = "Distance from Marsh Edge"
+  )
+flux_heatmap_b
+
+ggsave(("C:\\Users\\savan\\OneDrive - San Francisco State University\\ProjectData\\GitHub\\DepositionSFB\\images\\flux_heatmap_b.png"),
+  plot = flux_heatmap_b,
+  width = 12,
+  height = 9,
+  dpi = 300,
+  bg = "white"
+)
+
+# flux through time by transect 
+
+tran_summary_b <- b_data %>%
+  group_by(Tran, Date.removed.from.field) %>%
   summarise(
     mean_flux = mean(Flux, na.rm = TRUE),
     se_flux = sd(Flux, na.rm = TRUE) / sqrt(n()),
@@ -415,12 +845,13 @@ time_dist_summary <- buckslanding_data %>%
     .groups = "drop"
   )
 
-ggplot(
-  time_dist_summary,
+flux_tran_time_b = ggplot(
+  tran_summary_b,
   aes(
-    x = Study.Phase,
+    x = Date.removed.from.field,
     y = mean_flux,
-    group = 1
+    color = Tran,
+    group = Tran
   )
 ) +
   geom_line(linewidth = 0.8) +
@@ -432,21 +863,154 @@ ggplot(
     ),
     width = 0.2
   ) +
-  facet_wrap(~ Dist, scales = "free_y", ncol = 2) +
-  theme_minimal(base_size = 14) +
-  theme(
-    axis.text.x = element_text(angle = 45, hjust = 1),
-    strip.text = element_text(face = "bold")
-  ) +
+  theme_minimal(base_size = 14) + 
+  coord_cartesian(ylim = c(0,30)) +
   labs(
-    title = paste("Flux Through Time by Distance at", "Buck's Landing"),
-    x = "Study Phase",
-    y = expression(Mean~Flux~(g/m^3))
+    title = paste("Flux Through Time by Transect at", "Buck's Landing"),
+    x = "Date removed from field",
+    y = expression(Mean~Flux~(g/m^2)),
+    color = "Transect"
   )
+flux_tran_time_b
+
+# Save the high-res image
+ggsave(("C:\\Users\\savan\\OneDrive - San Francisco State University\\ProjectData\\GitHub\\DepositionSFB\\images\\flux_tran_time_b.png"),
+  plot = flux_tran_time_b,
+  width = 10,  
+  height = 6,
+  dpi = 300,
+  bg = "white"
+)
+
+
+# raw flux and distance 
+
+rawflux_dist_b = ggplot(
+  b_data,
+  aes(
+    x = as.numeric(as.character(Dist)),
+    y = Flux
+  )
+) +
+  geom_point(alpha = 0.4) +
+  geom_smooth(method = "lm", se = TRUE) +
+  theme_minimal(base_size = 14) +
+  coord_cartesian(ylim = c(0,120)) +
+  labs(
+    title = paste("Raw Flux vs Distance at", "Buck's Landing"),
+    x = "Distance from Marsh Edge (m)",
+    y = expression(Flux~(g/m^2))
+  )
+rawflux_dist_b
+
+# Save the high-res image
+ggsave(("C:\\Users\\savan\\OneDrive - San Francisco State University\\ProjectData\\GitHub\\DepositionSFB\\images\\rawflux_dist_b.png"),
+  plot = rawflux_dist_b,
+  width = 10,  
+  height = 6,
+  dpi = 300,
+  bg = "white"
+)
+
+# elev and flux
+
+flux_elev_b = ggplot(b_elev,
+   aes(
+     x = Elevation_m,
+     y = Flux
+   )
+ ) +
+   geom_point(alpha = 0.4) +
+   geom_smooth(method = "lm", se = TRUE) +
+   theme_minimal(base_size = 14) +
+   labs(
+     title = paste("Flux vs Elevation at", "Buck's Landing"),
+     x = "Elevation_m",
+     y = expression(Flux~(g/m^2))
+   )
+
+flux_elev_b
+
+# Save the high-res image
+ggsave(("C:\\Users\\savan\\OneDrive - San Francisco State University\\ProjectData\\GitHub\\DepositionSFB\\images\\flux_elev_b.png"),
+  plot = flux_elev_b,
+  width = 10,  
+  height = 6,
+  dpi = 300,
+  bg = "white"
+)
+
+# z star and flux
+
+flux_z_b = ggplot(
+  b_elev,
+   aes(
+     x = z_star,
+     y = Flux
+   )
+ ) +
+   geom_point(alpha = 0.4) +
+   geom_smooth(method = "lm", se = TRUE) +
+   theme_minimal(base_size = 14) +
+   labs(
+     title = paste("Flux vs Elevation at", "Buck's Landing"),
+     x = "z_star",
+     y = expression(Flux~(g/m^2))
+   )
+
+flux_z_b
+
+# Save the high-res image
+ggsave(("C:\\Users\\savan\\OneDrive - San Francisco State University\\ProjectData\\GitHub\\DepositionSFB\\images\\flux_z_b.png"),
+  plot = flux_z_b,
+  width = 10,  
+  height = 6,
+  dpi = 300,
+  bg = "white"
+)
+
+# once veg is cleaned and entered 
+
+# one_site <- one_site %>%
+#   mutate(
+#     Veg_Structure = Percent_Cover * Avg_Height
+#   )
+
+# ggplot(
+#   one_site,
+#   aes(
+#     x = Percent_Cover,
+#     y = Flux
+#   )
+# ) +
+#   geom_point(alpha = 0.4) +
+#   geom_smooth(method = "lm", se = TRUE) +
+#   theme_minimal(base_size = 14) +
+#   labs(
+#     title = paste("Flux vs Percent Cover at", "Buck's Landing"),
+#     x = "Percent Vegetation Cover",
+#     y = expression(Flux~(g/m^2))
+#   )
+
+# ggplot(
+#   one_site,
+#   aes(
+#     x = Veg_Structure,
+#     y = Flux
+#   )
+# ) +
+#   geom_point(alpha = 0.4) +
+#   geom_smooth(method = "lm", se = TRUE) +
+#   theme_minimal(base_size = 14) +
+#   labs(
+#     title = paste("Flux vs Vegetation Structure at", "Buck's Landing"),
+#     x = "Vegetation Structure Index (Cover x Height)",
+#     y = expression(Flux~(g/m^2))
+#   )
 
 # flux through time by transect 
 
-tran_summary <- buckslanding_data %>%
+tran_summary_b <- b_data %>%
   group_by(Tran, Study.Phase) %>%
   summarise(
     mean_flux = mean(Flux, na.rm = TRUE),
@@ -456,7 +1020,7 @@ tran_summary <- buckslanding_data %>%
   )
 
 ggplot(
-  tran_summary,
+  tran_summary_b,
   aes(
     x = Study.Phase,
     y = mean_flux,
@@ -483,8 +1047,8 @@ ggplot(
 
 # raw flux and distance 
 
-c_flux_distance = ggplot(
-  buckslanding_data,
+b_flux_distance = ggplot(
+b_data,
   aes(
     x = as.numeric(as.character(Dist)),
     y = Flux
@@ -498,11 +1062,11 @@ c_flux_distance = ggplot(
     x = "Distance from Marsh Edge (m)",
     y = expression(Flux~(g/m^3))
   )
-c_flux_distance
+b_flux_distance
 
 # Save the high-res image
 ggsave(("C:\\Users\\savan\\OneDrive - San Francisco State University\\ProjectData\\GitHub\\DepositionSFB\\images\\All_Sites_Track_C_Comparison.png"),
-  plot = cross_site_plot_c_z,
+  plot = cross_site_plot_b_z,
   width = 10,  
   height = 6,
   dpi = 300,
@@ -568,125 +1132,734 @@ ggsave(("C:\\Users\\savan\\OneDrive - San Francisco State University\\ProjectDat
 
 ``` 
 
-```{r, buck's landing profile (edit with the right parameters!)}
-# Step 1: Create numeric distance, then average elevation across the 3 replicates within each Transect x Distance
-elevation_profile <- cm_elev %>%
-  mutate(Dist_numeric = as.numeric(as.character(Dist))) %>%
-  group_by(Tran, Dist_numeric) %>%
-  summarise(
-    mean_elevation = mean(Elevation_m, na.rm = TRUE),
-    se_elevation = sd(Elevation_m, na.rm = TRUE) / sqrt(n()),
-    .groups = "drop"
+
+
+
+
+
+```{r}
+flag_cols <- c("Filter_Num", "RB_Num", "Flood_Obsv", "Bio_Obsv", "Drop_Obsv", "OpenBag_Obsv", "Position_Obsv", "DryTime_Obsv", "NegValue_Num")
+
+long_b <- b_elev %>% 
+  pivot_longer(
+    cols = all_of(flag_cols), 
+    names_to = "Flag_Type", 
+    values_to = "Flag_Value"
   )
 
-# Step 2: Plot
-elevation_profile_c = ggplot(
-  elevation_profile,
-  aes(
-    x = Dist_numeric,
-    y = mean_elevation,
-    color = Tran,
-    fill = Tran
-  )
-) +
-  geom_line(linewidth = 1) +
-  geom_point(size = 3.5, shape = 21, color = "black", stroke = 0.4) +
-  geom_errorbar(
-    aes(
-      ymin = mean_elevation - se_elevation,
-      ymax = mean_elevation + se_elevation
-    ),
-    width = 1,
-    linewidth = 0.6
-  ) +
-  scale_color_viridis_d(option = "D", end = 0.7) +
-  scale_fill_viridis_d(option = "D", end = 0.7) +
-  scale_x_continuous(breaks = sort(unique(elevation_profile$Dist_numeric))) +
-  scale_y_continuous(n.breaks = 10) +
-  theme_minimal(base_size = 16) +
-  theme(
-    legend.position = "bottom",
-    legend.title = element_text(face = "bold"),
-    axis.text = element_text(size = 12),
-    panel.grid.minor = element_blank()
-  ) +
-  labs(
-    title = paste("Marsh Surface Elevation Profile at", "Corte Madera"),
-    subtitle = "Mean elevation \u00b1 SE across 3 replicates per sampling area",
-    x = "Distance from Marsh Edge (m)",
-    y = "Elevation (m)",
-    color = "Transect",
-    fill = "Transect"
-  )
-elevation_profile_c
+#making a flag database
 
-ggsave(("C:\\Users\\savan\\OneDrive - San Francisco State University\\ProjectData\\GitHub\\DepositionSFB\\images\\elevation_profile_c.png"),
-  plot = elevation_profile_c,
-  width = 14,
-  height = 9,
-  dpi = 300,
-  bg = "white"
+flagged_b <- long_b %>%
+  filter(Flag_Value == 1) %>%
+  mutate(Flag_Type = factor(Flag_Type, levels = flag_cols))
+
+# consistent color palette across all plots 
+
+flag_colors <-setNames(
+  scales::hue_pal()(length(flag_cols)), 
+  flag_cols
 )
 
+#plot the flags 
 
+flag_summary_b <- flagged_b %>%
+  group_by(Dist, Flag_Type) %>%
+  summarise(n = n(), .groups = "drop")
 
+flag_summary_b_time <- flagged_b %>%
+  group_by(Date.removed.from.field, Flag_Type) %>%
+  summarise(n = n(), .groups = "drop")
 
-# for z star accounting 
-
-zstar_profile <- cm_elev %>%
-  mutate(Dist_numeric = as.numeric(as.character(Dist))) %>%
-  group_by(Tran, Dist_numeric) %>%
-  summarise(
-    mean_zstar = mean(z_star, na.rm = TRUE),
-    se_zstar = sd(z_star, na.rm = TRUE) / sqrt(n()),
-    .groups = "drop"
-  )
-
-zstar_profile_c = ggplot(
-  zstar_profile,
-  aes(
-    x = Dist_numeric,
-    y = mean_zstar,
-    color = Tran,
-    fill = Tran
-  )
-) +
-  geom_line(linewidth = 1) +
-  geom_point(size = 3.5, shape = 21, color = "black", stroke = 0.4) +
-  geom_errorbar(
-    aes(
-      ymin = mean_zstar - se_zstar,
-      ymax = mean_zstar + se_zstar
-    ),
-    width = 1,
-    linewidth = 0.6
-  ) +
-  scale_color_viridis_d(option = "D", end = 0.7) +
-  scale_fill_viridis_d(option = "D", end = 0.7) +
-  scale_x_continuous(breaks = sort(unique(zstar_profile$Dist_numeric))) +
-  scale_y_continuous(n.breaks = 10) +
-  theme_minimal(base_size = 16) +
-  theme(
-    legend.position = "bottom",
-    legend.title = element_text(face = "bold"),
-    axis.text = element_text(size = 12),
-    panel.grid.minor = element_blank()
-  ) +
+b_total_flags <- ggplot(flag_summary_b, aes(x = Dist, y = n, fill = Flag_Type)) +
+  geom_col(position = "dodge") + 
+  scale_fill_manual(values = flag_colors) +
+  theme_minimal() + 
   labs(
-    title = paste("Relative Tidal Elevation (Z*) Profile at", "Corte Madera"),
-    subtitle = "Mean Z* \u00b1 SE across 3 replicates per sampling area",
-    x = "Distance from Marsh Edge (m)",
-    y = "Z* (Relative Tidal Elevation)",
-    color = "Transect",
-    fill = "Transect"
+    title = "Flag Occurrences by Distance", 
+    x = "Distance from Marsh Edge (m)", 
+    y = "Count", 
+    fill = "Flage Type"
   )
-zstar_profile_c
 
-ggsave(("C:\\Users\\savan\\OneDrive - San Francisco State University\\ProjectData\\GitHub\\DepositionSFB\\images\\zstar_profile_c.png"),
-  plot = zstar_profile_c,
-  width = 14,
-  height = 9,
-  dpi = 300,
-  bg = "white"
-)
+b_total_flags
+
+b_total_flags_time <- ggplot(flag_summary_b_time, aes(x = Date.removed.from.field, y = n, fill = Flag_Type)) +
+  geom_col(position = "dodge") + 
+  scale_fill_manual(values = flag_colors) +
+  theme_minimal() + 
+  labs(
+    title = "Flag Occurrences by Time", 
+    x = "Study.Phase", 
+    y = "Count", 
+    fill = "Flag Type"
+  )
+
+b_total_flags_time
 ```
+
+
+```{r}
+#############################################################
+# PREPARE ELEVATION AND QC FLAG DATA
+#############################################################
+
+library(tidyverse)
+library(lubridate)
+
+# Variables identifying one sediment observation
+join_keys <- c(
+  "Site",
+  "Tran",
+  "Dist",
+  "Replicate"
+)
+
+# Add elevation to the original wide sediment dataset.
+# Only z_star is brought over, preventing unwanted .x/.y columns.
+#cm_z_flux <- cm_data |>
+  #left_join(
+    #cm_elev |>
+      #select(
+     #   Site,
+      #  Tran,
+      #  Dist,
+    #    Replicate,
+    #    z_star
+   #   ),
+ #   by = join_keys,
+  #  relationship = "many-to-one"
+#  )
+
+
+# Original QC flag columns
+flag_cols <- c(
+  "Filter_Num",
+  "RB_Num",
+  "Flood_Obsv",
+  "Bio_Obsv",
+  "Drop_Obsv",
+  "OpenBag_Obsv",
+  "Position_Obsv",
+  "DryTime_Obsv",
+  "NegValue_Num"
+)
+
+
+# Reader-friendly names
+flag_labels <- c(
+  "Filter_Num"    = "Filter Issues",
+  "RB_Num"        = "Rubber Band Issues",
+  "Flood_Obsv"    = "Flood/Ponding",
+  "Bio_Obsv"      = "Biological Matter",
+  "Drop_Obsv"     = "Recorded Drop in Field/Lab",
+  "OpenBag_Obsv"  = "Open Ziploc Bag Observed",
+  "Position_Obsv" = "Position Changed",
+  "DryTime_Obsv"  = "Multiple Drying Times Needed",
+  "NegValue_Num"  = "Negative Flux Values Calculated"
+)
+
+
+# Field issues use greens and blues.
+# Laboratory and processing issues use artificial warm,
+# magenta, and neutral colors.
+flag_colors <- c(
+  # Likely Degrading the Mass
+  "Filter Issues"                   = "#1B4F72",
+  "Flood/Ponding"                   = "#2E86AB",
+  "Recorded Drop in Field/Lab"      = "#5DADE2",
+  "Negative Flux Values Calculated" = "#48C9B0", 
+
+  # Likely inflating the mass
+  "Rubber Band Issues"              = "#7B241c",
+  "Biological Matter"               = "#C0392B",
+  "Open Ziploc Bag Observed"        = "#E67E22",
+  "Multiple Drying Times Needed"    = "#CB4335",
+  
+
+ # Likely neutral
+ "Position Changed"                = "#7F8C8D"
+  ) 
+
+flag_levels <- names(flag_colors)
+
+
+
+# Keep only recorded flags
+flagged_b <- long_b |>
+  filter(Flag_Value == 1)
+
+
+#############################################################
+# SUMMARY TABLES USED BY THE PLOTS
+#############################################################
+
+# Flags by distance
+flag_summary_distance_b <- flagged_b |>
+  count(
+    Dist,
+    Flag_Type,
+    name = "n"
+  )
+
+
+# Flags by sampling date
+flag_summary_time_b <- flagged_b |>
+  count(
+    Date.removed.from.field,
+    Flag_Type,
+    name = "n"
+  )
+
+
+# Flags by transect and phenological period
+flag_counts_period_b <- flagged_b |>
+  count(
+    Tran,
+    Phen_Period,
+    Flag_Type,
+    name = "n"
+  )
+
+
+# Flags by transect and sampling date
+flag_counts_day_b <- flagged_b |>
+  count(
+    Tran,
+    Date.removed.from.field,
+    Flag_Type,
+    name = "n"
+  )
+
+
+# Flag proportions within each transect and sampling date
+flag_props_day_b <- flagged_b |>
+  count(
+    Tran,
+    Date.removed.from.field,
+    Flag_Type,
+    name = "n"
+  ) |>
+  group_by(
+    Tran,
+    Date.removed.from.field
+  ) |>
+  mutate(
+    prop = n / sum(n)
+  ) |>
+  ungroup()
+
+long_b <- long_b |>
+  mutate(Flag_Type = recode(Flag_Type, !!!flag_labels))
+
+flagged_b <- long_b |>
+  filter(Flag_Value == 1)
+
+unique(long_b$Flag_Type)
+
+```
+
+
+
+```{r, claude suggested flag visualizations}
+
+#############################################################
+# QC FLAG VISUALIZATIONS
+#############################################################
+
+# Shared theme for all QC plots
+flag_theme <- theme_minimal(base_size = 13) +
+  theme(
+    legend.title = element_text(face = "bold"),
+    strip.text = element_text(face = "bold"),
+    axis.title = element_text(face = "bold")
+  )
+
+
+#############################################################
+# 1. FLAG OCCURRENCES BY DISTANCE
+#############################################################
+
+b_total_flags <- ggplot(
+  flag_summary_distance_b,
+  aes(
+    x = Dist,
+    y = n,
+    fill = Flag_Type
+  )
+) +
+  geom_col(
+    position = position_dodge(width = 0.9),
+    width = 0.8
+  ) +
+  scale_fill_manual(
+    values = flag_colors,
+    limits = flag_levels,
+    drop = FALSE
+  ) +
+  flag_theme +
+  labs(
+    title = "QC Flag Occurrences by Distance",
+    x = "Distance from Marsh Edge (m)",
+    y = "Number of Flag Occurrences",
+    fill = "Flag Type"
+  )
+
+b_total_flags
+
+
+#############################################################
+# 2. FLAG OCCURRENCES THROUGH TIME
+#############################################################
+
+b_total_flags_time <- ggplot(
+  flag_summary_time_b,
+  aes(
+    x = Date.removed.from.field,
+    y = n,
+    fill = Flag_Type
+  )
+) +
+  geom_col(
+    position = position_dodge(width = 0.9),
+    width = 20
+  ) +
+  scale_fill_manual(
+    values = flag_colors,
+    limits = flag_levels,
+    drop = FALSE
+  ) +
+  scale_x_date(
+    date_breaks = "1 month",
+    date_labels = "%b %Y"
+  ) +
+  flag_theme +
+  theme(
+    axis.text.x = element_text(
+      angle = 45,
+      hjust = 1
+    )
+  ) +
+  labs(
+    title = "QC Flag Occurrences Through Time",
+    x = "Date Removed from Field",
+    y = "Number of Flag Occurrences",
+    fill = "Flag Type"
+  )
+
+b_total_flags_time
+
+
+#############################################################
+# 3. SMALL MULTIPLES:
+#    FLAG TYPE BY PHENOLOGICAL PERIOD AND TRANSECT
+#############################################################
+
+b_flags_period_transect <- ggplot(
+  flag_counts_period_b,
+  aes(
+    x = Flag_Type,
+    y = n,
+    fill = Flag_Type
+  )
+) +
+  geom_col() +
+  scale_fill_manual(
+    values = flag_colors,
+    limits = flag_levels,
+    drop = FALSE,
+    guide = "none"
+  ) +
+  facet_grid(
+    Phen_Period ~ Tran,
+    scales = "free_y"
+  ) +
+  flag_theme +
+  theme(
+    axis.text.x = element_text(
+      angle = 45,
+      hjust = 1,
+      size = 7
+    )
+  ) +
+  labs(
+    title = "QC Flag Frequency by Phenological Period and Transect",
+    x = NULL,
+    y = "Number of Flag Occurrences"
+  )
+
+b_flags_period_transect
+
+
+#############################################################
+# 4. FLAG TYPE BY SAMPLING DAY AND TRANSECT
+#
+# Faceting by every date can become very large.
+#############################################################
+
+b_flags_day_transect <- ggplot(
+  flag_counts_day_b,
+  aes(
+    x = Flag_Type,
+    y = n,
+    fill = Flag_Type
+  )
+) +
+  geom_col() +
+  scale_fill_manual(
+    values = flag_colors,
+    limits = flag_levels,
+    drop = FALSE,
+    guide = "none"
+  ) +
+  facet_grid(
+    Date.removed.from.field ~ Tran,
+    scales = "free_y"
+  ) +
+  flag_theme +
+  theme(
+    axis.text.x = element_text(
+      angle = 45,
+      hjust = 1,
+      size = 6
+    ),
+    strip.text.y = element_text(
+      size = 7,
+      angle = 0
+    )
+  ) +
+  labs(
+    title = "QC Flag Frequency by Sampling Day and Transect",
+    x = NULL,
+    y = "Number of Flag Occurrences"
+  )
+
+b_flags_day_transect
+
+
+#############################################################
+# 5. FLUX DISTRIBUTION BY FLAG TYPE
+#
+# An observation with multiple flags appears once for each
+# recorded flag. This is intentional in the long dataset.
+#############################################################
+
+b_flux_by_flag <- ggplot(
+  flagged_b,
+  aes(
+    x = Flag_Type,
+    y = Flux,
+    fill = Flag_Type
+  )
+) +
+  geom_boxplot(
+    outlier.shape = NA,
+    width = 0.65,
+    alpha = 0.8
+  ) +
+  geom_jitter(
+    width = 0.15,
+    alpha = 0.3,
+    size = 1
+  ) +
+  scale_fill_manual(
+    values = flag_colors,
+    limits = flag_levels,
+    drop = FALSE,
+    guide = "none"
+  ) +
+  facet_wrap(
+    ~ Tran,
+    scales = "free_y"
+  ) +
+  flag_theme +
+  theme(
+    axis.text.x = element_text(
+      angle = 45,
+      hjust = 1
+    )
+  ) +
+  labs(
+    title = "Flux Distribution by QC Flag Type",
+    subtitle = "Panels represent individual transects",
+    x = NULL,
+    y = expression(Flux~(g/m^2))
+  )
+
+b_flux_by_flag
+
+
+#############################################################
+# 6. ELEVATION VS DISTANCE, WITH FLAGGED OBSERVATIONS
+#
+# Because the long table has one row per flag variable,
+# use flagged_cm so only recorded flags are displayed.
+#############################################################
+
+b_flags_z_distance <- ggplot(
+  flagged_b,
+  aes(
+    x = as.numeric(as.character(Dist)),
+    y = z_star,
+    color = Flag_Type
+  )
+) +
+  geom_point(
+    size = 2.3,
+    alpha = 0.85,
+    position = position_jitter(
+      width = 0.15,
+      height = 0
+    )
+  ) +
+  scale_color_manual(
+    values = flag_colors,
+    limits = flag_levels,
+    drop = FALSE
+  ) +
+  facet_wrap(
+    ~ Tran
+  ) +
+  flag_theme +
+  labs(
+    title = "Elevation and Distance of Flagged Observations",
+    subtitle = "Only observations with recorded QC flags are shown",
+    x = "Distance from Marsh Edge (m)",
+    y = expression("Elevation (" * z^"*" * ")"),
+    color = "Flag Type"
+  )
+
+b_flags_z_distance
+
+
+#############################################################
+# 7. TIMELINE OF FLAG COUNTS BY TRANSECT
+#
+# Tile fill represents the total number of recorded flags,
+# avoiding overlap when several flags occur on one date.
+#############################################################
+
+flag_totals_day_b <- flagged_b |>
+  count(
+    Tran,
+    Date.removed.from.field,
+    name = "total_flags"
+  )
+
+b_flag_timeline <- ggplot(
+  flag_totals_day_b,
+  aes(
+    x = Date.removed.from.field,
+    y = Tran,
+    fill = total_flags
+  )
+) +
+  geom_tile(
+    color = "white",
+    height = 0.8
+  ) +
+  scale_fill_gradient(
+    low = "grey95",
+    high = "#4D4D4D"
+  ) +
+  scale_x_date(
+    date_breaks = "1 month",
+    date_labels = "%b %Y"
+  ) +
+  flag_theme +
+  theme(
+    axis.text.x = element_text(
+      angle = 45,
+      hjust = 1
+    ),
+    panel.grid = element_blank()
+  ) +
+  labs(
+    title = "Total QC Flags Through Time by Transect",
+    x = "Date Removed from Field",
+    y = NULL,
+    fill = "Total Flags"
+  )
+
+b_flag_timeline
+
+
+#############################################################
+# 8. FLAG COMPOSITION BY DATE AND TRANSECT
+#
+# A stacked bar is more appropriate than overlapping tiles
+# for showing proportions of several flag types.
+#############################################################
+
+b_flag_proportions <- ggplot(
+  flag_props_day_b,
+  aes(
+    x = Date.removed.from.field,
+    y = prop,
+    fill = Flag_Type
+  )
+) +
+  geom_col(
+    width = 20
+  ) +
+  scale_fill_manual(
+    values = flag_colors,
+    limits = flag_levels,
+    drop = FALSE
+  ) +
+  scale_y_continuous(
+    labels = scales::percent_format()
+  ) +
+  scale_x_date(
+    date_breaks = "1 month",
+    date_labels = "%b %Y"
+  ) +
+  facet_wrap(
+    ~ Tran,
+    ncol = 1
+  ) +
+  flag_theme +
+  theme(
+    axis.text.x = element_text(
+      angle = 45,
+      hjust = 1
+    )
+  ) +
+  labs(
+    title = "Composition of QC Flags by Date and Transect",
+    x = "Date Removed from Field",
+    y = "Percentage of Recorded Flags",
+    fill = "Flag Type"
+  )
+
+b_flag_proportions
+
+
+#############################################################
+# 9. FLAG CO-OCCURRENCE MATRIX
+#
+# This section uses the original wide cm_z_flux dataset.
+#############################################################
+
+flag_matrix_b <- b_elev |>
+  select(
+    all_of(flag_cols)
+  ) |>
+  mutate(
+    across(
+      everything(),
+      ~ as.integer(replace_na(.x, 0) == 1)
+    )
+  ) |>
+  as.matrix()
+
+co_occurrence <- t(flag_matrix) %*% flag_matrix
+
+co_occurrence_df_b <- as.data.frame(co_occurrence) |>
+  rownames_to_column("Flag_Code_1") |>
+  pivot_longer(
+    cols = -Flag_Code_1,
+    names_to = "Flag_Code_2",
+    values_to = "n"
+  ) |>
+  mutate(
+    Flag_1 = recode(
+      Flag_Code_1,
+      !!!flag_labels
+    ),
+    Flag_2 = recode(
+      Flag_Code_2,
+      !!!flag_labels
+    ),
+    Flag_1 = factor(
+      Flag_1,
+      levels = flag_levels
+    ),
+    Flag_2 = factor(
+      Flag_2,
+      levels = flag_levels
+    )
+  )
+
+b_flag_cooccurrence <- ggplot(
+  co_occurrence_df_b,
+  aes(
+    x = Flag_1,
+    y = Flag_2,
+    fill = n
+  )
+) +
+  geom_tile(
+    color = "white"
+  ) +
+  geom_text(
+    aes(label = n),
+    size = 3
+  ) +
+  scale_fill_gradient(
+    low = "grey95",
+    high = "#7570B3"
+  ) +
+  coord_equal() +
+  flag_theme +
+  theme(
+    axis.text.x = element_text(
+      angle = 45,
+      hjust = 1
+    )
+  ) +
+  labs(
+    title = "QC Flag Co-occurrence Matrix",
+    x = NULL,
+    y = NULL,
+    fill = "Co-occurrences"
+  )
+
+b_flag_cooccurrence
+
+
+#############################################################
+# 10. OPTIONAL UPSET-STYLE CO-OCCURRENCE PLOT
+#############################################################
+
+# Install once if needed:
+ #install.packages("ggupset")
+
+ library(ggupset)
+
+ upset_data_b <- b_elev|>
+   mutate(
+     flags_present = pmap(
+      pick(all_of(flag_cols)),
+      function(...) {
+         values <- c(...)
+         active_codes <- flag_cols[
+          replace_na(values, 0) == 1
+         ]
+
+        unname(flag_labels[active_codes])
+       }
+     )
+   ) |>
+   filter(lengths(flags_present) > 0)
+
+ b_flag_upset <- ggplot(
+   upset_data_b,
+   aes(x = flags_present)
+ ) +
+   geom_bar(fill = "#7570B3") +
+   scale_x_upset(
+     order_by = "freq"
+   ) +
+   flag_theme +
+   labs(
+     title = "QC Flag Co-occurrence",
+     x = NULL,
+     y = "Number of Observations"
+   )
+
+ b_flag_upset
+
+```
+
+
+

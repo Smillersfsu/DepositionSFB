@@ -1,0 +1,817 @@
+Study.Phase,Site,Tran,Dist,Replicate,Date.placed.in.field,Date.removed.from.field,Year,Flux,Filter_Num,RB_Num,Flood_Obsv,Bio_Obsv,Drop_Obsv,OpenBag_Obsv,Position_Obsv,DryTime_Obsv,NegValue_Num,Master_Flag,marsh_edge_type,marsh_orientation,Phen_Period,Marsh_Area
+M1,Buck'sLanding,1,0.5,a,2025-07-08,2025-08-05,2025,3.199435405,1,0,0,0,0,0,0,0,0,Review,Ramped,East.facing,"Late_Dry
+(Months 1-3)",Edge
+M1,Buck'sLanding,1,0.5,b,2025-07-08,2025-08-05,2025,3.968600088,1,0,0,0,0,0,0,0,0,Review,Ramped,East.facing,"Late_Dry
+(Months 1-3)",Edge
+M1,Buck'sLanding,1,0.5,c,2025-07-08,2025-08-05,2025,7.558035278,1,0,0,0,0,0,0,0,0,Review,Ramped,East.facing,"Late_Dry
+(Months 1-3)",Edge
+M1,Buck'sLanding,1,2,a,2025-07-08,2025-08-05,2025,1.961114509,0,0,0,0,0,0,0,0,0,OK,Ramped,East.facing,"Late_Dry
+(Months 1-3)",Edge
+M1,Buck'sLanding,1,2,b,2025-07-08,2025-08-05,2025,1.520533206,0,0,0,0,0,0,0,0,0,OK,Ramped,East.facing,"Late_Dry
+(Months 1-3)",Edge
+M1,Buck'sLanding,1,2,c,2025-07-08,2025-08-05,2025,2.980155261,0,0,0,0,0,0,0,0,0,OK,Ramped,East.facing,"Late_Dry
+(Months 1-3)",Edge
+M1,Buck'sLanding,1,6,a,2025-07-08,2025-08-05,2025,5.229657404,0,0,0,0,0,0,0,0,0,OK,Ramped,East.facing,"Late_Dry
+(Months 1-3)",Edge
+M1,Buck'sLanding,1,6,b,2025-07-08,2025-08-05,2025,2.912563532,0,0,0,0,0,0,0,0,0,OK,Ramped,East.facing,"Late_Dry
+(Months 1-3)",Edge
+M1,Buck'sLanding,1,6,c,2025-07-08,2025-08-05,2025,5.792229428,0,0,0,0,0,0,0,0,0,OK,Ramped,East.facing,"Late_Dry
+(Months 1-3)",Edge
+M1,Buck'sLanding,1,12,a,2025-07-08,2025-08-05,2025,1.654481599,0,0,0,0,0,0,0,0,0,OK,Ramped,East.facing,"Late_Dry
+(Months 1-3)",Platform
+M1,Buck'sLanding,1,12,b,2025-07-08,2025-08-05,2025,5.695108422,0,0,0,0,0,0,0,0,0,OK,Ramped,East.facing,"Late_Dry
+(Months 1-3)",Platform
+M1,Buck'sLanding,1,12,c,2025-07-08,2025-08-05,2025,2.167707169,0,0,0,0,0,0,0,0,0,OK,Ramped,East.facing,"Late_Dry
+(Months 1-3)",Platform
+M1,Buck'sLanding,1,24,a,2025-07-08,2025-08-05,2025,3.806245204,0,0,0,0,0,0,0,0,0,OK,Ramped,East.facing,"Late_Dry
+(Months 1-3)",Platform
+M1,Buck'sLanding,1,24,b,2025-07-08,2025-08-05,2025,3.351292238,0,0,0,0,0,0,0,0,0,OK,Ramped,East.facing,"Late_Dry
+(Months 1-3)",Platform
+M1,Buck'sLanding,1,24,c,2025-07-08,2025-08-05,2025,3.041571666,0,0,0,0,0,0,0,0,0,OK,Ramped,East.facing,"Late_Dry
+(Months 1-3)",Platform
+M1,Buck'sLanding,1,48,a,2025-07-08,2025-08-05,2025,4.745680415,0,0,0,0,0,0,0,0,0,OK,Ramped,East.facing,"Late_Dry
+(Months 1-3)",Upland
+M1,Buck'sLanding,1,48,b,2025-07-08,2025-08-05,2025,4.755617072,0,0,0,0,0,0,0,0,0,OK,Ramped,East.facing,"Late_Dry
+(Months 1-3)",Upland
+M1,Buck'sLanding,1,48,c,2025-07-08,2025-08-05,2025,7.452661794,0,0,0,0,0,0,0,0,0,OK,Ramped,East.facing,"Late_Dry
+(Months 1-3)",Upland
+M1,Buck'sLanding,2,0.5,a,2025-07-08,2025-08-05,2025,3.540032597,1,0,0,0,0,0,0,0,0,Review,Ramped,East.facing,"Late_Dry
+(Months 1-3)",Edge
+M1,Buck'sLanding,2,0.5,b,2025-07-08,2025-08-05,2025,34.73187521,1,0,0,0,0,0,0,0,0,Review,Ramped,East.facing,"Late_Dry
+(Months 1-3)",Edge
+M1,Buck'sLanding,2,0.5,c,2025-07-08,2025-08-05,2025,5.37936223,1,0,0,0,0,0,0,0,0,Review,Ramped,East.facing,"Late_Dry
+(Months 1-3)",Edge
+M1,Buck'sLanding,2,2,a,2025-07-08,2025-08-05,2025,6.740609501,1,0,0,0,0,0,0,0,0,Review,Ramped,East.facing,"Late_Dry
+(Months 1-3)",Edge
+M1,Buck'sLanding,2,2,b,2025-07-08,2025-08-05,2025,8.826166147,0,0,0,0,0,0,0,0,0,OK,Ramped,East.facing,"Late_Dry
+(Months 1-3)",Edge
+M1,Buck'sLanding,2,2,c,2025-07-08,2025-08-05,2025,6.964642774,0,0,0,0,0,0,0,0,0,OK,Ramped,East.facing,"Late_Dry
+(Months 1-3)",Edge
+M1,Buck'sLanding,2,6,a,2025-07-08,2025-08-05,2025,8.583251354,0,0,0,0,0,0,0,0,0,OK,Ramped,East.facing,"Late_Dry
+(Months 1-3)",Edge
+M1,Buck'sLanding,2,6,b,2025-07-08,2025-08-05,2025,10.9774245,0,0,0,0,0,0,0,0,0,OK,Ramped,East.facing,"Late_Dry
+(Months 1-3)",Edge
+M1,Buck'sLanding,2,6,c,2025-07-08,2025-08-05,2025,11.11446055,0,0,0,0,0,0,0,0,0,OK,Ramped,East.facing,"Late_Dry
+(Months 1-3)",Edge
+M1,Buck'sLanding,2,12,a,2025-07-08,2025-08-05,2025,10.48422195,1,0,0,0,0,0,0,0,0,Review,Ramped,East.facing,"Late_Dry
+(Months 1-3)",Platform
+M1,Buck'sLanding,2,12,b,2025-07-08,2025-08-05,2025,12.24825005,0,0,0,0,0,0,0,0,0,OK,Ramped,East.facing,"Late_Dry
+(Months 1-3)",Platform
+M1,Buck'sLanding,2,12,c,2025-07-08,2025-08-05,2025,6.090778277,0,0,0,0,0,0,0,0,0,OK,Ramped,East.facing,"Late_Dry
+(Months 1-3)",Platform
+M1,Buck'sLanding,2,24,a,2025-07-08,2025-08-05,2025,5.187440643,0,0,0,0,0,0,0,0,0,OK,Ramped,East.facing,"Late_Dry
+(Months 1-3)",Platform
+M1,Buck'sLanding,2,24,b,2025-07-08,2025-08-05,2025,5.403913822,0,0,0,0,0,0,0,0,0,OK,Ramped,East.facing,"Late_Dry
+(Months 1-3)",Platform
+M1,Buck'sLanding,2,24,c,2025-07-08,2025-08-05,2025,5.21781201,0,0,0,0,0,0,0,0,0,OK,Ramped,East.facing,"Late_Dry
+(Months 1-3)",Platform
+M1,Buck'sLanding,2,48,a,2025-07-08,2025-08-05,2025,10.74590599,0,0,0,0,0,0,0,0,0,OK,Ramped,East.facing,"Late_Dry
+(Months 1-3)",Upland
+M1,Buck'sLanding,2,48,b,2025-07-08,2025-08-05,2025,6.985582736,0,0,0,0,0,0,0,0,0,OK,Ramped,East.facing,"Late_Dry
+(Months 1-3)",Upland
+M1,Buck'sLanding,2,48,c,2025-07-08,2025-08-05,2025,8.475014764,0,0,0,0,0,0,0,0,0,OK,Ramped,East.facing,"Late_Dry
+(Months 1-3)",Upland
+M1,Buck'sLanding,1,18,a,2025-07-08,2025-08-05,2025,2.678069635,0,0,0,0,0,0,0,0,0,OK,Ramped,East.facing,"Late_Dry
+(Months 1-3)",Platform
+M1,Buck'sLanding,1,18,b,2025-07-08,2025-08-05,2025,2.720454814,0,0,0,0,0,0,0,0,0,OK,Ramped,East.facing,"Late_Dry
+(Months 1-3)",Platform
+M1,Buck'sLanding,1,18,c,2025-07-08,2025-08-05,2025,2.922668607,0,0,0,0,0,0,0,0,0,OK,Ramped,East.facing,"Late_Dry
+(Months 1-3)",Platform
+M2,Buck'sLanding,1,0.5,a,2025-08-05,2025-09-03,2025,4.14824588,0,0,0,0,0,0,0,0,0,OK,Ramped,East.facing,"Late_Dry
+(Months 1-3)",Edge
+M2,Buck'sLanding,1,0.5,b,2025-08-05,2025-09-03,2025,2.234429707,0,0,0,0,0,0,0,0,0,OK,Ramped,East.facing,"Late_Dry
+(Months 1-3)",Edge
+M2,Buck'sLanding,1,0.5,c,2025-08-05,2025-09-03,2025,2.536180433,0,0,0,0,0,0,0,0,0,OK,Ramped,East.facing,"Late_Dry
+(Months 1-3)",Edge
+M2,Buck'sLanding,1,2,a,2025-08-05,2025-09-03,2025,1.378773705,0,0,0,0,0,0,0,0,0,OK,Ramped,East.facing,"Late_Dry
+(Months 1-3)",Edge
+M2,Buck'sLanding,1,2,b,2025-08-05,2025-09-03,2025,1.198492959,0,0,0,0,0,0,0,0,0,OK,Ramped,East.facing,"Late_Dry
+(Months 1-3)",Edge
+M2,Buck'sLanding,1,2,c,2025-08-05,2025-09-03,2025,1.033118167,0,0,0,0,0,0,0,0,0,OK,Ramped,East.facing,"Late_Dry
+(Months 1-3)",Edge
+M2,Buck'sLanding,1,6,a,2025-08-05,2025-09-03,2025,4.793755022,0,0,0,0,0,0,0,0,0,OK,Ramped,East.facing,"Late_Dry
+(Months 1-3)",Edge
+M2,Buck'sLanding,1,6,b,2025-08-05,2025-09-03,2025,4.056858827,0,0,0,0,0,0,0,0,0,OK,Ramped,East.facing,"Late_Dry
+(Months 1-3)",Edge
+M2,Buck'sLanding,1,6,c,2025-08-05,2025-09-03,2025,4.182014642,0,0,0,0,0,0,0,0,0,OK,Ramped,East.facing,"Late_Dry
+(Months 1-3)",Edge
+M2,Buck'sLanding,1,12,a,2025-08-05,2025-09-03,2025,1.096427822,0,0,0,0,0,0,0,0,0,OK,Ramped,East.facing,"Late_Dry
+(Months 1-3)",Platform
+M2,Buck'sLanding,1,12,b,2025-08-05,2025-09-03,2025,1.357959572,0,0,0,0,0,0,0,0,0,OK,Ramped,East.facing,"Late_Dry
+(Months 1-3)",Platform
+M2,Buck'sLanding,1,12,c,2025-08-05,2025-09-03,2025,1.799609458,0,0,0,0,0,0,0,0,0,OK,Ramped,East.facing,"Late_Dry
+(Months 1-3)",Platform
+M2,Buck'sLanding,1,18,a,2025-08-05,2025-09-03,2025,3.023361235,0,0,0,0,0,0,0,0,0,OK,Ramped,East.facing,"Late_Dry
+(Months 1-3)",Platform
+M2,Buck'sLanding,1,18,b,2025-08-05,2025-09-03,2025,2.563227965,0,0,0,0,0,0,0,0,0,OK,Ramped,East.facing,"Late_Dry
+(Months 1-3)",Platform
+M2,Buck'sLanding,1,18,c,2025-08-05,2025-09-03,2025,2.359964947,0,0,0,0,0,0,0,0,0,OK,Ramped,East.facing,"Late_Dry
+(Months 1-3)",Platform
+M2,Buck'sLanding,1,24,a,2025-08-05,2025-09-03,2025,1.488427328,0,0,0,0,0,0,0,0,0,OK,Ramped,East.facing,"Late_Dry
+(Months 1-3)",Platform
+M2,Buck'sLanding,1,24,b,2025-08-05,2025-09-03,2025,1.909750912,0,0,0,0,0,0,0,0,0,OK,Ramped,East.facing,"Late_Dry
+(Months 1-3)",Platform
+M2,Buck'sLanding,1,24,c,2025-08-05,2025-09-03,2025,1.763672557,0,0,0,0,0,0,0,0,0,OK,Ramped,East.facing,"Late_Dry
+(Months 1-3)",Platform
+M2,Buck'sLanding,1,48,a,2025-08-05,2025-09-03,2025,1.990405678,0,0,0,0,0,0,0,0,0,OK,Ramped,East.facing,"Late_Dry
+(Months 1-3)",Upland
+M2,Buck'sLanding,1,48,b,2025-08-05,2025-09-03,2025,1.967965441,0,0,0,0,0,0,0,0,0,OK,Ramped,East.facing,"Late_Dry
+(Months 1-3)",Upland
+M2,Buck'sLanding,1,48,c,2025-08-05,2025-09-03,2025,2.656024308,0,0,0,0,0,0,0,0,0,OK,Ramped,East.facing,"Late_Dry
+(Months 1-3)",Upland
+M2,Buck'sLanding,2,0.5,a,2025-08-05,2025-09-03,2025,6.193613878,1,0,0,0,0,0,0,0,0,Review,Ramped,East.facing,"Late_Dry
+(Months 1-3)",Edge
+M2,Buck'sLanding,2,0.5,b,2025-08-05,2025-09-03,2025,1.856848324,0,0,0,0,0,0,0,0,0,OK,Ramped,East.facing,"Late_Dry
+(Months 1-3)",Edge
+M2,Buck'sLanding,2,0.5,c,2025-08-05,2025-09-03,2025,7.910183618,1,0,0,0,0,0,0,0,0,Review,Ramped,East.facing,"Late_Dry
+(Months 1-3)",Edge
+M2,Buck'sLanding,2,2,a,2025-08-05,2025-09-03,2025,2.154804807,0,0,0,0,0,0,0,0,0,OK,Ramped,East.facing,"Late_Dry
+(Months 1-3)",Edge
+M2,Buck'sLanding,2,2,b,2025-08-05,2025-09-03,2025,1.535259128,0,0,0,0,0,0,0,0,0,OK,Ramped,East.facing,"Late_Dry
+(Months 1-3)",Edge
+M2,Buck'sLanding,2,2,c,2025-08-05,2025-09-03,2025,0.986719996,1,0,0,0,0,0,0,0,0,Review,Ramped,East.facing,"Late_Dry
+(Months 1-3)",Edge
+M2,Buck'sLanding,2,6,a,2025-08-05,2025-09-03,2025,5.834190658,0,0,0,0,0,0,0,0,0,OK,Ramped,East.facing,"Late_Dry
+(Months 1-3)",Edge
+M2,Buck'sLanding,2,6,b,2025-08-05,2025-09-03,2025,4.440727812,0,0,0,0,0,0,0,0,0,OK,Ramped,East.facing,"Late_Dry
+(Months 1-3)",Edge
+M2,Buck'sLanding,2,6,c,2025-08-05,2025-09-03,2025,4.821615606,0,0,0,0,0,0,0,0,0,OK,Ramped,East.facing,"Late_Dry
+(Months 1-3)",Edge
+M2,Buck'sLanding,2,12,a,2025-08-05,2025-09-03,2025,2.235838997,0,0,0,0,0,0,0,0,0,OK,Ramped,East.facing,"Late_Dry
+(Months 1-3)",Platform
+M2,Buck'sLanding,2,12,b,2025-08-05,2025-09-03,2025,3.723182256,0,0,0,0,0,0,0,0,0,OK,Ramped,East.facing,"Late_Dry
+(Months 1-3)",Platform
+M2,Buck'sLanding,2,12,c,2025-08-05,2025-09-03,2025,3.207165207,0,0,0,0,0,0,0,0,0,OK,Ramped,East.facing,"Late_Dry
+(Months 1-3)",Platform
+M2,Buck'sLanding,2,24,a,2025-08-05,2025-09-03,2025,2.060815988,0,0,0,0,0,0,0,0,0,OK,Ramped,East.facing,"Late_Dry
+(Months 1-3)",Platform
+M2,Buck'sLanding,2,24,b,2025-08-05,2025-09-03,2025,2.36657777,0,0,0,0,0,0,0,0,0,OK,Ramped,East.facing,"Late_Dry
+(Months 1-3)",Platform
+M2,Buck'sLanding,2,24,c,2025-08-05,2025-09-03,2025,2.168138861,0,0,0,0,0,0,0,0,0,OK,Ramped,East.facing,"Late_Dry
+(Months 1-3)",Platform
+M2,Buck'sLanding,2,48,a,2025-08-05,2025-09-03,2025,3.30652017,0,0,0,0,0,0,0,0,0,OK,Ramped,East.facing,"Late_Dry
+(Months 1-3)",Upland
+M2,Buck'sLanding,2,48,b,2025-08-05,2025-09-03,2025,2.25399716,0,0,0,0,0,0,0,0,0,OK,Ramped,East.facing,"Late_Dry
+(Months 1-3)",Upland
+M2,Buck'sLanding,2,48,c,2025-08-05,2025-09-03,2025,3.017832481,0,0,0,0,0,0,0,0,0,OK,Ramped,East.facing,"Late_Dry
+(Months 1-3)",Upland
+M3,Buck'sLanding,1,0.5,a,2025-09-03,2025-10-08,2025,7.780863427,0,0,0,0,0,0,0,0,0,OK,Ramped,East.facing,"Late_Dry
+(Months 1-3)",Edge
+M3,Buck'sLanding,1,0.5,b,2025-09-03,2025-10-08,2025,7.164947831,0,0,0,0,0,0,0,0,0,OK,Ramped,East.facing,"Late_Dry
+(Months 1-3)",Edge
+M3,Buck'sLanding,1,0.5,c,2025-09-03,2025-10-08,2025,5.316976487,0,0,0,0,0,0,0,0,0,OK,Ramped,East.facing,"Late_Dry
+(Months 1-3)",Edge
+M3,Buck'sLanding,1,2,a,2025-09-03,2025-10-08,2025,2.349138191,0,0,0,0,0,0,0,0,0,OK,Ramped,East.facing,"Late_Dry
+(Months 1-3)",Edge
+M3,Buck'sLanding,1,2,b,2025-09-03,2025-10-08,2025,1.993753904,0,0,0,0,0,0,0,0,0,OK,Ramped,East.facing,"Late_Dry
+(Months 1-3)",Edge
+M3,Buck'sLanding,1,2,c,2025-09-03,2025-10-08,2025,1.665226663,0,0,0,0,0,0,0,0,0,OK,Ramped,East.facing,"Late_Dry
+(Months 1-3)",Edge
+M3,Buck'sLanding,1,6,a,2025-09-03,2025-10-08,2025,3.068080648,0,0,0,0,0,0,0,0,0,OK,Ramped,East.facing,"Late_Dry
+(Months 1-3)",Edge
+M3,Buck'sLanding,1,6,b,2025-09-03,2025-10-08,2025,4.850571101,0,0,0,0,0,0,0,0,0,OK,Ramped,East.facing,"Late_Dry
+(Months 1-3)",Edge
+M3,Buck'sLanding,1,6,c,2025-09-03,2025-10-08,2025,4.885871499,0,0,0,0,0,0,0,0,0,OK,Ramped,East.facing,"Late_Dry
+(Months 1-3)",Edge
+M3,Buck'sLanding,1,12,a,2025-09-03,2025-10-08,2025,1.480775347,0,0,0,0,0,0,0,0,0,OK,Ramped,East.facing,"Late_Dry
+(Months 1-3)",Platform
+M3,Buck'sLanding,1,12,b,2025-09-03,2025-10-08,2025,1.304273357,0,0,0,0,0,0,0,0,0,OK,Ramped,East.facing,"Late_Dry
+(Months 1-3)",Platform
+M3,Buck'sLanding,1,12,c,2025-09-03,2025-10-08,2025,1.283928471,0,0,0,0,0,0,0,0,0,OK,Ramped,East.facing,"Late_Dry
+(Months 1-3)",Platform
+M3,Buck'sLanding,1,18,a,2025-09-03,2025-10-08,2025,1.582993802,0,0,0,0,0,0,0,0,0,OK,Ramped,East.facing,"Late_Dry
+(Months 1-3)",Platform
+M3,Buck'sLanding,1,18,b,2025-09-03,2025-10-08,2025,1.446373178,0,0,0,0,0,0,0,0,0,OK,Ramped,East.facing,"Late_Dry
+(Months 1-3)",Platform
+M3,Buck'sLanding,1,18,c,2025-09-03,2025-10-08,2025,1.187952707,0,0,0,0,0,0,0,0,0,OK,Ramped,East.facing,"Late_Dry
+(Months 1-3)",Platform
+M3,Buck'sLanding,1,24,a,2025-09-03,2025-10-08,2025,1.15453859,0,0,0,0,0,0,0,0,0,OK,Ramped,East.facing,"Late_Dry
+(Months 1-3)",Platform
+M3,Buck'sLanding,1,24,b,2025-09-03,2025-10-08,2025,1.439456815,0,0,0,0,0,0,0,0,0,OK,Ramped,East.facing,"Late_Dry
+(Months 1-3)",Platform
+M3,Buck'sLanding,1,24,c,2025-09-03,2025-10-08,2025,1.410354196,0,0,0,0,0,0,0,0,0,OK,Ramped,East.facing,"Late_Dry
+(Months 1-3)",Platform
+M3,Buck'sLanding,1,48,a,2025-09-03,2025-10-08,2025,1.885292757,0,0,0,0,0,0,0,0,0,OK,Ramped,East.facing,"Late_Dry
+(Months 1-3)",Upland
+M3,Buck'sLanding,1,48,b,2025-09-03,2025-10-08,2025,1.81060502,0,0,0,0,1,0,0,0,0,Review,Ramped,East.facing,"Late_Dry
+(Months 1-3)",Upland
+M3,Buck'sLanding,1,48,c,2025-09-03,2025-10-08,2025,2.232368426,0,0,0,0,0,0,0,0,0,OK,Ramped,East.facing,"Late_Dry
+(Months 1-3)",Upland
+M3,Buck'sLanding,2,0.5,a,2025-09-03,2025-10-08,2025,8.378320417,1,0,0,0,1,0,0,0,0,Review,Ramped,East.facing,"Late_Dry
+(Months 1-3)",Edge
+M3,Buck'sLanding,2,0.5,b,2025-09-03,2025-10-08,2025,8.805652843,0,0,0,0,0,0,0,0,0,OK,Ramped,East.facing,"Late_Dry
+(Months 1-3)",Edge
+M3,Buck'sLanding,2,0.5,c,2025-09-03,2025-10-08,2025,5.038660245,0,0,0,0,0,0,0,0,0,OK,Ramped,East.facing,"Late_Dry
+(Months 1-3)",Edge
+M3,Buck'sLanding,2,2,a,2025-09-03,2025-10-08,2025,2.109266148,0,0,0,0,0,0,0,0,0,OK,Ramped,East.facing,"Late_Dry
+(Months 1-3)",Edge
+M3,Buck'sLanding,2,2,b,2025-09-03,2025-10-08,2025,1.865352075,0,0,0,0,0,0,0,0,0,OK,Ramped,East.facing,"Late_Dry
+(Months 1-3)",Edge
+M3,Buck'sLanding,2,2,c,2025-09-03,2025-10-08,2025,2.00044571,0,0,0,0,0,0,0,0,0,OK,Ramped,East.facing,"Late_Dry
+(Months 1-3)",Edge
+M3,Buck'sLanding,2,6,a,2025-09-03,2025-10-08,2025,3.617617123,0,0,0,0,0,0,0,0,0,OK,Ramped,East.facing,"Late_Dry
+(Months 1-3)",Edge
+M3,Buck'sLanding,2,6,b,2025-09-03,2025-10-08,2025,4.067270539,0,0,0,0,0,0,0,0,0,OK,Ramped,East.facing,"Late_Dry
+(Months 1-3)",Edge
+M3,Buck'sLanding,2,6,c,2025-09-03,2025-10-08,2025,2.91771712,0,0,0,0,0,0,0,0,0,OK,Ramped,East.facing,"Late_Dry
+(Months 1-3)",Edge
+M3,Buck'sLanding,2,12,a,2025-09-03,2025-10-08,2025,2.516792625,0,0,0,0,0,0,0,0,0,OK,Ramped,East.facing,"Late_Dry
+(Months 1-3)",Platform
+M3,Buck'sLanding,2,12,b,2025-09-03,2025-10-08,2025,3.128306899,0,0,0,0,0,0,0,0,0,OK,Ramped,East.facing,"Late_Dry
+(Months 1-3)",Platform
+M3,Buck'sLanding,2,12,c,2025-09-03,2025-10-08,2025,2.343973374,0,0,0,0,0,0,0,0,0,OK,Ramped,East.facing,"Late_Dry
+(Months 1-3)",Platform
+M3,Buck'sLanding,2,24,a,2025-09-03,2025-10-08,2025,1.595569007,0,0,0,0,0,0,0,0,0,OK,Ramped,East.facing,"Late_Dry
+(Months 1-3)",Platform
+M3,Buck'sLanding,2,24,b,2025-09-03,2025-10-08,2025,1.370832122,0,0,0,0,0,0,0,0,0,OK,Ramped,East.facing,"Late_Dry
+(Months 1-3)",Platform
+M3,Buck'sLanding,2,24,c,2025-09-03,2025-10-08,2025,1.668325553,0,0,0,0,0,0,0,0,0,OK,Ramped,East.facing,"Late_Dry
+(Months 1-3)",Platform
+M3,Buck'sLanding,2,48,a,2025-09-03,2025-10-08,2025,1.952210815,0,0,0,0,0,0,0,0,0,OK,Ramped,East.facing,"Late_Dry
+(Months 1-3)",Upland
+M3,Buck'sLanding,2,48,b,2025-09-03,2025-10-08,2025,2.045581715,0,0,0,0,0,0,0,0,0,OK,Ramped,East.facing,"Late_Dry
+(Months 1-3)",Upland
+M3,Buck'sLanding,2,48,c,2025-09-03,2025-10-08,2025,2.62363696,0,0,0,0,0,0,0,0,0,OK,Ramped,East.facing,"Late_Dry
+(Months 1-3)",Upland
+M4,Buck'sLanding,1,0.5,a,2025-10-08,2025-11-15,2025,5.220943992,0,0,0,0,0,0,0,0,0,OK,Ramped,East.facing,"Tran
+(Months 4-6)",Edge
+M4,Buck'sLanding,1,0.5,b,2025-10-08,2025-11-15,2025,2.172284,0,0,0,0,0,0,0,0,0,OK,Ramped,East.facing,"Tran
+(Months 4-6)",Edge
+M4,Buck'sLanding,1,0.5,c,2025-10-08,2025-11-15,2025,3.315221254,0,0,0,0,0,0,0,0,0,OK,Ramped,East.facing,"Tran
+(Months 4-6)",Edge
+M4,Buck'sLanding,1,2,a,2025-10-08,2025-11-15,2025,0.280708368,0,0,0,0,0,0,0,0,0,OK,Ramped,East.facing,"Tran
+(Months 4-6)",Edge
+M4,Buck'sLanding,1,2,b,2025-10-08,2025-11-15,2025,2.245005089,0,0,0,0,0,0,0,0,0,OK,Ramped,East.facing,"Tran
+(Months 4-6)",Edge
+M4,Buck'sLanding,1,2,c,2025-10-08,2025-11-15,2025,1.417978506,0,0,0,0,0,0,0,0,0,OK,Ramped,East.facing,"Tran
+(Months 4-6)",Edge
+M4,Buck'sLanding,1,6,a,2025-10-08,2025-11-15,2025,2.613326237,0,0,0,0,0,0,0,0,0,OK,Ramped,East.facing,"Tran
+(Months 4-6)",Edge
+M4,Buck'sLanding,1,6,b,2025-10-08,2025-11-15,2025,0.875920968,0,0,0,0,0,0,0,0,0,OK,Ramped,East.facing,"Tran
+(Months 4-6)",Edge
+M4,Buck'sLanding,1,6,c,2025-10-08,2025-11-15,2025,0.952199516,0,0,0,0,0,0,0,0,0,OK,Ramped,East.facing,"Tran
+(Months 4-6)",Edge
+M4,Buck'sLanding,1,12,a,2025-10-08,2025-11-15,2025,0.73689049,0,0,0,0,0,0,0,0,0,OK,Ramped,East.facing,"Tran
+(Months 4-6)",Platform
+M4,Buck'sLanding,1,12,b,2025-10-08,2025-11-15,2025,1.234976175,0,0,0,0,0,0,0,0,0,OK,Ramped,East.facing,"Tran
+(Months 4-6)",Platform
+M4,Buck'sLanding,1,12,c,2025-10-08,2025-11-15,2025,0.995633614,0,0,0,0,0,0,0,0,0,OK,Ramped,East.facing,"Tran
+(Months 4-6)",Platform
+M4,Buck'sLanding,1,18,a,2025-10-08,2025-11-15,2025,1.350841801,0,0,0,0,0,0,0,0,0,OK,Ramped,East.facing,"Tran
+(Months 4-6)",Platform
+M4,Buck'sLanding,1,18,b,2025-10-08,2025-11-15,2025,0.906118007,0,0,0,0,0,0,0,0,0,OK,Ramped,East.facing,"Tran
+(Months 4-6)",Platform
+M4,Buck'sLanding,1,18,c,2025-10-08,2025-11-15,2025,0.600300594,0,0,0,0,0,0,0,0,0,OK,Ramped,East.facing,"Tran
+(Months 4-6)",Platform
+M4,Buck'sLanding,1,24,a,2025-10-08,2025-11-15,2025,1.538559834,1,0,0,0,0,0,0,0,0,Review,Ramped,East.facing,"Tran
+(Months 4-6)",Platform
+M4,Buck'sLanding,1,24,b,2025-10-08,2025-11-15,2025,0.272311109,0,0,0,0,0,0,0,0,0,OK,Ramped,East.facing,"Tran
+(Months 4-6)",Platform
+M4,Buck'sLanding,1,24,c,2025-10-08,2025-11-15,2025,0.25365513,0,0,0,0,0,0,0,0,0,OK,Ramped,East.facing,"Tran
+(Months 4-6)",Platform
+M4,Buck'sLanding,1,48,a,2025-10-08,2025-11-15,2025,0.546855971,0,0,0,0,0,0,0,0,0,OK,Ramped,East.facing,"Tran
+(Months 4-6)",Upland
+M4,Buck'sLanding,1,48,b,2025-10-08,2025-11-15,2025,0.746735552,0,0,0,0,0,0,0,0,0,OK,Ramped,East.facing,"Tran
+(Months 4-6)",Upland
+M4,Buck'sLanding,1,48,c,2025-10-08,2025-11-15,2025,0.799104664,0,0,0,0,0,0,0,0,0,OK,Ramped,East.facing,"Tran
+(Months 4-6)",Upland
+M4,Buck'sLanding,2,0.5,a,2025-10-08,2025-11-15,2025,3.129323316,0,0,0,0,0,0,0,0,0,OK,Ramped,East.facing,"Tran
+(Months 4-6)",Edge
+M4,Buck'sLanding,2,0.5,b,2025-10-08,2025-11-15,2025,2.277601346,0,0,0,0,0,0,0,0,0,OK,Ramped,East.facing,"Tran
+(Months 4-6)",Edge
+M4,Buck'sLanding,2,0.5,c,2025-10-08,2025-11-15,2025,4.518056196,0,0,0,0,0,0,0,0,0,OK,Ramped,East.facing,"Tran
+(Months 4-6)",Edge
+M4,Buck'sLanding,2,2,a,2025-10-08,2025-11-15,2025,-0.206911768,0,0,0,0,0,0,0,0,1,Review,Ramped,East.facing,"Tran
+(Months 4-6)",Edge
+M4,Buck'sLanding,2,2,b,2025-10-08,2025-11-15,2025,-1.6492547339999999,0,0,0,0,0,0,0,0,1,Review,Ramped,East.facing,"Tran
+(Months 4-6)",Edge
+M4,Buck'sLanding,2,2,c,2025-10-08,2025-11-15,2025,2.993271176,0,0,0,0,0,0,0,0,0,OK,Ramped,East.facing,"Tran
+(Months 4-6)",Edge
+M4,Buck'sLanding,2,6,a,2025-10-08,2025-11-15,2025,1.177270873,0,0,0,0,0,0,0,0,0,OK,Ramped,East.facing,"Tran
+(Months 4-6)",Edge
+M4,Buck'sLanding,2,6,b,2025-10-08,2025-11-15,2025,4.543165241,0,0,0,0,0,0,0,0,0,OK,Ramped,East.facing,"Tran
+(Months 4-6)",Edge
+M4,Buck'sLanding,2,6,c,2025-10-08,2025-11-15,2025,5.485809256,0,0,0,0,0,0,0,0,0,OK,Ramped,East.facing,"Tran
+(Months 4-6)",Edge
+M4,Buck'sLanding,2,12,a,2025-10-08,2025-11-15,2025,4.389077609,0,0,0,0,0,0,0,0,0,OK,Ramped,East.facing,"Tran
+(Months 4-6)",Platform
+M4,Buck'sLanding,2,12,b,2025-10-08,2025-11-15,2025,5.584011682,0,0,0,0,0,0,0,0,0,OK,Ramped,East.facing,"Tran
+(Months 4-6)",Platform
+M4,Buck'sLanding,2,12,c,2025-10-08,2025-11-15,2025,2.376051967,0,0,0,0,0,0,0,0,0,OK,Ramped,East.facing,"Tran
+(Months 4-6)",Platform
+M4,Buck'sLanding,2,24,a,2025-10-08,2025-11-15,2025,1.704891745,0,0,0,0,0,0,0,0,0,OK,Ramped,East.facing,"Tran
+(Months 4-6)",Platform
+M4,Buck'sLanding,2,24,b,2025-10-08,2025-11-15,2025,1.080644484,0,0,0,0,0,0,0,0,0,OK,Ramped,East.facing,"Tran
+(Months 4-6)",Platform
+M4,Buck'sLanding,2,24,c,2025-10-08,2025-11-15,2025,1.312578429,0,0,0,0,0,0,0,1,0,Review,Ramped,East.facing,"Tran
+(Months 4-6)",Platform
+M4,Buck'sLanding,2,48,a,2025-10-08,2025-11-15,2025,1.45533183,0,0,0,0,0,0,0,0,0,OK,Ramped,East.facing,"Tran
+(Months 4-6)",Upland
+M4,Buck'sLanding,2,48,b,2025-10-08,2025-11-15,2025,1.777364639,0,0,0,0,0,0,0,0,0,OK,Ramped,East.facing,"Tran
+(Months 4-6)",Upland
+M4,Buck'sLanding,2,48,c,2025-10-08,2025-11-15,2025,1.86989995,0,0,0,0,0,0,0,0,0,OK,Ramped,East.facing,"Tran
+(Months 4-6)",Upland
+M5,Buck'sLanding,1,0.5,a,2025-11-15,2025-12-12,2025,2.385854131,0,0,0,0,0,0,0,0,0,OK,Ramped,East.facing,"Tran
+(Months 4-6)",Edge
+M5,Buck'sLanding,1,0.5,b,2025-11-15,2025-12-12,2025,2.644286246,0,0,0,0,0,0,0,0,0,OK,Ramped,East.facing,"Tran
+(Months 4-6)",Edge
+M5,Buck'sLanding,1,0.5,c,2025-11-15,2025-12-12,2025,3.661422419,0,0,0,0,0,0,0,0,0,OK,Ramped,East.facing,"Tran
+(Months 4-6)",Edge
+M5,Buck'sLanding,1,2,a,2025-11-15,2025-12-12,2025,0.953270431,0,0,0,0,0,0,0,0,0,OK,Ramped,East.facing,"Tran
+(Months 4-6)",Edge
+M5,Buck'sLanding,1,2,b,2025-11-15,2025-12-12,2025,0.927130305,0,0,0,0,0,0,0,0,0,OK,Ramped,East.facing,"Tran
+(Months 4-6)",Edge
+M5,Buck'sLanding,1,2,c,2025-11-15,2025-12-12,2025,0.515292328,0,0,0,0,0,0,0,0,0,OK,Ramped,East.facing,"Tran
+(Months 4-6)",Edge
+M5,Buck'sLanding,1,6,a,2025-11-15,2025-12-12,2025,9.853604924,0,0,0,0,0,0,0,0,0,OK,Ramped,East.facing,"Tran
+(Months 4-6)",Edge
+M5,Buck'sLanding,1,6,b,2025-11-15,2025-12-12,2025,5.171669656,0,0,0,0,0,0,0,0,0,OK,Ramped,East.facing,"Tran
+(Months 4-6)",Edge
+M5,Buck'sLanding,1,6,c,2025-11-15,2025-12-12,2025,8.664432954,0,0,0,0,0,0,0,0,0,OK,Ramped,East.facing,"Tran
+(Months 4-6)",Edge
+M5,Buck'sLanding,1,12,a,2025-11-15,2025-12-12,2025,2.067049387,0,0,0,0,0,0,0,0,0,OK,Ramped,East.facing,"Tran
+(Months 4-6)",Platform
+M5,Buck'sLanding,1,12,b,2025-11-15,2025-12-12,2025,1.93140018,0,0,0,0,0,0,0,0,0,OK,Ramped,East.facing,"Tran
+(Months 4-6)",Platform
+M5,Buck'sLanding,1,12,c,2025-11-15,2025-12-12,2025,2.382069926,0,0,0,0,0,0,0,0,0,OK,Ramped,East.facing,"Tran
+(Months 4-6)",Platform
+M5,Buck'sLanding,1,18,a,2025-11-15,2025-12-12,2025,10.51456005,0,0,0,0,0,0,0,0,0,OK,Ramped,East.facing,"Tran
+(Months 4-6)",Platform
+M5,Buck'sLanding,1,18,b,2025-11-15,2025-12-12,2025,7.99986828,0,1,0,0,0,0,0,0,0,Review,Ramped,East.facing,"Tran
+(Months 4-6)",Platform
+M5,Buck'sLanding,1,18,c,2025-11-15,2025-12-12,2025,7.952245512,0,0,0,0,0,0,0,0,0,OK,Ramped,East.facing,"Tran
+(Months 4-6)",Platform
+M5,Buck'sLanding,1,24,a,2025-11-15,2025-12-12,2025,7.888205114,0,0,0,0,0,0,0,0,0,OK,Ramped,East.facing,"Tran
+(Months 4-6)",Platform
+M5,Buck'sLanding,1,24,b,2025-11-15,2025-12-12,2025,10.97087699,0,0,0,0,0,0,0,0,0,OK,Ramped,East.facing,"Tran
+(Months 4-6)",Platform
+M5,Buck'sLanding,1,24,c,2025-11-15,2025-12-12,2025,9.606583644,0,0,0,0,0,0,0,0,0,OK,Ramped,East.facing,"Tran
+(Months 4-6)",Platform
+M5,Buck'sLanding,1,48,a,2025-11-15,2025-12-12,2025,11.29125364,0,0,0,0,0,0,0,0,0,OK,Ramped,East.facing,"Tran
+(Months 4-6)",Upland
+M5,Buck'sLanding,1,48,b,2025-11-15,2025-12-12,2025,11.73848849,0,0,0,0,0,0,0,0,0,OK,Ramped,East.facing,"Tran
+(Months 4-6)",Upland
+M5,Buck'sLanding,1,48,c,2025-11-15,2025-12-12,2025,11.02344834,0,0,0,0,1,0,0,0,0,Review,Ramped,East.facing,"Tran
+(Months 4-6)",Upland
+M5,Buck'sLanding,2,0.5,a,2025-11-15,2025-12-12,2025,4.608929214,0,0,0,0,0,0,0,0,0,OK,Ramped,East.facing,"Tran
+(Months 4-6)",Edge
+M5,Buck'sLanding,2,0.5,b,2025-11-15,2025-12-12,2025,2.509859629,0,0,0,0,0,1,0,0,0,Review,Ramped,East.facing,"Tran
+(Months 4-6)",Edge
+M5,Buck'sLanding,2,0.5,c,2025-11-15,2025-12-12,2025,5.557658599,0,0,0,0,0,0,0,0,0,OK,Ramped,East.facing,"Tran
+(Months 4-6)",Edge
+M5,Buck'sLanding,2,2,a,2025-11-15,2025-12-12,2025,2.055231022,0,0,0,0,0,0,0,0,0,OK,Ramped,East.facing,"Tran
+(Months 4-6)",Edge
+M5,Buck'sLanding,2,2,b,2025-11-15,2025-12-12,2025,-0.100776299,0,0,0,0,0,0,0,0,1,Review,Ramped,East.facing,"Tran
+(Months 4-6)",Edge
+M5,Buck'sLanding,2,2,c,2025-11-15,2025-12-12,2025,1.125713757,0,0,0,0,0,0,0,0,0,OK,Ramped,East.facing,"Tran
+(Months 4-6)",Edge
+M5,Buck'sLanding,2,6,a,2025-11-15,2025-12-12,2025,15.60565524,0,0,0,0,0,0,0,0,0,OK,Ramped,East.facing,"Tran
+(Months 4-6)",Edge
+M5,Buck'sLanding,2,6,b,2025-11-15,2025-12-12,2025,11.99855072,0,0,0,0,0,0,0,0,0,OK,Ramped,East.facing,"Tran
+(Months 4-6)",Edge
+M5,Buck'sLanding,2,6,c,2025-11-15,2025-12-12,2025,7.94392026,0,0,0,0,0,0,0,0,0,OK,Ramped,East.facing,"Tran
+(Months 4-6)",Edge
+M5,Buck'sLanding,2,12,a,2025-11-15,2025-12-12,2025,12.11929598,0,0,0,0,0,0,0,0,0,OK,Ramped,East.facing,"Tran
+(Months 4-6)",Platform
+M5,Buck'sLanding,2,12,b,2025-11-15,2025-12-12,2025,16.3141167,0,0,0,0,0,0,0,0,0,OK,Ramped,East.facing,"Tran
+(Months 4-6)",Platform
+M5,Buck'sLanding,2,12,c,2025-11-15,2025-12-12,2025,10.92692199,1,0,0,0,0,0,0,0,0,Review,Ramped,East.facing,"Tran
+(Months 4-6)",Platform
+M5,Buck'sLanding,2,24,a,2025-11-15,2025-12-12,2025,13.28715996,0,0,0,0,0,0,0,0,0,OK,Ramped,East.facing,"Tran
+(Months 4-6)",Platform
+M5,Buck'sLanding,2,24,b,2025-11-15,2025-12-12,2025,15.10579083,0,0,0,0,0,0,0,0,0,OK,Ramped,East.facing,"Tran
+(Months 4-6)",Platform
+M5,Buck'sLanding,2,24,c,2025-11-15,2025-12-12,2025,14.13598633,0,0,0,0,0,0,0,0,0,OK,Ramped,East.facing,"Tran
+(Months 4-6)",Platform
+M5,Buck'sLanding,2,48,a,2025-11-15,2025-12-12,2025,12.31834518,0,0,0,0,0,0,0,0,0,OK,Ramped,East.facing,"Tran
+(Months 4-6)",Upland
+M5,Buck'sLanding,2,48,b,2025-11-15,2025-12-12,2025,12.27974629,0,0,0,0,0,0,0,0,0,OK,Ramped,East.facing,"Tran
+(Months 4-6)",Upland
+M5,Buck'sLanding,2,48,c,2025-11-15,2025-12-12,2025,11.38894435,0,0,0,0,0,0,0,0,0,OK,Ramped,East.facing,"Tran
+(Months 4-6)",Upland
+M5,Buck'sLanding,2,18,a,2025-11-15,2025-12-12,2025,16.01207889,0,0,0,0,0,0,0,0,0,OK,Ramped,East.facing,"Tran
+(Months 4-6)",Platform
+M5,Buck'sLanding,2,18,b,2025-11-15,2025-12-12,2025,16.316329,0,0,0,0,0,0,0,0,0,OK,Ramped,East.facing,"Tran
+(Months 4-6)",Platform
+M5,Buck'sLanding,2,18,c,2025-11-15,2025-12-12,2025,15.8469711,0,0,0,0,0,0,0,0,0,OK,Ramped,East.facing,"Tran
+(Months 4-6)",Platform
+M6,Buck'sLanding,1,0.5,a,2025-12-12,2026-01-22,2025,1.808874286,0,0,0,0,0,0,0,0,0,OK,Ramped,East.facing,"Tran
+(Months 4-6)",Edge
+M6,Buck'sLanding,1,0.5,b,2025-12-12,2026-01-22,2025,0.794998351,0,0,0,0,0,0,0,0,0,OK,Ramped,East.facing,"Tran
+(Months 4-6)",Edge
+M6,Buck'sLanding,1,0.5,c,2025-12-12,2026-01-22,2025,0.660504996,0,0,0,0,0,0,0,0,0,OK,Ramped,East.facing,"Tran
+(Months 4-6)",Edge
+M6,Buck'sLanding,1,2,a,2025-12-12,2026-01-22,2025,0.529768866,0,0,0,0,0,0,0,0,0,OK,Ramped,East.facing,"Tran
+(Months 4-6)",Edge
+M6,Buck'sLanding,1,2,b,2025-12-12,2026-01-22,2025,0.541155561,0,0,0,0,0,0,0,0,0,OK,Ramped,East.facing,"Tran
+(Months 4-6)",Edge
+M6,Buck'sLanding,1,2,c,2025-12-12,2026-01-22,2025,0.840966861,0,0,0,0,0,0,0,0,0,OK,Ramped,East.facing,"Tran
+(Months 4-6)",Edge
+M6,Buck'sLanding,1,6,a,2025-12-12,2026-01-22,2025,2.82796433,0,0,0,0,0,0,0,0,0,OK,Ramped,East.facing,"Tran
+(Months 4-6)",Edge
+M6,Buck'sLanding,1,6,b,2025-12-12,2026-01-22,2025,2.962035956,0,0,0,0,0,0,0,0,0,OK,Ramped,East.facing,"Tran
+(Months 4-6)",Edge
+M6,Buck'sLanding,1,6,c,2025-12-12,2026-01-22,2025,3.38119669,0,0,0,0,0,0,0,0,0,OK,Ramped,East.facing,"Tran
+(Months 4-6)",Edge
+M6,Buck'sLanding,1,12,a,2025-12-12,2026-01-22,2025,2.284546765,0,0,0,0,0,0,0,0,0,OK,Ramped,East.facing,"Tran
+(Months 4-6)",Platform
+M6,Buck'sLanding,1,12,b,2025-12-12,2026-01-22,2025,3.501159548,0,0,0,0,0,0,0,0,0,OK,Ramped,East.facing,"Tran
+(Months 4-6)",Platform
+M6,Buck'sLanding,1,12,c,2025-12-12,2026-01-22,2025,2.800091848,0,0,0,0,0,0,0,0,0,OK,Ramped,East.facing,"Tran
+(Months 4-6)",Platform
+M6,Buck'sLanding,1,18,a,2025-12-12,2026-01-22,2025,4.187620075,0,0,0,0,0,0,0,0,0,OK,Ramped,East.facing,"Tran
+(Months 4-6)",Platform
+M6,Buck'sLanding,1,18,b,2025-12-12,2026-01-22,2025,3.511932819,0,0,0,0,0,0,0,0,0,OK,Ramped,East.facing,"Tran
+(Months 4-6)",Platform
+M6,Buck'sLanding,1,18,c,2025-12-12,2026-01-22,2025,2.435640925,0,0,0,1,0,0,0,0,0,Review,Ramped,East.facing,"Tran
+(Months 4-6)",Platform
+M6,Buck'sLanding,1,24,a,2025-12-12,2026-01-22,2025,1.845296375,0,0,0,0,0,0,0,0,0,OK,Ramped,East.facing,"Tran
+(Months 4-6)",Platform
+M6,Buck'sLanding,1,24,b,2025-12-12,2026-01-22,2025,2.966151013,1,0,0,0,0,0,0,0,0,Review,Ramped,East.facing,"Tran
+(Months 4-6)",Platform
+M6,Buck'sLanding,1,24,c,2025-12-12,2026-01-22,2025,1.778816478,0,0,0,0,0,0,0,0,0,OK,Ramped,East.facing,"Tran
+(Months 4-6)",Platform
+M6,Buck'sLanding,1,48,a,2025-12-12,2026-01-22,2025,1.565076325,0,0,0,0,0,0,0,0,0,OK,Ramped,East.facing,"Tran
+(Months 4-6)",Upland
+M6,Buck'sLanding,1,48,b,2025-12-12,2026-01-22,2025,1.615492164,0,0,0,0,0,0,0,0,0,OK,Ramped,East.facing,"Tran
+(Months 4-6)",Upland
+M6,Buck'sLanding,1,48,c,2025-12-12,2026-01-22,2025,1.93339949,0,0,0,0,0,0,0,0,0,OK,Ramped,East.facing,"Tran
+(Months 4-6)",Upland
+M6,Buck'sLanding,2,0.5,a,2025-12-12,2026-01-22,2025,1.901539747,0,0,0,0,0,0,0,0,0,OK,Ramped,East.facing,"Tran
+(Months 4-6)",Edge
+M6,Buck'sLanding,2,0.5,b,2025-12-12,2026-01-22,2025,0.839126587,0,0,0,0,0,0,0,0,0,OK,Ramped,East.facing,"Tran
+(Months 4-6)",Edge
+M6,Buck'sLanding,2,0.5,c,2025-12-12,2026-01-22,2025,1.127819564,0,0,0,0,0,0,0,0,0,OK,Ramped,East.facing,"Tran
+(Months 4-6)",Edge
+M6,Buck'sLanding,2,2,a,2025-12-12,2026-01-22,2025,0.612197804,0,0,0,0,0,0,0,0,0,OK,Ramped,East.facing,"Tran
+(Months 4-6)",Edge
+M6,Buck'sLanding,2,2,b,2025-12-12,2026-01-22,2025,0.384578919,0,0,0,0,0,0,0,0,0,OK,Ramped,East.facing,"Tran
+(Months 4-6)",Edge
+M6,Buck'sLanding,2,2,c,2025-12-12,2026-01-22,2025,0.487825956,0,0,0,0,0,0,0,0,0,OK,Ramped,East.facing,"Tran
+(Months 4-6)",Edge
+M6,Buck'sLanding,2,6,a,2025-12-12,2026-01-22,2025,3.954978775,0,0,0,0,0,0,0,0,0,OK,Ramped,East.facing,"Tran
+(Months 4-6)",Edge
+M6,Buck'sLanding,2,6,b,2025-12-12,2026-01-22,2025,3.805111464,0,0,0,0,0,0,0,0,0,OK,Ramped,East.facing,"Tran
+(Months 4-6)",Edge
+M6,Buck'sLanding,2,6,c,2025-12-12,2026-01-22,2025,7.137924284,0,0,0,0,0,0,0,0,0,OK,Ramped,East.facing,"Tran
+(Months 4-6)",Edge
+M6,Buck'sLanding,2,12,a,2025-12-12,2026-01-22,2025,6.004315525,0,0,0,0,0,0,0,0,0,OK,Ramped,East.facing,"Tran
+(Months 4-6)",Platform
+M6,Buck'sLanding,2,12,b,2025-12-12,2026-01-22,2025,7.219049695,0,0,0,0,0,0,0,0,0,OK,Ramped,East.facing,"Tran
+(Months 4-6)",Platform
+M6,Buck'sLanding,2,12,c,2025-12-12,2026-01-22,2025,5.150773459,1,0,0,0,0,0,0,0,0,Review,Ramped,East.facing,"Tran
+(Months 4-6)",Platform
+M6,Buck'sLanding,2,18,a,2025-12-12,2026-01-22,2025,4.178955451,0,0,0,0,0,0,0,0,0,OK,Ramped,East.facing,"Tran
+(Months 4-6)",Platform
+M6,Buck'sLanding,2,18,b,2025-12-12,2026-01-22,2025,4.737325242,0,0,0,0,0,0,0,0,0,OK,Ramped,East.facing,"Tran
+(Months 4-6)",Platform
+M6,Buck'sLanding,2,18,c,2025-12-12,2026-01-22,2025,3.220862821,0,0,0,1,0,0,0,0,0,Review,Ramped,East.facing,"Tran
+(Months 4-6)",Platform
+M6,Buck'sLanding,2,24,a,2025-12-12,2026-01-22,2025,3.08138539,0,0,0,0,0,0,0,0,0,OK,Ramped,East.facing,"Tran
+(Months 4-6)",Platform
+M6,Buck'sLanding,2,24,b,2025-12-12,2026-01-22,2025,3.626681568,0,0,0,0,0,0,0,0,0,OK,Ramped,East.facing,"Tran
+(Months 4-6)",Platform
+M6,Buck'sLanding,2,24,c,2025-12-12,2026-01-22,2025,4.315059046,0,0,0,0,0,0,0,0,0,OK,Ramped,East.facing,"Tran
+(Months 4-6)",Platform
+M6,Buck'sLanding,2,48,a,2025-12-12,2026-01-22,2025,4.125204116,0,0,0,0,0,0,0,0,0,OK,Ramped,East.facing,"Tran
+(Months 4-6)",Upland
+M6,Buck'sLanding,2,48,b,2025-12-12,2026-01-22,2025,5.318890153,0,0,0,0,0,0,0,0,0,OK,Ramped,East.facing,"Tran
+(Months 4-6)",Upland
+M6,Buck'sLanding,2,48,c,2025-12-12,2026-01-22,2025,5.013136302,0,0,0,0,0,0,0,0,0,OK,Ramped,East.facing,"Tran
+(Months 4-6)",Upland
+M7,Buck'sLanding,1,0.5,a,2026-01-22,2026-02-21,2026,0.819536615,0,0,0,0,0,0,0,0,0,OK,Ramped,East.facing,"Wet
+(Months 7-9)",Edge
+M7,Buck'sLanding,1,0.5,b,2026-01-22,2026-02-21,2026,0.454174502,0,0,0,0,0,0,0,0,0,OK,Ramped,East.facing,"Wet
+(Months 7-9)",Edge
+M7,Buck'sLanding,1,0.5,c,2026-01-22,2026-02-21,2026,0.377884922,0,0,0,0,0,0,0,0,0,OK,Ramped,East.facing,"Wet
+(Months 7-9)",Edge
+M7,Buck'sLanding,1,2,a,2026-01-22,2026-02-21,2026,0.38076674,0,0,0,0,0,0,0,0,0,OK,Ramped,East.facing,"Wet
+(Months 7-9)",Edge
+M7,Buck'sLanding,1,2,b,2026-01-22,2026-02-21,2026,0.501436315,0,0,0,0,0,0,0,0,0,OK,Ramped,East.facing,"Wet
+(Months 7-9)",Edge
+M7,Buck'sLanding,1,2,c,2026-01-22,2026-02-21,2026,0.667952993,0,0,0,0,0,1,0,0,0,Review,Ramped,East.facing,"Wet
+(Months 7-9)",Edge
+M7,Buck'sLanding,1,6,a,2026-01-22,2026-02-21,2026,1.787879827,0,0,0,0,0,0,0,0,0,OK,Ramped,East.facing,"Wet
+(Months 7-9)",Edge
+M7,Buck'sLanding,1,6,b,2026-01-22,2026-02-21,2026,1.640907114,0,0,0,0,0,0,0,0,0,OK,Ramped,East.facing,"Wet
+(Months 7-9)",Edge
+M7,Buck'sLanding,1,6,c,2026-01-22,2026-02-21,2026,1.60171439,0,0,0,0,0,0,0,0,0,OK,Ramped,East.facing,"Wet
+(Months 7-9)",Edge
+M7,Buck'sLanding,1,12,a,2026-01-22,2026-02-21,2026,1.143819724,0,0,0,0,0,0,0,0,0,OK,Ramped,East.facing,"Wet
+(Months 7-9)",Platform
+M7,Buck'sLanding,1,12,b,2026-01-22,2026-02-21,2026,0.670939605,0,0,0,0,0,0,0,0,0,OK,Ramped,East.facing,"Wet
+(Months 7-9)",Platform
+M7,Buck'sLanding,1,12,c,2026-01-22,2026-02-21,2026,0.923858423,0,0,0,0,0,0,0,0,0,OK,Ramped,East.facing,"Wet
+(Months 7-9)",Platform
+M7,Buck'sLanding,1,18,a,2026-01-22,2026-02-21,2026,0.923858423,0,0,0,0,0,0,0,0,0,OK,Ramped,East.facing,"Wet
+(Months 7-9)",Platform
+M7,Buck'sLanding,1,18,b,2026-01-22,2026-02-21,2026,0.679847042,0,0,0,0,0,0,0,0,0,OK,Ramped,East.facing,"Wet
+(Months 7-9)",Platform
+M7,Buck'sLanding,1,18,c,2026-01-22,2026-02-21,2026,0.732924888,0,0,0,1,0,0,0,0,0,Review,Ramped,East.facing,"Wet
+(Months 7-9)",Platform
+M7,Buck'sLanding,1,24,a,2026-01-22,2026-02-21,2026,0.181292544,0,0,0,0,0,0,0,0,0,OK,Ramped,East.facing,"Wet
+(Months 7-9)",Platform
+M7,Buck'sLanding,1,24,b,2026-01-22,2026-02-21,2026,1.152989145,1,0,0,0,0,0,0,0,0,Review,Ramped,East.facing,"Wet
+(Months 7-9)",Platform
+M7,Buck'sLanding,1,24,c,2026-01-22,2026-02-21,2026,0.414981778,0,0,0,0,0,0,0,0,0,OK,Ramped,East.facing,"Wet
+(Months 7-9)",Platform
+M7,Buck'sLanding,1,48,a,2026-01-22,2026-02-21,2026,1.124799726,0,0,0,0,0,0,0,0,0,OK,Ramped,East.facing,"Wet
+(Months 7-9)",Upland
+M7,Buck'sLanding,1,48,b,2026-01-22,2026-02-21,2026,0.942826024,0,0,0,0,0,0,0,0,0,OK,Ramped,East.facing,"Wet
+(Months 7-9)",Upland
+M7,Buck'sLanding,1,48,c,2026-01-22,2026-02-21,2026,1.0151858520000001,0,0,0,0,0,0,0,0,0,OK,Ramped,East.facing,"Wet
+(Months 7-9)",Upland
+M7,Buck'sLanding,2,0.5,a,2026-01-22,2026-02-21,2026,2.023979308,0,0,0,0,0,0,0,0,0,OK,Ramped,East.facing,"Wet
+(Months 7-9)",Edge
+M7,Buck'sLanding,2,0.5,b,2026-01-22,2026-02-21,2026,1.66359488,0,0,0,0,0,0,0,0,0,OK,Ramped,East.facing,"Wet
+(Months 7-9)",Edge
+M7,Buck'sLanding,2,0.5,c,2026-01-22,2026-02-21,2026,4.838572259,0,0,0,0,0,0,0,0,0,OK,Ramped,East.facing,"Wet
+(Months 7-9)",Edge
+M7,Buck'sLanding,2,2,a,2026-01-22,2026-02-21,2026,0.777724057,0,0,0,0,0,0,0,0,0,OK,Ramped,East.facing,"Wet
+(Months 7-9)",Edge
+M7,Buck'sLanding,2,2,b,2026-01-22,2026-02-21,2026,0.143252548,0,0,0,0,0,0,0,0,0,OK,Ramped,East.facing,"Wet
+(Months 7-9)",Edge
+M7,Buck'sLanding,2,2,c,2026-01-22,2026-02-21,2026,0.268061462,0,0,0,0,0,0,0,0,0,OK,Ramped,East.facing,"Wet
+(Months 7-9)",Edge
+M7,Buck'sLanding,2,6,a,2026-01-22,2026-02-21,2026,2.366810845,0,0,0,0,0,0,0,0,0,OK,Ramped,East.facing,"Wet
+(Months 7-9)",Edge
+M7,Buck'sLanding,2,6,b,2026-01-22,2026-02-21,2026,1.36860152,0,0,0,0,0,0,0,0,0,OK,Ramped,East.facing,"Wet
+(Months 7-9)",Edge
+M7,Buck'sLanding,2,6,c,2026-01-22,2026-02-21,2026,2.079729386,0,0,0,0,0,0,0,0,0,OK,Ramped,East.facing,"Wet
+(Months 7-9)",Edge
+M7,Buck'sLanding,2,12,a,2026-01-22,2026-02-21,2026,1.238395748,0,0,0,0,0,0,0,0,0,OK,Ramped,East.facing,"Wet
+(Months 7-9)",Platform
+M7,Buck'sLanding,2,12,b,2026-01-22,2026-02-21,2026,1.004444531,0,0,0,0,0,0,0,0,0,OK,Ramped,East.facing,"Wet
+(Months 7-9)",Platform
+M7,Buck'sLanding,2,12,c,2026-01-22,2026-02-21,2026,1.713319338,0,0,0,0,0,0,0,0,0,OK,Ramped,East.facing,"Wet
+(Months 7-9)",Platform
+M7,Buck'sLanding,2,24,a,2026-01-22,2026-02-21,2026,0.950895115,0,0,0,0,0,0,0,0,0,OK,Ramped,East.facing,"Wet
+(Months 7-9)",Platform
+M7,Buck'sLanding,2,24,b,2026-01-22,2026-02-21,2026,0.712594972,0,0,0,0,0,0,0,0,0,OK,Ramped,East.facing,"Wet
+(Months 7-9)",Platform
+M7,Buck'sLanding,2,24,c,2026-01-22,2026-02-21,2026,1.0334199,0,0,0,0,0,0,0,0,0,OK,Ramped,East.facing,"Wet
+(Months 7-9)",Platform
+M7,Buck'sLanding,2,48,a,2026-01-22,2026-02-21,2026,0.790823229,0,0,0,0,0,0,0,0,0,OK,Ramped,East.facing,"Wet
+(Months 7-9)",Upland
+M7,Buck'sLanding,2,48,b,2026-01-22,2026-02-21,2026,0.907825036,0,0,0,0,0,0,0,0,0,OK,Ramped,East.facing,"Wet
+(Months 7-9)",Upland
+M7,Buck'sLanding,2,48,c,2026-01-22,2026-02-21,2026,0.93454734800000006,0,0,0,0,0,0,0,0,0,OK,Ramped,East.facing,"Wet
+(Months 7-9)",Upland
+M7,Buck'sLanding,2,18,a,2026-01-22,2026-02-21,2026,0.868055949,0,0,0,0,0,0,0,0,0,OK,Ramped,East.facing,"Wet
+(Months 7-9)",Platform
+M7,Buck'sLanding,2,18,b,2026-01-22,2026-02-21,2026,0.739107697,0,0,0,0,0,0,0,0,0,OK,Ramped,East.facing,"Wet
+(Months 7-9)",Platform
+M7,Buck'sLanding,2,18,c,2026-01-22,2026-02-21,2026,0.738636127,0,0,0,0,0,0,0,0,0,OK,Ramped,East.facing,"Wet
+(Months 7-9)",Platform
+M8,Buck'sLanding,1,0.5,a,2026-02-21,2026-03-20,2026,1.932040584,0,0,0,0,0,0,1,0,0,Review,Ramped,East.facing,"Wet
+(Months 7-9)",Edge
+M8,Buck'sLanding,1,0.5,b,2026-02-21,2026-03-20,2026,1.635300668,0,0,0,0,0,0,1,0,0,Review,Ramped,East.facing,"Wet
+(Months 7-9)",Edge
+M8,Buck'sLanding,1,0.5,c,2026-02-21,2026-03-20,2026,0.632020508,0,0,0,0,0,0,0,0,0,OK,Ramped,East.facing,"Wet
+(Months 7-9)",Edge
+M8,Buck'sLanding,1,2,a,2026-02-21,2026-03-20,2026,0.517329977,0,0,0,0,0,0,0,0,0,OK,Ramped,East.facing,"Wet
+(Months 7-9)",Edge
+M8,Buck'sLanding,1,2,b,2026-02-21,2026-03-20,2026,1.035940763,0,0,0,0,0,0,0,0,0,OK,Ramped,East.facing,"Wet
+(Months 7-9)",Edge
+M8,Buck'sLanding,1,2,c,2026-02-21,2026-03-20,2026,0.460159368,0,0,0,0,0,0,0,0,0,OK,Ramped,East.facing,"Wet
+(Months 7-9)",Edge
+M8,Buck'sLanding,1,6,a,2026-02-21,2026-03-20,2026,2.851369605,0,0,0,0,0,0,0,0,0,OK,Ramped,East.facing,"Wet
+(Months 7-9)",Edge
+M8,Buck'sLanding,1,6,b,2026-02-21,2026-03-20,2026,2.562372755,0,0,0,0,0,0,0,0,0,OK,Ramped,East.facing,"Wet
+(Months 7-9)",Edge
+M8,Buck'sLanding,1,6,c,2026-02-21,2026-03-20,2026,2.805726267,0,0,0,0,0,0,0,0,0,OK,Ramped,East.facing,"Wet
+(Months 7-9)",Edge
+M8,Buck'sLanding,1,12,a,2026-02-21,2026-03-20,2026,0.963051146,0,0,0,0,0,0,0,0,0,OK,Ramped,East.facing,"Wet
+(Months 7-9)",Platform
+M8,Buck'sLanding,1,12,b,2026-02-21,2026-03-20,2026,1.274578573,0,0,0,0,0,0,0,0,0,OK,Ramped,East.facing,"Wet
+(Months 7-9)",Platform
+M8,Buck'sLanding,1,12,c,2026-02-21,2026-03-20,2026,1.159713386,0,0,0,0,0,0,0,0,0,OK,Ramped,East.facing,"Wet
+(Months 7-9)",Platform
+M8,Buck'sLanding,1,18,a,2026-02-21,2026-03-20,2026,1.241743314,0,0,1,0,0,0,0,0,0,Review,Ramped,East.facing,"Wet
+(Months 7-9)",Platform
+M8,Buck'sLanding,1,18,b,2026-02-21,2026-03-20,2026,1.076984836,0,0,0,0,0,0,0,0,0,OK,Ramped,East.facing,"Wet
+(Months 7-9)",Platform
+M8,Buck'sLanding,1,18,c,2026-02-21,2026-03-20,2026,1.059519273,0,0,0,0,0,0,0,0,0,OK,Ramped,East.facing,"Wet
+(Months 7-9)",Platform
+M8,Buck'sLanding,1,24,a,2026-02-21,2026-03-20,2026,0.959208723,0,0,0,0,0,0,0,0,0,OK,Ramped,East.facing,"Wet
+(Months 7-9)",Platform
+M8,Buck'sLanding,1,24,b,2026-02-21,2026-03-20,2026,0.920027643,0,0,0,0,0,0,0,0,0,OK,Ramped,East.facing,"Wet
+(Months 7-9)",Platform
+M8,Buck'sLanding,1,24,c,2026-02-21,2026-03-20,2026,0.876247298,0,0,0,0,0,0,0,0,0,OK,Ramped,East.facing,"Wet
+(Months 7-9)",Platform
+M8,Buck'sLanding,1,48,a,2026-02-21,2026-03-20,2026,1.480206468,0,0,0,0,0,0,0,0,0,OK,Ramped,East.facing,"Wet
+(Months 7-9)",Upland
+M8,Buck'sLanding,1,48,b,2026-02-21,2026-03-20,2026,1.820901385,0,0,0,0,0,0,0,0,0,OK,Ramped,East.facing,"Wet
+(Months 7-9)",Upland
+M8,Buck'sLanding,1,48,c,2026-02-21,2026-03-20,2026,5.557833255,0,0,0,0,0,1,0,0,0,Review,Ramped,East.facing,"Wet
+(Months 7-9)",Upland
+M8,Buck'sLanding,2,0.5,a,2026-02-21,2026-03-20,2026,1.630468529,0,0,0,0,0,0,0,0,0,OK,Ramped,East.facing,"Wet
+(Months 7-9)",Edge
+M8,Buck'sLanding,2,0.5,b,2026-02-21,2026-03-20,2026,1.449641733,0,0,0,0,0,0,0,0,0,OK,Ramped,East.facing,"Wet
+(Months 7-9)",Edge
+M8,Buck'sLanding,2,0.5,c,2026-02-21,2026-03-20,2026,1.579003337,0,0,0,0,0,0,0,0,0,OK,Ramped,East.facing,"Wet
+(Months 7-9)",Edge
+M8,Buck'sLanding,2,2,a,2026-02-21,2026-03-20,2026,0.576072488,0,0,0,0,0,0,0,0,0,OK,Ramped,East.facing,"Wet
+(Months 7-9)",Edge
+M8,Buck'sLanding,2,2,b,2026-02-21,2026-03-20,2026,0.063050683,0,0,0,0,0,0,0,0,0,OK,Ramped,East.facing,"Wet
+(Months 7-9)",Edge
+M8,Buck'sLanding,2,2,c,2026-02-21,2026-03-20,2026,0.194799247,0,0,0,0,0,0,0,0,0,OK,Ramped,East.facing,"Wet
+(Months 7-9)",Edge
+M8,Buck'sLanding,2,6,a,2026-02-21,2026-03-20,2026,2.811489902,0,0,0,0,0,0,0,0,0,OK,Ramped,East.facing,"Wet
+(Months 7-9)",Edge
+M8,Buck'sLanding,2,6,b,2026-02-21,2026-03-20,2026,2.971299804,0,0,0,0,0,0,0,0,0,OK,Ramped,East.facing,"Wet
+(Months 7-9)",Edge
+M8,Buck'sLanding,2,6,c,2026-02-21,2026-03-20,2026,2.292296932,0,0,0,0,0,0,0,0,0,OK,Ramped,East.facing,"Wet
+(Months 7-9)",Edge
+M8,Buck'sLanding,2,12,a,2026-02-21,2026-03-20,2026,2.120377573,0,0,0,0,0,0,0,0,0,OK,Ramped,East.facing,"Wet
+(Months 7-9)",Platform
+M8,Buck'sLanding,2,12,b,2026-02-21,2026-03-20,2026,2.211897123,0,0,0,0,0,0,0,0,0,OK,Ramped,East.facing,"Wet
+(Months 7-9)",Platform
+M8,Buck'sLanding,2,12,c,2026-02-21,2026-03-20,2026,2.004697327,0,0,0,0,0,0,0,0,0,OK,Ramped,East.facing,"Wet
+(Months 7-9)",Platform
+M8,Buck'sLanding,2,18,a,2026-02-21,2026-03-20,2026,1.461227223,0,0,0,0,0,0,0,0,0,OK,Ramped,East.facing,"Wet
+(Months 7-9)",Platform
+M8,Buck'sLanding,2,18,b,2026-02-21,2026-03-20,2026,1.247972698,0,0,0,0,0,0,0,0,0,OK,Ramped,East.facing,"Wet
+(Months 7-9)",Platform
+M8,Buck'sLanding,2,18,c,2026-02-21,2026-03-20,2026,1.088861419,0,0,0,0,0,0,0,0,0,OK,Ramped,East.facing,"Wet
+(Months 7-9)",Platform
+M8,Buck'sLanding,2,24,a,2026-02-21,2026-03-20,2026,1.089676479,0,0,0,0,0,0,0,0,0,OK,Ramped,East.facing,"Wet
+(Months 7-9)",Platform
+M8,Buck'sLanding,2,24,b,2026-02-21,2026-03-20,2026,1.078382081,0,0,0,0,0,0,0,0,0,OK,Ramped,East.facing,"Wet
+(Months 7-9)",Platform
+M8,Buck'sLanding,2,24,c,2026-02-21,2026-03-20,2026,1.439861018,0,0,0,0,0,0,0,0,0,OK,Ramped,East.facing,"Wet
+(Months 7-9)",Platform
+M8,Buck'sLanding,2,48,a,2026-02-21,2026-03-20,2026,1.713138861,0,0,0,0,0,0,0,0,0,OK,Ramped,East.facing,"Wet
+(Months 7-9)",Upland
+M8,Buck'sLanding,2,48,b,2026-02-21,2026-03-20,2026,1.463497746,0,0,0,0,0,0,0,0,0,OK,Ramped,East.facing,"Wet
+(Months 7-9)",Upland
+M8,Buck'sLanding,2,48,c,2026-02-21,2026-03-20,2026,1.626160357,0,0,0,0,0,0,0,0,0,OK,Ramped,East.facing,"Wet
+(Months 7-9)",Upland
+M9,Buck'sLanding,1,0.5,a,2026-03-20,2026-04-19,2026,1.840119326,0,0,0,0,0,0,0,0,0,OK,Ramped,East.facing,"Wet
+(Months 7-9)",Edge
+M9,Buck'sLanding,1,0.5,b,2026-03-20,2026-04-19,2026,0.353468065,0,0,0,0,0,0,0,0,0,OK,Ramped,East.facing,"Wet
+(Months 7-9)",Edge
+M9,Buck'sLanding,1,0.5,c,2026-03-20,2026-04-19,2026,2.817474769,0,0,0,0,0,0,0,0,0,OK,Ramped,East.facing,"Wet
+(Months 7-9)",Edge
+M9,Buck'sLanding,1,2,a,2026-03-20,2026-04-19,2026,0.152893539,0,0,0,0,0,0,0,0,0,OK,Ramped,East.facing,"Wet
+(Months 7-9)",Edge
+M9,Buck'sLanding,1,2,b,2026-03-20,2026-04-19,2026,0.044327599,0,0,0,0,0,0,0,0,0,OK,Ramped,East.facing,"Wet
+(Months 7-9)",Edge
+M9,Buck'sLanding,1,2,c,2026-03-20,2026-04-19,2026,0.13277321,0,1,0,0,0,0,0,0,0,Review,Ramped,East.facing,"Wet
+(Months 7-9)",Edge
+M9,Buck'sLanding,1,6,a,2026-03-20,2026-04-19,2026,1.217594262,0,0,0,0,0,0,0,0,0,OK,Ramped,East.facing,"Wet
+(Months 7-9)",Edge
+M9,Buck'sLanding,1,6,b,2026-03-20,2026-04-19,2026,0.807852153,0,0,0,0,0,0,0,0,0,OK,Ramped,East.facing,"Wet
+(Months 7-9)",Edge
+M9,Buck'sLanding,1,6,c,2026-03-20,2026-04-19,2026,0.936590818,0,0,0,0,0,0,0,0,0,OK,Ramped,East.facing,"Wet
+(Months 7-9)",Edge
+M9,Buck'sLanding,1,12,a,2026-03-20,2026-04-19,2026,1.066482211,0,0,0,0,0,0,0,0,0,OK,Ramped,East.facing,"Wet
+(Months 7-9)",Platform
+M9,Buck'sLanding,1,12,b,2026-03-20,2026-04-19,2026,0.677279604,0,0,0,0,0,0,0,0,0,OK,Ramped,East.facing,"Wet
+(Months 7-9)",Platform
+M9,Buck'sLanding,1,12,c,2026-03-20,2026-04-19,2026,0.687601752,0,0,0,0,0,0,0,0,0,OK,Ramped,East.facing,"Wet
+(Months 7-9)",Platform
+M9,Buck'sLanding,1,18,a,2026-03-20,2026-04-19,2026,0.768554636,0,0,0,0,0,0,0,0,0,OK,Ramped,East.facing,"Wet
+(Months 7-9)",Platform
+M9,Buck'sLanding,1,18,b,2026-03-20,2026-04-19,2026,0.589724736,0,0,0,0,0,0,0,0,0,OK,Ramped,East.facing,"Wet
+(Months 7-9)",Platform
+M9,Buck'sLanding,1,18,c,2026-03-20,2026-04-19,2026,0.553361434,0,0,0,0,0,0,0,0,0,OK,Ramped,East.facing,"Wet
+(Months 7-9)",Platform
+M9,Buck'sLanding,1,24,a,2026-03-20,2026-04-19,2026,0.479220119,0,0,0,0,0,0,0,0,0,OK,Ramped,East.facing,"Wet
+(Months 7-9)",Platform
+M9,Buck'sLanding,1,24,b,2026-03-20,2026-04-19,2026,0.490066234,0,0,0,0,0,0,0,0,0,OK,Ramped,East.facing,"Wet
+(Months 7-9)",Platform
+M9,Buck'sLanding,1,24,c,2026-03-20,2026-04-19,2026,0.536384907,0,0,0,0,0,0,0,0,0,OK,Ramped,East.facing,"Wet
+(Months 7-9)",Platform
+M9,Buck'sLanding,1,48,a,2026-03-20,2026-04-19,2026,0.773899099,0,0,0,0,0,0,0,0,0,OK,Ramped,East.facing,"Wet
+(Months 7-9)",Upland
+M9,Buck'sLanding,1,48,b,2026-03-20,2026-04-19,2026,0.878587684,0,0,0,0,0,0,0,0,0,OK,Ramped,East.facing,"Wet
+(Months 7-9)",Upland
+M9,Buck'sLanding,1,48,c,2026-03-20,2026-04-19,2026,0.825405044,0,0,0,0,0,0,0,0,0,OK,Ramped,East.facing,"Wet
+(Months 7-9)",Upland
+M9,Buck'sLanding,2,0.5,a,2026-03-20,2026-04-19,2026,0.484826565,0,0,0,0,0,0,0,0,0,OK,Ramped,East.facing,"Wet
+(Months 7-9)",Edge
+M9,Buck'sLanding,2,0.5,b,2026-03-20,2026-04-19,2026,0.707669684,0,0,0,0,0,0,0,0,0,OK,Ramped,East.facing,"Wet
+(Months 7-9)",Edge
+M9,Buck'sLanding,2,0.5,c,2026-03-20,2026-04-19,2026,0.906515119,0,0,0,0,0,0,0,0,0,OK,Ramped,East.facing,"Wet
+(Months 7-9)",Edge
+M9,Buck'sLanding,2,2,a,2026-03-20,2026-04-19,2026,0.298189558,0,0,0,0,0,0,0,0,0,OK,Ramped,East.facing,"Wet
+(Months 7-9)",Edge
+M9,Buck'sLanding,2,2,b,2026-03-20,2026-04-19,2026,-0.012889586,0,0,0,0,0,0,0,0,1,Review,Ramped,East.facing,"Wet
+(Months 7-9)",Edge
+M9,Buck'sLanding,2,2,c,2026-03-20,2026-04-19,2026,0.25543386,0,0,0,0,0,0,0,0,0,OK,Ramped,East.facing,"Wet
+(Months 7-9)",Edge
+M9,Buck'sLanding,2,6,a,2026-03-20,2026-04-19,2026,1.3214445,0,0,0,0,0,0,0,0,0,OK,Ramped,East.facing,"Wet
+(Months 7-9)",Edge
+M9,Buck'sLanding,2,6,b,2026-03-20,2026-04-19,2026,1.47701027,0,0,0,0,0,0,0,0,0,OK,Ramped,East.facing,"Wet
+(Months 7-9)",Edge
+M9,Buck'sLanding,2,6,c,2026-03-20,2026-04-19,2026,1.229488311,0,0,0,0,0,0,0,0,0,OK,Ramped,East.facing,"Wet
+(Months 7-9)",Edge
+M9,Buck'sLanding,2,12,a,2026-03-20,2026-04-19,2026,1.074341714,0,0,0,0,0,0,0,0,0,OK,Ramped,East.facing,"Wet
+(Months 7-9)",Platform
+M9,Buck'sLanding,2,12,b,2026-03-20,2026-04-19,2026,0.982647508,0,0,0,0,0,0,0,0,0,OK,Ramped,East.facing,"Wet
+(Months 7-9)",Platform
+M9,Buck'sLanding,2,12,c,2026-03-20,2026-04-19,2026,1.014557092,0,0,0,0,0,0,0,0,0,OK,Ramped,East.facing,"Wet
+(Months 7-9)",Platform
+M9,Buck'sLanding,2,18,a,2026-03-20,2026-04-19,2026,0.712332989,0,0,0,0,0,0,0,0,0,OK,Ramped,East.facing,"Wet
+(Months 7-9)",Platform
+M9,Buck'sLanding,2,18,b,2026-03-20,2026-04-19,2026,0.702796792,0,0,0,0,0,0,0,0,0,OK,Ramped,East.facing,"Wet
+(Months 7-9)",Platform
+M9,Buck'sLanding,2,18,c,2026-03-20,2026-04-19,2026,0.770388521,0,0,0,0,0,0,0,0,0,OK,Ramped,East.facing,"Wet
+(Months 7-9)",Platform
+M9,Buck'sLanding,2,24,a,2026-03-20,2026-04-19,2026,0.621896303,0,0,0,0,0,0,0,0,0,OK,Ramped,East.facing,"Wet
+(Months 7-9)",Platform
+M9,Buck'sLanding,2,24,b,2026-03-20,2026-04-19,2026,0.649509359,0,0,0,0,0,0,0,0,0,OK,Ramped,East.facing,"Wet
+(Months 7-9)",Platform
+M9,Buck'sLanding,2,24,c,2026-03-20,2026-04-19,2026,0.838085043,0,0,0,0,0,0,0,0,0,OK,Ramped,East.facing,"Wet
+(Months 7-9)",Platform
+M9,Buck'sLanding,2,48,a,2026-03-20,2026-04-19,2026,0.844477439,0,0,0,0,0,0,0,0,0,OK,Ramped,East.facing,"Wet
+(Months 7-9)",Upland
+M9,Buck'sLanding,2,48,b,2026-03-20,2026-04-19,2026,0.881207518,0,0,0,0,0,0,0,0,0,OK,Ramped,East.facing,"Wet
+(Months 7-9)",Upland
+M9,Buck'sLanding,2,48,c,2026-03-20,2026-04-19,2026,0.824723887,0,0,0,0,0,0,0,0,0,OK,Ramped,East.facing,"Wet
+(Months 7-9)",Upland
+M10,Buck'sLanding,1,0.5,a,2026-04-19,2026-05-15,2026,-14.7912226,0,0,0,0,0,0,0,0,1,Review,Ramped,East.facing,"Growth
+(Months 10-12)",Edge
+M10,Buck'sLanding,1,0.5,b,2026-04-19,2026-05-15,2026,-16.8802786,0,0,0,0,0,0,0,0,1,Review,Ramped,East.facing,"Growth
+(Months 10-12)",Edge
+M10,Buck'sLanding,1,0.5,c,2026-04-19,2026-05-15,2026,-16.33337808,0,0,0,0,0,0,0,0,1,Review,Ramped,East.facing,"Growth
+(Months 10-12)",Edge
+M10,Buck'sLanding,1,2,a,2026-04-19,2026-05-15,2026,-15.83659701,1,0,0,0,0,0,0,0,1,Review,Ramped,East.facing,"Growth
+(Months 10-12)",Edge
+M10,Buck'sLanding,1,2,b,2026-04-19,2026-05-15,2026,-15.99983284,1,0,0,0,0,0,0,0,1,Review,Ramped,East.facing,"Growth
+(Months 10-12)",Edge
+M10,Buck'sLanding,1,2,c,2026-04-19,2026-05-15,2026,-15.83792708,1,0,0,0,0,0,0,0,1,Review,Ramped,East.facing,"Growth
+(Months 10-12)",Edge
+M10,Buck'sLanding,1,6,a,2026-04-19,2026-05-15,2026,-15.51266455,0,0,0,0,0,0,0,0,1,Review,Ramped,East.facing,"Growth
+(Months 10-12)",Edge
+M10,Buck'sLanding,1,6,b,2026-04-19,2026-05-15,2026,-15.97806807,0,0,0,0,0,0,0,0,1,Review,Ramped,East.facing,"Growth
+(Months 10-12)",Edge
+M10,Buck'sLanding,1,6,c,2026-04-19,2026-05-15,2026,-15.61907014,0,0,0,0,0,0,0,0,1,Review,Ramped,East.facing,"Growth
+(Months 10-12)",Edge
+M10,Buck'sLanding,1,12,a,2026-04-19,2026-05-15,2026,-15.83248588,0,0,0,0,0,0,0,0,1,Review,Ramped,East.facing,"Growth
+(Months 10-12)",Platform
+M10,Buck'sLanding,1,12,b,2026-04-19,2026-05-15,2026,-15.44797479,0,0,0,0,0,0,0,0,1,Review,Ramped,East.facing,"Growth
+(Months 10-12)",Platform
+M10,Buck'sLanding,1,12,c,2026-04-19,2026-05-15,2026,-15.19695435,0,0,0,0,0,0,0,0,1,Review,Ramped,East.facing,"Growth
+(Months 10-12)",Platform
+M10,Buck'sLanding,1,18,a,2026-04-19,2026-05-15,2026,-14.60065987,0,0,0,0,0,0,0,0,1,Review,Ramped,East.facing,"Growth
+(Months 10-12)",Platform
+M10,Buck'sLanding,1,18,b,2026-04-19,2026-05-15,2026,-15.40698446,0,0,0,0,0,0,0,0,1,Review,Ramped,East.facing,"Growth
+(Months 10-12)",Platform
+M10,Buck'sLanding,1,18,c,2026-04-19,2026-05-15,2026,-15.29828148,0,0,0,0,0,0,0,0,1,Review,Ramped,East.facing,"Growth
+(Months 10-12)",Platform
+M10,Buck'sLanding,1,24,a,2026-04-19,2026-05-15,2026,-15.2607977,0,0,0,0,0,0,0,0,1,Review,Ramped,East.facing,"Growth
+(Months 10-12)",Platform
+M10,Buck'sLanding,1,24,b,2026-04-19,2026-05-15,2026,-15.26648072,0,0,0,0,0,0,0,0,1,Review,Ramped,East.facing,"Growth
+(Months 10-12)",Platform
+M10,Buck'sLanding,1,24,c,2026-04-19,2026-05-15,2026,-15.17942161,0,0,0,0,0,0,0,0,1,Review,Ramped,East.facing,"Growth
+(Months 10-12)",Platform
+M10,Buck'sLanding,1,48,a,2026-04-19,2026-05-15,2026,-14.92289951,0,0,0,0,0,0,0,0,1,Review,Ramped,East.facing,"Growth
+(Months 10-12)",Upland
+M10,Buck'sLanding,1,48,b,2026-04-19,2026-05-15,2026,-14.53820705,0,0,0,0,0,0,0,0,1,Review,Ramped,East.facing,"Growth
+(Months 10-12)",Upland
+M10,Buck'sLanding,1,48,c,2026-04-19,2026-05-15,2026,-14.17431204,0,0,0,0,0,0,0,0,1,Review,Ramped,East.facing,"Growth
+(Months 10-12)",Upland
+M10,Buck'sLanding,2,0.5,a,2026-04-19,2026-05-15,2026,0.63565245,0,0,0,0,0,0,0,0,0,OK,Ramped,East.facing,"Growth
+(Months 10-12)",Edge
+M10,Buck'sLanding,2,0.5,b,2026-04-19,2026-05-15,2026,0.814607296,0,0,0,0,0,0,0,0,0,OK,Ramped,East.facing,"Growth
+(Months 10-12)",Edge
+M10,Buck'sLanding,2,0.5,c,2026-04-19,2026-05-15,2026,0.610562497,0,0,0,0,0,0,0,0,0,OK,Ramped,East.facing,"Growth
+(Months 10-12)",Edge
+M10,Buck'sLanding,2,2,a,2026-04-19,2026-05-15,2026,1.389439281,1,0,0,0,0,0,0,0,0,Review,Ramped,East.facing,"Growth
+(Months 10-12)",Edge
+M10,Buck'sLanding,2,2,b,2026-04-19,2026-05-15,2026,0.856444037,1,0,0,0,0,0,0,0,0,Review,Ramped,East.facing,"Growth
+(Months 10-12)",Edge
+M10,Buck'sLanding,2,2,c,2026-04-19,2026-05-15,2026,NA,1,1,0,0,0,0,0,0,0,Review,Ramped,East.facing,"Growth
+(Months 10-12)",Edge
+M10,Buck'sLanding,2,6,a,2026-04-19,2026-05-15,2026,1.432364261,0,0,0,0,0,0,0,0,0,OK,Ramped,East.facing,"Growth
+(Months 10-12)",Edge
+M10,Buck'sLanding,2,6,b,2026-04-19,2026-05-15,2026,1.914756395,0,0,0,0,0,0,0,0,0,OK,Ramped,East.facing,"Growth
+(Months 10-12)",Edge
+M10,Buck'sLanding,2,6,c,2026-04-19,2026-05-15,2026,NA,1,0,0,0,0,0,0,0,0,Review,Ramped,East.facing,"Growth
+(Months 10-12)",Edge
+M10,Buck'sLanding,2,12,a,2026-04-19,2026-05-15,2026,1.298148126,0,0,0,0,0,0,0,0,0,OK,Ramped,East.facing,"Growth
+(Months 10-12)",Platform
+M10,Buck'sLanding,2,12,b,2026-04-19,2026-05-15,2026,1.001421645,0,0,0,0,0,0,0,0,0,OK,Ramped,East.facing,"Growth
+(Months 10-12)",Platform
+M10,Buck'sLanding,2,12,c,2026-04-19,2026-05-15,2026,0.988483693,0,0,0,0,0,0,0,0,0,OK,Ramped,East.facing,"Growth
+(Months 10-12)",Platform
+M10,Buck'sLanding,2,18,a,2026-04-19,2026-05-15,2026,0.841692353,0,0,0,0,0,0,0,0,0,OK,Ramped,East.facing,"Growth
+(Months 10-12)",Platform
+M10,Buck'sLanding,2,18,b,2026-04-19,2026-05-15,2026,0.822345884,0,0,0,0,0,0,0,0,0,OK,Ramped,East.facing,"Growth
+(Months 10-12)",Platform
+M10,Buck'sLanding,2,18,c,2026-04-19,2026-05-15,2026,0.990297425,0,0,0,0,0,0,0,0,0,OK,Ramped,East.facing,"Growth
+(Months 10-12)",Platform
+M10,Buck'sLanding,2,24,a,2026-04-19,2026-05-15,2026,0.736919128,0,0,0,0,0,0,0,0,0,OK,Ramped,East.facing,"Growth
+(Months 10-12)",Platform
+M10,Buck'sLanding,2,24,b,2026-04-19,2026-05-15,2026,0.901605952,0,0,0,0,0,0,0,0,0,OK,Ramped,East.facing,"Growth
+(Months 10-12)",Platform
+M10,Buck'sLanding,2,24,c,2026-04-19,2026-05-15,2026,0.834135139,0,0,0,0,0,0,0,0,0,OK,Ramped,East.facing,"Growth
+(Months 10-12)",Platform
+M10,Buck'sLanding,2,48,a,2026-04-19,2026-05-15,2026,0.997552351,0,0,0,0,0,0,0,0,0,OK,Ramped,East.facing,"Growth
+(Months 10-12)",Upland
+M10,Buck'sLanding,2,48,b,2026-04-19,2026-05-15,2026,0.941447589,0,0,0,0,0,0,0,0,0,OK,Ramped,East.facing,"Growth
+(Months 10-12)",Upland
+M10,Buck'sLanding,2,48,c,2026-04-19,2026-05-15,2026,0.776760764,0,0,0,0,0,0,0,0,0,OK,Ramped,East.facing,"Growth
+(Months 10-12)",Upland

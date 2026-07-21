@@ -114,10 +114,12 @@ cm_data <- cm_data %>%
     Study.Phase = factor(
       Study.Phase,
       levels = str_sort(unique(Study.Phase), numeric = TRUE)
-    )
+    ),
+    Tran = factor(Tran)
   )
 
-cm_data$Dist <- as.numeric(levels(cm_data$Dist))[cm_data$Dist]
+
+cm_data$Dist <- as.numeric(as.character(cm_data$Dist))
   
 cm_data$Date.removed.from.field <- as.Date(cm_data$Date.removed.from.field, format = "%Y-%m-%d")
 
@@ -167,6 +169,8 @@ ggplot(
     y = expression(Mean~Flux~(g/m^2)),
     caption = "Error bars represent ± 1 standard error of the mean"
   )
+
+readr::write_csv(cm_data, "C:\\Users\\savan\\OneDrive - San Francisco State University\\ProjectData\\GitHub\\DepositionSFB\\data\\master_thesis_c.csv")
 
 ```
 
@@ -1219,19 +1223,19 @@ join_keys <- c(
 
 # Add elevation to the original wide sediment dataset.
 # Only z_star is brought over, preventing unwanted .x/.y columns.
-cm_z_flux <- cm_data |>
-  left_join(
-    cm_elev |>
-      select(
-        Site,
-        Tran,
-        Dist,
-        Replicate,
-        z_star
-      ),
-    by = join_keys,
-    relationship = "many-to-one"
-  )
+#cm_z_flux <- cm_data |>
+  #left_join(
+    #cm_elev |>
+      #select(
+     #   Site,
+      #  Tran,
+      #  Dist,
+    #    Replicate,
+    #    z_star
+   #   ),
+ #   by = join_keys,
+  #  relationship = "many-to-one"
+#  )
 
 
 # Original QC flag columns
@@ -1266,25 +1270,28 @@ flag_labels <- c(
 # Laboratory and processing issues use artificial warm,
 # magenta, and neutral colors.
 flag_colors <- c(
-  # Field issues
-  "Filter Issues"                   = "#66A61E",
-  "Rubber Band Issues"              = "#B2DF8A",
-  "Flood/Ponding"                   = "#2C7FB8",
-  "Biological Matter"               = "#238B45",
-  "Recorded Drop in Field/Lab"      = "#1F9E89",
-  "Position Changed"                = "#41B6C4",
+  # Likely Degrading the Mass
+  "Filter Issues"                   = "#1B4F72",
+  "Flood/Ponding"                   = "#2E86AB",
+  "Recorded Drop in Field/Lab"      = "#5DADE2",
+  "Negative Flux Values Calculated" = "#48C9B0", 
 
-  # Laboratory and data-processing issues
-  "Open Ziploc Bag Observed"        = "#CC79A7",
-  "Multiple Drying Times Needed"    = "#E69F00",
-  "Negative Flux Values Calculated" = "#4D4D4D"
-)
+  # Likely inflating the mass
+  "Rubber Band Issues"              = "#7B241c",
+  "Biological Matter"               = "#C0392B",
+  "Open Ziploc Bag Observed"        = "#E67E22",
+  "Multiple Drying Times Needed"    = "#CB4335",
+  
+
+ # Likely neutral
+ "Position Changed"                = "#7F8C8D"
+  ) 
 
 flag_levels <- names(flag_colors)
 
 
 # Convert the wide flag columns to long format
-cm_z_flux_long <- cm_z_flux |>
+cm_z_flux_long <- cm_elev |>
   pivot_longer(
     cols = all_of(flag_cols),
     names_to = "Flag_Code",
@@ -1368,6 +1375,8 @@ flag_props_day <- flagged_cm |>
     prop = n / sum(n)
   ) |>
   ungroup()
+
+
 ```
 
 
@@ -1752,7 +1761,7 @@ cm_flag_proportions
 # This section uses the original wide cm_z_flux dataset.
 #############################################################
 
-flag_matrix <- cm_z_flux |>
+flag_matrix <- cm_elev |>
   select(
     all_of(flag_cols)
   ) |>
@@ -1834,42 +1843,42 @@ cm_flag_cooccurrence
 #############################################################
 
 # Install once if needed:
-# install.packages("ggupset")
+ install.packages("ggupset")
 
-# library(ggupset)
+ library(ggupset)
 
-# upset_data <- cm_z_flux |>
-#   mutate(
-#     flags_present = pmap(
-#       select(., all_of(flag_cols)),
-#       function(...) {
-#         values <- c(...)
-#         active_codes <- flag_cols[
-#           replace_na(values, 0) == 1
-#         ]
-#
-#         unname(flag_labels[active_codes])
-#       }
-#     )
-#   ) |>
-#   filter(lengths(flags_present) > 0)
-#
-# cm_flag_upset <- ggplot(
-#   upset_data,
-#   aes(x = flags_present)
-# ) +
-#   geom_bar(fill = "#7570B3") +
-#   scale_x_upset(
-#     order_by = "freq"
-#   ) +
-#   flag_theme +
-#   labs(
-#     title = "QC Flag Co-occurrence",
-#     x = NULL,
-#     y = "Number of Observations"
-#   )
-#
-# cm_flag_upset
+ upset_data <- cm_elev|>
+   mutate(
+     flags_present = pmap(
+      pick(all_of(flag_cols)),
+      function(...) {
+         values <- c(...)
+         active_codes <- flag_cols[
+          replace_na(values, 0) == 1
+         ]
+
+        unname(flag_labels[active_codes])
+       }
+     )
+   ) |>
+   filter(lengths(flags_present) > 0)
+
+ cm_flag_upset <- ggplot(
+   upset_data,
+   aes(x = flags_present)
+ ) +
+   geom_bar(fill = "#7570B3") +
+   scale_x_upset(
+     order_by = "freq"
+   ) +
+   flag_theme +
+   labs(
+     title = "QC Flag Co-occurrence",
+     x = NULL,
+     y = "Number of Observations"
+   )
+
+ cm_flag_upset
 
 ```
 
@@ -1878,7 +1887,7 @@ cm_flag_cooccurrence
 
 # Determine the complete observed flux range
 flux_range <- range(
-  cm_z_flux$Flux,
+  cm_elev$Flux,
   na.rm = TRUE
 )
 
@@ -1925,7 +1934,7 @@ flux_flags_distance <- ggplot() +
 
   # Complete dataset shown underneath
   geom_point(
-    data = cm_z_flux,
+    data = cm_elev,
     aes(
       x = Dist_numeric,
       y = Flux

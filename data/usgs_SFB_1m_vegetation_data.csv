@@ -1,4 +1,4 @@
-﻿Site,Plot ID,Month ,Season,Year,Species,Avg Ht,Max Ht,Cover
+﻿Site,Plot ID,Month ,Season,Year,Species,AvgHt,MaxHt,Cover
 San Pablo,A0.5,AUGUST,Summer ,2022,SPFO,75,100,1
 San Pablo,A2,AUGUST,Summer ,2022,SPFO,81,100,5
 San Pablo,A6,AUGUST,Summer ,2022,SPFO,80,99,10

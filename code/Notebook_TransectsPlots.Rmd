@@ -1,5 +1,5 @@
 ---
-title: "Transects PLot Notebook"
+title: "Final Transects Notebook"
 output:
   html_document:
     df_print: paged
@@ -18,10 +18,10 @@ library(tinytex)
 
 # Load the dataset
 #Make sure to use double \\ to avoid errors
-rtk_data <- read_csv("C:\\Users\\erika\\Documents\\NERR_Local\\SAVANAHS THESIS\\Erika_Savannah_Local\\Cleaned_CSVs\\SanPablo.csv")
+rtk_final <- read_csv("C:\\Users\\savan\\OneDrive - San Francisco State University\\ProjectData\\GitHub\\DepositionSFB\\data\\Topo Surveys\\GIS_CSV_files\\san-pablo-final.csv")
 
 #Render the table to visualize everything is ok
-reactable(rtk_data, 
+reactable(rtk_final, 
           defaultPageSize = 5, 
           striped = TRUE, 
           highlight = TRUE, 
@@ -35,7 +35,7 @@ reactable(rtk_data,
 
 ```{r}
 #Finding the starting points of each transect
-starting_points <- rtk_data %>%
+starting_points <- rtk_final %>%
   filter(grepl("-0.5a$", Point_ID)) %>% 
   select(Transect_ID, Start_Easting = Easting, Start_Northing = Northing) %>%
   group_by(Transect_ID) %>%

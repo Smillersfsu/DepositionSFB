@@ -36,7 +36,7 @@ plot_data_all_a <- rtk_data %>%
 
 # 2. Create the Cross-Site Comparison Plot
 cross_site_plot_z <- ggplot(plot_data_all_a, aes(x = Distance_AlongTransect_m, y = z_star, color = Transect_ID)) +
-  geom_point(aes(shape = Location), size = 3, alpha = 0.8) + 
+  geom_point(aes(shape = Site), size = 3, alpha = 0.8) + 
   geom_line(aes(group = Transect_ID), linewidth = 1, alpha = 0.5) + 
   
   # Set up labels
@@ -46,7 +46,7 @@ cross_site_plot_z <- ggplot(plot_data_all_a, aes(x = Distance_AlongTransect_m, y
     x = "Distance Along Transect (m)",
     y = "z*",
     color = "Transect",
-    shape = "Location"
+    shape = "Site"
   ) +
   theme_minimal() +
   scale_color_brewer(palette = "Paired") + 
@@ -58,8 +58,6 @@ cross_site_plot_z <- ggplot(plot_data_all_a, aes(x = Distance_AlongTransect_m, y
     plot.title = element_text(size = 16, face = "bold")
   )
 
-# 3. Display the plot
-print(cross_site_plot_z)
 
 # 4. Save the plot to your main Plots folder
 overall_plots_folder <- "C:\\Users\\savan\\OneDrive - San Francisco State University\\ProjectData\\GitHub\\DepositionSFB\\images"
@@ -70,7 +68,7 @@ if (!dir.exists(overall_plots_folder)) dir.create(overall_plots_folder, recursiv
 # Save the high-res image
 ggsave(("C:\\Users\\savan\\OneDrive - San Francisco State University\\ProjectData\\GitHub\\DepositionSFB\\images\\All_Sites_Track_A_Comparison_z.png"),
   plot = cross_site_plot_z,
-  width = 10,  # Keeping it wide to comfortably fit the legend
+ width = 10,  # Keeping it wide to comfortably fit the legend
   height = 6,
   dpi = 300,
   bg = "white"
@@ -87,7 +85,7 @@ plot_data_all_b <- rtk_data %>%
 
 # 2. Create the Cross-Site Comparison Plot for track 'b'
 cross_site_plot_b_z <- ggplot(plot_data_all_b, aes(x = Distance_AlongTransect_m, y = z_star, color = Transect_ID)) +
-  geom_point(aes(shape = Location), size = 3, alpha = 0.8) + 
+  geom_point(aes(shape = Site), size = 3, alpha = 0.8) + 
   geom_line(aes(group = Transect_ID), linewidth = 1, alpha = 0.5) + 
   
   # Set up labels
@@ -97,7 +95,7 @@ cross_site_plot_b_z <- ggplot(plot_data_all_b, aes(x = Distance_AlongTransect_m,
     x = "Distance Along Transect (m)",
     y = "z*",
     color = "Transect",
-    shape = "Location"
+    shape = "Site"
   ) +
   theme_minimal() +
   
@@ -112,7 +110,7 @@ cross_site_plot_b_z <- ggplot(plot_data_all_b, aes(x = Distance_AlongTransect_m,
   )
 
 # 3. Display the plot
-print(cross_site_plot_b_z)
+#print(cross_site_plot_b_z)
 
 # 4. Save the plot to your main Plots folder
 overall_plots_folder <- "C:\\Users\\savan\\OneDrive - San Francisco State University\\ProjectData\\GitHub\\DepositionSFB\\images"
@@ -136,7 +134,7 @@ plot_data_all_c <- rtk_data %>%
 
 # 2. Create the Cross-Site Comparison Plot for track 'c'
 cross_site_plot_c_z <- ggplot(plot_data_all_c, aes(x = Distance_AlongTransect_m, y = z_star, color = Transect_ID)) +
-  geom_point(aes(shape = Location), size = 3, alpha = 0.8) + 
+  geom_point(aes(shape = Site), size = 3, alpha = 0.8) + 
   geom_line(aes(group = Transect_ID), linewidth = 1, alpha = 0.5) + 
   
   # Set up labels
@@ -146,7 +144,7 @@ cross_site_plot_c_z <- ggplot(plot_data_all_c, aes(x = Distance_AlongTransect_m,
     x = "Distance Along Transect (m)",
     y = "z*",
     color = "Transect",
-    shape = "Location"
+    shape = "Site"
   ) +
   theme_minimal() +
   
@@ -183,10 +181,10 @@ plot_data_a <- rtk_data %>%
 
 # 2. Split into Ramped and Scarped datasets
 data_ramped <- plot_data_a %>%
-  filter(Location %in% c("SanPablo", "BucksLanding"))
+  filter(Site %in% c("SanPablo", "BucksLanding"))
 
 data_scarped <- plot_data_a %>%
-  filter(Location %in% c("CorteMadera", "GiantMarsh"))
+  filter(Site %in% c("CorteMadera", "GiantMarsh"))
 
 # 3. Create the Ramped Plot
 plot_ramped_z <- ggplot(data_ramped, aes(x = Dist, y = z_star, color = Tran)) +
@@ -197,11 +195,11 @@ plot_ramped_z <- ggplot(data_ramped, aes(x = Dist, y = z_star, color = Tran)) +
     x = "Distance Along Transect (m)",
     y = "z*",
     color = "Transect",
-    shape = "Location"
+    shape = "Site"
   ) +
   theme_minimal() +
   scale_color_brewer(palette = "Paired") +
-  # --- NEW: Added guides to force Location on top (order = 1) ---
+  # --- NEW: Added guides to force Site on top (order = 1) ---
   guides(
     shape = guide_legend(order = 1),
     color = guide_legend(order = 2)
@@ -222,11 +220,11 @@ plot_scarped_z <- ggplot(data_scarped, aes(x = Dist, y = z_star, color = Tran)) 
     x = "Distance Along Transect (m)",
     y = "z*",
     color = "Transect",
-    shape = "Location"
+    shape = "Site"
   ) +
   theme_minimal() +
   scale_color_brewer(palette = "Dark2") +
-  # --- NEW: Added guides to force Location on top (order = 1) ---
+  # --- NEW: Added guides to force Site on top (order = 1) ---
   guides(
     shape = guide_legend(order = 1),
     color = guide_legend(order = 2)

@@ -123,26 +123,14 @@ sum(is.na(master_thesis$Date.placed.in.field))
 
 ```{r, site B}
 
-# Filter to just San Pablo first
-s_data <- master_thesis %>%
+# Filter to just San Pablo with elev/flux within it 
+
+s_elev <- elev_z_flux %>%
   filter(Site == "SanPablo")
 
-s_data <- s_data %>%
-  mutate(
-    Study.Phase = factor(
-      Study.Phase,
-      levels = str_sort(unique(Study.Phase), numeric = TRUE)
-    ),
-    Tran = factor(Tran)
-  )
-
-
-s_data$Dist <- as.numeric(as.character(s_data$Dist))
-  
-s_data$Date.removed.from.field <- as.Date(s_data$Date.removed.from.field, format = "%Y-%m-%d")
 
 # Summarize by Transect and Date.removed.from.field instead of by Site
-s_summary <- s_data %>%
+s_summary <- s_elev %>%
   group_by(
     Tran,
     Date.removed.from.field
@@ -188,7 +176,8 @@ ggplot(
     caption = "Error bars represent ± 1 standard error of the mean"
   )
 
-readr::write_csv(s_data, "C:\\Users\\savan\\OneDrive - San Francisco State University\\ProjectData\\GitHub\\DepositionSFB\\data\\master_thesis_s.csv")
+
+readr::write_csv(s_elev, "C:\\Users\\savan\\OneDrive - San Francisco State University\\ProjectData\\GitHub\\DepositionSFB\\data\\master_thesis_s.csv")
 ```
 
 
@@ -217,7 +206,7 @@ flux_theme <- theme_minimal(base_size = 14) +
 # basic
 
 basic_flux_s <- ggplot(
-  s_data,
+  s_elev,
   aes(x = Flux)
 ) +
   geom_histogram(
@@ -246,7 +235,7 @@ ggsave(("C:\\Users\\savan\\OneDrive - San Francisco State University\\ProjectDat
 
 # flux through time 
 
-removal_summary_s <- s_data %>%
+removal_summary_s <- s_elev %>%
   group_by(Tran, Date.removed.from.field) %>%
   summarise(
     n_flux = sum(!is.na(Flux)),
@@ -282,7 +271,7 @@ meanflux_time_s <- ggplot(
     position = position_dodge(width = 3)
   ) +
   scale_x_date(
-    breaks = sort(unique(removal_summary$Date.removed.from.field)),
+    breaks = sort(unique(removal_summary_s$Date.removed.from.field)),
     date_labels = "%b %d\n%Y",
     expand = expansion(mult = c(0.03, 0.03))
   ) +
@@ -317,7 +306,7 @@ ggsave(("C:\\Users\\savan\\OneDrive - San Francisco State University\\ProjectDat
 
 # flux by Phen_Period 
 
-hydro_summary_s <- s_data %>%
+hydro_summary_s <- s_elev %>%
   group_by(Tran, Phen_Period) %>%
   summarise(
     n_flux = sum(!is.na(Flux)),
@@ -388,7 +377,7 @@ meanflux_time_s2 <- ggplot(
   geom_point(size = 3) +
   facet_wrap(~ Tran) +
   scale_x_date(
-    breaks = sort(unique(removal_summary$Date.removed.from.field)),
+    breaks = sort(unique(removal_summary_s$Date.removed.from.field)),
     date_labels = "%b %d\n%Y",
     expand = expansion(mult = c(0.03, 0.03))
   ) +
@@ -424,7 +413,7 @@ ggsave(("C:\\Users\\savan\\OneDrive - San Francisco State University\\ProjectDat
 
 # flux by distance 
 
-dist_summary_s <- s_data %>%
+dist_summary_s <- s_elev %>%
   group_by(Tran, Dist) %>%
   summarise(
     n_flux = sum(!is.na(Flux)),
@@ -485,10 +474,6 @@ ggsave(("C:\\Users\\savan\\OneDrive - San Francisco State University\\ProjectDat
 
 # flux by z_star
 
-s_elev <- elev_z_flux %>%
-  filter(Site == "SanPablo")
-
-readr::write_csv(s_elev, "C:\\Users\\savan\\OneDrive - San Francisco State University\\ProjectData\\GitHub\\DepositionSFB\\data\\master_thesis_s_elev.csv")
 
 z_summary_s <- s_elev %>%
   group_by(Tran, z_star) %>%
@@ -607,7 +592,7 @@ ggsave(("C:\\Users\\savan\\OneDrive - San Francisco State University\\ProjectDat
 
 # flux by distance and hydro
 
-dist_hydro_summary_s <- s_data %>%
+dist_hydro_summary_s <- s_elev %>%
   group_by(Tran, Dist, Phen_Period) %>%
   summarise(
     n_flux = sum(!is.na(Flux)),
@@ -669,7 +654,7 @@ ggsave(("C:\\Users\\savan\\OneDrive - San Francisco State University\\ProjectDat
 
 # flux through time by distance 
 
-time_dist_summary_s <- s_data %>%
+time_dist_summary_s <- s_elev %>%
   group_by(Tran, Dist, Date.removed.from.field) %>%
   summarise(
     mean_flux = mean(Flux, na.rm = TRUE),
@@ -792,7 +777,7 @@ ggsave(("C:\\Users\\savan\\OneDrive - San Francisco State University\\ProjectDat
 
 # flux through time by transect 
 
-tran_summary_s <- s_data %>%
+tran_summary_s <- s_elev %>%
   group_by(Tran, Date.removed.from.field) %>%
   summarise(
     mean_flux = mean(Flux, na.rm = TRUE),
@@ -842,7 +827,7 @@ ggsave(("C:\\Users\\savan\\OneDrive - San Francisco State University\\ProjectDat
 # raw flux and distance 
 
 rawflux_dist_s = ggplot(
-  s_data,
+  s_elev,
   aes(
     x = as.numeric(as.character(Dist)),
     y = Flux
@@ -966,7 +951,7 @@ ggsave(("C:\\Users\\savan\\OneDrive - San Francisco State University\\ProjectDat
 
 # flux through time by transect 
 
-tran_summary_s <- s_data %>%
+tran_summary_s <- s_elev %>%
   group_by(Tran, Study.Phase) %>%
   summarise(
     mean_flux = mean(Flux, na.rm = TRUE),
@@ -1004,7 +989,7 @@ ggplot(
 # raw flux and distance 
 
 s_flux_distance = ggplot(
-s_data,
+s_elev,
   aes(
     x = as.numeric(as.character(Dist)),
     y = Flux
@@ -1094,100 +1079,22 @@ ggsave(("C:\\Users\\savan\\OneDrive - San Francisco State University\\ProjectDat
 
 
 ```{r}
-flag_cols <- c("Filter_Num", "RB_Num", "Flood_Obsv", "Bio_Obsv", "Drop_Obsv", "OpenBag_Obsv", "Position_Obsv", "DryTime_Obsv", "NegValue_Num")
-
-long_s <- s_elev %>% 
-  pivot_longer(
-    cols = all_of(flag_cols), 
-    names_to = "Flag_Type", 
-    values_to = "Flag_Value"
-  )
-
-#making a flag database
-
-flagged_s <- long_s %>%
-  filter(Flag_Value == 1) %>%
-  mutate(Flag_Type = factor(Flag_Type, levels = flag_cols))
-
-# consistent color palette across all plots 
-
-flag_colors <-setNames(
-  scales::hue_pal()(length(flag_cols)), 
-  flag_cols
-)
-
-#plot the flags 
-
-flag_summary_s <- flagged_s %>%
-  group_by(Dist, Flag_Type) %>%
-  summarise(n = n(), .groups = "drop")
-
-flag_summary_s_time <- flagged_s %>%
-  group_by(Date.removed.from.field, Flag_Type) %>%
-  summarise(n = n(), .groups = "drop")
-
-s_total_flags <- ggplot(flag_summary_s, aes(x = Dist, y = n, fill = Flag_Type)) +
-  geom_col(position = "dodge") + 
-  scale_fill_manual(values = flag_colors) +
-  theme_minimal() + 
-  labs(
-    title = "Flag Occurrences by Distance", 
-    x = "Distance from Marsh Edge (m)", 
-    y = "Count", 
-    fill = "Flage Type"
-  )
-
-s_total_flags
-
-s_total_flags_time <- ggplot(flag_summary_s_time, aes(x = Date.removed.from.field, y = n, fill = Flag_Type)) +
-  geom_col(position = "dodge") + 
-  scale_fill_manual(values = flag_colors) +
-  theme_minimal() + 
-  labs(
-    title = "Flag Occurrences by Time", 
-    x = "Study.Phase", 
-    y = "Count", 
-    fill = "Flag Type"
-  )
-
-s_total_flags_time
-```
-
-
-```{r}
 #############################################################
-# PREPARE ELEVATION AND QC FLAG DATA
+# INITIAL LOOK: BUILD long_s AND A QUICK SANITY-CHECK PLOT
+#
+# This chunk must run FIRST -- it creates long_s via
+# pivot_longer(), which the data-prep chunk
+# (prepare_elevation_qc_fixed.R) then recodes and filters.
+# The flag_colors / flagged_s / plots built here are a
+# throwaway first look and get fully overwritten once the
+# later chunks run.
 #############################################################
 
-library(tidyverse)
-library(lubridate)
-
-# Variables identifying one sediment observation
-join_keys <- c(
-  "Site",
-  "Tran",
-  "Dist",
-  "Replicate"
+master_thesis_s <- readr::write_csv(
+  sed_thesis,
+  "C:\\Users\\savan\\OneDrive - San Francisco State University\\ProjectData\\GitHub\\DepositionSFB\\data\\master_thesis_s.csv"
 )
 
-# Add elevation to the original wide sediment dataset.
-# Only z_star is brought over, preventing unwanted .x/.y columns.
-#cm_z_flux <- cm_data |>
-  #left_join(
-    #cm_elev |>
-      #select(
-     #   Site,
-      #  Tran,
-      #  Dist,
-    #    Replicate,
-    #    z_star
-   #   ),
- #   by = join_keys,
-  #  relationship = "many-to-one"
-#  )
-
-
-# Original QC flag columns
 flag_cols <- c(
   "Filter_Num",
   "RB_Num",
@@ -1200,117 +1107,144 @@ flag_cols <- c(
   "NegValue_Num"
 )
 
+long_s <- s_elev %>%
+  pivot_longer(
+    cols = all_of(flag_cols),
+    names_to = "Flag_Type",
+    values_to = "Flag_Value"
+  )
 
-# Reader-friendly names
-flag_labels <- c(
-  "Filter_Num"    = "Filter Issues",
-  "RB_Num"        = "Rubber Band Issues",
-  "Flood_Obsv"    = "Flood/Ponding",
-  "Bio_Obsv"      = "Biological Matter",
-  "Drop_Obsv"     = "Recorded Drop in Field/Lab",
-  "OpenBag_Obsv"  = "Open Ziploc Bag Observed",
-  "Position_Obsv" = "Position Changed",
-  "DryTime_Obsv"  = "Multiple Drying Times Needed",
-  "NegValue_Num"  = "Negative Flux Values Calculated"
+# Making a flag database
+flagged_s <- long_s %>%
+  filter(Flag_Value == 1) %>%
+  mutate(Flag_Type = factor(Flag_Type, levels = flag_cols))
+
+# Consistent color palette across all plots (superseded later
+# by the custom hex palette in prepare_elevation_qc_fixed.R)
+flag_colors <- setNames(
+  scales::hue_pal()(length(flag_cols)),
+  flag_cols
 )
 
+# Plot the flags
+flag_summary_s <- flagged_s %>%
+  group_by(Dist, Flag_Type) %>%
+  summarise(n = n(), .groups = "drop")
 
-# Field issues use greens and blues.
-# Laboratory and processing issues use artificial warm,
-# magenta, and neutral colors.
-flag_colors <- c(
-  # Likely Degrading the Mass
-  "Filter Issues"                   = "#1B4F72",
-  "Flood/Ponding"                   = "#2E86AB",
-  "Recorded Drop in Field/Lab"      = "#5DADE2",
-  "Negative Flux Values Calculated" = "#48C9B0", 
+flag_summary_s_time <- flagged_s %>%
+  group_by(Date.removed.from.field, Flag_Type) %>%
+  summarise(n = n(), .groups = "drop")
 
-  # Likely inflating the mass
-  "Rubber Band Issues"              = "#7B241c",
-  "Biological Matter"               = "#C0392B",
-  "Open Ziploc Bag Observed"        = "#E67E22",
-  "Multiple Drying Times Needed"    = "#CB4335",
-  
+s_total_flags <- ggplot(flag_summary_s, aes(x = Dist, y = n, fill = Flag_Type)) +
+  geom_col(position = "dodge") +
+  scale_fill_manual(values = flag_colors) +
+  theme_minimal() +
+  labs(
+    title = "Flag Occurrences by Distance",
+    x = "Distance from Marsh Edge (m)",
+    y = "Count",
+    fill = "Flag Type"
+  )
 
- # Likely neutral
- "Position Changed"                = "#7F8C8D"
-  ) 
+s_total_flags
 
-flag_levels <- names(flag_colors)
+s_total_flags_time <- ggplot(flag_summary_s_time, aes(x = Date.removed.from.field, y = n, fill = Flag_Type)) +
+  geom_col(position = "dodge") +
+  scale_fill_manual(values = flag_colors) +
+  theme_minimal() +
+  labs(
+    title = "Flag Occurrences by Time",
+    x = "Study.Phase",
+    y = "Count",
+    fill = "Flag Type"
+  )
+
+s_total_flags_time
+```
 
 
-
-# Keep only recorded flags
-flagged_s <- long_s |>
-  filter(Flag_Value == 1)
-
-
+```{r}
 #############################################################
-# SUMMARY TABLES USED BY THE PLOTS
+# INITIAL LOOK: BUILD long_s AND A QUICK SANITY-CHECK PLOT
+#
+# This chunk must run FIRST -- it creates long_s via
+# pivot_longer(), which the data-prep chunk
+# (prepare_elevation_qc_fixed.R) then recodes and filters.
+# The flag_colors / flagged_s / plots built here are a
+# throwaway first look and get fully overwritten once the
+# later chunks run.
 #############################################################
 
-# Flags by distance
-flag_summary_distance_s <- flagged_s |>
-  count(
-    Dist,
-    Flag_Type,
-    name = "n"
+master_thesis_s <- readr::write_csv(
+  sed_thesis,
+  "C:\\Users\\savan\\OneDrive - San Francisco State University\\ProjectData\\GitHub\\DepositionSFB\\data\\master_thesis_s.csv"
+)
+
+flag_cols <- c(
+  "Filter_Num",
+  "RB_Num",
+  "Flood_Obsv",
+  "Bio_Obsv",
+  "Drop_Obsv",
+  "OpenBag_Obsv",
+  "Position_Obsv",
+  "DryTime_Obsv",
+  "NegValue_Num"
+)
+
+long_s <- s_elev %>%
+  pivot_longer(
+    cols = all_of(flag_cols),
+    names_to = "Flag_Type",
+    values_to = "Flag_Value"
   )
 
+# Making a flag database
+flagged_s <- long_s %>%
+  filter(Flag_Value == 1) %>%
+  mutate(Flag_Type = factor(Flag_Type, levels = flag_cols))
 
-# Flags by sampling date
-flag_summary_time_s <- flagged_s |>
-  count(
-    Date.removed.from.field,
-    Flag_Type,
-    name = "n"
+# Consistent color palette across all plots (superseded later
+# by the custom hex palette in prepare_elevation_qc_fixed.R)
+flag_colors <- setNames(
+  scales::hue_pal()(length(flag_cols)),
+  flag_cols
+)
+
+# Plot the flags
+flag_summary_s <- flagged_s %>%
+  group_by(Dist, Flag_Type) %>%
+  summarise(n = n(), .groups = "drop")
+
+flag_summary_s_time <- flagged_s %>%
+  group_by(Date.removed.from.field, Flag_Type) %>%
+  summarise(n = n(), .groups = "drop")
+
+s_total_flags <- ggplot(flag_summary_s, aes(x = Dist, y = n, fill = Flag_Type)) +
+  geom_col(position = "dodge") +
+  scale_fill_manual(values = flag_colors) +
+  theme_minimal() +
+  labs(
+    title = "Flag Occurrences by Distance",
+    x = "Distance from Marsh Edge (m)",
+    y = "Count",
+    fill = "Flag Type"
   )
 
+s_total_flags
 
-# Flags by transect and phenological period
-flag_counts_period_s <- flagged_s |>
-  count(
-    Tran,
-    Phen_Period,
-    Flag_Type,
-    name = "n"
+s_total_flags_time <- ggplot(flag_summary_s_time, aes(x = Date.removed.from.field, y = n, fill = Flag_Type)) +
+  geom_col(position = "dodge") +
+  scale_fill_manual(values = flag_colors) +
+  theme_minimal() +
+  labs(
+    title = "Flag Occurrences by Time",
+    x = "Study.Phase",
+    y = "Count",
+    fill = "Flag Type"
   )
 
-
-# Flags by transect and sampling date
-flag_counts_day_s <- flagged_s |>
-  count(
-    Tran,
-    Date.removed.from.field,
-    Flag_Type,
-    name = "n"
-  )
-
-
-# Flag proportions within each transect and sampling date
-flag_props_day_s <- flagged_s |>
-  count(
-    Tran,
-    Date.removed.from.field,
-    Flag_Type,
-    name = "n"
-  ) |>
-  group_by(
-    Tran,
-    Date.removed.from.field
-  ) |>
-  mutate(
-    prop = n / sum(n)
-  ) |>
-  ungroup()
-
-long_s <- long_s |>
-  mutate(Flag_Type = recode(Flag_Type, !!!flag_labels))
-
-flagged_s <- long_s |>
-  filter(Flag_Value == 1)
-
-unique(long_s$Flag_Type)
+s_total_flags_time
 
 ```
 
@@ -1362,6 +1296,16 @@ s_total_flags <- ggplot(
 
 s_total_flags
 
+# Save the high-res image
+ggsave(
+  "C:\\Users\\savan\\OneDrive - San Francisco State University\\ProjectData\\GitHub\\DepositionSFB\\images\\flagged_data\\s_total_flags.png",
+  plot = s_total_flags,
+  width = 10,
+  height = 6,
+  dpi = 300,
+  bg = "white"
+)
+
 
 #############################################################
 # 2. FLAG OCCURRENCES THROUGH TIME
@@ -1404,6 +1348,16 @@ s_total_flags_time <- ggplot(
 
 s_total_flags_time
 
+# Save the high-res image
+ggsave(
+  "C:\\Users\\savan\\OneDrive - San Francisco State University\\ProjectData\\GitHub\\DepositionSFB\\images\\flagged_data\\s_total_flags_time.png",
+  plot = s_total_flags_time,
+  width = 10,
+  height = 6,
+  dpi = 300,
+  bg = "white"
+)
+
 
 #############################################################
 # 3. SMALL MULTIPLES:
@@ -1444,6 +1398,16 @@ s_flags_period_transect <- ggplot(
   )
 
 s_flags_period_transect
+
+# Save the high-res image
+ggsave(
+  "C:\\Users\\savan\\OneDrive - San Francisco State University\\ProjectData\\GitHub\\DepositionSFB\\images\\flagged_data\\s_flags_period_transect.png",
+  plot = s_flags_period_transect,
+  width = 10,
+  height = 6,
+  dpi = 300,
+  bg = "white"
+)
 
 
 #############################################################
@@ -1490,6 +1454,16 @@ s_flags_day_transect <- ggplot(
   )
 
 s_flags_day_transect
+
+# Save the high-res image
+ggsave(
+  "C:\\Users\\savan\\OneDrive - San Francisco State University\\ProjectData\\GitHub\\DepositionSFB\\images\\flagged_data\\s_flags_day_transect.png",
+  plot = s_flags_day_transect,
+  width = 10,
+  height = 6,
+  dpi = 300,
+  bg = "white"
+)
 
 
 #############################################################
@@ -1543,6 +1517,16 @@ s_flux_by_flag <- ggplot(
 
 s_flux_by_flag
 
+# Save the high-res image
+ggsave(
+  "C:\\Users\\savan\\OneDrive - San Francisco State University\\ProjectData\\GitHub\\DepositionSFB\\images\\flagged_data\\s_flux_by_flag.png",
+  plot = s_flux_by_flag,
+  width = 10,
+  height = 6,
+  dpi = 300,
+  bg = "white"
+)
+
 
 #############################################################
 # 6. ELEVATION VS DISTANCE, WITH FLAGGED OBSERVATIONS
@@ -1586,6 +1570,18 @@ s_flags_z_distance <- ggplot(
 
 s_flags_z_distance
 
+# Save the high-res image
+# FIX: object name below now matches the plot created above
+# (was "s_flag_z_distance", which does not exist)
+ggsave(
+  "C:\\Users\\savan\\OneDrive - San Francisco State University\\ProjectData\\GitHub\\DepositionSFB\\images\\flagged_data\\s_flag_z_distance.png",
+  plot = s_flags_z_distance,
+  width = 10,
+  height = 6,
+  dpi = 300,
+  bg = "white"
+)
+
 
 #############################################################
 # 7. TIMELINE OF FLAG COUNTS BY TRANSECT
@@ -1602,7 +1598,7 @@ flag_totals_day_s <- flagged_s |>
   )
 
 s_flag_timeline <- ggplot(
-  flag_totals_day,
+  flag_totals_day_s,
   aes(
     x = Date.removed.from.field,
     y = Tran,
@@ -1637,6 +1633,16 @@ s_flag_timeline <- ggplot(
   )
 
 s_flag_timeline
+
+# Save the high-res image
+ggsave(
+  "C:\\Users\\savan\\OneDrive - San Francisco State University\\ProjectData\\GitHub\\DepositionSFB\\images\\flagged_data\\s_flag_timeline.png",
+  plot = s_flag_timeline,
+  width = 10,
+  height = 6,
+  dpi = 300,
+  bg = "white"
+)
 
 
 #############################################################
@@ -1689,6 +1695,16 @@ s_flag_proportions <- ggplot(
 
 s_flag_proportions
 
+# Save the high-res image
+ggsave(
+  "C:\\Users\\savan\\OneDrive - San Francisco State University\\ProjectData\\GitHub\\DepositionSFB\\images\\flagged_data\\s_flag_proportions.png",
+  plot = s_flag_proportions,
+  width = 10,
+  height = 6,
+  dpi = 300,
+  bg = "white"
+)
+
 
 #############################################################
 # 9. FLAG CO-OCCURRENCE MATRIX
@@ -1708,7 +1724,7 @@ flag_matrix_s <- s_elev |>
   ) |>
   as.matrix()
 
-co_occurrence <- t(flag_matrix) %*% flag_matrix
+co_occurrence <- t(flag_matrix_s) %*% flag_matrix_s
 
 co_occurrence_df_s <- as.data.frame(co_occurrence) |>
   rownames_to_column("Flag_Code_1") |>
@@ -1772,48 +1788,68 @@ s_flag_cooccurrence <- ggplot(
 
 s_flag_cooccurrence
 
+# Save the high-res image
+ggsave(
+  "C:\\Users\\savan\\OneDrive - San Francisco State University\\ProjectData\\GitHub\\DepositionSFB\\images\\flagged_data\\s_flag_cooccurence.png",
+  plot = s_flag_cooccurrence,
+  width = 10,
+  height = 6,
+  dpi = 300,
+  bg = "white"
+)
+
 
 #############################################################
 # 10. OPTIONAL UPSET-STYLE CO-OCCURRENCE PLOT
 #############################################################
 
 # Install once if needed:
- #install.packages("ggupset")
+# install.packages("ggupset")
 
- library(ggupset)
+library(ggupset)
 
- upset_data_s <- s_elev|>
-   mutate(
-     flags_present = pmap(
+upset_data_s <- s_elev |>
+  mutate(
+    flags_present = pmap(
       pick(all_of(flag_cols)),
       function(...) {
-         values <- c(...)
-         active_codes <- flag_cols[
+        values <- c(...)
+        active_codes <- flag_cols[
           replace_na(values, 0) == 1
-         ]
+        ]
 
         unname(flag_labels[active_codes])
-       }
-     )
-   ) |>
-   filter(lengths(flags_present) > 0)
+      }
+    )
+  ) |>
+  filter(lengths(flags_present) > 0)
 
- s_flag_upset <- ggplot(
-   upset_data_s,
-   aes(x = flags_present)
- ) +
-   geom_bar(fill = "#7570B3") +
-   scale_x_upset(
-     order_by = "freq"
-   ) +
-   flag_theme +
-   labs(
-     title = "QC Flag Co-occurrence",
-     x = NULL,
-     y = "Number of Observations"
-   )
+s_flag_upset <- ggplot(
+  upset_data_s,
+  aes(x = flags_present)
+) +
+  geom_bar(fill = "#7570B3") +
+  scale_x_upset(
+    order_by = "freq"
+  ) +
+  flag_theme +
+  labs(
+    title = "QC Flag Co-occurrence",
+    x = NULL,
+    y = "Number of Observations"
+  )
 
- s_flag_upset
+s_flag_upset
+
+# Save the high-res image
+ggsave(
+  "C:\\Users\\savan\\OneDrive - San Francisco State University\\ProjectData\\GitHub\\DepositionSFB\\images\\flagged_data\\s_flag_upset.png",
+  plot = s_flag_upset,
+  width = 10,
+  height = 6,
+  dpi = 300,
+  bg = "white"
+)
 
 ```
 

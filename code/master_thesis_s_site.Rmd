@@ -121,13 +121,11 @@ sum(is.na(master_thesis$Date.placed.in.field))
 
 
 
-```{r, site B}
+```{r, site S}
 
 # Filter to just San Pablo with elev/flux within it 
-
 s_elev <- elev_z_flux %>%
   filter(Site == "SanPablo")
-
 
 # Summarize by Transect and Date.removed.from.field instead of by Site
 s_summary <- s_elev %>%
@@ -159,7 +157,8 @@ ggplot(
     width = 3
   ) +
   scale_x_date(
-    breaks = unique(s_summary$Date.removed.from.field),
+    # FIX: added sort() so breaks appear in chronological order
+    breaks = sort(unique(s_summary$Date.removed.from.field)),
     date_labels = "%b %d",
     guide = guide_axis(n.dodge = 2)
   ) + 
@@ -176,12 +175,15 @@ ggplot(
     caption = "Error bars represent ± 1 standard error of the mean"
   )
 
-
 readr::write_csv(s_elev, "C:\\Users\\savan\\OneDrive - San Francisco State University\\ProjectData\\GitHub\\DepositionSFB\\data\\master_thesis_s.csv")
 ```
 
 
 ```{r, for s data}
+
+#############################################################
+# FLUX VISUALIZATIONS
+#############################################################
 
 # Standard caption for plots containing error bars
 se_caption <- paste(
@@ -203,7 +205,9 @@ flux_theme <- theme_minimal(base_size = 14) +
     legend.position = "bottom"
   )
 
-# basic
+#############################################################
+# 1. BASIC FLUX DISTRIBUTION
+#############################################################
 
 basic_flux_s <- ggplot(
   s_elev,
@@ -225,15 +229,19 @@ basic_flux_s <- ggplot(
 basic_flux_s
 
 # Save the high-res image
-ggsave(("C:\\Users\\savan\\OneDrive - San Francisco State University\\ProjectData\\GitHub\\DepositionSFB\\images\\basic_flux_s.png"),
+ggsave(
+  "C:\\Users\\savan\\OneDrive - San Francisco State University\\ProjectData\\GitHub\\DepositionSFB\\images\\basic_flux_s.png",
   plot = basic_flux_s,
-  width = 10,  
+  width = 10,
   height = 6,
   dpi = 300,
   bg = "white"
 )
 
-# flux through time 
+
+#############################################################
+# 2. FLUX THROUGH TIME
+#############################################################
 
 removal_summary_s <- s_elev %>%
   group_by(Tran, Date.removed.from.field) %>%
@@ -275,7 +283,9 @@ meanflux_time_s <- ggplot(
     date_labels = "%b %d\n%Y",
     expand = expansion(mult = c(0.03, 0.03))
   ) +
-  coord_cartesian(ylim = c(0, 30)) +
+  # FIX: removed coord_cartesian(ylim = c(0, 30)) so the axis
+  # scales freely to the data -- add back a specific ylim once
+  # you've seen the real range and want to clip it deliberately.
   flux_theme +
   theme(
     axis.text.x = element_text(
@@ -296,15 +306,19 @@ meanflux_time_s <- ggplot(
 meanflux_time_s
 
 # Save the high-res image
-ggsave(("C:\\Users\\savan\\OneDrive - San Francisco State University\\ProjectData\\GitHub\\DepositionSFB\\images\\meanflux_time_s.png"),
+ggsave(
+  "C:\\Users\\savan\\OneDrive - San Francisco State University\\ProjectData\\GitHub\\DepositionSFB\\images\\meanflux_time_s.png",
   plot = meanflux_time_s,
-  width = 10,  
+  width = 10,
   height = 6,
   dpi = 300,
   bg = "white"
 )
 
-# flux by Phen_Period 
+
+#############################################################
+# 3. FLUX BY PHENOLOGICAL/HYDROLOGIC PERIOD
+#############################################################
 
 hydro_summary_s <- s_elev %>%
   group_by(Tran, Phen_Period) %>%
@@ -358,6 +372,11 @@ meanflux_hydro_s <- ggplot(
 
 meanflux_hydro_s
 
+
+#############################################################
+# 4. FLUX THROUGH TIME, FACETED BY TRANSECT
+#############################################################
+
 meanflux_time_s2 <- ggplot(
   removal_summary_s,
   aes(
@@ -381,7 +400,7 @@ meanflux_time_s2 <- ggplot(
     date_labels = "%b %d\n%Y",
     expand = expansion(mult = c(0.03, 0.03))
   ) +
-  coord_cartesian(ylim = c(0, 30)) +
+  # FIX: removed coord_cartesian(ylim = c(0, 30))
   flux_theme +
   theme(
     axis.text.x = element_text(
@@ -401,17 +420,19 @@ meanflux_time_s2 <- ggplot(
 meanflux_time_s2
 
 # Save the high-res image
-ggsave(("C:\\Users\\savan\\OneDrive - San Francisco State University\\ProjectData\\GitHub\\DepositionSFB\\images\\meanflux_time_s2.png"),
+ggsave(
+  "C:\\Users\\savan\\OneDrive - San Francisco State University\\ProjectData\\GitHub\\DepositionSFB\\images\\meanflux_time_s2.png",
   plot = meanflux_time_s2,
-  width = 10,  
+  width = 10,
   height = 6,
   dpi = 300,
   bg = "white"
 )
 
 
-
-# flux by distance 
+#############################################################
+# 5. FLUX BY DISTANCE
+#############################################################
 
 dist_summary_s <- s_elev %>%
   group_by(Tran, Dist) %>%
@@ -449,9 +470,11 @@ meanflux_dist_s <- ggplot(
     position = position_dodge(width = 1.5)
   ) +
   scale_x_continuous(
-    breaks = sort(unique(dist_summary$Dist_numeric))
+    # FIX: was dist_summary$Dist_numeric (object and column
+    # don't exist) -- should reference dist_summary_s$Dist
+    breaks = sort(unique(dist_summary_s$Dist))
   ) +
-  coord_cartesian(ylim = c(0, 9.5)) +
+  # FIX: removed coord_cartesian(ylim = c(0, 9.5))
   flux_theme +
   labs(
     title = "Mean Flux by Distance and Transect at San Pablo",
@@ -464,16 +487,19 @@ meanflux_dist_s <- ggplot(
 meanflux_dist_s
 
 # Save the high-res image
-ggsave(("C:\\Users\\savan\\OneDrive - San Francisco State University\\ProjectData\\GitHub\\DepositionSFB\\images\\meanflux_dist_s.png"),
+ggsave(
+  "C:\\Users\\savan\\OneDrive - San Francisco State University\\ProjectData\\GitHub\\DepositionSFB\\images\\meanflux_dist_s.png",
   plot = meanflux_dist_s,
-  width = 10,  
+  width = 10,
   height = 6,
   dpi = 300,
   bg = "white"
 )
 
-# flux by z_star
 
+#############################################################
+# 6. FLUX BY z_star (SUMMARY, WITH ERROR BARS)
+#############################################################
 
 z_summary_s <- s_elev %>%
   group_by(Tran, z_star) %>%
@@ -532,20 +558,28 @@ meanflux_z_s <- ggplot(
 meanflux_z_s
 
 # Save the high-res image
-ggsave(("C:\\Users\\savan\\OneDrive - San Francisco State University\\ProjectData\\GitHub\\DepositionSFB\\images\\meanflux_z_s.png"),
+ggsave(
+  "C:\\Users\\savan\\OneDrive - San Francisco State University\\ProjectData\\GitHub\\DepositionSFB\\images\\meanflux_z_s.png",
   plot = meanflux_z_s,
-  width = 10,  
+  width = 10,
   height = 6,
   dpi = 300,
   bg = "white"
 )
 
-# raw flux by z star
 
-flux_z_s = ggplot(s_elev,
-       aes(x = z_star,
-           y = Flux,
-           color = Tran)) +
+#############################################################
+# 7. RAW FLUX BY z_star, COLORED BY TRANSECT
+#############################################################
+
+flux_z_s <- ggplot(
+  s_elev,
+  aes(
+    x = z_star,
+    y = Flux,
+    color = Tran
+  )
+) +
   geom_point(size = 3, alpha = 0.7) +
   geom_smooth(
     method = "lm",
@@ -556,22 +590,32 @@ flux_z_s = ggplot(s_elev,
 flux_z_s
 
 # Save the high-res image
-ggsave(("C:\\Users\\savan\\OneDrive - San Francisco State University\\ProjectData\\GitHub\\DepositionSFB\\images\\flux_z_s.png"),
+ggsave(
+  "C:\\Users\\savan\\OneDrive - San Francisco State University\\ProjectData\\GitHub\\DepositionSFB\\images\\flux_z_s.png",
   plot = flux_z_s,
-  width = 10,  
+  width = 10,
   height = 6,
   dpi = 300,
   bg = "white"
 )
 
-# raw flux with z as a GAM ( )
 
-flux_z_s_gam = ggplot(s_elev,
-       aes(x = z_star,
-           y = Flux)) +
-  geom_point(aes(color = Tran),
-             size = 3,
-             alpha = 0.7) +
+#############################################################
+# 8. RAW FLUX BY z_star WITH GAM SMOOTH
+#############################################################
+
+flux_z_s_gam <- ggplot(
+  s_elev,
+  aes(
+    x = z_star,
+    y = Flux
+  )
+) +
+  geom_point(
+    aes(color = Tran),
+    size = 3,
+    alpha = 0.7
+  ) +
   geom_smooth(
     method = "gam",
     formula = y ~ s(x),
@@ -581,16 +625,19 @@ flux_z_s_gam = ggplot(s_elev,
 flux_z_s_gam
 
 # Save the high-res image
-ggsave(("C:\\Users\\savan\\OneDrive - San Francisco State University\\ProjectData\\GitHub\\DepositionSFB\\images\\flux_z_s_gam.png"),
+ggsave(
+  "C:\\Users\\savan\\OneDrive - San Francisco State University\\ProjectData\\GitHub\\DepositionSFB\\images\\flux_z_s_gam.png",
   plot = flux_z_s_gam,
-  width = 10,  
+  width = 10,
   height = 6,
   dpi = 300,
   bg = "white"
 )
 
 
-# flux by distance and hydro
+#############################################################
+# 9. FLUX BY DISTANCE AND HYDROLOGIC PERIOD
+#############################################################
 
 dist_hydro_summary_s <- s_elev %>%
   group_by(Tran, Dist, Phen_Period) %>%
@@ -629,7 +676,10 @@ flux_dist_hydro_s <- ggplot(
   ) +
   facet_wrap(~ Phen_Period) +
   scale_x_continuous(
-    breaks = sort(unique(dist_hydro_summary$Dist_numeric))
+    # FIX: was dist_hydro_summary$Dist_numeric (object and
+    # column don't exist) -- should reference
+    # dist_hydro_summary_s$Dist
+    breaks = sort(unique(dist_hydro_summary_s$Dist))
   ) +
   flux_theme +
   labs(
@@ -644,15 +694,19 @@ flux_dist_hydro_s <- ggplot(
 flux_dist_hydro_s
 
 # Save the high-res image
-ggsave(("C:\\Users\\savan\\OneDrive - San Francisco State University\\ProjectData\\GitHub\\DepositionSFB\\images\\flux_dist_hydro_s.png"),
+ggsave(
+  "C:\\Users\\savan\\OneDrive - San Francisco State University\\ProjectData\\GitHub\\DepositionSFB\\images\\flux_dist_hydro_s.png",
   plot = flux_dist_hydro_s,
-  width = 10,  
+  width = 10,
   height = 6,
   dpi = 300,
   bg = "white"
 )
 
-# flux through time by distance 
+
+#############################################################
+# 10. FLUX THROUGH TIME BY DISTANCE
+#############################################################
 
 time_dist_summary_s <- s_elev %>%
   group_by(Tran, Dist, Date.removed.from.field) %>%
@@ -662,7 +716,6 @@ time_dist_summary_s <- s_elev %>%
     n = n(),
     .groups = "drop"
   )
-
 
 flux_dist_gradient_s <- ggplot(
   time_dist_summary_s,
@@ -700,9 +753,9 @@ flux_dist_gradient_s <- ggplot(
     end = 0.85
   ) +
   scale_x_continuous(
-    breaks = sort(unique(time_dist_summary_s$Dist)), 
+    breaks = sort(unique(time_dist_summary_s$Dist)),
     guide = guide_axis(n.dodge = 2)
-    )  +
+  ) +
   scale_y_continuous(n.breaks = 10) +
   flux_theme +
   theme(
@@ -727,7 +780,8 @@ flux_dist_gradient_s <- ggplot(
 flux_dist_gradient_s
 
 # Save the high-res image
-ggsave(("C:\\Users\\savan\\OneDrive - San Francisco State University\\ProjectData\\GitHub\\DepositionSFB\\images\\flux_dist_gradient_s.png"),
+ggsave(
+  "C:\\Users\\savan\\OneDrive - San Francisco State University\\ProjectData\\GitHub\\DepositionSFB\\images\\flux_dist_gradient_s.png",
   plot = flux_dist_gradient_s,
   width = 14,
   height = 9,
@@ -735,8 +789,12 @@ ggsave(("C:\\Users\\savan\\OneDrive - San Francisco State University\\ProjectDat
   bg = "white"
 )
 
-# heat map and distance
-flux_heatmap_s = ggplot(
+
+#############################################################
+# 11. FLUX HEATMAP: DATE x DISTANCE
+#############################################################
+
+flux_heatmap_s <- ggplot(
   time_dist_summary_s,
   aes(
     x = Date.removed.from.field,
@@ -765,9 +823,12 @@ flux_heatmap_s = ggplot(
     x = "Date removed from Field",
     y = "Distance from Marsh Edge"
   )
+
 flux_heatmap_s
 
-ggsave(("C:\\Users\\savan\\OneDrive - San Francisco State University\\ProjectData\\GitHub\\DepositionSFB\\images\\flux_heatmap_s.png"),
+# Save the high-res image
+ggsave(
+  "C:\\Users\\savan\\OneDrive - San Francisco State University\\ProjectData\\GitHub\\DepositionSFB\\images\\flux_heatmap_s.png",
   plot = flux_heatmap_s,
   width = 12,
   height = 9,
@@ -775,7 +836,10 @@ ggsave(("C:\\Users\\savan\\OneDrive - San Francisco State University\\ProjectDat
   bg = "white"
 )
 
-# flux through time by transect 
+
+#############################################################
+# 12. FLUX THROUGH TIME BY TRANSECT (LINE PLOT)
+#############################################################
 
 tran_summary_s <- s_elev %>%
   group_by(Tran, Date.removed.from.field) %>%
@@ -786,8 +850,9 @@ tran_summary_s <- s_elev %>%
     .groups = "drop"
   )
 
-flux_tran_time_s = ggplot(
-  tran_summary,
+flux_tran_time_s <- ggplot(
+  # FIX: was tran_summary (doesn't exist) -- should be tran_summary_s
+  tran_summary_s,
   aes(
     x = Date.removed.from.field,
     y = mean_flux,
@@ -804,29 +869,33 @@ flux_tran_time_s = ggplot(
     ),
     width = 0.2
   ) +
-  theme_minimal(base_size = 14) + 
-  coord_cartesian(ylim = c(0,30)) +
+  theme_minimal(base_size = 14) +
+  # FIX: removed coord_cartesian(ylim = c(0, 30))
   labs(
     title = paste("Flux Through Time by Transect at", "San Pablo"),
     x = "Date removed from field",
     y = expression(Mean~Flux~(g/m^2)),
     color = "Transect"
   )
+
 flux_tran_time_s
 
 # Save the high-res image
-ggsave(("C:\\Users\\savan\\OneDrive - San Francisco State University\\ProjectData\\GitHub\\DepositionSFB\\images\\flux_tran_time_s.png"),
+ggsave(
+  "C:\\Users\\savan\\OneDrive - San Francisco State University\\ProjectData\\GitHub\\DepositionSFB\\images\\flux_tran_time_s.png",
   plot = flux_tran_time_s,
-  width = 10,  
+  width = 10,
   height = 6,
   dpi = 300,
   bg = "white"
 )
 
 
-# raw flux and distance 
+#############################################################
+# 13. RAW FLUX vs DISTANCE
+#############################################################
 
-rawflux_dist_s = ggplot(
+rawflux_dist_s <- ggplot(
   s_elev,
   aes(
     x = as.numeric(as.character(Dist)),
@@ -836,122 +905,113 @@ rawflux_dist_s = ggplot(
   geom_point(alpha = 0.4) +
   geom_smooth(method = "lm", se = TRUE) +
   theme_minimal(base_size = 14) +
-  coord_cartesian(ylim = c(0,120)) +
+  # FIX: removed coord_cartesian(ylim = c(0, 120))
   labs(
     title = paste("Raw Flux vs Distance at", "San Pablo"),
     x = "Distance from Marsh Edge (m)",
     y = expression(Flux~(g/m^2))
   )
+
 rawflux_dist_s
 
 # Save the high-res image
-ggsave(("C:\\Users\\savan\\OneDrive - San Francisco State University\\ProjectData\\GitHub\\DepositionSFB\\images\\rawflux_dist_s.png"),
+ggsave(
+  "C:\\Users\\savan\\OneDrive - San Francisco State University\\ProjectData\\GitHub\\DepositionSFB\\images\\rawflux_dist_s.png",
   plot = rawflux_dist_s,
-  width = 10,  
+  width = 10,
   height = 6,
   dpi = 300,
   bg = "white"
 )
 
-# elev and flux
 
-flux_elev_s = ggplot(s_elev,
-   aes(
-     x = Elevation_m,
-     y = Flux
-   )
- ) +
-   geom_point(alpha = 0.4) +
-   geom_smooth(method = "lm", se = TRUE) +
-   theme_minimal(base_size = 14) +
-   labs(
-     title = paste("Flux vs Elevation at", "San Pablo"),
-     x = "Elevation_m",
-     y = expression(Flux~(g/m^2))
-   )
+#############################################################
+# 14. FLUX vs ELEVATION
+#############################################################
+
+flux_elev_s <- ggplot(
+  s_elev,
+  aes(
+    x = Elevation_m,
+    y = Flux
+  )
+) +
+  geom_point(alpha = 0.4) +
+  geom_smooth(method = "lm", se = TRUE) +
+  theme_minimal(base_size = 14) +
+  labs(
+    title = paste("Flux vs Elevation at", "San Pablo"),
+    x = "Elevation_m",
+    y = expression(Flux~(g/m^2))
+  )
 
 flux_elev_s
 
 # Save the high-res image
-ggsave(("C:\\Users\\savan\\OneDrive - San Francisco State University\\ProjectData\\GitHub\\DepositionSFB\\images\\flux_elev_s.png"),
+ggsave(
+  "C:\\Users\\savan\\OneDrive - San Francisco State University\\ProjectData\\GitHub\\DepositionSFB\\images\\flux_elev_s.png",
   plot = flux_elev_s,
-  width = 10,  
+  width = 10,
   height = 6,
   dpi = 300,
   bg = "white"
 )
 
-# z star and flux
 
-flux_z_s = ggplot(
+#############################################################
+# 15. FLUX vs z_star (SIMPLE, NO COLOR GROUPING)
+#
+# FIX: this was previously named flux_z_s, the same name as
+# the plot in section 7 above. That second assignment
+# silently overwrote the first plot object AND both ggsave()
+# calls wrote to the identical filename "flux_z_s.png",
+# meaning the section 7 image was overwritten on disk too.
+# Renamed here to flux_z_s_simple with its own output file.
+# Also fixed the title, which read "Flux vs Elevation" even
+# though the x-axis is z_star.
+#############################################################
+
+flux_z_s_simple <- ggplot(
   s_elev,
-   aes(
-     x = z_star,
-     y = Flux
-   )
- ) +
-   geom_point(alpha = 0.4) +
-   geom_smooth(method = "lm", se = TRUE) +
-   theme_minimal(base_size = 14) +
-   labs(
-     title = paste("Flux vs Elevation at", "San Pablo"),
-     x = "z_star",
-     y = expression(Flux~(g/m^2))
-   )
+  aes(
+    x = z_star,
+    y = Flux
+  )
+) +
+  geom_point(alpha = 0.4) +
+  geom_smooth(method = "lm", se = TRUE) +
+  theme_minimal(base_size = 14) +
+  labs(
+    title = paste("Flux vs z* at", "San Pablo"),
+    x = "z_star",
+    y = expression(Flux~(g/m^2))
+  )
 
-flux_z_s
+flux_z_s_simple
 
 # Save the high-res image
-ggsave(("C:\\Users\\savan\\OneDrive - San Francisco State University\\ProjectData\\GitHub\\DepositionSFB\\images\\flux_z_s.png"),
-  plot = flux_z_s,
-  width = 10,  
+ggsave(
+  "C:\\Users\\savan\\OneDrive - San Francisco State University\\ProjectData\\GitHub\\DepositionSFB\\images\\flux_z_s_simple.png",
+  plot = flux_z_s_simple,
+  width = 10,
   height = 6,
   dpi = 300,
   bg = "white"
 )
 
-# once veg is cleaned and entered 
 
-# one_site <- one_site %>%
-#   mutate(
-#     Veg_Structure = Percent_Cover * Avg_Height
-#   )
+#############################################################
+# 16. FLUX THROUGH TIME BY TRANSECT, BY STUDY PHASE
+#
+# FIX: this previously reused the name tran_summary_s from
+# section 12, silently overwriting that summary table. Also
+# the ggplot() call was never assigned to an object (just
+# printed), and the y-axis label read g/m^3 instead of g/m^2.
+# Requires a Study.Phase column in s_elev -- confirm that
+# column exists before running this section.
+#############################################################
 
-# ggplot(
-#   one_site,
-#   aes(
-#     x = Percent_Cover,
-#     y = Flux
-#   )
-# ) +
-#   geom_point(alpha = 0.4) +
-#   geom_smooth(method = "lm", se = TRUE) +
-#   theme_minimal(base_size = 14) +
-#   labs(
-#     title = paste("Flux vs Percent Cover at", "San Pablo"),
-#     x = "Percent Vegetation Cover",
-#     y = expression(Flux~(g/m^2))
-#   )
-
-# ggplot(
-#   one_site,
-#   aes(
-#     x = Veg_Structure,
-#     y = Flux
-#   )
-# ) +
-#   geom_point(alpha = 0.4) +
-#   geom_smooth(method = "lm", se = TRUE) +
-#   theme_minimal(base_size = 14) +
-#   labs(
-#     title = paste("Flux vs Vegetation Structure at", "San Pablo"),
-#     x = "Vegetation Structure Index (Cover x Height)",
-#     y = expression(Flux~(g/m^2))
-#   )
-
-# flux through time by transect 
-
-tran_summary_s <- s_elev %>%
+tran_summary_phase_s <- s_elev %>%
   group_by(Tran, Study.Phase) %>%
   summarise(
     mean_flux = mean(Flux, na.rm = TRUE),
@@ -960,8 +1020,8 @@ tran_summary_s <- s_elev %>%
     .groups = "drop"
   )
 
-ggplot(
-  tran_summary_s,
+flux_tran_phase_s <- ggplot(
+  tran_summary_phase_s,
   aes(
     x = Study.Phase,
     y = mean_flux,
@@ -982,14 +1042,25 @@ ggplot(
   labs(
     title = paste("Flux Through Time by Transect at", "San Pablo"),
     x = "Study Phase",
-    y = expression(Mean~Flux~(g/m^3)),
+    y = expression(Mean~Flux~(g/m^2)),
     color = "Transect"
   )
 
-# raw flux and distance 
+flux_tran_phase_s
 
-s_flux_distance = ggplot(
-s_elev,
+
+#############################################################
+# 17. RAW FLUX vs DISTANCE (DUPLICATE OF SECTION 13)
+#
+# FIX: y-axis label read g/m^3 instead of g/m^2. This plot
+# is otherwise identical in construction to rawflux_dist_s
+# in section 13 -- kept both since they're separately named,
+# but consider removing one if they're meant to be the same
+# figure.
+#############################################################
+
+s_flux_distance <- ggplot(
+  s_elev,
   aes(
     x = as.numeric(as.character(Dist)),
     y = Flux
@@ -1001,20 +1072,31 @@ s_elev,
   labs(
     title = paste("Raw Flux vs Distance at", "San Pablo"),
     x = "Distance from Marsh Edge (m)",
-    y = expression(Flux~(g/m^3))
+    y = expression(Flux~(g/m^2))
   )
+
 s_flux_distance
 
 # Save the high-res image
-ggsave(("C:\\Users\\savan\\OneDrive - San Francisco State University\\ProjectData\\GitHub\\DepositionSFB\\images\\s_flux_distance.png"),
+ggsave(
+  "C:\\Users\\savan\\OneDrive - San Francisco State University\\ProjectData\\GitHub\\DepositionSFB\\images\\s_flux_distance.png",
   plot = s_flux_distance,
-  width = 10,  
+  width = 10,
   height = 6,
   dpi = 300,
   bg = "white"
 )
 
-# once elevation is complete 
+
+#############################################################
+# PLACEHOLDERS FOR FUTURE DATA
+#
+# Uncomment once elevation / vegetation data are complete.
+# FIX: this block was duplicated verbatim earlier in the
+# original script (once after section 15, once at the very
+# end) -- consolidated into a single copy here. Units also
+# corrected from g/m^3 to g/m^2 to match the rest of the script.
+#############################################################
 
 # ggplot(
 #   one_site,
@@ -1029,10 +1111,8 @@ ggsave(("C:\\Users\\savan\\OneDrive - San Francisco State University\\ProjectDat
 #   labs(
 #     title = paste("Flux vs Elevation at", "San Pablo"),
 #     x = "Elevation",
-#     y = expression(Flux~(g/m^3))
+#     y = expression(Flux~(g/m^2))
 #   )
-
-# once veg is cleaned and entered 
 
 # one_site <- one_site %>%
 #   mutate(
@@ -1052,7 +1132,7 @@ ggsave(("C:\\Users\\savan\\OneDrive - San Francisco State University\\ProjectDat
 #   labs(
 #     title = paste("Flux vs Percent Cover at", "San Pablo"),
 #     x = "Percent Vegetation Cover",
-#     y = expression(Flux~(g/m^3))
+#     y = expression(Flux~(g/m^2))
 #   )
 
 # ggplot(
@@ -1068,7 +1148,7 @@ ggsave(("C:\\Users\\savan\\OneDrive - San Francisco State University\\ProjectDat
 #   labs(
 #     title = paste("Flux vs Vegetation Structure at", "San Pablo"),
 #     x = "Vegetation Structure Index (Cover x Height)",
-#     y = expression(Flux~(g/m^3))
+#     y = expression(Flux~(g/m^2))
 #   )
 
 ``` 
@@ -1165,21 +1245,37 @@ s_total_flags_time
 
 ```{r}
 #############################################################
-# INITIAL LOOK: BUILD long_s AND A QUICK SANITY-CHECK PLOT
-#
-# This chunk must run FIRST -- it creates long_s via
-# pivot_longer(), which the data-prep chunk
-# (prepare_elevation_qc_fixed.R) then recodes and filters.
-# The flag_colors / flagged_s / plots built here are a
-# throwaway first look and get fully overwritten once the
-# later chunks run.
+# PREPARE ELEVATION AND QC FLAG DATA
 #############################################################
 
-master_thesis_s <- readr::write_csv(
-  sed_thesis,
-  "C:\\Users\\savan\\OneDrive - San Francisco State University\\ProjectData\\GitHub\\DepositionSFB\\data\\master_thesis_s.csv"
+library(tidyverse)
+library(lubridate)
+
+# Variables identifying one sediment observation
+join_keys <- c(
+  "Site",
+  "Tran",
+  "Dist",
+  "Replicate"
 )
 
+# Add elevation to the original wide sediment dataset.
+# Only z_star is brought over, preventing unwanted .x/.y columns.
+# s_z_flux <- s_elev |>
+#   left_join(
+#     s_elev |>
+#       select(
+#         Site,
+#         Tran,
+#         Dist,
+#         Replicate,
+#         z_star
+#       ),
+#     by = join_keys,
+#     relationship = "many-to-one"
+#   )
+
+# Original QC flag columns
 flag_cols <- c(
   "Filter_Num",
   "RB_Num",
@@ -1192,59 +1288,112 @@ flag_cols <- c(
   "NegValue_Num"
 )
 
-long_s <- s_elev %>%
-  pivot_longer(
-    cols = all_of(flag_cols),
-    names_to = "Flag_Type",
-    values_to = "Flag_Value"
-  )
-
-# Making a flag database
-flagged_s <- long_s %>%
-  filter(Flag_Value == 1) %>%
-  mutate(Flag_Type = factor(Flag_Type, levels = flag_cols))
-
-# Consistent color palette across all plots (superseded later
-# by the custom hex palette in prepare_elevation_qc_fixed.R)
-flag_colors <- setNames(
-  scales::hue_pal()(length(flag_cols)),
-  flag_cols
+# Reader-friendly names
+flag_labels <- c(
+  "Filter_Num"    = "Filter Issues",
+  "RB_Num"        = "Rubber Band Issues",
+  "Flood_Obsv"    = "Flood/Ponding",
+  "Bio_Obsv"      = "Biological Matter",
+  "Drop_Obsv"     = "Recorded Drop in Field/Lab",
+  "OpenBag_Obsv"  = "Open Ziploc Bag Observed",
+  "Position_Obsv" = "Position Changed",
+  "DryTime_Obsv"  = "Multiple Drying Times Needed",
+  "NegValue_Num"  = "Negative Flux Values Calculated"
 )
 
-# Plot the flags
-flag_summary_s <- flagged_s %>%
-  group_by(Dist, Flag_Type) %>%
-  summarise(n = n(), .groups = "drop")
+# Field issues use greens and blues.
+# Laboratory and processing issues use artificial warm,
+# magenta, and neutral colors.
+flag_colors <- c(
+  # Likely Degrading the Mass
+  "Filter Issues"                   = "#1B4F72",
+  "Flood/Ponding"                   = "#2E86AB",
+  "Recorded Drop in Field/Lab"      = "#5DADE2",
+  "Negative Flux Values Calculated" = "#48C9B0",
 
-flag_summary_s_time <- flagged_s %>%
-  group_by(Date.removed.from.field, Flag_Type) %>%
-  summarise(n = n(), .groups = "drop")
+  # Likely inflating the mass
+  "Rubber Band Issues"              = "#7B241c",
+  "Biological Matter"               = "#C0392B",
+  "Open Ziploc Bag Observed"        = "#E67E22",
+  "Multiple Drying Times Needed"    = "#CB4335",
 
-s_total_flags <- ggplot(flag_summary_s, aes(x = Dist, y = n, fill = Flag_Type)) +
-  geom_col(position = "dodge") +
-  scale_fill_manual(values = flag_colors) +
-  theme_minimal() +
-  labs(
-    title = "Flag Occurrences by Distance",
-    x = "Distance from Marsh Edge (m)",
-    y = "Count",
-    fill = "Flag Type"
+  # Likely neutral
+  "Position Changed"                = "#7F8C8D"
+)
+
+flag_levels <- names(flag_colors)
+
+#############################################################
+# FIX: recode Flag_Type to friendly labels BEFORE building
+# flagged_s and the summary tables below. Previously this
+# recode happened at the very end, after the summary tables
+# were already built from the raw codes -- which meant none
+# of them matched the names in flag_colors/flag_levels, so
+# every plot fell back to NA/grey fill.
+#############################################################
+long_s <- long_s |>
+  mutate(Flag_Type = recode(Flag_Type, !!!flag_labels))
+
+# Keep only recorded flags
+flagged_s <- long_s |>
+  filter(Flag_Value == 1)
+
+#############################################################
+# SUMMARY TABLES USED BY THE PLOTS
+#############################################################
+
+# Flags by distance
+flag_summary_distance_s <- flagged_s |>
+  count(
+    Dist,
+    Flag_Type,
+    name = "n"
   )
 
-s_total_flags
-
-s_total_flags_time <- ggplot(flag_summary_s_time, aes(x = Date.removed.from.field, y = n, fill = Flag_Type)) +
-  geom_col(position = "dodge") +
-  scale_fill_manual(values = flag_colors) +
-  theme_minimal() +
-  labs(
-    title = "Flag Occurrences by Time",
-    x = "Study.Phase",
-    y = "Count",
-    fill = "Flag Type"
+# Flags by sampling date
+flag_summary_time_s <- flagged_s |>
+  count(
+    Date.removed.from.field,
+    Flag_Type,
+    name = "n"
   )
 
-s_total_flags_time
+# Flags by transect and phenological period
+flag_counts_period_s <- flagged_s |>
+  count(
+    Tran,
+    Phen_Period,
+    Flag_Type,
+    name = "n"
+  )
+
+# Flags by transect and sampling date
+flag_counts_day_s <- flagged_s |>
+  count(
+    Tran,
+    Date.removed.from.field,
+    Flag_Type,
+    name = "n"
+  )
+
+# Flag proportions within each transect and sampling date
+flag_props_day_s <- flagged_s |>
+  count(
+    Tran,
+    Date.removed.from.field,
+    Flag_Type,
+    name = "n"
+  ) |>
+  group_by(
+    Tran,
+    Date.removed.from.field
+  ) |>
+  mutate(
+    prop = n / sum(n)
+  ) |>
+  ungroup()
+
+unique(long_s$Flag_Type)
 
 ```
 

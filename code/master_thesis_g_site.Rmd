@@ -276,7 +276,7 @@ meanflux_time_g <- ggplot(
     position = position_dodge(width = 3)
   ) +
   scale_x_date(
-    breaks = sort(unique(removal_summary$Date.removed.from.field)),
+    breaks = sort(unique(removal_summary_g$Date.removed.from.field)),
     date_labels = "%b %d\n%Y",
     expand = expansion(mult = c(0.03, 0.03))
   ) +
@@ -382,7 +382,7 @@ meanflux_time_g2 <- ggplot(
   geom_point(size = 3) +
   facet_wrap(~ Tran) +
   scale_x_date(
-    breaks = sort(unique(removal_summary$Date.removed.from.field)),
+    breaks = sort(unique(removal_summary_g$Date.removed.from.field)),
     date_labels = "%b %d\n%Y",
     expand = expansion(mult = c(0.03, 0.03))
   ) +
@@ -1733,7 +1733,7 @@ flag_matrix_g <- g_elev |>
   ) |>
   as.matrix()
 
-co_occurrence <- t(flag_matrix) %*% flag_matrix
+co_occurrence <- t(flag_matrix_g) %*% flag_matrix_g
 
 co_occurrence_df_g<- as.data.frame(co_occurrence) |>
   rownames_to_column("Flag_Code_1") |>

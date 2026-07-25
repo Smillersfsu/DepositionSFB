@@ -791,3 +791,171 @@ M10,GiantMarsh,2,48,b,2026-04-17,2026-05-14,2026,1.403241554,0,0,0,0,0,0,0,0,0,O
 (Months 10-12)",Upland
 M10,GiantMarsh,2,48,c,2026-04-17,2026-05-14,2026,1.143004664,0,0,0,0,0,0,0,0,0,OK,Scarped,West.facing,"Growth
 (Months 10-12)",Upland
+M11,GiantMarsh,1,0.5,a,2026-05-14,2026-06-09,2026,1.254437196,0,0,0,0,0,0,0,0,0,OK,Scarped,West.facing,"Growth
+(Months 10-12)",Edge
+M11,GiantMarsh,1,0.5,b,2026-05-14,2026-06-09,2026,1.51797239,0,0,0,0,0,0,0,0,0,OK,Scarped,West.facing,"Growth
+(Months 10-12)",Edge
+M11,GiantMarsh,1,0.5,c,2026-05-14,2026-06-09,2026,0.761948623,0,0,0,0,0,0,0,0,0,OK,Scarped,West.facing,"Growth
+(Months 10-12)",Edge
+M11,GiantMarsh,1,2,a,2026-05-14,2026-06-09,2026,0.712252379,0,0,0,0,0,0,0,0,0,OK,Scarped,West.facing,"Growth
+(Months 10-12)",Edge
+M11,GiantMarsh,1,2,b,2026-05-14,2026-06-09,2026,9.748323405,0,0,0,0,0,0,0,0,0,OK,Scarped,West.facing,"Growth
+(Months 10-12)",Edge
+M11,GiantMarsh,1,2,c,2026-05-14,2026-06-09,2026,0.928993299,0,0,0,0,0,0,0,0,0,OK,Scarped,West.facing,"Growth
+(Months 10-12)",Edge
+M11,GiantMarsh,1,6,a,2026-05-14,2026-06-09,2026,4.544546223,0,0,0,0,0,0,0,0,0,OK,Scarped,West.facing,"Growth
+(Months 10-12)",Edge
+M11,GiantMarsh,1,6,b,2026-05-14,2026-06-09,2026,3.903875783,0,0,0,0,0,0,0,0,0,OK,Scarped,West.facing,"Growth
+(Months 10-12)",Edge
+M11,GiantMarsh,1,6,c,2026-05-14,2026-06-09,2026,7.136610435,0,0,0,0,0,0,0,0,0,OK,Scarped,West.facing,"Growth
+(Months 10-12)",Edge
+M11,GiantMarsh,1,12,a,2026-05-14,2026-06-09,2026,4.208824513,0,0,0,0,0,0,0,0,0,OK,Scarped,West.facing,"Growth
+(Months 10-12)",Platform
+M11,GiantMarsh,1,12,b,2026-05-14,2026-06-09,2026,3.039390869,0,0,0,0,0,0,0,0,0,OK,Scarped,West.facing,"Growth
+(Months 10-12)",Platform
+M11,GiantMarsh,1,12,c,2026-05-14,2026-06-09,2026,2.782989686,0,0,0,0,0,0,0,0,0,OK,Scarped,West.facing,"Growth
+(Months 10-12)",Platform
+M11,GiantMarsh,1,18,a,2026-05-14,2026-06-09,2026,1.826729957,0,0,0,0,0,0,0,0,0,OK,Scarped,West.facing,"Growth
+(Months 10-12)",Platform
+M11,GiantMarsh,1,18,b,2026-05-14,2026-06-09,2026,3.481759994,0,0,0,0,0,0,0,0,0,OK,Scarped,West.facing,"Growth
+(Months 10-12)",Platform
+M11,GiantMarsh,1,18,c,2026-05-14,2026-06-09,2026,4.96218814,0,0,0,0,0,0,0,0,0,OK,Scarped,West.facing,"Growth
+(Months 10-12)",Platform
+M11,GiantMarsh,1,24,a,2026-05-14,2026-06-09,2026,1.927392058,0,0,0,0,0,0,0,0,0,OK,Scarped,West.facing,"Growth
+(Months 10-12)",Platform
+M11,GiantMarsh,1,24,b,2026-05-14,2026-06-09,2026,2.957107915,0,0,0,0,0,0,0,0,0,OK,Scarped,West.facing,"Growth
+(Months 10-12)",Platform
+M11,GiantMarsh,1,24,c,2026-05-14,2026-06-09,2026,3.447238637,0,0,0,0,0,0,0,0,0,OK,Scarped,West.facing,"Growth
+(Months 10-12)",Platform
+M11,GiantMarsh,1,48,a,2026-05-14,2026-06-09,2026,1.371543796,0,0,0,0,0,0,0,0,0,OK,Scarped,West.facing,"Growth
+(Months 10-12)",Upland
+M11,GiantMarsh,1,48,b,2026-05-14,2026-06-09,2026,1.216832495,0,0,0,0,0,0,0,0,0,OK,Scarped,West.facing,"Growth
+(Months 10-12)",Upland
+M11,GiantMarsh,1,48,c,2026-05-14,2026-06-09,2026,1.101841915,0,0,0,0,0,0,0,0,0,OK,Scarped,West.facing,"Growth
+(Months 10-12)",Upland
+M11,GiantMarsh,2,0.5,a,2026-05-14,2026-06-09,2026,NA,1,0,0,0,0,0,0,0,NA,#VALUE!,Scarped,West.facing,"Growth
+(Months 10-12)",Edge
+M11,GiantMarsh,2,0.5,b,2026-05-14,2026-06-09,2026,NA,1,0,0,0,0,0,0,0,NA,#VALUE!,Scarped,West.facing,"Growth
+(Months 10-12)",Edge
+M11,GiantMarsh,2,0.5,c,2026-05-14,2026-06-09,2026,NA,1,0,0,0,0,0,0,0,NA,#VALUE!,Scarped,West.facing,"Growth
+(Months 10-12)",Edge
+M11,GiantMarsh,2,2,a,2026-05-14,2026-06-09,2026,94.03508855,0,0,0,0,0,0,0,0,0,OK,Scarped,West.facing,"Growth
+(Months 10-12)",Edge
+M11,GiantMarsh,2,2,b,2026-05-14,2026-06-09,2026,140.7842006,0,0,0,0,0,0,0,0,0,OK,Scarped,West.facing,"Growth
+(Months 10-12)",Edge
+M11,GiantMarsh,2,2,c,2026-05-14,2026-06-09,2026,108.3871463,0,0,0,0,0,0,0,0,0,OK,Scarped,West.facing,"Growth
+(Months 10-12)",Edge
+M11,GiantMarsh,2,6,a,2026-05-14,2026-06-09,2026,7.609933911,0,0,0,0,0,0,0,0,0,OK,Scarped,West.facing,"Growth
+(Months 10-12)",Edge
+M11,GiantMarsh,2,6,b,2026-05-14,2026-06-09,2026,5.35885123,0,0,0,0,0,0,0,0,0,OK,Scarped,West.facing,"Growth
+(Months 10-12)",Edge
+M11,GiantMarsh,2,6,c,2026-05-14,2026-06-09,2026,6.575562809,0,0,0,0,0,0,0,0,0,OK,Scarped,West.facing,"Growth
+(Months 10-12)",Edge
+M11,GiantMarsh,2,12,a,2026-05-14,2026-06-09,2026,1.51108021,0,0,0,0,0,0,0,0,0,OK,Scarped,West.facing,"Growth
+(Months 10-12)",Platform
+M11,GiantMarsh,2,12,b,2026-05-14,2026-06-09,2026,2.960312174,0,0,0,0,0,0,0,0,0,OK,Scarped,West.facing,"Growth
+(Months 10-12)",Platform
+M11,GiantMarsh,2,12,c,2026-05-14,2026-06-09,2026,2.941630739,0,0,0,0,0,0,0,0,0,OK,Scarped,West.facing,"Growth
+(Months 10-12)",Platform
+M11,GiantMarsh,2,18,a,2026-05-14,2026-06-09,2026,3.511747022,0,0,0,0,0,0,0,0,0,OK,Scarped,West.facing,"Growth
+(Months 10-12)",Platform
+M11,GiantMarsh,2,18,b,2026-05-14,2026-06-09,2026,2.704757399,0,0,0,0,0,0,0,0,0,OK,Scarped,West.facing,"Growth
+(Months 10-12)",Platform
+M11,GiantMarsh,2,18,c,2026-05-14,2026-06-09,2026,2.759592549,0,0,0,0,0,0,0,0,0,OK,Scarped,West.facing,"Growth
+(Months 10-12)",Platform
+M11,GiantMarsh,2,24,a,2026-05-14,2026-06-09,2026,2.837583006,0,0,0,0,0,0,0,0,0,OK,Scarped,West.facing,"Growth
+(Months 10-12)",Platform
+M11,GiantMarsh,2,24,b,2026-05-14,2026-06-09,2026,1.915119141,0,0,0,0,0,0,0,0,0,OK,Scarped,West.facing,"Growth
+(Months 10-12)",Platform
+M11,GiantMarsh,2,24,c,2026-05-14,2026-06-09,2026,2.229076072,0,0,0,0,0,0,0,0,0,OK,Scarped,West.facing,"Growth
+(Months 10-12)",Platform
+M11,GiantMarsh,2,48,a,2026-05-14,2026-06-09,2026,5.326506351,0,0,0,0,0,0,0,0,0,OK,Scarped,West.facing,"Growth
+(Months 10-12)",Upland
+M11,GiantMarsh,2,48,b,2026-05-14,2026-06-09,2026,2.863096163,0,0,0,0,0,0,0,0,0,OK,Scarped,West.facing,"Growth
+(Months 10-12)",Upland
+M11,GiantMarsh,2,48,c,2026-05-14,2026-06-09,2026,4.503314059,0,0,0,0,0,0,0,0,0,OK,Scarped,West.facing,"Growth
+(Months 10-12)",Upland
+M12,GiantMarsh,1,0.5,a,2026-06-09,2026-07-09,2026,0.736278276,0,0,0,0,0,0,0,0,0,OK,Scarped,West.facing,"Growth
+(Months 10-12)",Edge
+M12,GiantMarsh,1,0.5,b,2026-06-09,2026-07-09,2026,0.79318108,0,0,0,0,0,0,0,0,0,OK,Scarped,West.facing,"Growth
+(Months 10-12)",Edge
+M12,GiantMarsh,1,0.5,c,2026-06-09,2026-07-09,2026,0.603924239,0,0,0,0,0,0,0,0,0,OK,Scarped,West.facing,"Growth
+(Months 10-12)",Edge
+M12,GiantMarsh,1,2,a,2026-06-09,2026-07-09,2026,37.26096235,0,0,0,1,0,0,0,1,0,Review,Scarped,West.facing,"Growth
+(Months 10-12)",Edge
+M12,GiantMarsh,1,2,b,2026-06-09,2026-07-09,2026,56.1923577,0,0,0,1,0,0,0,1,0,Review,Scarped,West.facing,"Growth
+(Months 10-12)",Edge
+M12,GiantMarsh,1,2,c,2026-06-09,2026-07-09,2026,12.33355186,0,0,0,0,0,0,0,0,0,OK,Scarped,West.facing,"Growth
+(Months 10-12)",Edge
+M12,GiantMarsh,1,6,a,2026-06-09,2026-07-09,2026,74.72328517,0,1,0,1,0,0,0,1,0,Review,Scarped,West.facing,"Growth
+(Months 10-12)",Edge
+M12,GiantMarsh,1,6,b,2026-06-09,2026-07-09,2026,103.4577867,0,1,0,1,0,0,0,1,0,Review,Scarped,West.facing,"Growth
+(Months 10-12)",Edge
+M12,GiantMarsh,1,6,c,2026-06-09,2026-07-09,2026,24.1089742,0,1,0,1,0,0,0,1,0,Review,Scarped,West.facing,"Growth
+(Months 10-12)",Edge
+M12,GiantMarsh,1,12,a,2026-06-09,2026-07-09,2026,17.84652191,0,0,0,0,0,0,0,0,0,OK,Scarped,West.facing,"Growth
+(Months 10-12)",Platform
+M12,GiantMarsh,1,12,b,2026-06-09,2026-07-09,2026,18.30300187,0,0,0,1,0,0,0,1,0,Review,Scarped,West.facing,"Growth
+(Months 10-12)",Platform
+M12,GiantMarsh,1,12,c,2026-06-09,2026-07-09,2026,18.23635328,0,0,0,0,0,0,0,0,0,OK,Scarped,West.facing,"Growth
+(Months 10-12)",Platform
+M12,GiantMarsh,1,18,a,2026-06-09,2026-07-09,2026,6.937321643,0,0,0,0,0,0,0,0,0,OK,Scarped,West.facing,"Growth
+(Months 10-12)",Platform
+M12,GiantMarsh,1,18,b,2026-06-09,2026-07-09,2026,24.00108941,0,0,0,0,0,0,0,0,0,OK,Scarped,West.facing,"Growth
+(Months 10-12)",Platform
+M12,GiantMarsh,1,18,c,2026-06-09,2026-07-09,2026,21.92356069,0,0,0,0,0,0,0,0,0,OK,Scarped,West.facing,"Growth
+(Months 10-12)",Platform
+M12,GiantMarsh,1,24,a,2026-06-09,2026-07-09,2026,14.79221411,0,0,0,0,0,0,0,0,0,OK,Scarped,West.facing,"Growth
+(Months 10-12)",Platform
+M12,GiantMarsh,1,24,b,2026-06-09,2026-07-09,2026,11.05213843,0,0,0,0,0,0,0,0,0,OK,Scarped,West.facing,"Growth
+(Months 10-12)",Platform
+M12,GiantMarsh,1,24,c,2026-06-09,2026-07-09,2026,9.382622729,0,0,0,0,0,0,0,0,0,OK,Scarped,West.facing,"Growth
+(Months 10-12)",Platform
+M12,GiantMarsh,1,48,a,2026-06-09,2026-07-09,2026,2.11415401,0,0,0,0,0,0,0,0,0,OK,Scarped,West.facing,"Growth
+(Months 10-12)",Upland
+M12,GiantMarsh,1,48,b,2026-06-09,2026-07-09,2026,1.697128761,0,0,0,0,0,0,0,0,0,OK,Scarped,West.facing,"Growth
+(Months 10-12)",Upland
+M12,GiantMarsh,1,48,c,2026-06-09,2026-07-09,2026,3.097273089,0,0,0,0,0,0,0,0,0,OK,Scarped,West.facing,"Growth
+(Months 10-12)",Upland
+M12,GiantMarsh,2,0.5,a,2026-06-09,2026-07-09,2026,NA,1,0,0,0,0,0,0,0,NA,#VALUE!,Scarped,West.facing,"Growth
+(Months 10-12)",Edge
+M12,GiantMarsh,2,0.5,b,2026-06-09,2026-07-09,2026,NA,1,0,0,0,0,0,0,0,NA,#VALUE!,Scarped,West.facing,"Growth
+(Months 10-12)",Edge
+M12,GiantMarsh,2,0.5,c,2026-06-09,2026-07-09,2026,NA,1,0,0,0,0,0,0,0,NA,#VALUE!,Scarped,West.facing,"Growth
+(Months 10-12)",Edge
+M12,GiantMarsh,2,2,a,2026-06-09,2026-07-09,2026,6.613248121,0,0,0,0,0,0,0,0,0,OK,Scarped,West.facing,"Growth
+(Months 10-12)",Edge
+M12,GiantMarsh,2,2,b,2026-06-09,2026-07-09,2026,0.947856107,0,0,0,1,0,0,0,0,0,Review,Scarped,West.facing,"Growth
+(Months 10-12)",Edge
+M12,GiantMarsh,2,2,c,2026-06-09,2026-07-09,2026,2.017534516,0,0,0,0,0,0,0,0,0,OK,Scarped,West.facing,"Growth
+(Months 10-12)",Edge
+M12,GiantMarsh,2,6,a,2026-06-09,2026-07-09,2026,30.88947255,0,0,0,0,0,0,0,0,0,OK,Scarped,West.facing,"Growth
+(Months 10-12)",Edge
+M12,GiantMarsh,2,6,b,2026-06-09,2026-07-09,2026,38.11565714,0,0,0,0,0,0,0,1,0,Review,Scarped,West.facing,"Growth
+(Months 10-12)",Edge
+M12,GiantMarsh,2,6,c,2026-06-09,2026-07-09,2026,37.78183783,0,0,0,0,0,0,0,0,0,OK,Scarped,West.facing,"Growth
+(Months 10-12)",Edge
+M12,GiantMarsh,2,12,a,2026-06-09,2026-07-09,2026,22.7289502,0,0,0,1,0,0,0,0,0,Review,Scarped,West.facing,"Growth
+(Months 10-12)",Platform
+M12,GiantMarsh,2,12,b,2026-06-09,2026-07-09,2026,18.64824365,0,0,0,1,0,0,0,0,0,Review,Scarped,West.facing,"Growth
+(Months 10-12)",Platform
+M12,GiantMarsh,2,12,c,2026-06-09,2026-07-09,2026,19.67720983,0,0,0,1,0,0,0,0,0,Review,Scarped,West.facing,"Growth
+(Months 10-12)",Platform
+M12,GiantMarsh,2,18,a,2026-06-09,2026-07-09,2026,16.87000481,0,0,0,0,0,0,0,0,0,OK,Scarped,West.facing,"Growth
+(Months 10-12)",Platform
+M12,GiantMarsh,2,18,b,2026-06-09,2026-07-09,2026,20.76098295,0,0,0,0,0,0,0,0,0,OK,Scarped,West.facing,"Growth
+(Months 10-12)",Platform
+M12,GiantMarsh,2,18,c,2026-06-09,2026-07-09,2026,15.3003572,0,0,0,0,0,0,0,0,0,OK,Scarped,West.facing,"Growth
+(Months 10-12)",Platform
+M12,GiantMarsh,2,24,a,2026-06-09,2026-07-09,2026,7.686332314,0,0,0,0,0,0,0,0,0,OK,Scarped,West.facing,"Growth
+(Months 10-12)",Platform
+M12,GiantMarsh,2,24,b,2026-06-09,2026-07-09,2026,8.738353039,0,0,0,0,0,0,0,0,0,OK,Scarped,West.facing,"Growth
+(Months 10-12)",Platform
+M12,GiantMarsh,2,24,c,2026-06-09,2026-07-09,2026,11.80293059,0,0,0,0,0,0,0,0,0,OK,Scarped,West.facing,"Growth
+(Months 10-12)",Platform
+M12,GiantMarsh,2,48,a,2026-06-09,2026-07-09,2026,11.71144597,0,0,0,0,0,0,0,0,0,OK,Scarped,West.facing,"Growth
+(Months 10-12)",Upland
+M12,GiantMarsh,2,48,b,2026-06-09,2026-07-09,2026,3.975703582,0,0,0,0,0,0,0,0,0,OK,Scarped,West.facing,"Growth
+(Months 10-12)",Upland
+M12,GiantMarsh,2,48,c,2026-06-09,2026-07-09,2026,7.18615352,0,0,0,0,0,0,0,0,0,OK,Scarped,West.facing,"Growth
+(Months 10-12)",Upland

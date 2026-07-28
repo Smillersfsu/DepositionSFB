@@ -1,0 +1,524 @@
+---
+title: "master_analysis_flagtier"
+format: docx
+editor: visual
+---
+
+## Quarto
+
+Quarto enables you to weave together content and executable code into a finished document. To learn more about Quarto see <https://quarto.org>.
+
+## Running Code
+
+When you click the **Render** button a document will be generated that includes both content and the output of embedded code. You can embed code like this:
+
+```{r, load packages and working directory}
+
+# data import and database management 
+# reading files, reshaping data, and efficient data handling 
+
+#######################################################
+
+library(readxl) # import excel spreadsheets
+library(data.table) #quick manipulation of large datasets
+library(stringr) # text and string processing 
+library(lubridate) # data and time handling 
+library(writexl) # exports editted databases into excel files
+
+#######################################################
+
+# General data science workflow 
+# Collection of packages for data manipulation and plotting
+
+#######################################################
+
+library(tidyverse)
+
+#######################################################
+
+#Statistical analyses and mixed models 
+# Hypothesis testing, summaries, and model fitting 
+
+#######################################################
+
+library(gt) # displaying formatted tables for statistics 
+library(rstatix) # statistical tests and assumption checking
+library(lmerTest) # p-values and tests for lme4 models 
+library(lme4) # linear and generalized mixed-effects models
+library(ggeffects) # predicted values and marginal effects 
+
+#######################################################
+
+# Data visualization 
+# Plot creation, figure assembly, and publication formatting 
+
+#######################################################
+
+library(patchwork) #comvine ggplots into multi-panel figures
+library(cowplot) # figure arrangement and plot annotations
+library(rcartocolor) # color palettes
+library(ggh4x) # advanced ggplot extensions
+library(scales) # axis labels, formatting, and scaling 
+
+#######################################################
+# Spatial data and mapping 
+# GIS data handling and map visualization
+#######################################################
+
+library(sf) #spatial vector data
+library(ggmap) #basemaps and geographic visualization
+library(ggspatial) #spatial annotations and map elements
+library(leaflet) #interactive web maps
+
+#######################################################
+
+#Tables and report outputs 
+# Interactive tables and report presentation 
+
+#######################################################
+
+library(reactable) #interactive tables for reports
+
+#######################################################
+# R markdown and document rendering 
+# PDF generation and LaTeX support 
+#######################################################
+
+library(tinytex) #LaTeX engine for PDF knitting
+
+
+
+```
+
+You can add options to executable code like this
+
+```{r}
+
+plot_data_noG2_elev <- elev_z_flux %>%
+  filter(!(Site == "GiantMarsh" & Tran == "2"))
+
+master_thesis_noG2 = readr::write_csv(plot_data_noG2, "C:\\Users\\savan\\OneDrive - San Francisco State University\\ProjectData\\GitHub\\DepositionSFB\\data\\master_thesis_noG2.csv")
+
+
+
+master_thesis_noG2_elev = readr::write_csv(plot_data_noG2_elev, "C:\\Users\\savan\\OneDrive - San Francisco State University\\ProjectData\\GitHub\\DepositionSFB\\data\\master_thesis_noG2_elev.csv")
+```
+
+```{r}
+
+# tier 1 no flagged data at all, still takes out G2 and keeps zstar dat
+master_tier2 <- master_thesis_noG2_elev %>%
+  filter(!(Master_Flag == "Review"))
+
+# tier 2 no data flags for biological, negative value, and flood observ
+master_tier2 <- master_thesis_noG2_elev %>%
+  filter(!(Bio_Obsv == "1"), !(NegValue_Num == "1"), !(Flood_Obsv == "1"))
+
+
+
+```
+
+```{r, statistics, tier 1}
+
+# general summary 
+
+general_summary_tier1 <- master_tier1 %>%
+  dplyr::summarise(
+    n = dplyr::n(),
+    Mean = round(mean(Flux, na.rm = TRUE), 3),
+    SD = round(sd(Flux, na.rm = TRUE), 3),
+    Median = round(median(Flux, na.rm = TRUE), 3),
+    Min = round(min(Flux, na.rm = TRUE), 3),
+    Max = round(max(Flux, na.rm = TRUE), 3),
+    SE = round(sd(Flux, na.rm = TRUE) / sqrt(dplyr::n()), 3)
+  ) %>%
+  dplyr::mutate(
+    CI95_Lower = round(Mean - qt(0.975, n - 1) * SE, 3),
+    CI95_Upper = round(Mean + qt(0.975, n - 1) * SE, 3)
+  )
+
+general_summary_tier1
+
+# Phenological Summary
+
+phen_summary_tier1 <- master_tier1 %>%
+  dplyr::group_by(Phen_Period) %>%
+  dplyr::summarise(
+    n = dplyr::n(),
+    Mean = round(mean(Flux, na.rm = TRUE), 3),
+    SD = round(sd(Flux, na.rm = TRUE), 3),
+    Median = round(median(Flux, na.rm = TRUE), 3),
+    Min = round(min(Flux, na.rm = TRUE), 3),
+    Max = round(max(Flux, na.rm = TRUE), 3),
+    SE = round(sd(Flux, na.rm = TRUE) / sqrt(dplyr::n()), 3),
+    .groups = "drop"
+  )
+
+phen_summary_tier1
+
+
+# site summary 
+
+site_summary_tier1 <- master_tier1 %>%
+  dplyr::group_by(Site) %>%
+  dplyr::summarise(
+    n = dplyr::n(),
+    Mean = round(mean(Flux, na.rm = TRUE), 3),
+    SD = round(sd(Flux, na.rm = TRUE), 3),
+    Median = round(median(Flux, na.rm = TRUE), 3),
+    Min = round(min(Flux, na.rm = TRUE), 3),
+    Max = round(max(Flux, na.rm = TRUE), 3),
+    SE = round(sd(Flux, na.rm = TRUE) / sqrt(dplyr::n()), 3),
+    .groups = "drop"
+  )
+site_summary_tier1
+
+# study phase summary 
+
+phase_summary_tier1 <- master_tier1 %>%
+  dplyr::group_by(Study.Phase) %>%
+  dplyr::summarise(
+    n = dplyr::n(),
+    Mean = round(mean(Flux, na.rm = TRUE), 3),
+    SD = round(sd(Flux, na.rm = TRUE), 3),
+    Median = round(median(Flux, na.rm = TRUE), 3),
+    Min = round(min(Flux, na.rm = TRUE), 3),
+    Max = round(max(Flux, na.rm = TRUE), 3),
+    SE = round(sd(Flux, na.rm = TRUE) / sqrt(dplyr::n()), 3),
+    .groups = "drop"
+  )
+phase_summary_tier1
+
+
+```
+
+```{r, statistics tier 2}
+
+# general summary 
+
+general_summary_tier2 <- master_tier2 %>%
+  dplyr::summarise(
+    n = dplyr::n(),
+    Mean = round(mean(Flux, na.rm = TRUE), 3),
+    SD = round(sd(Flux, na.rm = TRUE), 3),
+    Median = round(median(Flux, na.rm = TRUE), 3),
+    Min = round(min(Flux, na.rm = TRUE), 3),
+    Max = round(max(Flux, na.rm = TRUE), 3),
+    SE = round(sd(Flux, na.rm = TRUE) / sqrt(dplyr::n()), 3)
+  ) %>%
+  dplyr::mutate(
+    CI95_Lower = round(Mean - qt(0.975, n - 1) * SE, 3),
+    CI95_Upper = round(Mean + qt(0.975, n - 1) * SE, 3)
+  )
+
+general_summary_tier2
+
+# Phenological Summary
+
+phen_summary_tier2 <- master_tier2 %>%
+  dplyr::group_by(Phen_Period) %>%
+  dplyr::summarise(
+    n = dplyr::n(),
+    Mean = round(mean(Flux, na.rm = TRUE), 3),
+    SD = round(sd(Flux, na.rm = TRUE), 3),
+    Median = round(median(Flux, na.rm = TRUE), 3),
+    Min = round(min(Flux, na.rm = TRUE), 3),
+    Max = round(max(Flux, na.rm = TRUE), 3),
+    SE = round(sd(Flux, na.rm = TRUE) / sqrt(dplyr::n()), 3),
+    .groups = "drop"
+  )
+
+phen_summary_tier2
+
+
+# site summary 
+
+site_summary_tier2 <- master_tier2 %>%
+  dplyr::group_by(Site) %>%
+  dplyr::summarise(
+    n = dplyr::n(),
+    Mean = round(mean(Flux, na.rm = TRUE), 3),
+    SD = round(sd(Flux, na.rm = TRUE), 3),
+    Median = round(median(Flux, na.rm = TRUE), 3),
+    Min = round(min(Flux, na.rm = TRUE), 3),
+    Max = round(max(Flux, na.rm = TRUE), 3),
+    SE = round(sd(Flux, na.rm = TRUE) / sqrt(dplyr::n()), 3),
+    .groups = "drop"
+  )
+site_summary_tier2
+
+# study phase summary 
+
+phase_summary_tier2 <- master_tier2 %>%
+  dplyr::group_by(Study.Phase) %>%
+  dplyr::summarise(
+    n = dplyr::n(),
+    Mean = round(mean(Flux, na.rm = TRUE), 3),
+    SD = round(sd(Flux, na.rm = TRUE), 3),
+    Median = round(median(Flux, na.rm = TRUE), 3),
+    Min = round(min(Flux, na.rm = TRUE), 3),
+    Max = round(max(Flux, na.rm = TRUE), 3),
+    SE = round(sd(Flux, na.rm = TRUE) / sqrt(dplyr::n()), 3),
+    .groups = "drop"
+  )
+phase_summary_tier2
+
+```
+
+```{r, tier 1 plots}
+
+
+sed_basic_tier1= ggplot(master_tier1, aes(x = Flux)) +
+  geom_histogram(bins = 30) +
+  theme_minimal() +
+  labs(x = expression(Flux~(g/m^2/day)), y = "Count") 
+
+sed_basic_tier1
+
+# Deposition by Edge Type 
+
+sed_edge_tier1= ggplot(master_tier1, aes(x = marsh_edge_type, y = Flux)) +
+  geom_boxplot() + 
+  geom_jitter(width = 0.15, alpha = 0.5) +
+  theme_minimal() +
+  labs(x = "Marsh Edge Type", y = expression(Flux~(g/m^2))) 
+
+sed_edge_tier1
+
+
+# Deposition by Elevation (do this later once you've figured out z*) 
+
+sed_z_tier1= ggplot(master_tier1, aes(x = z_star, y = Flux, color = marsh_edge_type)) +
+geom_boxplot() + 
+geom_jitter(width = 0.15, alpha = 0.5) +
+ theme_minimal() +
+labs(x = "z*", y = expression(Flux~(g/m^2/day))) 
+
+sed_z_tier1
+
+# Deposition by Distance from Marsh Edge 
+
+sed_dist_edge_tier1= ggplot(master_tier1, aes(x = Dist, y = Flux, color = marsh_edge_type)) +
+  geom_boxplot() + 
+  geom_jitter(width = 0.15, alpha = 0.5) +
+  theme_minimal() +
+  labs(x = "Distance from the Marsh Edge (m) ", y = expression(Flux~(g/m^2))) 
+
+sed_dist_edge_tier1
+
+# Deposition by Phenological Time
+
+sed_time_tier1= ggplot(master_tier1, aes(x = Phen_Period, y = Flux)) +
+  geom_boxplot() + 
+  geom_jitter(width = 0.15, alpha = 0.5) +
+  theme_minimal() +
+  labs(x = "Phenological Period ", y = expression(Flux~(g/m^2))) 
+
+sed_time_tier1
+
+
+# Deposition by Marsh Area
+
+sed_edge_area_tier1= ggplot(master_tier1, aes(x = Marsh_Area, y = Flux, color = marsh_edge_type)) +
+  geom_boxplot() + 
+  geom_jitter(width = 0.15, alpha = 0.5) +
+  theme_minimal() +
+  labs(x = "Marsh Area ", y = expression(Flux~(g/m^2))) 
+
+sed_edge_area_tier1
+
+
+# Deposition by Phenological Time by Site
+
+sed_site_time_tier1= ggplot(master_tier1, aes(x = Phen_Period, y = Flux, color = Site)) +
+  geom_boxplot() + 
+  geom_jitter(width = 0.15, alpha = 0.5) +
+  theme_minimal() +
+  labs(x = "Phenological Period ", y = expression(Flux~(g/m^2))) 
+
+sed_site_time_tier1
+
+
+# Deposition by Marsh Area by Site
+
+sed_site_area_tier1= ggplot(master_tier1, aes(x = Marsh_Area, y = Flux, color = Site)) +
+  geom_boxplot() + 
+  geom_jitter(width = 0.15, alpha = 0.5) +
+  theme_minimal() +
+  labs(x = "Marsh Area ", y = expression(Flux~(g/m^2))) 
+
+sed_site_area_tier1
+
+
+# Deposition by Study Phase by Site
+
+sed_phase_site_tier1= ggplot(master_tier1, aes(x = Study.Phase, y = Flux, color = Site)) +
+  geom_boxplot() + 
+  geom_jitter(width = 0.15, alpha = 0.5) +
+  theme_minimal() +
+  labs(x = "Study Phase ", y = expression(Flux~(g/m^2))) 
+
+sed_phase_site_tier1
+
+# Deposition by Study Phase by Site (log)
+
+sed_phase_site_log_tier1 = ggplot(master_tier1, aes(x = Study.Phase, y = Flux, color = Site)) +
+  geom_boxplot() + 
+  geom_jitter(width = 0.15, alpha = 0.5) +
+  scale_y_log10() +
+  theme_minimal() +
+  labs(x = "Study Phase ", y = expression(Flux~(g/m^2))) 
+sed_phase_site_log_tier1
+
+# Deposition by Study Phase by Marsh Edge Type
+
+sed_phase_edge_tier1= ggplot(master_tier1, aes(x = Study.Phase, y = Flux, color = marsh_edge_type)) +
+  geom_boxplot() + 
+  geom_jitter(width = 0.15, alpha = 0.5) +
+  theme_minimal() +
+  labs(x = "Marsh Edge Type ", y = expression(Flux~(g/m^2))) 
+sed_phase_edge_tier1
+
+
+# Deposition by Study Phase Across Marsh Area
+
+sed_phase_area_tier1= ggplot(master_tier1, aes(x = Marsh_Area, y = Flux, color = Study.Phase)) +
+  facet_wrap(~Site) +
+  geom_boxplot() + 
+  geom_jitter(width = 0.15, alpha = 0.5) +
+  theme_minimal() +
+  labs(x = "Marsh Area ", y = expression(Flux~(g/m^2))
+  ) 
+
+sed_phase_area_tier1
+
+```
+
+```{r, tier 2 plots}
+
+
+sed_basic_tier2= ggplot(master_tier2, aes(x = Flux)) +
+  geom_histogram(bins = 30) +
+  theme_minimal() +
+  labs(x = expression(Flux~(g/m^2/day)), y = "Count") 
+
+sed_basic_tier2
+
+# Deposition by Edge Type 
+
+sed_edge_tier2= ggplot(master_tier2, aes(x = marsh_edge_type, y = Flux)) +
+  geom_boxplot() + 
+  geom_jitter(width = 0.15, alpha = 0.5) +
+  theme_minimal() +
+  labs(x = "Marsh Edge Type", y = expression(Flux~(g/m^2))) 
+
+sed_edge_tier2
+
+
+# Deposition by Elevation (do this later once you've figured out z*) 
+
+sed_z_tier2= ggplot(master_tier2, aes(x = z_star, y = Flux, color = marsh_edge_type)) +
+  geom_boxplot() + 
+  geom_jitter(width = 0.15, alpha = 0.5) +
+  theme_minimal() +
+  labs(x = "z*", y = expression(Flux~(g/m^2/day))) 
+
+sed_z_tier2
+
+# Deposition by Distance from Marsh Edge 
+
+sed_dist_edge_tier2= ggplot(master_tier2, aes(x = Dist, y = Flux, color = marsh_edge_type)) +
+  geom_boxplot() + 
+  geom_jitter(width = 0.15, alpha = 0.5) +
+  theme_minimal() +
+  labs(x = "Distance from the Marsh Edge (m) ", y = expression(Flux~(g/m^2))) 
+
+sed_dist_edge_tier2
+
+# Deposition by Phenological Time
+
+sed_time_tier2= ggplot(master_tier2, aes(x = Phen_Period, y = Flux)) +
+  geom_boxplot() + 
+  geom_jitter(width = 0.15, alpha = 0.5) +
+  theme_minimal() +
+  labs(x = "Phenological Period ", y = expression(Flux~(g/m^2))) 
+
+sed_time_tier2
+
+
+# Deposition by Marsh Area
+
+sed_edge_area_tier2= ggplot(master_tier2, aes(x = Marsh_Area, y = Flux, color = marsh_edge_type)) +
+  geom_boxplot() + 
+  geom_jitter(width = 0.15, alpha = 0.5) +
+  theme_minimal() +
+  labs(x = "Marsh Area ", y = expression(Flux~(g/m^2))) 
+
+sed_edge_area_tier2
+
+
+# Deposition by Phenological Time by Site
+
+sed_site_time_tier2= ggplot(master_tier2, aes(x = Phen_Period, y = Flux, color = Site)) +
+  geom_boxplot() + 
+  geom_jitter(width = 0.15, alpha = 0.5) +
+  theme_minimal() +
+  labs(x = "Phenological Period ", y = expression(Flux~(g/m^2))) 
+
+sed_site_time_tier2
+
+
+# Deposition by Marsh Area by Site
+
+sed_site_area_tier2= ggplot(master_tier2, aes(x = Marsh_Area, y = Flux, color = Site)) +
+  geom_boxplot() + 
+  geom_jitter(width = 0.15, alpha = 0.5) +
+  theme_minimal() +
+  labs(x = "Marsh Area ", y = expression(Flux~(g/m^2))) 
+
+sed_site_area_tier2
+
+
+# Deposition by Study Phase by Site
+
+sed_phase_site_tier2= ggplot(master_tier2, aes(x = Study.Phase, y = Flux, color = Site)) +
+  geom_boxplot() + 
+  geom_jitter(width = 0.15, alpha = 0.5) +
+  theme_minimal() +
+  labs(x = "Study Phase ", y = expression(Flux~(g/m^2))) 
+
+sed_phase_site_tier2
+
+# Deposition by Study Phase by Site (log)
+
+sed_phase_site_log_tier2 = ggplot(master_tier2, aes(x = Study.Phase, y = Flux, color = Site)) +
+  geom_boxplot() + 
+  geom_jitter(width = 0.15, alpha = 0.5) +
+  scale_y_log10() +
+  theme_minimal() +
+  labs(x = "Study Phase ", y = expression(Flux~(g/m^2))) 
+sed_phase_site_log_tier2
+
+# Deposition by Study Phase by Marsh Edge Type
+
+sed_phase_edge_tier2= ggplot(master_tier2, aes(x = Study.Phase, y = Flux, color = marsh_edge_type)) +
+  geom_boxplot() + 
+  geom_jitter(width = 0.15, alpha = 0.5) +
+  theme_minimal() +
+  labs(x = "Marsh Edge Type ", y = expression(Flux~(g/m^2))) 
+sed_phase_edge_tier2
+
+
+# Deposition by Study Phase Across Marsh Area
+
+sed_phase_area_tier2= ggplot(master_tier2, aes(x = Marsh_Area, y = Flux, color = Study.Phase)) +
+  facet_wrap(~Site) +
+  geom_boxplot() + 
+  geom_jitter(width = 0.15, alpha = 0.5) +
+  theme_minimal() +
+  labs(x = "Marsh Area ", y = expression(Flux~(g/m^2))
+  ) 
+
+sed_phase_area_tier2
+
+```

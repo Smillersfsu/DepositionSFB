@@ -30,7 +30,8 @@ library(sf)
 
 # Load data
 usgs_locations <- as.data.frame(read_excel("C:/Users/savan/OneDrive - San Francisco State University/ProjectData/GitHub/DepositionSFB/data/Locations Karen's Data.xlsx"))
-thesis_locations <- as.data.frame(read_csv("C:\\Users\\savan\\OneDrive - San Francisco State University\\ProjectData\\GitHub\\DepositionSFB\\data\\All_Sites_Calculated.csv"))
+                                
+thesis_locations <- as.data.frame(read_csv("C:\\Users\\savan\\OneDrive - San Francisco State University\\ProjectData\\GitHub\\DepositionSFB\\data\\All_Sites_Calculated (with z star).csv"))
 
 # Convert UTM to lat/lon (USGS)
 #UTM Zone 10N (WGS84)

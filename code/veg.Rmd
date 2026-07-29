@@ -45,80 +45,127 @@ I ran a general linear mixed model with both sites data and sediment deposition 
 
 ```{r, Load necessary packages}
 
-library(ggplot2)
+# data import and database management 
+# reading files, reshaping data, and efficient data handling 
+
+#######################################################
+
+library(readxl) # import excel spreadsheets
+library(data.table) #quick manipulation of large datasets
+library(stringr) # text and string processing 
+library(lubridate) # data and time handling 
+library(writexl) # exports editted databases into excel files
+
+#######################################################
+
+# General data science workflow 
+# Collection of packages for data manipulation and plotting
+
+#######################################################
+
 library(tidyverse)
-library(Rmisc)
-library(rstatix)
-library(tidyr)
-library(data.table)
-library(dplyr)
-library(lme4)
-library(stringr)
+
+#######################################################
+
+#Statistical analyses and mixed models 
+# Hypothesis testing, summaries, and model fitting 
+
+#######################################################
+
+library(gt) # displaying formatted tables for statistics 
+library(rstatix) # statistical tests and assumption checking
+library(lmerTest) # p-values and tests for lme4 models 
+library(lme4) # linear and generalized mixed-effects models
+library(ggeffects) # predicted values and marginal effects 
+
+#######################################################
+
+# Data visualization 
+# Plot creation, figure assembly, and publication formatting 
+
+#######################################################
+
+library(patchwork) #comvine ggplots into multi-panel figures
+library(cowplot) # figure arrangement and plot annotations
+library(rcartocolor) # color palettes
+library(ggh4x) # advanced ggplot extensions
+library(scales) # axis labels, formatting, and scaling 
+
+#######################################################
+# Spatial data and mapping 
+# GIS data handling and map visualization
+#######################################################
+
+library(sf) #spatial vector data
+library(ggmap) #basemaps and geographic visualization
+library(ggspatial) #spatial annotations and map elements
+library(leaflet) #interactive web maps
+
+#######################################################
+
+#Tables and report outputs 
+# Interactive tables and report presentation 
+
+#######################################################
+
+library(reactable) #interactive tables for reports
+
+#######################################################
+# R markdown and document rendering 
+# PDF generation and LaTeX support 
+#######################################################
+
+library(tinytex) #LaTeX engine for PDF knitting
+
 
 ```
 
 ```{r, set working directory}
 
-knitr::opts_knit$set(root.dir = 'C:/Users/savan/OneDrive/Documents/Code/GitHub/DepositionSFB/data')
+knitr::opts_knit$set(root.dir = "C:\\Users\\savan\\OneDrive - San Francisco State University\\ProjectData\\GitHub\\DepositionSFB\\data")
 
 ```
 
 ```{r, cleaning data}
 # load data
-dataset_sed <- read.csv("C:/Users/savan/OneDrive/Documents/Code/GitHub/DepositionSFB/data/SFB_sediment_pad_data (project).csv") 
+thesis_veg <- read.csv("C:\\Users\\savan\\OneDrive - San Francisco State University\\ProjectData\\GitHub\\DepositionSFB\\data\\thesis_veg.csv") 
 
-dataset_veg <- read.csv("C:/Users/savan/OneDrive/Documents/Code/GitHub/DepositionSFB/data/SFB_1m_vegetation_data (project).csv") 
-
-sed <- dataset_sed %>% mutate(FluxAvgRep = ifelse(is.na(FluxAvgRep), 0, FluxAvgRep))
-
-sed <- dataset_sed %>%
-  select(-Date.removed.from.field, -Date.placed.in.field)
-
-sed <- sed %>% mutate(FluxAvgRep = ifelse(is.na(FluxAvgRep), 0, FluxAvgRep))
-
-#sed$Plot.ID <- paste(sed$Transect, sed$Distance)
-#veg$Plot.ID <- paste(veg$Transect, veg$Distance)
-sed$Season <- str_replace_all(sed$Season, " ", "")
-sed$Distance <- str_replace_all(sed$Distance, " ", "")
-sed$Transect <- str_replace_all(sed$Transect, " ", "")
-sed$Year <- str_replace_all(sed$Year, " ", "")
-sed$Month <- str_replace_all(sed$Month, " ", "")
-sed$FluxAvgRep <- str_replace_all(sed$FluxAvgRep, " ", "")
-#sed$Plot.ID <- str_replace_all(sed$Plot.ID, " ", "")
-sed$FluxAvgRep <-as.numeric(sed$FluxAvgRep)
-sed$FluxAvgRep <- round(sed$FluxAvgRep)
-sed$Year <- as.character(sed$Year)
-sed$Distance <-as.numeric(sed$Distance)
+usgs_veg <- read.csv("C:\\Users\\savan\\OneDrive - San Francisco State University\\ProjectData\\GitHub\\DepositionSFB\\data\\usgs_SFB_1m_vegetation_data.csv") 
 
 
-veg <- dataset_veg %>% mutate(Avg.Ht = ifelse(is.na(Avg.Ht), 0, Avg.Ht))
-veg <- dataset_veg %>% mutate(Max.Ht = ifelse(is.na(Max.Ht), 0, Max.Ht))
-veg$Season <- str_replace_all(veg$Season, " ", "")
-veg$Distance <- str_replace_all(veg$Distance, " ", "")
-veg$Transect <- str_replace_all(veg$Transect, " ", "")
-veg$Year <- str_replace_all(veg$Year, " ", "")
-veg$Month <- str_replace_all(veg$Month, " ", "")
-veg$Year <- as.character(veg$Year)
-veg$Cover <-as.numeric(veg$Cover)
-veg$Distance <-as.numeric(veg$Distance)
+thesis_veg <- thesis_veg %>% mutate(AvgHt = ifelse(is.na(AvgHt), 0, AvgHt))
+thesis_veg <- thesis_veg %>% mutate(MaxHt = ifelse(is.na(MaxHt), 0, MaxHt))
+thesis_veg$Season <- str_replace_all(thesis_veg$Season, " ", "")
+thesis_veg$PlotID <- str_replace_all(thesis_veg$PlotID, " ", "")
+thesis_veg$Year <- str_replace_all(thesis_veg$Year, " ", "")
+thesis_veg$Month <- str_replace_all(thesis_veg$Month, " ", "")
+thesis_veg$Year <- as.character(thesis_veg$Year)
+thesis_veg$Cover <-as.numeric(thesis_veg$Cover)
+thesis_veg <- thesis_veg %>%
+  separate(PlotID, into = c("Tran", "Dist"), sep = "-", remove = FALSE )
+thesis_veg$Dist <- as.numeric(thesis_veg$Dist)
 
-str(sed)
-str(veg)
+usgs_veg <- usgs_veg %>% mutate(AvgHt = ifelse(is.na(AvgHt), 0, AvgHt))
+usgs_veg <- usgs_veg %>% mutate(MaxHt = ifelse(is.na(MaxHt), 0, MaxHt))
+usgs_veg$Season <- str_replace_all(usgs_veg$Season, " ", "")
+usgs_veg$Plot.ID <- str_replace_all(usgs_veg$Plot.ID, " ", "")
+usgs_veg$Year <- str_replace_all(usgs_veg$Year, " ", "")
+usgs_veg$Month <- str_replace_all(usgs_veg$Month, " ", "")
+usgs_veg$Year <- as.character(usgs_veg$Year)
+usgs_veg$Cover <-as.numeric(usgs_veg$Cover)
+usgs_veg <-usgs_veg %>%
+  mutate(
+    Tran = str_extract(Plot.ID, "^[A-Za-z]+"), 
+    Dist = as.numeric(str_extract(Plot.ID, "[0-9.]+$"))
+  )
+
+str(thesis_veg)
+str(usgs_veg)
+
 
 ```
 
-```{r, mean and median and standard deviation of sediment flux}
 
-sed_mean <- mean(sed$FluxAvgRep, na.rm = TRUE)
-sed_mean
-sed_max  <- max(sed$FluxAvgRep, na.rm = TRUE)
-sed_max
-sed_min  <- min(sed$FluxAvgRep, na.rm = TRUE)
-sed_min
-sed_sd <-sd(sed$FluxAvgRep, na.rm =TRUE)
-sed_sd
-
-```
 
 ```{r, veg and SAPA combined dataframe}
 
@@ -126,24 +173,79 @@ sed_SAPA <- sed %>% left_join(veg, by = c("Site", "Season", "Distance", "Transec
 sed_SAPA <- sed_SAPA %>%
   mutate(FluxAvgRep = ifelse(is.na(FluxAvgRep), 0, FluxAvgRep),
         Species = ifelse(is.na(Species), 0, Species), 
-        Avg.Ht = ifelse(is.na(Avg.Ht), 0, Avg.Ht),
-        Max.Ht = ifelse(is.na(Max.Ht), 0, Max.Ht), 
+        AvgHt = ifelse(is.na(AvgHt), 0, AvgHt),
+        MaxHt = ifelse(is.na(MaxHt), 0, MaxHt), 
         Cover = ifelse(is.na(Cover), 0, Cover))
 sed_SAPA <- sed_SAPA %>%
   select(-Date)
 
 ```
 
-```{r, visualizing relationships of the vegetation data to explanatory variables}
-SAPA_dist_mx <- ggplot(data=sed_SAPA, aes(x=Distance, y=Max.Ht, color=Site)) + geom_point() +  facet_wrap(~ Season)
-SAPA_dist_mx
+```{r, focus on SAPA}
 
-SAPA_dist_avg <- ggplot(data=sed_SAPA, aes(x=Distance, y=Avg.Ht, color=Site)) + geom_point() + facet_wrap(~ Season)
-SAPA_dist_avg
+SAPA_usgs <- usgs_veg %>% 
+  filter(Species == "SAPA")
 
-SAPA_dist_c <- ggplot(data=sed_SAPA, aes(x=Distance, y=Cover, color=Site)) + geom_point() +facet_wrap(~ Season)
-SAPA_dist_c
+SAPA_thesis <- thesis_veg %>% 
+  filter(Species ==  "SAPA")
+
+SAPA_dist_mx_usgs <- ggplot(data=SAPA_usgs, aes(x=Dist, y=MaxHt, color=Site)) + geom_point() +  facet_wrap(~ Season)
+SAPA_dist_mx_usgs
+
+SAPA_dist_avg_usgs <- ggplot(data=SAPA_usgs, aes(x=Dist, y=AvgHt, color=Site)) + geom_point() + facet_wrap(~ Season)
+SAPA_dist_avg_usgs
+
+SAPA_dist_c_usgs <- ggplot(data=SAPA_usgs, aes(x=Dist, y=Cover, color=Site)) + geom_point() +facet_wrap(~ Season)
+SAPA_dist_c_usgs
+
+#thesis 
+
+SAPA_dist_mx_thesis <- ggplot(data=SAPA_thesis, aes(x=Dist, y=MaxHt, color=Site)) + geom_point() +  facet_wrap(~ Season)
+SAPA_dist_mx_thesis
+
+SAPA_dist_avg_thesis <- ggplot(data=SAPA_thesis, aes(x=Dist, y=AvgHt, color=Site)) + geom_point() + facet_wrap(~ Season)
+SAPA_dist_avg_thesis
+
+SAPA_dist_c_thesis <- ggplot(data=SAPA_thesis, aes(x=Dist, y=Cover, color=Site)) + geom_point() +facet_wrap(~ Season)
+SAPA_dist_c_thesis
 ```
+
+
+
+```{r, focus on SPFO}
+
+SPFO_usgs <- usgs_veg %>% 
+  filter(Species == "SPFO")
+
+SPFO_thesis <- thesis_veg %>% 
+  filter(Species ==  "SPFO")
+
+SPFO_dist_mx_usgs <- ggplot(data=SPFO_usgs, aes(x=Dist, y=MaxHt, color=Site)) + geom_point() +  facet_wrap(~ Season)
+SPFO_dist_mx_usgs
+
+SPFO_dist_avg_usgs <- ggplot(data=SPFO_usgs, aes(x=Dist, y=AvgHt, color=Site)) + geom_point() + facet_wrap(~ Season)
+SPFO_dist_avg_usgs
+
+SPFO_dist_c_usgs <- ggplot(data=SPFO_usgs, aes(x=Dist, y=Cover, color=Site)) + geom_point() +facet_wrap(~ Season)
+SPFO_dist_c_usgs
+
+#thesis 
+
+SPFO_dist_mx_thesis <- ggplot(data=SPFO_thesis, aes(x=Dist, y=MaxHt, color=Site)) + geom_point() +  facet_wrap(~ Season)
+SPFO_dist_mx_thesis
+
+SPFO_dist_avg_thesis <- ggplot(data=SPFO_thesis, aes(x=Dist, y=AvgHt, color=Site)) + geom_point() + facet_wrap(~ Season)
+SPFO_dist_avg_thesis
+
+SPFO_dist_c_thesis <- ggplot(data=SPFO_thesis, aes(x=Dist, y=Cover, color=Site)) + geom_point() +facet_wrap(~ Season)
+SPFO_dist_c_thesis
+```
+```
+
+
+
+
+
 
 ```{r, visualizing relationships of the sediment data to explanatory variables}
 
@@ -183,53 +285,160 @@ sed_Dist = ggplot(sed, aes(x = Distance, y = FluxAvgRep, color = Site)) +
 sed_Dist
 ```
 
-For visualizing the vegetation data, I used the original veg data set so that the average wouldn't be swayed by the zero values within the combined data frame of "sed_SAPA" that accounted for observations of sediment data collected when vegetation data wasn't consequently collected.
 
-```{r, checking the range of data for the vegetation dataset}
 
-SAPA_Season_mxht <- ggplot(veg, aes(x=Max.Ht,fill=Season)) + geom_boxplot()
-SAPA_Season_mxht
 
-SAPA_Season_avght <-ggplot(veg, aes(x=Avg.Ht,fill=Season)) + geom_boxplot()
-SAPA_Season_avght
 
-SAPA_Season_cover <- ggplot(veg, aes(x=Cover, fill = Season)) + geom_boxplot()
-SAPA_Season_cover
 
-SAPA_Site_cover <- ggplot(veg, aes(x= Cover, fill = Site)) + geom_boxplot()
-SAPA_Site_cover
+```{r, SAPA-checking the range of data for the vegetation dataset}
+# usgs 
 
-SAPA_Site_mxht <- ggplot(veg, aes(x = Max.Ht, fill = Site)) + geom_boxplot()
-SAPA_Site_mxht
+SAPA_Season_mxht_usgs <- ggplot(SAPA_usgs, aes(x=MaxHt,fill=Season)) + geom_boxplot()
+SAPA_Season_mxht_usgs
 
-SAPA_Site_avght <- ggplot(veg, aes(x = Avg.Ht, fill = Site)) + geom_boxplot()
-SAPA_Site_avght
+SAPA_Season_avght_usgs <-ggplot(SAPA_usgs, aes(x=AvgHt,fill=Season)) + geom_boxplot()
+SAPA_Season_avght_usgs
 
-#check the data for normality, Max.Ht 
-SAPA_Maxht_Normality <-ggplot(veg, aes(x=Max.Ht)) + geom_histogram(binwidth = 0.5)
-SAPA_Maxht_Normality
+SAPA_Season_cover_usgs <- ggplot(SAPA_usgs, aes(x=Cover, fill = Season)) + geom_boxplot()
+SAPA_Season_cover_usgs
 
-#check the data for normality, Avg.ht  
-SAPA_Avght_Normality <-ggplot(veg, aes(x=Avg.Ht)) + geom_histogram(binwidth = 0.5)
-SAPA_Avght_Normality
+SAPA_Site_cover_usgs <- ggplot(SAPA_usgs, aes(x= Cover, fill = Site)) + geom_boxplot()
+SAPA_Site_cover_usgs
+
+SAPA_Site_mxht_usgs <- ggplot(SAPA_usgs, aes(x = MaxHt, fill = Site)) + geom_boxplot()
+SAPA_Site_mxht_usgs
+
+SAPA_Site_avght_usgs <- ggplot(SAPA_usgs, aes(x = AvgHt, fill = Site)) + geom_boxplot()
+SAPA_Site_avght_usgs
+
+#check the data for normality, MaxHt 
+SAPA_Maxht_Normality_usgs <-ggplot(SAPA_usgs, aes(x=MaxHt)) + geom_histogram(binwidth = 0.5)
+SAPA_Maxht_Normality_usgs
+
+#check the data for normality, AvgHt  
+SAPA_Avght_Normality_usgs <-ggplot(SAPA_usgs, aes(x=AvgHt)) + geom_histogram(binwidth = 0.5)
+SAPA_Avght_Normality_usgs
 
 #check the data for normality, Cover 
-SAPA_Cover_Normality <-ggplot(veg, aes(x=Cover)) + geom_histogram(binwidth = 0.5)
-SAPA_Cover_Normality
+SAPA_Cover_Normality_usgs <-ggplot(SAPA_usgs, aes(x=Cover)) + geom_histogram(binwidth = 0.5)
+SAPA_Cover_Normality_usgs
 
+# thesis
+
+SAPA_Season_mxht_thesis <- ggplot(SAPA_thesis, aes(x=MaxHt,fill=Season)) + geom_boxplot()
+SAPA_Season_mxht_thesis
+
+SAPA_Season_avght_thesis <-ggplot(SAPA_thesis, aes(x=AvgHt,fill=Season)) + geom_boxplot()
+SAPA_Season_avght_thesis
+
+SAPA_Season_cover_thesis <- ggplot(SAPA_thesis, aes(x=Cover, fill = Season)) + geom_boxplot()
+SAPA_Season_cover_thesis
+
+SAPA_Site_cover_thesis <- ggplot(SAPA_thesis, aes(x= Cover, fill = Site)) + geom_boxplot()
+SAPA_Site_cover_thesis
+
+SAPA_Site_mxht_thesis <- ggplot(SAPA_thesis, aes(x = MaxHt, fill = Site)) + geom_boxplot()
+SAPA_Site_mxht_thesis
+
+SAPA_Site_avght_thesis <- ggplot(SAPA_thesis, aes(x = AvgHt, fill = Site)) + geom_boxplot()
+SAPA_Site_avght_thesis
+
+#check the data for normality, MaxHt 
+SAPA_Maxht_Normality_thesis <-ggplot(SAPA_thesis, aes(x=MaxHt)) + geom_histogram(binwidth = 0.5)
+SAPA_Maxht_Normality_thesis
+
+#check the data for normality, AvgHt  
+SAPA_Avght_Normality_thesis <-ggplot(SAPA_thesis, aes(x=AvgHt)) + geom_histogram(binwidth = 0.5)
+SAPA_Avght_Normality_thesis
+
+#check the data for normality, Cover 
+SAPA_Cover_Normality_thesis <-ggplot(SAPA_thesis, aes(x=Cover)) + geom_histogram(binwidth = 0.5)
+SAPA_Cover_Normality_thesis
 
 ```
 
+
+```{r, SPFO-checking the range of data for the vegetation dataset}
+
+# usgs 
+
+SPFO_Season_mxht_usgs <- ggplot(SPFO_usgs, aes(x=MaxHt,fill=Season)) + geom_boxplot()
+SPFO_Season_mxht_usgs
+
+SPFO_Season_avght_usgs <-ggplot(SPFO_usgs, aes(x=AvgHt,fill=Season)) + geom_boxplot()
+SPFO_Season_avght_usgs
+
+SPFO_Season_cover_usgs <- ggplot(SPFO_usgs, aes(x=Cover, fill = Season)) + geom_boxplot()
+SPFO_Season_cover_usgs
+
+SPFO_Site_cover_usgs <- ggplot(SPFO_usgs, aes(x= Cover, fill = Site)) + geom_boxplot()
+SPFO_Site_cover_usgs
+
+SPFO_Site_mxht_usgs <- ggplot(SPFO_usgs, aes(x = MaxHt, fill = Site)) + geom_boxplot()
+SPFO_Site_mxht_usgs
+
+SPFO_Site_avght_usgs <- ggplot(SPFO_usgs, aes(x = AvgHt, fill = Site)) + geom_boxplot()
+SPFO_Site_avght_usgs
+
+#check the data for normality, MaxHt 
+SPFO_Maxht_Normality_usgs <-ggplot(SPFO_usgs, aes(x=MaxHt)) + geom_histogram(binwidth = 0.5)
+SPFO_Maxht_Normality_usgs
+
+#check the data for normality, AvgHt  
+SPFO_Avght_Normality_usgs <-ggplot(SPFO_usgs, aes(x=AvgHt)) + geom_histogram(binwidth = 0.5)
+SPFO_Avght_Normality_usgs
+
+#check the data for normality, Cover 
+SPFO_Cover_Normality_usgs <-ggplot(SPFO_usgs, aes(x=Cover)) + geom_histogram(binwidth = 0.5)
+SPFO_Cover_Normality_usgs
+
+# thesis
+
+SPFO_Season_mxht_thesis <- ggplot(SPFO_thesis, aes(x=MaxHt,fill=Season)) + geom_boxplot()
+SPFO_Season_mxht_thesis
+
+SPFO_Season_avght_thesis <-ggplot(SPFO_thesis, aes(x=AvgHt,fill=Season)) + geom_boxplot()
+SPFO_Season_avght_thesis
+
+SPFO_Season_cover_thesis <- ggplot(SPFO_thesis, aes(x=Cover, fill = Season)) + geom_boxplot()
+SPFO_Season_cover_thesis
+
+SPFO_Site_cover_thesis <- ggplot(SPFO_thesis, aes(x= Cover, fill = Site)) + geom_boxplot()
+SPFO_Site_cover_thesis
+
+SPFO_Site_mxht_thesis <- ggplot(SPFO_thesis, aes(x = MaxHt, fill = Site)) + geom_boxplot()
+SPFO_Site_mxht_thesis
+
+SPFO_Site_avght_thesis <- ggplot(SPFO_thesis, aes(x = AvgHt, fill = Site)) + geom_boxplot()
+SPFO_Site_avght_thesis
+
+#check the data for normality, MaxHt 
+SPFO_Maxht_Normality_thesis <-ggplot(SPFO_thesis, aes(x=MaxHt)) + geom_histogram(binwidth = 0.5)
+SPFO_Maxht_Normality_thesis
+
+#check the data for normality, AvgHt  
+SPFO_Avght_Normality_thesis <-ggplot(SPFO_thesis, aes(x=AvgHt)) + geom_histogram(binwidth = 0.5)
+SPFO_Avght_Normality_thesis
+
+#check the data for normality, Cover 
+SPFO_Cover_Normality_thesis <-ggplot(SPFO_thesis, aes(x=Cover)) + geom_histogram(binwidth = 0.5)
+SPFO_Cover_Normality_thesis
+```
+
+
+
+
+
 ```{r, Fit GLM with Poisson family}
 
-sedvegglm <-glm(FluxAvgRep~Max.Ht, family = "poisson", data=sed_SAPA)
+sedvegglm <-glm(FluxAvgRep~MaxHt, family = "poisson", data=sed_SAPA)
 sedvegglm
 
 sedvegglm_AIC_text <- paste("AIC: 7914")
 sedvegglm_AIC_text
 
-sedvegglm_coefficient_Max.Ht <- paste("Coefficient for Max Height: -0.01325 ")
-sedvegglm_coefficient_Max.Ht
+sedvegglm_coefficient_MaxHt <- paste("Coefficient for Max Height: -0.01325 ")
+sedvegglm_coefficient_MaxHt
 
 ```
 
@@ -241,19 +450,19 @@ plot(sedvegglm)
 ```{r, glmm trial and error with random effects}
 
 library(glmmTMB)
-sed_glmm = glmmTMB(FluxAvgRep~Max.Ht + Distance + (1|Site) + (1|Season) + (1|Year), family = poisson(), data=sed_SAPA)
+sed_glmm = glmmTMB(FluxAvgRep~MaxHt + Distance + (1|Site) + (1|Season) + (1|Year), family = poisson(), data=sed_SAPA)
 summary(sed_glmm)
 
-sed_glmm2 = glmmTMB(FluxAvgRep~Max.Ht + Distance + (1|Site) + (1|Season), family = poisson(), data=sed_SAPA)
+sed_glmm2 = glmmTMB(FluxAvgRep~MaxHt + Distance + (1|Site) + (1|Season), family = poisson(), data=sed_SAPA)
 summary(sed_glmm2)
 
-sed_glmm3 = glmmTMB(FluxAvgRep~Max.Ht + Distance + (1|Site), family = poisson(), data=sed_SAPA)
+sed_glmm3 = glmmTMB(FluxAvgRep~MaxHt + Distance + (1|Site), family = poisson(), data=sed_SAPA)
 summary(sed_glmm3)
 
-sed_glmm4 = glmmTMB(FluxAvgRep~Max.Ht + Distance + (1|Site) + (1|Year), family = poisson(), data=sed_SAPA)
+sed_glmm4 = glmmTMB(FluxAvgRep~MaxHt + Distance + (1|Site) + (1|Year), family = poisson(), data=sed_SAPA)
 summary(sed_glmm4)
 
-sed_glmm5 = glmmTMB(FluxAvgRep~Max.Ht + Distance + (1|Year) + (1|Season), family = poisson(), data=sed_SAPA)
+sed_glmm5 = glmmTMB(FluxAvgRep~MaxHt + Distance + (1|Year) + (1|Season), family = poisson(), data=sed_SAPA)
 summary(sed_glmm5)
 
 AIC(sed_glmm)
@@ -263,7 +472,7 @@ AIC(sed_glmm, sed_glmm2, sed_glmm3, sed_glmm4, sed_glmm5)
 
 ```{r, graphing the relationships}
 
-sed_MxHt_season <- ggplot(sed_SAPA, aes(x = Max.Ht, y = FluxAvgRep, color = Season)) +
+sed_MxHt_season <- ggplot(sed_SAPA, aes(x = MaxHt, y = FluxAvgRep, color = Season)) +
   geom_point(position = position_jitter(w = 0.05, h = 0)) +
   geom_smooth(method = "lm", se = FALSE) +
   scale_y_log10() +
@@ -275,7 +484,7 @@ sed_MxHt_season <- ggplot(sed_SAPA, aes(x = Max.Ht, y = FluxAvgRep, color = Seas
 
 sed_MxHt_season
 
-sed_DistPlant <- ggplot(veg, aes(x = Distance, y = Max.Ht, color = Site)) + 
+sed_DistPlant <- ggplot(veg, aes(x = Distance, y = MaxHt, color = Site)) + 
   geom_point(position = position_jitter(w = 0.05, h = 0)) +
   scale_y_log10() + 
   labs(
@@ -292,7 +501,7 @@ sed_DistPlant
 
 ```{r, final figure}
 
-sed_MxHt_site <- ggplot(sed_SAPA, aes(x = Max.Ht, y = FluxAvgRep, color = Site)) +
+sed_MxHt_site <- ggplot(sed_SAPA, aes(x = MaxHt, y = FluxAvgRep, color = Site)) +
   geom_point(position = position_jitter(w = 0.05, h = 0)) +
   geom_smooth(method = "lm", se = FALSE) +
   scale_y_log10() +

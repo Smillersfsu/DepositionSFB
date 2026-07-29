@@ -237,7 +237,7 @@ combined_morphology_plot_z <- (plot_ramped_z | plot_scarped_z) +
     title = "Marsh Morphology Comparison: Ramped vs. Scarped Sites with z* Calculation",
     theme = theme(plot.title = element_text(size = 16, face = "bold"))
   ) &
-  scale_y_continuous(limits = c(5.0, 7.0)) # Ensures both graphs are on the exact same vertical scale
+  scale_y_continuous(limits = c(c(0.65, 1.25))) # Ensures both graphs are on the exact same vertical scale
 
 # 6. Display the combined plot
 print(combined_morphology_plot_z)

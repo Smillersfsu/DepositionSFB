@@ -1,0 +1,302 @@
+---
+title: "Sediment Flux Analysis: Ramped vs. Scarped Marsh Edges"
+subtitle: "Tidal Inundation Covariates and Mixed Model Plan"
+author: "Savannah"
+date: "`r Sys.Date()`"
+output:
+  html_document:
+    toc: true
+    toc_depth: 3
+    toc_float: true
+    number_sections: true
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE, warning = TRUE, message = FALSE)
+library(ggplot2)
+library(dplyr)
+library(lubridate)
+library(tidyr)
+library(httr)
+library(jsonlite)
+```
+
+# ⚠️ TODO before running this for real
+
+- [ ] **Confirm the vertical datum of the trap elevation surveys** (e.g., NAVD88, MLLW, local benchmark). This MUST match the datum requested from NOAA or all inundation calculations below will be wrong. If mismatched, convert using NOAA's VDatum tool: https://vdatum.noaa.gov/
+- [ ] Identify the nearest NOAA CO-OPS tide station(s) to each site. If sites are far apart within the bay (e.g., San Pablo Bay vs. central bay), tidal range can differ enough that a single station may not be appropriate for all four sites — may need to check whether ramped and scarped sites need different reference stations.
+- [ ] Confirm exact deployment start/end dates (and times, if known) for each trap replicate — needed to query the correct water level window per sample.
+- [ ] Decide whether to also flag pseudoreplication (only 2 sites per MorphType) explicitly in methods/limitations — see notes at bottom.
+
+---
+
+# Research Questions
+
+1. **RQ1:** Does sediment flux differ between ramped and scarped marsh edges?
+   - *Hypothesis:* Ramped edges have higher flux due to increased tidal inundation across the length of the transect.
+2. **RQ2:** Does the flux rate stay constant over time within each edge type?
+   - *Hypothesis:* Yes, flux rate is stable over time within edge type.
+3. **RQ3:** Do other inter-site factors (beyond edge type) influence flux?
+   - *Hypothesis:* Yes, other site-level factors matter beyond MorphType alone.
+
+Candidate inter-site factors to eventually consider for RQ3: tidal tidal inundation metrics (this document), elevation, vegetation density, distance to channel, grain size, salinity.
+
+---
+
+# 1. Load and Prepare Data
+
+```{r load-data, eval=FALSE}
+# Update path/filename to your actual dataset
+data_all <- read.csv("your_flux_data.csv")
+
+# Use the existing "Date removed from field" column as Time (the 
+# temporal anchor for each Flux measurement), and "Date deployed" 
+# as the true start of each collection window.
+# Update column names below to match your actual headers exactly
+# (e.g., they may come in as "Date.removed.from.field" after read.csv).
+data_all <- data_all %>%
+  rename(Time = `Date removed from field`,
+         deploy_start = `Date deployed`) %>%
+  mutate(Time = mdy(Time),                    # adjust mdy()/ymd()/dmy() to match your date format
+         deploy_start = mdy(deploy_start),    # same format as above -- keep consistent
+         deploy_end = Time)                   # alias for clarity in Section 3 (NOAA window)
+
+# Also extract Year and Month from Time if useful for seasonality checks
+data_all <- data_all %>%
+  mutate(Year = year(Time), Month = month(Time))
+
+# Sanity check: deploy_start should always be before deploy_end (Time).
+# Flags any rows with reversed or missing dates before they cause 
+# silent errors downstream.
+data_all %>%
+  filter(is.na(deploy_start) | is.na(deploy_end) | deploy_start >= deploy_end) %>%
+  select(Transect_ID, Site, deploy_start, deploy_end)
+
+# Add MorphType if not already present
+data_all <- data_all %>%
+  mutate(MorphType = case_when(
+    Site %in% c("San Pablo", "Bucks Landing") ~ "Ramped",
+    Site %in% c("Corte Madera", "Giant Marsh") ~ "Scarped",
+    TRUE ~ NA_character_
+  ))
+
+str(data_all)
+```
+
+**Note:** `deploy_start` and `deploy_end` (= `Time`) are now both available and used directly below — Section 2.1's interval check and Section 2's NOAA water-level queries both rely on these being the true bounds of each collection window, so double-check the date parsing (`mdy()` vs `ymd()` vs `dmy()`) matches your actual file format before trusting downstream results.
+
+---
+
+# 2. Tidal Inundation Covariates (NOAA Observed Water Levels)
+
+**Why this matters:** flux is calculated as total sediment collected divided by trap area and deployment days, which assumes roughly steady accumulation across the window. But tidal forcing varies with the spring-neap cycle, so two deployments of the same length can represent genuinely different sediment *supply* just because of which tides fell within the window. Since traps have per-replicate elevation, we can compute actual inundation exposure for each individual trap deployment rather than relying on a site-level proxy.
+
+Using **observed** (not predicted) water levels since all data collection is in the past — observed data reflects what actually happened (including storm surge / wind setup), which predicted harmonic values would miss.
+
+## 2.1 Datum Reminder
+
+```{r datum-flag, eval=FALSE}
+# !!! STOP AND CONFIRM BEFORE RUNNING !!!
+# The `datum` argument below MUST match the vertical datum of your 
+# trap elevation surveys, or every inundation metric computed here 
+# will be systematically wrong.
+#
+# Common NOAA CO-OPS datum options: "NAVD", "MLLW", "MSL", "STND"
+# If your survey elevations are in a different or unknown datum,
+# convert first via NOAA VDatum: https://vdatum.noaa.gov/
+```
+
+## 2.2 Function: Pull Observed Water Levels from NOAA CO-OPS
+
+```{r noaa-pull-function, eval=FALSE}
+get_noaa_observed_water_levels <- function(station_id, begin_date, end_date, datum = "NAVD") {
+  # NOAA API only returns ~31 days per request for 6-min data;
+  # for longer windows this may need to be chunked and stitched together.
+  url <- "https://api.tidesandcurrents.noaa.gov/api/prod/datagetter"
+  resp <- GET(url, query = list(
+    begin_date = format(begin_date, "%Y%m%d"),
+    end_date   = format(end_date, "%Y%m%d"),
+    station    = station_id,
+    product    = "water_level",   # OBSERVED data (not "predictions")
+    datum      = datum,            # <-- MUST MATCH TRAP ELEVATION DATUM
+    units      = "metric",
+    time_zone  = "lst_ldt",
+    format     = "json"
+  ))
+  parsed <- fromJSON(content(resp, "text", encoding = "UTF-8"))
+
+  if (!is.null(parsed$error)) {
+    warning(paste("NOAA API error for station", station_id, ":", parsed$error$message))
+    return(NULL)
+  }
+
+  parsed$data %>%
+    mutate(t = ymd_hm(t), v = as.numeric(v))
+}
+
+# Helper to chunk long date ranges into <=30 day windows for the API,
+# then stitch results back together
+get_noaa_observed_long_range <- function(station_id, begin_date, end_date, datum = "NAVD") {
+  breaks <- seq(begin_date, end_date, by = "30 days")
+  if (max(breaks) < end_date) breaks <- c(breaks, end_date)
+
+  chunks <- purrr::map2(
+    breaks[-length(breaks)], breaks[-1],
+    ~ get_noaa_observed_water_levels(station_id, .x, .y, datum)
+  )
+  bind_rows(chunks) %>% distinct(t, .keep_all = TRUE) %>% arrange(t)
+}
+```
+
+## 2.3 Function: Compute Inundation Metrics per Trap Deployment
+
+```{r inundation-metrics-function, eval=FALSE}
+compute_inundation_metrics <- function(trap_elevation, water_level_ts) {
+  water_level_ts <- water_level_ts %>%
+    arrange(t) %>%
+    mutate(submerged = v > trap_elevation)
+
+  pct_time_submerged <- mean(water_level_ts$submerged, na.rm = TRUE) * 100
+
+  # count distinct submersion events (rising edges: not submerged -> submerged)
+  n_events <- sum(diff(c(FALSE, water_level_ts$submerged)) == 1, na.rm = TRUE)
+
+  mean_depth_when_submerged <- water_level_ts %>%
+    filter(submerged) %>%
+    summarize(mean_depth = mean(v - trap_elevation, na.rm = TRUE)) %>%
+    pull(mean_depth)
+
+  max_depth_when_submerged <- water_level_ts %>%
+    filter(submerged) %>%
+    summarize(max_depth = max(v - trap_elevation, na.rm = TRUE)) %>%
+    pull(max_depth)
+
+  tibble(
+    pct_time_submerged = pct_time_submerged,
+    n_inundation_events = n_events,
+    mean_depth_when_submerged = mean_depth_when_submerged,
+    max_depth_when_submerged = max_depth_when_submerged
+  )
+}
+```
+
+## 2.4 Apply Across All Trap Deployments
+
+```{r apply-inundation, eval=FALSE}
+# trap_deployments needs columns: Transect_ID, trap_elevation, 
+# deploy_start, deploy_end, and a station_id (if using different 
+# stations for different sites).
+# Since deploy_start/deploy_end now live directly in data_all, this 
+# can likely just be built from it, e.g.:
+# trap_deployments <- data_all %>%
+#   distinct(Transect_ID, Site, trap_elevation, deploy_start, deploy_end)
+
+# Map each site to its nearest NOAA station -- FILL IN ONCE IDENTIFIED
+site_station_map <- tibble::tribble(
+  ~Site,             ~station_id,
+  "San Pablo",       "REPLACE_ME",
+  "Bucks Landing",   "REPLACE_ME",
+  "Corte Madera",    "REPLACE_ME",
+  "Giant Marsh",     "REPLACE_ME"
+)
+
+trap_deployments <- trap_deployments %>%
+  left_join(site_station_map, by = "Site")
+
+inundation_results <- trap_deployments %>%
+  rowwise() %>%
+  mutate(
+    water_data = list(
+      get_noaa_observed_long_range(station_id, deploy_start, deploy_end, datum = "NAVD")
+    ),
+    metrics = list(
+      if (!is.null(water_data)) compute_inundation_metrics(trap_elevation, water_data)
+      else tibble(pct_time_submerged = NA, n_inundation_events = NA,
+                   mean_depth_when_submerged = NA, max_depth_when_submerged = NA)
+    )
+  ) %>%
+  ungroup() %>%
+  tidyr::unnest(metrics) %>%
+  select(-water_data)
+
+# Join inundation metrics back to main flux dataset
+data_all <- data_all %>%
+  left_join(inundation_results, by = c("Transect_ID", "deploy_start", "deploy_end"))
+```
+
+## 2.5 Sanity Check Plots for Inundation Metrics
+
+```{r inundation-checks, eval=FALSE}
+# Does % time submerged vary as expected by MorphType and distance 
+# along transect? (Ramped sites should show a more gradual decline 
+# in inundation with distance vs. a sharper drop-off for scarped sites)
+ggplot(data_all, aes(x = Distance_AlongTransect_m, y = pct_time_submerged,
+                      color = Transect_ID)) +
+  geom_point(alpha = 0.7) +
+  geom_line(aes(group = Transect_ID), alpha = 0.4) +
+  facet_wrap(~ MorphType) +
+  labs(
+    title = "Percent Time Submerged vs Distance Along Transect",
+    subtitle = "Sanity check: should reflect the ramped vs scarped inundation gradient hypothesis",
+    x = "Distance Along Transect (m)", y = "% Time Submerged"
+  ) +
+  theme_minimal() +
+  theme(legend.position = "none")
+
+# Does flux correlate with inundation as expected?
+ggplot(data_all, aes(x = pct_time_submerged, y = Flux, color = MorphType)) +
+  geom_point(alpha = 0.7) +
+  geom_smooth(method = "lm", se = TRUE) +
+  labs(
+    title = "Flux vs Percent Time Submerged",
+    x = "% Time Submerged", y = "Flux (g/m2/day)", color = "Edge Type"
+  ) +
+  theme_minimal()
+```
+
+---
+
+# 3. Planned Mixed Model Specifications
+
+Once inundation covariates are joined in, the planned models per research question:
+
+```{r model-plans, eval=FALSE}
+library(lme4)
+
+# RQ1: Does flux differ by edge type, and does the inundation gradient 
+# along the transect explain it (the actual mechanistic hypothesis)?
+rq1_model <- lmer(Flux ~ MorphType * Distance_AlongTransect_m +
+                     (1 | Site/Transect_ID), data = data_all)
+
+# RQ2: Does flux rate stay constant over time within edge type?
+# Random slope on Time lets transects vary in trajectory.
+rq2_model <- lmer(Flux ~ MorphType * as.numeric(Time) +
+                     (1 + as.numeric(Time) | Site/Transect_ID), data = data_all)
+
+# RQ3: Do other inter-site factors (inundation metrics, etc.) explain 
+# flux beyond MorphType alone? Compare nested models.
+rq3_base  <- lmer(Flux ~ MorphType + (1 | Site/Transect_ID), data = data_all)
+rq3_full  <- lmer(Flux ~ MorphType + pct_time_submerged + mean_depth_when_submerged +
+                     (1 | Site/Transect_ID), data = data_all)
+anova(rq3_base, rq3_full)
+
+# Check residual diagnostics for all models before interpreting:
+# plot(rq1_model); qqnorm(resid(rq1_model)); qqline(resid(rq1_model))
+```
+
+---
+
+# 4. Notes / Limitations to Address in Write-Up
+
+- **Pseudoreplication caveat:** MorphType is confounded with Site (only 2 sites per type). Any MorphType effect could reflect true edge-type differences, or unrelated differences between these specific 4 sites. Consider citing Hurlbert (1984) *Pseudoreplication and the Design of Ecological Field Experiments*, Ecological Monographs, when discussing this limitation.
+- **Interval-length variability:** if collection intervals deviate substantially from the ~30-day nominal target, consider excluding outlier-interval deployments from RQ2's trend analysis, or including interval length as a covariate.
+- **Datum mismatch risk:** flagged above — this is the single most likely source of silent error in the inundation calculations.
+
+## Key References
+
+- Zuur, Ieno & Elphick (2010). *A protocol for data exploration to avoid common statistical problems.* Methods in Ecology and Evolution, 1(1), 3–14. https://doi.org/10.1111/j.2041-210X.2009.00001.x
+- Harrison et al. (2018). *A brief introduction to mixed effects modelling and multi-model inference in ecology.* PeerJ. https://doi.org/10.7717/peerj.4794
+- Bolker, B. GLMM FAQ. https://bbolker.github.io/mixedmodels-misc/glmmFAQ.html
+- Hurlbert, S.H. (1984). *Pseudoreplication and the design of ecological field experiments.* Ecological Monographs, 54(2), 187–211.
+- NOAA CO-OPS Tides & Currents API documentation: https://api.tidesandcurrents.noaa.gov/api/prod/
+- NOAA VDatum (datum conversion tool): https://vdatum.noaa.gov/

@@ -100,19 +100,44 @@ plot_data_noG2_elev <- elev_z_flux %>%
 master_thesis_noG2 = readr::write_csv(plot_data_noG2, "C:\\Users\\savan\\OneDrive - San Francisco State University\\ProjectData\\GitHub\\DepositionSFB\\data\\master_thesis_noG2.csv")
 
 
-
 master_thesis_noG2_elev = readr::write_csv(plot_data_noG2_elev, "C:\\Users\\savan\\OneDrive - San Francisco State University\\ProjectData\\GitHub\\DepositionSFB\\data\\master_thesis_noG2_elev.csv")
+
+
+# no site G 
+
+plot_data_noG_elev <- elev_z_flux %>%
+  filter(!(Site == "GiantMarsh"))
+
+master_thesis_noG = readr::write_csv(plot_data_noG, "C:\\Users\\savan\\OneDrive - San Francisco State University\\ProjectData\\GitHub\\DepositionSFB\\data\\master_thesis_noG.csv")
+
+
+master_thesis_noG_elev = readr::write_csv(plot_data_noG_elev, "C:\\Users\\savan\\OneDrive - San Francisco State University\\ProjectData\\GitHub\\DepositionSFB\\data\\master_thesis_noG_elev.csv")
 ```
 
 ```{r}
 
-# tier 1 no flagged data at all, still takes out G2 and keeps zstar dat
-master_tier2 <- master_thesis_noG2_elev %>%
+# tier 1 no flagged data at all, still takes out G2 and keeps zstar data
+master_tier1 <- master_thesis_noG2_elev %>%
+  filter(!(Master_Flag == "Review"))
+
+#tier 1.5 no flagged data at all, incl. all sites 
+master_tier1.5 <- elev_z_flux %>% 
   filter(!(Master_Flag == "Review"))
 
 # tier 2 no data flags for biological, negative value, and flood observ
 master_tier2 <- master_thesis_noG2_elev %>%
   filter(!(Bio_Obsv == "1"), !(NegValue_Num == "1"), !(Flood_Obsv == "1"))
+
+# tier 3 no data flags for biological, negative value, and flood observ incl. all sites
+master_tier3 <- elev_z_flux %>% 
+  filter(!(Bio_Obsv == "1"), !(NegValue_Num == "1"), !(Flood_Obsv == "1"))
+
+# tier 4 no data flags for biological, negative value, and flood observ take out all G 
+
+master_tier4 <- plot_data_noG_elev %>% 
+  filter(!(Bio_Obsv == "1"), !(NegValue_Num == "1"), !(Flood_Obsv == "1"))
+
+ 
 
 
 
@@ -192,6 +217,78 @@ phase_summary_tier1
 
 ```
 
+```{r, 1.5 statistics}
+
+# general summary 
+
+general_summary_tier1.5 <- master_tier1.5 %>%
+  dplyr::summarise(
+    n = dplyr::n(),
+    Mean = round(mean(Flux, na.rm = TRUE), 3),
+    SD = round(sd(Flux, na.rm = TRUE), 3),
+    Median = round(median(Flux, na.rm = TRUE), 3),
+    Min = round(min(Flux, na.rm = TRUE), 3),
+    Max = round(max(Flux, na.rm = TRUE), 3),
+    SE = round(sd(Flux, na.rm = TRUE) / sqrt(dplyr::n()), 3)
+  ) %>%
+  dplyr::mutate(
+    CI95_Lower = round(Mean - qt(0.975, n - 1) * SE, 3),
+    CI95_Upper = round(Mean + qt(0.975, n - 1) * SE, 3)
+  )
+
+general_summary_tier1.5
+
+# Phenological Summary
+
+phen_summary_tier1.5 <- master_tier1.5 %>%
+  dplyr::group_by(Phen_Period) %>%
+  dplyr::summarise(
+    n = dplyr::n(),
+    Mean = round(mean(Flux, na.rm = TRUE), 3),
+    SD = round(sd(Flux, na.rm = TRUE), 3),
+    Median = round(median(Flux, na.rm = TRUE), 3),
+    Min = round(min(Flux, na.rm = TRUE), 3),
+    Max = round(max(Flux, na.rm = TRUE), 3),
+    SE = round(sd(Flux, na.rm = TRUE) / sqrt(dplyr::n()), 3),
+    .groups = "drop"
+  )
+
+phen_summary_tier1.5
+
+
+# site summary 
+
+site_summary_tier1.5 <- master_tier1.5 %>%
+  dplyr::group_by(Site) %>%
+  dplyr::summarise(
+    n = dplyr::n(),
+    Mean = round(mean(Flux, na.rm = TRUE), 3),
+    SD = round(sd(Flux, na.rm = TRUE), 3),
+    Median = round(median(Flux, na.rm = TRUE), 3),
+    Min = round(min(Flux, na.rm = TRUE), 3),
+    Max = round(max(Flux, na.rm = TRUE), 3),
+    SE = round(sd(Flux, na.rm = TRUE) / sqrt(dplyr::n()), 3),
+    .groups = "drop"
+  )
+site_summary_tier1.5
+
+# study phase summary 
+
+phase_summary_tier1.5 <- master_tier1.5 %>%
+  dplyr::group_by(Study.Phase) %>%
+  dplyr::summarise(
+    n = dplyr::n(),
+    Mean = round(mean(Flux, na.rm = TRUE), 3),
+    SD = round(sd(Flux, na.rm = TRUE), 3),
+    Median = round(median(Flux, na.rm = TRUE), 3),
+    Min = round(min(Flux, na.rm = TRUE), 3),
+    Max = round(max(Flux, na.rm = TRUE), 3),
+    SE = round(sd(Flux, na.rm = TRUE) / sqrt(dplyr::n()), 3),
+    .groups = "drop"
+  )
+phase_summary_tier1.5
+```
+
 ```{r, statistics tier 2}
 
 # general summary 
@@ -262,6 +359,153 @@ phase_summary_tier2 <- master_tier2 %>%
     .groups = "drop"
   )
 phase_summary_tier2
+
+```
+
+```{r, statistics tier 3}
+
+# general summary 
+
+general_summary_tier3 <- master_tier3 %>%
+  dplyr::summarise(
+    n = dplyr::n(),
+    Mean = round(mean(Flux, na.rm = TRUE), 3),
+    SD = round(sd(Flux, na.rm = TRUE), 3),
+    Median = round(median(Flux, na.rm = TRUE), 3),
+    Min = round(min(Flux, na.rm = TRUE), 3),
+    Max = round(max(Flux, na.rm = TRUE), 3),
+    SE = round(sd(Flux, na.rm = TRUE) / sqrt(dplyr::n()), 3)
+  ) %>%
+  dplyr::mutate(
+    CI95_Lower = round(Mean - qt(0.975, n - 1) * SE, 3),
+    CI95_Upper = round(Mean + qt(0.975, n - 1) * SE, 3)
+  )
+
+general_summary_tier3
+
+# Phenological Summary
+
+phen_summary_tier3 <- master_tier3 %>%
+  dplyr::group_by(Phen_Period) %>%
+  dplyr::summarise(
+    n = dplyr::n(),
+    Mean = round(mean(Flux, na.rm = TRUE), 3),
+    SD = round(sd(Flux, na.rm = TRUE), 3),
+    Median = round(median(Flux, na.rm = TRUE), 3),
+    Min = round(min(Flux, na.rm = TRUE), 3),
+    Max = round(max(Flux, na.rm = TRUE), 3),
+    SE = round(sd(Flux, na.rm = TRUE) / sqrt(dplyr::n()), 3),
+    .groups = "drop"
+  )
+
+phen_summary_tier3
+
+
+# site summary 
+
+site_summary_tier3 <- master_tier3 %>%
+  dplyr::group_by(Site) %>%
+  dplyr::summarise(
+    n = dplyr::n(),
+    Mean = round(mean(Flux, na.rm = TRUE), 3),
+    SD = round(sd(Flux, na.rm = TRUE), 3),
+    Median = round(median(Flux, na.rm = TRUE), 3),
+    Min = round(min(Flux, na.rm = TRUE), 3),
+    Max = round(max(Flux, na.rm = TRUE), 3),
+    SE = round(sd(Flux, na.rm = TRUE) / sqrt(dplyr::n()), 3),
+    .groups = "drop"
+  )
+site_summary_tier3
+
+# study phase summary 
+
+phase_summary_tier3 <- master_tier3 %>%
+  dplyr::group_by(Study.Phase) %>%
+  dplyr::summarise(
+    n = dplyr::n(),
+    Mean = round(mean(Flux, na.rm = TRUE), 3),
+    SD = round(sd(Flux, na.rm = TRUE), 3),
+    Median = round(median(Flux, na.rm = TRUE), 3),
+    Min = round(min(Flux, na.rm = TRUE), 3),
+    Max = round(max(Flux, na.rm = TRUE), 3),
+    SE = round(sd(Flux, na.rm = TRUE) / sqrt(dplyr::n()), 3),
+    .groups = "drop"
+  )
+phase_summary_tier3
+```
+
+```{r, tier 4 statistics}
+
+
+# general summary 
+
+general_summary_tier4 <- master_tier4 %>%
+  dplyr::summarise(
+    n = dplyr::n(),
+    Mean = round(mean(Flux, na.rm = TRUE), 3),
+    SD = round(sd(Flux, na.rm = TRUE), 3),
+    Median = round(median(Flux, na.rm = TRUE), 3),
+    Min = round(min(Flux, na.rm = TRUE), 3),
+    Max = round(max(Flux, na.rm = TRUE), 3),
+    SE = round(sd(Flux, na.rm = TRUE) / sqrt(dplyr::n()), 3)
+  ) %>%
+  dplyr::mutate(
+    CI95_Lower = round(Mean - qt(0.975, n - 1) * SE, 3),
+    CI95_Upper = round(Mean + qt(0.975, n - 1) * SE, 3)
+  )
+
+general_summary_tier4
+
+# Phenological Summary
+
+phen_summary_tier4 <- master_tier4 %>%
+  dplyr::group_by(Phen_Period) %>%
+  dplyr::summarise(
+    n = dplyr::n(),
+    Mean = round(mean(Flux, na.rm = TRUE), 3),
+    SD = round(sd(Flux, na.rm = TRUE), 3),
+    Median = round(median(Flux, na.rm = TRUE), 3),
+    Min = round(min(Flux, na.rm = TRUE), 3),
+    Max = round(max(Flux, na.rm = TRUE), 3),
+    SE = round(sd(Flux, na.rm = TRUE) / sqrt(dplyr::n()), 3),
+    .groups = "drop"
+  )
+
+phen_summary_tier4
+
+
+# site summary 
+
+site_summary_tier4 <- master_tier4 %>%
+  dplyr::group_by(Site) %>%
+  dplyr::summarise(
+    n = dplyr::n(),
+    Mean = round(mean(Flux, na.rm = TRUE), 3),
+    SD = round(sd(Flux, na.rm = TRUE), 3),
+    Median = round(median(Flux, na.rm = TRUE), 3),
+    Min = round(min(Flux, na.rm = TRUE), 3),
+    Max = round(max(Flux, na.rm = TRUE), 3),
+    SE = round(sd(Flux, na.rm = TRUE) / sqrt(dplyr::n()), 3),
+    .groups = "drop"
+  )
+site_summary_tier4
+
+# study phase summary 
+
+phase_summary_tier4 <- master_tier4 %>%
+  dplyr::group_by(Study.Phase) %>%
+  dplyr::summarise(
+    n = dplyr::n(),
+    Mean = round(mean(Flux, na.rm = TRUE), 3),
+    SD = round(sd(Flux, na.rm = TRUE), 3),
+    Median = round(median(Flux, na.rm = TRUE), 3),
+    Min = round(min(Flux, na.rm = TRUE), 3),
+    Max = round(max(Flux, na.rm = TRUE), 3),
+    SE = round(sd(Flux, na.rm = TRUE) / sqrt(dplyr::n()), 3),
+    .groups = "drop"
+  )
+phase_summary_tier4
+
 
 ```
 
@@ -394,6 +638,134 @@ sed_phase_area_tier1
 
 ```
 
+```{r, tier 1.5 plots}
+
+sed_basic_tier1.5= ggplot(master_tier1.5, aes(x = Flux)) +
+  geom_histogram(bins = 30) +
+  theme_minimal() +
+  labs(x = expression(Flux~(g/m^2/day)), y = "Count") 
+
+sed_basic_tier1.5
+
+# Deposition by Edge Type 
+
+sed_edge_tier1.5= ggplot(master_tier1.5, aes(x = marsh_edge_type, y = Flux)) +
+  geom_boxplot() + 
+  geom_jitter(width = 0.15, alpha = 0.5) +
+  theme_minimal() +
+  labs(x = "Marsh Edge Type", y = expression(Flux~(g/m^2))) 
+
+sed_edge_tier1.5
+
+
+# Deposition by Elevation (do this later once you've figured out z*) 
+
+sed_z_tier1.5= ggplot(master_tier1.5, aes(x = z_star, y = Flux, color = marsh_edge_type)) +
+  geom_boxplot() + 
+  geom_jitter(width = 0.15, alpha = 0.5) +
+  theme_minimal() +
+  labs(x = "z*", y = expression(Flux~(g/m^2/day))) 
+
+sed_z_tier1.5
+
+# Deposition by Distance from Marsh Edge 
+
+sed_dist_edge_tier1.5= ggplot(master_tier1.5, aes(x = Dist, y = Flux, color = marsh_edge_type)) +
+  geom_boxplot() + 
+  geom_jitter(width = 0.15, alpha = 0.5) +
+  theme_minimal() +
+  labs(x = "Distance from the Marsh Edge (m) ", y = expression(Flux~(g/m^2))) 
+
+sed_dist_edge_tier1.5
+
+# Deposition by Phenological Time
+
+sed_time_tier1.5= ggplot(master_tier1.5, aes(x = Phen_Period, y = Flux)) +
+  geom_boxplot() + 
+  geom_jitter(width = 0.15, alpha = 0.5) +
+  theme_minimal() +
+  labs(x = "Phenological Period ", y = expression(Flux~(g/m^2))) 
+
+sed_time_tier1.5
+
+
+# Deposition by Marsh Area
+
+sed_edge_area_tier1.5= ggplot(master_tier1.5, aes(x = Marsh_Area, y = Flux, color = marsh_edge_type)) +
+  geom_boxplot() + 
+  geom_jitter(width = 0.15, alpha = 0.5) +
+  theme_minimal() +
+  labs(x = "Marsh Area ", y = expression(Flux~(g/m^2))) 
+
+sed_edge_area_tier1.5
+
+
+# Deposition by Phenological Time by Site
+
+sed_site_time_tier1.5= ggplot(master_tier1.5, aes(x = Phen_Period, y = Flux, color = Site)) +
+  geom_boxplot() + 
+  geom_jitter(width = 0.15, alpha = 0.5) +
+  theme_minimal() +
+  labs(x = "Phenological Period ", y = expression(Flux~(g/m^2))) 
+
+sed_site_time_tier1.5
+
+
+# Deposition by Marsh Area by Site
+
+sed_site_area_tier1.5= ggplot(master_tier1.5, aes(x = Marsh_Area, y = Flux, color = Site)) +
+  geom_boxplot() + 
+  geom_jitter(width = 0.15, alpha = 0.5) +
+  theme_minimal() +
+  labs(x = "Marsh Area ", y = expression(Flux~(g/m^2))) 
+
+sed_site_area_tier1.5
+
+
+# Deposition by Study Phase by Site
+
+sed_phase_site_tier1.5= ggplot(master_tier1.5, aes(x = Study.Phase, y = Flux, color = Site)) +
+  geom_boxplot() + 
+  geom_jitter(width = 0.15, alpha = 0.5) +
+  theme_minimal() +
+  labs(x = "Study Phase ", y = expression(Flux~(g/m^2))) 
+
+sed_phase_site_tier1.5
+
+# Deposition by Study Phase by Site (log)
+
+sed_phase_site_log_tier1.5 = ggplot(master_tier1.5, aes(x = Study.Phase, y = Flux, color = Site)) +
+  geom_boxplot() + 
+  geom_jitter(width = 0.15, alpha = 0.5) +
+  scale_y_log10() +
+  theme_minimal() +
+  labs(x = "Study Phase ", y = expression(Flux~(g/m^2))) 
+sed_phase_site_log_tier1.5
+
+# Deposition by Study Phase by Marsh Edge Type
+
+sed_phase_edge_tier1.5= ggplot(master_tier1.5, aes(x = Study.Phase, y = Flux, color = marsh_edge_type)) +
+  geom_boxplot() + 
+  geom_jitter(width = 0.15, alpha = 0.5) +
+  theme_minimal() +
+  labs(x = "Marsh Edge Type ", y = expression(Flux~(g/m^2))) 
+sed_phase_edge_tier1.5
+
+
+# Deposition by Study Phase Across Marsh Area
+
+sed_phase_area_tier1.5= ggplot(master_tier1.5, aes(x = Marsh_Area, y = Flux, color = Study.Phase)) +
+  facet_wrap(~Site) +
+  geom_boxplot() + 
+  geom_jitter(width = 0.15, alpha = 0.5) +
+  theme_minimal() +
+  labs(x = "Marsh Area ", y = expression(Flux~(g/m^2))
+  ) 
+
+sed_phase_area_tier1.5
+
+```
+
 ```{r, tier 2 plots}
 
 
@@ -521,4 +893,448 @@ sed_phase_area_tier2= ggplot(master_tier2, aes(x = Marsh_Area, y = Flux, color =
 
 sed_phase_area_tier2
 
+```
+
+```{r, tier 3 plots}
+
+sed_basic_tier3= ggplot(master_tier3, aes(x = Flux)) +
+  geom_histogram(bins = 30) +
+  theme_minimal() +
+  labs(x = expression(Flux~(g/m^2/day)), y = "Count") 
+
+sed_basic_tier3
+
+# Deposition by Edge Type 
+
+sed_edge_tier3= ggplot(master_tier3, aes(x = marsh_edge_type, y = Flux)) +
+  geom_boxplot() + 
+  geom_jitter(width = 0.15, alpha = 0.5) +
+  theme_minimal() +
+  labs(x = "Marsh Edge Type", y = expression(Flux~(g/m^2))) 
+
+sed_edge_tier3
+
+
+# Deposition by Elevation (do this later once you've figured out z*) 
+
+sed_z_tier3= ggplot(master_tier3, aes(x = z_star, y = Flux, color = marsh_edge_type)) +
+  geom_boxplot() + 
+  geom_jitter(width = 0.15, alpha = 0.5) +
+  theme_minimal() +
+  labs(x = "z*", y = expression(Flux~(g/m^2/day))) 
+
+sed_z_tier3
+
+# Deposition by Distance from Marsh Edge 
+
+sed_dist_edge_tier3= ggplot(master_tier3, aes(x = Dist, y = Flux, color = marsh_edge_type)) +
+  geom_boxplot() + 
+  geom_jitter(width = 0.15, alpha = 0.5) +
+  theme_minimal() +
+  labs(x = "Distance from the Marsh Edge (m) ", y = expression(Flux~(g/m^2))) 
+
+sed_dist_edge_tier3
+
+# Deposition by Phenological Time
+
+sed_time_tier3= ggplot(master_tier3, aes(x = Phen_Period, y = Flux)) +
+  geom_boxplot() + 
+  geom_jitter(width = 0.15, alpha = 0.5) +
+  theme_minimal() +
+  labs(x = "Phenological Period ", y = expression(Flux~(g/m^2))) 
+
+sed_time_tier3
+
+
+# Deposition by Marsh Area
+
+sed_edge_area_tier3= ggplot(master_tier3, aes(x = Marsh_Area, y = Flux, color = marsh_edge_type)) +
+  geom_boxplot() + 
+  geom_jitter(width = 0.15, alpha = 0.5) +
+  theme_minimal() +
+  labs(x = "Marsh Area ", y = expression(Flux~(g/m^2))) 
+
+sed_edge_area_tier3
+
+
+# Deposition by Phenological Time by Site
+
+sed_site_time_tier3= ggplot(master_tier3, aes(x = Phen_Period, y = Flux, color = Site)) +
+  geom_boxplot() + 
+  geom_jitter(width = 0.15, alpha = 0.5) +
+  theme_minimal() +
+  labs(x = "Phenological Period ", y = expression(Flux~(g/m^2))) 
+
+sed_site_time_tier3
+
+
+# Deposition by Marsh Area by Site
+
+sed_site_area_tier3= ggplot(master_tier3, aes(x = Marsh_Area, y = Flux, color = Site)) +
+  geom_boxplot() + 
+  geom_jitter(width = 0.15, alpha = 0.5) +
+  theme_minimal() +
+  labs(x = "Marsh Area ", y = expression(Flux~(g/m^2))) 
+
+sed_site_area_tier3
+
+
+# Deposition by Study Phase by Site
+
+sed_phase_site_tier3= ggplot(master_tier3, aes(x = Study.Phase, y = Flux, color = Site)) +
+  geom_boxplot() + 
+  geom_jitter(width = 0.15, alpha = 0.5) +
+  theme_minimal() +
+  labs(x = "Study Phase ", y = expression(Flux~(g/m^2))) 
+
+sed_phase_site_tier3
+
+# Deposition by Study Phase by Site (log)
+
+sed_phase_site_log_tier3 = ggplot(master_tier3, aes(x = Study.Phase, y = Flux, color = Site)) +
+  geom_boxplot() + 
+  geom_jitter(width = 0.15, alpha = 0.5) +
+  scale_y_log10() +
+  theme_minimal() +
+  labs(x = "Study Phase ", y = expression(Flux~(g/m^2))) 
+sed_phase_site_log_tier3
+
+# Deposition by Study Phase by Marsh Edge Type
+
+sed_phase_edge_tier3= ggplot(master_tier3, aes(x = Study.Phase, y = Flux, color = marsh_edge_type)) +
+  geom_boxplot() + 
+  geom_jitter(width = 0.15, alpha = 0.5) +
+  theme_minimal() +
+  labs(x = "Marsh Edge Type ", y = expression(Flux~(g/m^2))) 
+sed_phase_edge_tier3
+
+
+# Deposition by Study Phase Across Marsh Area
+
+sed_phase_area_tier3= ggplot(master_tier3, aes(x = Marsh_Area, y = Flux, color = Study.Phase)) +
+  facet_wrap(~Site) +
+  geom_boxplot() + 
+  geom_jitter(width = 0.15, alpha = 0.5) +
+  theme_minimal() +
+  labs(x = "Marsh Area ", y = expression(Flux~(g/m^2))
+  ) 
+
+sed_phase_area_tier3
+
+
+```
+
+```{r, tier 4 plots }
+
+sed_basic_tier4= ggplot(master_tier4, aes(x = Flux)) +
+  geom_histogram(bins = 30) +
+  theme_minimal() +
+  labs(x = expression(Flux~(g/m^2/day)), y = "Count") 
+
+sed_basic_tier4
+
+# Deposition by Edge Type 
+
+sed_edge_tier4= ggplot(master_tier4, aes(x = marsh_edge_type, y = Flux)) +
+  geom_boxplot() + 
+  geom_jitter(width = 0.15, alpha = 0.5) +
+  theme_minimal() +
+  labs(x = "Marsh Edge Type", y = expression(Flux~(g/m^2))) 
+
+sed_edge_tier4
+
+
+# Deposition by Elevation (do this later once you've figured out z*) 
+
+sed_z_tier4= ggplot(master_tier4, aes(x = z_star, y = Flux, color = marsh_edge_type)) +
+  geom_boxplot() + 
+  geom_jitter(width = 0.15, alpha = 0.5) +
+  theme_minimal() +
+  labs(x = "z*", y = expression(Flux~(g/m^2/day))) 
+
+sed_z_tier4
+
+# Deposition by Distance from Marsh Edge 
+
+sed_dist_edge_tier4= ggplot(master_tier4, aes(x = Dist, y = Flux, color = marsh_edge_type)) +
+  geom_boxplot() + 
+  geom_jitter(width = 0.15, alpha = 0.5) +
+  theme_minimal() +
+  labs(x = "Distance from the Marsh Edge (m) ", y = expression(Flux~(g/m^2))) 
+
+sed_dist_edge_tier4
+
+# Deposition by Phenological Time
+
+sed_time_tier4= ggplot(master_tier4, aes(x = Phen_Period, y = Flux)) +
+  geom_boxplot() + 
+  geom_jitter(width = 0.15, alpha = 0.5) +
+  theme_minimal() +
+  labs(x = "Phenological Period ", y = expression(Flux~(g/m^2))) 
+
+sed_time_tier4
+
+
+# Deposition by Marsh Area
+
+sed_edge_area_tier4= ggplot(master_tier4, aes(x = Marsh_Area, y = Flux, color = marsh_edge_type)) +
+  geom_boxplot() + 
+  geom_jitter(width = 0.15, alpha = 0.5) +
+  theme_minimal() +
+  labs(x = "Marsh Area ", y = expression(Flux~(g/m^2))) 
+
+sed_edge_area_tier4
+
+
+# Deposition by Phenological Time by Site
+
+sed_site_time_tier4= ggplot(master_tier4, aes(x = Phen_Period, y = Flux, color = Site)) +
+  geom_boxplot() + 
+  geom_jitter(width = 0.15, alpha = 0.5) +
+  theme_minimal() +
+  labs(x = "Phenological Period ", y = expression(Flux~(g/m^2))) 
+
+sed_site_time_tier4
+
+
+# Deposition by Marsh Area by Site
+
+sed_site_area_tier4= ggplot(master_tier4, aes(x = Marsh_Area, y = Flux, color = Site)) +
+  geom_boxplot() + 
+  geom_jitter(width = 0.15, alpha = 0.5) +
+  theme_minimal() +
+  labs(x = "Marsh Area ", y = expression(Flux~(g/m^2))) 
+
+sed_site_area_tier4
+
+
+# Deposition by Study Phase by Site
+
+sed_phase_site_tier4= ggplot(master_tier4, aes(x = Study.Phase, y = Flux, color = Site)) +
+  geom_boxplot() + 
+  geom_jitter(width = 0.15, alpha = 0.5) +
+  theme_minimal() +
+  labs(x = "Study Phase ", y = expression(Flux~(g/m^2))) 
+
+sed_phase_site_tier4
+
+# Deposition by Study Phase by Site (log)
+
+sed_phase_site_log_tier4 = ggplot(master_tier4, aes(x = Study.Phase, y = Flux, color = Site)) +
+  geom_boxplot() + 
+  geom_jitter(width = 0.15, alpha = 0.5) +
+  scale_y_log10() +
+  theme_minimal() +
+  labs(x = "Study Phase ", y = expression(Flux~(g/m^2))) 
+sed_phase_site_log_tier4
+
+# Deposition by Study Phase by Marsh Edge Type
+
+sed_phase_edge_tier4= ggplot(master_tier4, aes(x = Study.Phase, y = Flux, color = marsh_edge_type)) +
+  geom_boxplot() + 
+  geom_jitter(width = 0.15, alpha = 0.5) +
+  theme_minimal() +
+  labs(x = "Marsh Edge Type ", y = expression(Flux~(g/m^2))) 
+sed_phase_edge_tier4
+
+
+# Deposition by Study Phase Across Marsh Area
+
+sed_phase_area_tier4= ggplot(master_tier4, aes(x = Marsh_Area, y = Flux, color = Study.Phase)) +
+  facet_wrap(~Site) +
+  geom_boxplot() + 
+  geom_jitter(width = 0.15, alpha = 0.5) +
+  theme_minimal() +
+  labs(x = "Marsh Area ", y = expression(Flux~(g/m^2))
+  ) 
+
+sed_phase_area_tier4
+
+
+```
+
+```{r}
+# =================================================================
+# Consolidated RQ plotting function
+# Replaces 4 near-identical code blocks (tier1.5 / tier2 / tier3 / tier4)
+# =================================================================
+
+make_rq_plots <- function(df, tier_label) {
+  
+  # ---------------------------------------------------------------
+  # Collection Interval Consistency
+  # ---------------------------------------------------------------
+  data_intervals <- df %>%
+    mutate(interval_days = as.numeric(difftime(Date.removed.from.field, Date.placed.in.field, units = "days"))) %>%
+    distinct(Tran, Date.removed.from.field, interval_days)
+  
+  p_interval <- ggplot(data_intervals, aes(x = Date.removed.from.field, y = interval_days, color = Tran)) +
+    geom_point(size = 2, alpha = 0.7) +
+    geom_hline(yintercept = 30, linetype = "dashed", color = "gray40") +
+    labs(
+      title = paste("Collection Interval Length Over Time —", tier_label),
+      subtitle = "Dashed line = nominal 30-day target",
+      x = "Time", y = "Interval Length (days)", color = "Transect"
+    ) +
+    scale_x_date(date_labels = "%b %Y", date_breaks = "3 months") +
+    theme_minimal() +
+    theme(legend.position = "none", axis.text.x = element_text(angle = 45, hjust = 1))
+  
+  print(summary(data_intervals$interval_days))
+  
+  # ---------------------------------------------------------------
+  # RQ1: Flux by Marsh Edge Type
+  # ---------------------------------------------------------------
+  p_edge <- ggplot(df, aes(x = marsh_edge_type, y = Flux, fill = marsh_edge_type)) +
+    geom_violin(alpha = 0.4, trim = FALSE) +
+    geom_jitter(aes(color = Site), width = 0.15, size = 2, alpha = 0.7) +
+    labs(
+      title = paste("Sediment Flux by Marsh Edge Type —", tier_label),
+      subtitle = "Points colored by Site — check if the two sites within each type agree",
+      x = NULL, y = "Flux (g/m2/day)"
+    ) +
+    theme_minimal() +
+    theme(legend.position = "right")
+  
+  # ---------------------------------------------------------------
+  # RQ1: Flux vs. Distance Along Transect (Inundation Gradient)
+  # ---------------------------------------------------------------
+  p_dist <- ggplot(df, aes(x = Dist, y = Flux, color = Tran, group = Tran)) +
+    geom_point(size = 2, alpha = 0.7) +
+    geom_line(alpha = 0.5) +
+    geom_smooth(mapping = aes(group = marsh_edge_type),
+                method = "loess", color = "black",
+                linewidth = 1, se = TRUE, inherit.aes = FALSE) +
+    facet_wrap(~ marsh_edge_type) +
+    labs(
+      title = paste("Sediment Flux vs Distance Along Transect —", tier_label),
+      subtitle = "Black smooth = overall trend within edge type; colored lines = individual transects",
+      x = "Distance Along Transect (m)", y = "Flux (g/m2/day)", color = "Transect"
+    ) +
+    theme_minimal() +
+    theme(legend.position = "none")
+  
+  # ---------------------------------------------------------------
+  # RQ2: Flux Over Time, by Edge Type
+  # ---------------------------------------------------------------
+  p_time <- ggplot(df, aes(x = Date.removed.from.field, y = Flux, color = Tran, group = Tran)) +
+    geom_point(size = 2, alpha = 0.7) +
+    geom_line(alpha = 0.4) +
+    geom_smooth(mapping = aes(group = marsh_edge_type),
+                method = "lm", se = TRUE, color = "black",
+                linewidth = 1, inherit.aes = FALSE) +
+    facet_wrap(~ marsh_edge_type) +
+    labs(
+      title = paste("Sediment Flux Over Time by Transect —", tier_label),
+      subtitle = "A flat black trend line within a panel supports a constant-flux hypothesis",
+      x = "Time (Year-Month)", y = "Flux (g/m2/day)", color = "Transect"
+    ) +
+    scale_x_date(date_labels = "%b %Y", date_breaks = "3 months") +
+    theme_minimal() +
+    theme(legend.position = "none", axis.text.x = element_text(angle = 45, hjust = 1))
+  
+  # ---------------------------------------------------------------
+  # RQ2: Per-Transect Slope Summary
+  # ---------------------------------------------------------------
+  slopes_by_transect <- df %>%
+    group_by(Tran, marsh_edge_type) %>%
+    summarize(
+      slope = coef(lm(Flux ~ as.numeric(Date.removed.from.field)))[2],
+      .groups = "drop"
+    )
+  
+  p_slope <- ggplot(slopes_by_transect, aes(x = marsh_edge_type, y = slope, color = marsh_edge_type)) +
+    geom_jitter(width = 0.1, size = 3, alpha = 0.8) +
+    geom_hline(yintercept = 0, linetype = "dashed", color = "gray50") +
+    labs(
+      title = paste("Flux Trend Over Time, by Transect —", tier_label),
+      subtitle = "Values near zero support the constant-flux hypothesis",
+      x = NULL, y = "Slope of Flux vs Time (per day)"
+    ) +
+    theme_minimal()
+  
+  # ---------------------------------------------------------------
+  # Seasonality Check (Exploratory)
+  # ---------------------------------------------------------------
+  p_season <- ggplot(df, aes(x = factor(month(Date.removed.from.field)), y = Flux, fill = marsh_edge_type)) +
+    geom_boxplot(alpha = 0.7) +
+    labs(
+      title = paste("Sediment Flux by Month (Pooled Across Years) —", tier_label),
+      subtitle = "Checks whether flux varies seasonally, independent of longer-term trend",
+      x = "Month", y = "Flux (g/m2/day)", fill = "Edge Type"
+    ) +
+    theme_minimal()
+  
+  # ---------------------------------------------------------------
+  # RQ3: Flux by Site
+  # ---------------------------------------------------------------
+  p_site <- ggplot(df, aes(x = reorder(Site, Flux, median), y = Flux, fill = marsh_edge_type)) +
+    geom_boxplot(alpha = 0.7) +
+    labs(
+      title = paste("Sediment Flux by Site —", tier_label),
+      subtitle = "Sorted by median — flags whether MorphType groups sites as expected",
+      x = "Site", y = "Flux (g/m2/day)", fill = "Edge Type"
+    ) +
+    theme_minimal() +
+    coord_flip()
+  
+  # Return everything as a named list so you can access/print/save individually,
+  # e.g. tier2_plots$p_edge, or walk(tier2_plots, print)
+  list(
+    interval = p_interval,
+    edge     = p_edge,
+    dist     = p_dist,
+    time     = p_time,
+    slope    = p_slope,
+    season   = p_season,
+    site     = p_site,
+    slopes_by_transect = slopes_by_transect  # data, not a plot, kept for reference/export
+  )
+}
+
+# =================================================================
+# Per-tier calls — put each of these in its own {r} chunk in the .qmd
+# so they render as separate code blocks (e.g. for chunk-level
+# captions, fig.cap, or fig.height options per tier).
+# =================================================================
+
+# ---- {r, tier1.5 RQ plots} -------------------------------------
+tier1.5_plots <- make_rq_plots(master_tier1.5, "tier1.5")
+tier1.5_plots$interval
+tier1.5_plots$edge
+tier1.5_plots$dist
+tier1.5_plots$time
+tier1.5_plots$slope
+tier1.5_plots$season
+tier1.5_plots$site
+
+# ---- {r, tier2 RQ plots} -----------------------------------------
+tier2_plots <- make_rq_plots(master_tier2, "tier2")
+tier2_plots$interval
+tier2_plots$edge
+tier2_plots$dist
+tier2_plots$time
+tier2_plots$slope
+tier2_plots$season
+tier2_plots$site
+
+# ---- {r, tier3 RQ plots} -----------------------------------------
+tier3_plots <- make_rq_plots(master_tier3, "tier3")
+tier3_plots$interval
+tier3_plots$edge
+tier3_plots$dist
+tier3_plots$time
+tier3_plots$slope
+tier3_plots$season
+tier3_plots$site
+
+# ---- {r, tier4 RQ plots} -----------------------------------------
+tier4_plots <- make_rq_plots(master_tier4, "tier4")
+tier4_plots$interval
+tier4_plots$edge
+tier4_plots$dist
+tier4_plots$time
+tier4_plots$slope
+tier4_plots$season
+tier4_plots$site
 ```

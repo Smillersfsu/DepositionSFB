@@ -277,35 +277,35 @@ sed_usgs_river %>% filter(is.na(Marsh_Area)) %>% count(Site, Dist)
 
 make_sed_plots_usgs_bay <- function(data, title_suffix = "USGS") {
   
-  data_phase <- sed_usgs_bay %>% filter(!is.na(Study.Phase))
+  data_phase <- sed_usgs_bay %>% filter(!is.na(Date.removed.from.field))
   
   list(
 
 basic_usgs= ggplot(sed_usgs_bay, aes(x = Flux)) +
   geom_histogram(bins = 30) +
   theme_minimal() +
-  labs(x = expression(Flux~(g/m^3)), y = "Count"), 
+  labs(x = expression(Flux~(g/m^2/day)), y = "Count"), 
 
 # Deposition by Edge Type 
 edge_usgs = ggplot(sed_usgs_bay, aes(x = marsh_edge_type, y = Flux)) +
   geom_boxplot() + 
   geom_jitter(width = 0.15, alpha = 0.5) +
   theme_minimal() +
-  labs(x = "Marsh Edge Type", y = expression(Flux~(g/m^3))), 
+  labs(x = "Marsh Edge Type", y = expression(Flux~(g/m^2/day))), 
 
 # Deposition by Elevation (do this later once you've figured out z*) 
 #z_usgs= ggplot(sed_usgs_bay, aes(x = z_star, y = Flux, color = marsh_edge_type)) +
 #geom_boxplot() + 
 #geom_jitter(width = 0.15, alpha = 0.5) +
  #theme_minimal() +
-labs(x = "z*", y = expression(Flux~(g/m^3))), 
+labs(x = "z*", y = expression(Flux~(g/m^2/day))), 
 
 # Deposition by Distance from Marsh Edge 
 dist_edge_usgs= ggplot(sed_usgs_bay, aes(x = Dist, y = Flux, color = marsh_edge_type)) +
   geom_boxplot() + 
   geom_jitter(width = 0.15, alpha = 0.5) +
   theme_minimal() +
-  labs(x = "Distance from the Marsh Edge (m) ", y = expression(Flux~(g/m^3))), 
+  labs(x = "Distance from the Marsh Edge (m) ", y = expression(Flux~(g/m^2/day))), 
 
 # Deposition by Hydrological Time
 
@@ -314,68 +314,68 @@ season_usgs= ggplot(sed_usgs_bay, aes(x = Season, y = Flux)) +
   geom_boxplot() + 
   geom_jitter(width = 0.15, alpha = 0.5) +
   theme_minimal() +
-  labs(x = "Season ", y = expression(Flux~(g/m^3))), 
+  labs(x = "Season ", y = expression(Flux~(g/m^2/day))), 
 
 # Deposition by Marsh Area
 edge_area_usgs= ggplot(sed_usgs_bay, aes(x = Marsh_Area, y = Flux, color = marsh_edge_type)) +
   geom_boxplot() + 
   geom_jitter(width = 0.15, alpha = 0.5) +
   theme_minimal() +
-  labs(x = "Marsh Area ", y = expression(Flux~(g/m^3))), 
+  labs(x = "Marsh Area ", y = expression(Flux~(g/m^2/day))), 
 
 # Deposition by Season by Site
 site_season_usgs= ggplot(sed_usgs_bay, aes(x = Season, y = Flux, color = Site)) +
   geom_boxplot() + 
   geom_jitter(width = 0.15, alpha = 0.5) +
   theme_minimal() +
-  labs(x = "Season ", y = expression(Flux~(g/m^3))), 
+  labs(x = "Season ", y = expression(Flux~(g/m^2/day))), 
 
 # Deposition by Marsh Area by Site
 site_area_usgs= ggplot(sed_usgs_bay, aes(x = Marsh_Area, y = Flux, color = Site)) +
   geom_boxplot() + 
   geom_jitter(width = 0.15, alpha = 0.5) +
   theme_minimal() +
-  labs(x = "Marsh Area ", y = expression(Flux~(g/m^3))), 
+  labs(x = "Marsh Area ", y = expression(Flux~(g/m^2/day))), 
 
 
-# Deposition by Study Phase by Site
+# Deposition by Date Removed From Field by Site
 phase_site_usgs = sed_usgs_bay %>%
-  filter(!is.na(Study.Phase)) %>%
-  ggplot(aes(x = Study.Phase, y = Flux, color = Site)) +
+  filter(!is.na(Date.removed.from.field)) %>%
+  ggplot(aes(x = Date.removed.from.field, y = Flux, color = Site)) +
   geom_boxplot() + 
   geom_jitter(width = 0.15, alpha = 0.5) +
   theme_minimal() +
-  labs(x = "Study Phase ", y = expression(Flux~(g/m^3))), 
+  labs(x = "Date Removed From Field ", y = expression(Flux~(g/m^2/day))), 
 
-# Deposition by Study Phase by Site (log)
+# Deposition by Date Removed From Field by Site (log)
 phase_site_log_usgs = sed_usgs_bay %>%
-  filter(!is.na(Study.Phase)) %>%
-  ggplot(aes(x = Study.Phase, y = Flux, color = Site)) +
+  filter(!is.na(Date.removed.from.field)) %>%
+  ggplot(aes(x = Date.removed.from.field, y = Flux, color = Site)) +
   geom_boxplot() + 
   geom_jitter(width = 0.15, alpha = 0.5) +
   scale_y_log10() +
   theme_minimal() +
-  labs(x = "Study Phase ", y = expression(Flux~(g/m^3))), 
+  labs(x = "Date removed from field ", y = expression(Flux~(g/m^2/day))), 
 
-# Deposition by Study Phase by Marsh Edge Type
+# Deposition by Date Removed From Field by Marsh Edge Type
 
 phase_edge_usgs = sed_usgs_bay %>%
-  filter(!is.na(Study.Phase)) %>%
-  ggplot(aes(x = Study.Phase, y = Flux, color = marsh_edge_type)) +
+  filter(!is.na(Date.removed.from.field)) %>%
+  ggplot(aes(x = Date.removed.from.field, y = Flux, color = marsh_edge_type)) +
   geom_boxplot() + 
   geom_jitter(width = 0.15, alpha = 0.5) +
   theme_minimal() +
-  labs(x = "Marsh Edge Type ", y = expression(Flux~(g/m^3))), 
+  labs(x = "Marsh Edge Type ", y = expression(Flux~(g/m^2/day))), 
 
-# Deposition by Study Phase Across Marsh Area
+# Deposition by Date Removed From Field Across Marsh Area
 phase_area_usgs = sed_usgs_bay %>%
-  filter(!is.na(Study.Phase)) %>%
-  ggplot(aes(x = Marsh_Area, y = Flux, color = Study.Phase)) +
+  filter(!is.na(Date.removed.from.field)) %>%
+  ggplot(aes(x = Marsh_Area, y = Flux, color = Date.removed.from.field)) +
   facet_wrap(~Site) +
   geom_boxplot() + 
   geom_jitter(width = 0.15, alpha = 0.5) +
   theme_minimal() +
-  labs(x = "Marsh Area ", y = expression(Flux~(g/m^3))
+  labs(x = "Marsh Area ", y = expression(Flux~(g/m^2/day))
   ) 
 )
 }
@@ -458,19 +458,19 @@ ggplot(
   theme_minimal() +
   labs(
     x = "Distance from Marsh Edge (m)",
-    y = expression(Mean~Flux~(g/m^3))
+    y = expression(Mean~Flux~(g/m^2/day))
   )
 
 
 usgs_phase_summary <- sed_usgs_bay %>%
-  group_by(Study.Phase) %>%
+  group_by(Date.removed.from.field) %>%
   summarise(
     mean_flux = mean(Flux, na.rm = TRUE),
     se_flux = sd(Flux, na.rm = TRUE)/sqrt(n())
   )
 
 ggplot(usgs_phase_summary,
-       aes(Study.Phase, mean_flux)) +
+       aes(Date.removed.from.field, mean_flux)) +
   geom_point(size = 3) +
   geom_errorbar(
     aes(
@@ -488,7 +488,7 @@ ggplot(usgs_phase_summary,
 
 phase_summary_usgs_c <- sed_usgs_bay %>%
   filter(Site == "CorteMadera") %>%
-  group_by(Study.Phase) %>%
+  group_by(Date.removed.from.field) %>%
   summarise(
     mean_flux = mean(Flux, na.rm = TRUE),
     se_flux = sd(Flux, na.rm = TRUE) / sqrt(n()),
@@ -497,8 +497,8 @@ phase_summary_usgs_c <- sed_usgs_bay %>%
   )
 
 meanflux_time_c_usgs = ggplot(
-  phase_summary_usgs,
-  aes(x = Study.Phase, y = mean_flux, group = 1)
+  phase_summary_usgs_c,
+  aes(x = Date.removed.from.field, y = mean_flux, group = 1)
 ) +
   geom_line(linewidth = 0.8) +
   geom_point(size = 3) +
@@ -514,8 +514,8 @@ meanflux_time_c_usgs = ggplot(
   labs(
     title = paste("Mean Flux Through Time at", "Corte Madera"),
     subtitle = "Negative flux values set to zero",
-    x = "Study Phase",
-    y = expression(Mean~Flux~(g/m^3))
+    x = "Date removed from field",
+    y = expression(Mean~Flux~(g/m^2/day))
   )
 meanflux_time_c_usgs
 
@@ -532,7 +532,7 @@ ggsave(("C:\\Users\\savan\\OneDrive - San Francisco State University\\ProjectDat
 
 phase_summary_usgs_s <- sed_usgs_bay %>%
   filter(Site == "SanPablo") %>%
-  group_by(Study.Phase) %>%
+  group_by(Date.removed.from.field) %>%
   summarise(
     mean_flux = mean(Flux, na.rm = TRUE),
     se_flux = sd(Flux, na.rm = TRUE) / sqrt(n()),
@@ -542,7 +542,7 @@ phase_summary_usgs_s <- sed_usgs_bay %>%
 
 meanflux_time_s_usgs = ggplot(
   phase_summary_usgs_s,
-  aes(x = Study.Phase, y = mean_flux, group = 1)
+  aes(x = Date.removed.from.field, y = mean_flux, group = 1)
 ) +
   geom_line(linewidth = 0.8) +
   geom_point(size = 3) +
@@ -554,12 +554,11 @@ meanflux_time_s_usgs = ggplot(
     width = 0.2
   ) +
   theme_minimal(base_size = 14) +
-  coord_cartesian(ylim = c(0,30)) +
   labs(
-    title = paste("Mean Flux Through Time at", "Corte Madera"),
+    title = paste("Mean Flux Through Time at", "San Pablo"),
     subtitle = "Negative flux values set to zero",
-    x = "Study Phase",
-    y = expression(Mean~Flux~(g/m^3))
+    x = "Date removed from field",
+    y = expression(Mean~Flux~(g/m^2/day))
   )
 meanflux_time_s_usgs
 
@@ -577,17 +576,17 @@ ggsave(("C:\\Users\\savan\\OneDrive - San Francisco State University\\ProjectDat
 
 # Corte Madera
 
-# mean flux per distance (study phase-time)
+# mean flux per distance (Date removed from field-time)
 
 usgstime_dist_summary <- sed_usgs_bay %>%
-  group_by(Dist, Study.Phase) %>%
+  group_by(Dist, Date.removed.from.field) %>%
   summarise(
     mean_flux = mean(Flux, na.rm = TRUE),
     se_flux = sd(Flux, na.rm = TRUE) / sqrt(n()),
     .groups = "drop"
   )
 
-usgsmeanflux_dist_sp = ggplot(
+usgsmeanflux_dist_sp_c = ggplot(
   usgstime_dist_summary,
   aes(x = Dist, y = mean_flux, group = 1)
 ) +
@@ -600,16 +599,16 @@ usgsmeanflux_dist_sp = ggplot(
     ),
     width = 0.2
   ) +
-  facet_wrap(vars(Study.Phase), scales = "fixed") +
+  facet_wrap(vars(Date.removed.from.field), scales = "fixed") +
   theme_minimal(base_size = 14) +
   coord_cartesian(ylim = c(0,9.5)) +
   labs(
-    title = paste("Mean Flux by Distance from Marsh Edge at", " Per Study Phase"),
+    title = paste("Mean Flux by Distance from Marsh Edge at", " Per Date removed from field"),
     x = "Distance from Marsh Edge (m)",
-    y = expression(Mean~Flux~(g/m^3))
+    y = expression(Mean~Flux~(g/m^2/day))
   )
 
-usgsmeanflux_dist_sp
+usgsmeanflux_dist_sp_c
 
 
 # Save the high-res image
@@ -621,11 +620,11 @@ ggsave(("C:\\Users\\savan\\OneDrive - San Francisco State University\\ProjectDat
        bg = "white"
 )
 
-#mean flux per study phase (distance)
+#mean flux per Date removed from field (distance)
 
 usgsmeanflux_sp_dist = ggplot(
   usgstime_dist_summary,
-  aes(x = Study.Phase, y = mean_flux, group = 1)
+  aes(x = Date.removed.from.field, y = mean_flux, group = 1)
 ) +
   geom_line(linewidth = 0.8) +
   geom_point(size = 3) +
@@ -641,7 +640,7 @@ usgsmeanflux_sp_dist = ggplot(
   labs(
     title = paste("Mean Flux by Distance from Marsh Edge at", "Corte Madera"),
     x = "Distance from Marsh Edge (m)",
-    y = expression(Mean~Flux~(g/m^3))
+    y = expression(Mean~Flux~(g/m^2/day))
   )
 
 
@@ -717,11 +716,11 @@ ggsave(("C:\\Users\\savan\\OneDrive - San Francisco State University\\ProjectDat
   
   site_summary_usgs
   
-  # study phase summary
+  # Date removed from field summary
   
   phase_summary_table_usgs <- sed_usgs_bay %>%
-    filter(!is.na(Study.Phase)) %>%
-    dplyr::group_by(Study.Phase) %>%
+    filter(!is.na(Date.removed.from.field)) %>%
+    dplyr::group_by(Date.removed.from.field) %>%
     dplyr::summarise(
       n = dplyr::n(),
       Mean = round(mean(Flux, na.rm = TRUE), 3),
@@ -735,4 +734,17 @@ ggsave(("C:\\Users\\savan\\OneDrive - San Francisco State University\\ProjectDat
   
   phase_summary_table_usgs
   
+```
+
+```{r, formalize usgs data table to fit for combination of data table with thesis}
+
+table(sed_usgs_bay$Study.Phase, useNA = "always")
+class(sed_usgs_bay$Study.Phase)
+
+usgs_bay = sed_usgs_bay %>% 
+  filter(!is.na(Study.Phase))
+
+table(usgs_bay$Study.Phase, useNA = "always")
+
+usgs_bay = readr::write_csv(usgs_bay, "C:\\Users\\savan\\OneDrive - San Francisco State University\\ProjectData\\GitHub\\DepositionSFB\\data\\usgs_bay.csv")
 ```

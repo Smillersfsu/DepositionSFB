@@ -138,7 +138,8 @@ sed_thesis$DryTime_Obsv <- as.numeric(sed_thesis$DryTime_Obsv)
 sed_thesis$Position_Obsv <- as.numeric(sed_thesis$Position_Obsv)
 sed_thesis$OpenBag_Obsv <- as.numeric(sed_thesis$OpenBag_Obsv)
 sed_thesis$Drop_Obsv <- as.numeric(sed_thesis$Drop_Obsv) 
-sed_thesis$Bio_Obsv <-as.numeric(sed_thesis$Bio_Obsv)
+sed_thesis$BigBio_Obsv <-as.numeric(sed_thesis$BigBio_Obsv)
+sed_thesis$SmallBio_Obsv <-as.numeric(sed_thesis$SmallBio_Obsv)
 sed_thesis$Flood_Obsv <- as.numeric(sed_thesis$Flood_Obsv)
 sed_thesis$RB_Num <- as.numeric(sed_thesis$RB_Num)
 sed_thesis$Filter_Num <- as.numeric(sed_thesis$Filter_Num)
@@ -256,7 +257,8 @@ master_thesis$DryTime_Obsv <- as.numeric(master_thesis$DryTime_Obsv)
 master_thesis$Position_Obsv <- as.numeric(master_thesis$Position_Obsv)
 master_thesis$OpenBag_Obsv <- as.numeric(master_thesis$OpenBag_Obsv)
 master_thesis$Drop_Obsv <- as.numeric(master_thesis$Drop_Obsv) 
-master_thesis$Bio_Obsv <-as.numeric(master_thesis$Bio_Obsv)
+master_thesis$BigBio_Obsv <-as.numeric(master_thesis$BigBio_Obsv)
+master_thesis$SmallBio_Obsv <-as.numeric(master_thesis$SmallBio_Obsv)
 master_thesis$Flood_Obsv <- as.numeric(master_thesis$Flood_Obsv)
 master_thesis$RB_Num <- as.numeric(master_thesis$RB_Num)
 master_thesis$Filter_Num <- as.numeric(master_thesis$Filter_Num)
@@ -1031,3 +1033,44 @@ flux_site_phen <- master_thesis %>%
 
 flux_site_phen
 ```
+
+
+```{r}
+
+#install.packages("moments")
+library(moments)
+
+skewness(master_thesis$Flux, na.rm = TRUE)
+
+# Visual check
+hist(master_thesis$Flux)
+shapiro.test(master_thesis$Flux)   # p < 0.05 suggests non-normal
+
+skewness(master_tier3$Flux, na.rm = TRUE)
+
+# Visual check
+hist(master_tier3$Flux)
+shapiro.test(master_tier3$Flux)   # p < 0.05 suggests non-normal
+
+
+```
+
+```{r}
+
+transect_summary <- master_tier3 %>%
+  filter(Dist != 48) %>%
+  group_by(Site, Tran, marsh_edge_type) %>%
+  summarise(total_flux = sum(Flux, na.rm = TRUE), .groups = "drop")
+
+# Confirm 48 is actually gone
+table(transect_summary$Site)   # or check distance_m values directly on master_thesis after filtering
+master_tier3 %>% filter(Dist != 48) %>% pull(Dist) %>% unique()
+
+# Confirm you land at your expected number of transects
+nrow(transect_summary)
+
+wilcox.test(total_flux ~ marsh_edge_type, data = transect_summary)
+```
+
+
+

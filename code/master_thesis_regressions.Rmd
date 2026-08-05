@@ -96,25 +96,11 @@ knitr::opts_knit$set(root.dir = 'C:/Users/savan/OneDrive - San Francisco State U
 
 master_thesis <- read.csv("C:\\Users\\savan\\OneDrive - San Francisco State University\\ProjectData\\GitHub\\DepositionSFB\\data\\master_thesis.csv")
 
-# Reassign factors to appropriate variables 
+# using master_tier3 for analyses, which removes negative values, biological material, and flood occurences
 
-master_thesis$Date.placed.in.field = as.Date(master_thesis$Date.placed.in.field, 
-                                             format = "%m/%d/%Y"   # need this so R doesn't automatically assume format
-)
-master_thesis$Date.removed.from.field = as.Date(master_thesis$Date.removed.from.field,            
-                                                format = "%m/%d/%Y"   # need this so R doesn't automatically assume format
-)
-master_thesis$Study.Phase <- factor(master_thesis$Study.Phase, levels = c("M1", "M2", "M3", "M4", "M5", "M6","M7", "M8", "M9", "M10", "M11", "M12"))
-master_thesis$Site <- as.factor(master_thesis$Site)
-master_thesis$Tran <- as.factor(master_thesis$Tran)
-master_thesis$Dist <- as.factor(master_thesis$Dist)
-master_thesis$Replicate<- as.factor(master_thesis$Replicate)
-master_thesis$Year<- as.factor(master_thesis$Year)
-master_thesis$Flux <- as.numeric(master_thesis$Flux)
-master_thesis$Phen_Period <- factor(master_thesis$Phen_Period, levels = c("Late_Dry\n(Months 1-3)", "Tran\n(Months 4-6)", "Wet\n(Months 7-9)", "Growth\n(Months 10-12)"))
-master_thesis$marsh_edge_type <- as.factor(master_thesis$marsh_edge_type)
-master_thesis$marsh_orientation <- as.factor(master_thesis$marsh_orientation)
-master_thesis$Marsh_Area <- as.factor(master_thesis$Marsh_Area)
+
+
+
 
 ```
 
@@ -122,8 +108,244 @@ master_thesis$Marsh_Area <- as.factor(master_thesis$Marsh_Area)
 
 You can also embed plots, for example:
 
-```{r pressure, echo=FALSE}
-plot(pressure)
+```{r, RQ1 Scarp}
+
+#install.packages("tidytext")
+library(tidytext)
+
+site_order <- master_tier3 %>%
+  distinct(Site, marsh_edge_type) %>%
+  arrange(marsh_edge_type, Site) %>%
+  pull(Site)
+
+master_tier3 <- master_tier3 %>%
+  mutate(Site = factor(Site, levels = site_order))
+
+rq1_site = ggplot(master_tier3, aes(x =Site , y = log(Flux),
+                                                  fill = marsh_edge_type,
+                                                  color = marsh_edge_type)) +
+  geom_boxplot(width = 0.4, outlier.shape = NA,
+               alpha = 0.3,
+               position = position_dodge(0.5)) +
+  geom_point(aes(color = marsh_edge_type),
+             position = position_jitterdodge(jitter.width = 0.15, dodge.width = 0.5),
+             size = 1.5, alpha = 0.3) +
+  scale_fill_manual(values = c("Ramped" = "#378ADD", "Scarped" = "#D85A30")) +
+  scale_color_manual(values = c("Ramped" = "#378ADD", "Scarped" = "#D85A30")) +
+  ylim(0, 6) +
+  labs(y = "Log(Flux (g/m^2/day))", x = "Site",
+       fill = "Marsh Edge Type", color = "Marsh Edge Type",
+       title = str_wrap("Sediment Deposition Rates Across Sites Between Scarped and Ramped Marsh Edge Sites")) +
+  theme_bw() +
+  theme(legend.position = "bottom")
+rq1_site
+
+ggsave("C:\\Users\\savan\\OneDrive - San Francisco State University\\ProjectData\\GitHub\\DepositionSFB\\images\\rq1_site.png", 
+       width = 8, 
+       height = 5, 
+       dpi = 300,
+       limitsize = FALSE)
+
+tran_order <- master_tier3 %>%
+  distinct(Tran, marsh_edge_type) %>%
+  arrange(marsh_edge_type, Tran) %>%
+  pull(Tran)
+
+
+
+rq1_tran = ggplot(master_tier3, aes(x =Site , y = log(Flux),
+                                    fill = Tran,
+                                    color = Tran)) +
+  geom_boxplot(width = 0.4, outlier.shape = NA,
+               alpha = 0.3,
+               position = position_dodge(0.5)) + facet_wrap(~marsh_edge_type, scales = "free_x") +
+  geom_point(aes(color = marsh_edge_type),
+             position = position_jitterdodge(jitter.width = 0.15, dodge.width = 0.5),
+             size = 1.5, alpha = 0.3) +
+  scale_fill_manual(values = c("T1" = "#378ADD", "T2" = "#D85A30")) +
+  scale_color_manual(values = c("T1" = "#378ADD", "T2" = "#D85A30")) +
+  scale_x_reordered() +
+  ylim(0, 6) +
+  labs(y = "Log(Flux (g/m^2/day))", x = "Site",
+       fill = "Marsh Edge Type", color = "Marsh Edge Type",
+       title = str_wrap("Sediment Deposition Rates Across Transects Between Scarped and Ramped Marsh Edge Sites")) +
+  theme_bw() +
+  theme(legend.position = "bottom")
+rq1_tran
+
+ggsave("C:\\Users\\savan\\OneDrive - San Francisco State University\\ProjectData\\GitHub\\DepositionSFB\\images\\rq1_tran.png", 
+       width = 8, 
+       height = 5, 
+       dpi = 300,
+       limitsize = FALSE)
+
+
+
 ```
 
-Note that the `echo = FALSE` parameter was added to the code chunk to prevent printing of the R code that generated the plot.
+```{r, rq1 distance}
+
+rq1_dist = ggplot(master_tier3, aes(x = factor(Dist), y = Flux, color = Tran, fill = Tran)) +
+  geom_violin(alpha = 0.3, position = position_dodge(0.8)) +
+  geom_jitter(position = position_jitterdodge(jitter.width = 0.15, dodge.width = 0.8),
+              size = 1.2, alpha = 0.4) +
+  facet_wrap(~Site, scales = "free_y", ncol = 2) +
+  scale_color_manual(values = c("T1" = "#D85A30", "T2" = "#378ADD")) +
+  scale_fill_manual(values = c("T1" = "#D85A30", "T2" = "#378ADD")) +
+  theme_minimal(base_size = 20) +
+  labs(x = "Distance", y = expression(Flux~(g/m^2/day)),
+       color = "Transect", fill = "Transect") +
+  theme(legend.position = "bottom",
+        strip.text = element_text(face = "bold", size = 18),
+        axis.text = element_text(size = 14),
+        axis.title = element_text(size = 18, face = "bold"),
+        legend.text = element_text(size = 16),
+        legend.title = element_text(size = 16, face = "bold"),
+        plot.title = element_text(size = 20, face = "bold"))
+rq1_dist
+
+ggsave("C:\\Users\\savan\\OneDrive - San Francisco State University\\ProjectData\\GitHub\\DepositionSFB\\images\\rq1_dist.png",
+       plot = rq1_dist,
+       width = 13.33,
+       height = 7.5,
+       dpi = 300,
+       limitsize = FALSE)
+
+rq1_dist_noG = ggplot(filter(master_tier3, Site != "GiantMarsh"), 
+                      aes(x = factor(Dist), y = Flux, color = Tran, fill = Tran)) +
+  geom_violin(alpha = 0.3, position = position_dodge(0.8)) +
+  geom_jitter(position = position_jitterdodge(jitter.width = 0.15, dodge.width = 0.8),
+              size = 1.2, alpha = 0.4) +
+  facet_wrap(~Site, scales = "free_y") +
+  scale_color_manual(values = c("T1" = "#D85A30", "T2" = "#378ADD")) +
+  scale_fill_manual(values = c("T1" = "#D85A30", "T2" = "#378ADD")) +
+  theme_minimal(base_size = 20) +
+  labs(x = "Distance", y = expression(Flux~(g/m^2/day)),
+       color = "Transect", fill = "Transect") +
+  theme(legend.position = "bottom",
+        strip.text = element_text(face = "bold", size = 18),
+        axis.text = element_text(size = 14),
+        axis.title = element_text(size = 18, face = "bold"),
+        legend.text = element_text(size = 16),
+        legend.title = element_text(size = 16, face = "bold"))
+rq1_dist_noG
+
+ggsave("C:\\Users\\savan\\OneDrive - San Francisco State University\\ProjectData\\GitHub\\DepositionSFB\\images\\rq1_dist_noG.png",
+       plot = rq1_dist_noG,
+       width = 13.33,
+       height = 7.5,
+       dpi = 300,
+       limitsize = FALSE)
+```
+
+```{r}
+
+master_tier3 <- master_tier3 %>%
+  mutate(Site_Tran = paste(Site, Tran, sep = " - "))
+
+rq1_ramped = ggplot(filter(master_tier3, marsh_edge_type == "Ramped"), 
+                    aes(x = factor(Dist), y = Flux, color = Site_Tran, fill = Site_Tran)) +
+  geom_violin(alpha = 0.3, position = position_dodge(0.8)) +
+  geom_jitter(position = position_jitterdodge(jitter.width = 0.15, dodge.width = 1.2),
+              size = 0.8, alpha = 0.3) +
+  theme_minimal(base_size = 13) +
+  labs(x = "Distance", y = expression(Flux~(g/m^2)),
+       color = "Site - Transect", fill = "Site - Transect",
+       title = "Sediment Deposition Rates Across Ramped Sites") +
+  theme(legend.position = "bottom")
+rq1_ramped
+
+rq1_scarped = ggplot(filter(master_tier3, marsh_edge_type == "Scarped"), 
+                     aes(x = factor(Dist), y = Flux, color = Site_Tran, fill = Site_Tran)) +
+  geom_violin(alpha = 0.3, position = position_dodge(0.8)) +
+  geom_jitter(position = position_jitterdodge(jitter.width = 0.15, dodge.width = 1.2),
+              size = 0.8, alpha = 0.3) +
+  theme_minimal(base_size = 13) +
+  labs(x = "Distance", y = expression(Flux~(g/m^2)),
+       color = "Site - Transect", fill = "Site - Transect",
+       title = "Sediment Deposition Rates Across Scarped Sites") +
+  theme(legend.position = "bottom")
+rq1_scarped
+
+```
+
+```{r}
+
+rq1_z = ggplot(master_tier3, aes(x = z_star, y = Flux, color = Tran)) +
+  geom_point(alpha = 0.4, size = 1.5) +
+  geom_rug(sides = "b", alpha = 0.3, length = unit(0.03, "npc")) +
+  facet_wrap(~Site, scales = "free") +
+  scale_color_manual(values = c("T1" = "#D85A30", "T2" = "#378ADD")) +
+  theme_minimal(base_size = 16) +
+  labs(x = "Relative Elevation (Z*)", y = expression(Flux~(g/m^2/day)),
+       color = "Transect") +
+  theme(strip.text = element_text(face = "bold", size = 16),
+        axis.title = element_text(face = "bold", size = 15),
+        axis.text = element_text(size = 12))
+rq1_z
+
+ggsave("C:\\Users\\savan\\OneDrive - San Francisco State University\\ProjectData\\GitHub\\DepositionSFB\\images\\rq1_z.png",
+       plot = rq1_z,
+       width = 13.33,
+       height = 7.5,
+       dpi = 300,
+       limitsize = FALSE)
+
+
+```
+
+```{r, rq1 time}
+
+summary_df <- master_tier3 %>%
+  group_by(Site, Tran, Date.removed.from.field) %>%
+  summarise(median_flux = median(Flux, na.rm = TRUE),
+            q25 = quantile(Flux, 0.25, na.rm = TRUE),
+            q75 = quantile(Flux, 0.75, na.rm = TRUE),
+            .groups = "drop")
+
+rq1_time_trend = ggplot(summary_df, aes(x = Date.removed.from.field, y = median_flux, color = Tran, fill = Tran)) +
+  geom_ribbon(aes(ymin = q25, ymax = q75), alpha = 0.15, color = NA) +
+  geom_line(linewidth = 0.8) +
+  geom_point(size = 1.8) +
+  facet_wrap(~Site, scales = "free_y") +
+  scale_color_manual(values = c("T1" = "#D85A30", "T2" = "#378ADD")) +
+  scale_fill_manual(values = c("T1" = "#D85A30", "T2" = "#378ADD")) +
+  theme_minimal(base_size = 15) +
+  labs(x = "Date Removed from Field", y = expression(Median~Flux~(g/m^2/day)),
+       color = "Transect", fill = "Transect") +
+  theme(legend.position = "bottom",
+        strip.text = element_text(face = "bold"))
+rq1_time_trend
+
+ggsave("C:\\Users\\savan\\OneDrive - San Francisco State University\\ProjectData\\GitHub\\DepositionSFB\\images\\rq1_time_trend.png",
+       plot = rq1_time_trend,
+       width = 13.33,
+       height = 7.5,
+       dpi = 300,
+       limitsize = FALSE)
+
+rq1_time = ggplot(master_tier3, aes(x = Date.removed.from.field, y = Flux, color = Tran, fill = Tran)) +
+  geom_boxplot(aes(group = interaction(Date.removed.from.field, Tran)), 
+               alpha = 0.3, outlier.shape = NA, 
+               position = position_dodge(width = 6)) +
+  geom_jitter(position = position_jitterdodge(jitter.width = 1.5, dodge.width = 6),
+              size = 0.8, alpha = 0.3) +
+  facet_wrap(~Site, scales = "free_y") +
+  scale_x_date(date_breaks = "1 month", date_labels = "%b %Y") + 
+  scale_color_manual(values = c("T1" = "#D85A30", "T2" = "#378ADD")) +
+  scale_fill_manual(values = c("T1" = "#D85A30", "T2" = "#378ADD")) +
+  theme_minimal(base_size = 15) +
+  labs(x = "Date Removed from Field", y = expression(Flux~(g/m^2/day)),
+       color = "Transect", fill = "Transect") +
+  theme(legend.position = "bottom",
+        strip.text = element_text(face = "bold"),
+        axis.text.x = element_text(angle = 45, hjust = 1))
+rq1_time
+
+ggsave("C:\\Users\\savan\\OneDrive - San Francisco State University\\ProjectData\\GitHub\\DepositionSFB\\images\\rq1_time.png",
+       plot = rq1_time,
+       width = 13.33,
+       height = 7.5,
+       dpi = 300,
+       limitsize = FALSE)
+```

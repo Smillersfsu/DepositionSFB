@@ -393,7 +393,7 @@ meanflux_time_s2 <- ggplot(
     title = "Mean Flux Through Time by Transect at San Pablo",
     subtitle = "Negative flux values set to zero",
     x = "Date removed from field",
-    y = expression(Mean~Flux~(g/m^2)),
+    y = expression(Mean~Flux~(g/m^2/day)),
     caption = se_caption
   )
 
@@ -854,7 +854,7 @@ flux_tran_time_s <- ggplot(
   labs(
     title = paste("Flux Through Time by Transect at", "San Pablo"),
     x = "Date removed from field",
-    y = expression(Mean~Flux~(g/m^2)),
+    y = expression(Mean~Flux~(g/m^2/day)),
     color = "Transect"
   )
 
@@ -1009,7 +1009,6 @@ flux_tran_phase_s <- ggplot(
     group = Tran
   )
 ) +
-  geom_line(linewidth = 0.8) +
   geom_point(size = 3) +
   geom_errorbar(
     aes(
@@ -1022,7 +1021,7 @@ flux_tran_phase_s <- ggplot(
   labs(
     title = paste("Flux Through Time by Transect at", "San Pablo"),
     x = "Study Phase",
-    y = expression(Mean~Flux~(g/m^2)),
+    y = expression(Mean~Flux~(g/m^2/day)),
     color = "Transect"
   )
 
@@ -1159,7 +1158,8 @@ flag_cols <- c(
   "Filter_Num",
   "RB_Num",
   "Flood_Obsv",
-  "Bio_Obsv",
+  "BigBio_Obsv",
+  "SmallBio_Obsv", 
   "Drop_Obsv",
   "OpenBag_Obsv",
   "Position_Obsv",
@@ -1260,7 +1260,8 @@ flag_cols <- c(
   "Filter_Num",
   "RB_Num",
   "Flood_Obsv",
-  "Bio_Obsv",
+  "BigBio_Obsv",
+  "SmallBio_Obsv",
   "Drop_Obsv",
   "OpenBag_Obsv",
   "Position_Obsv",
@@ -1268,18 +1269,21 @@ flag_cols <- c(
   "NegValue_Num"
 )
 
+
 # Reader-friendly names
 flag_labels <- c(
   "Filter_Num"    = "Filter Issues",
   "RB_Num"        = "Rubber Band Issues",
   "Flood_Obsv"    = "Flood/Ponding",
-  "Bio_Obsv"      = "Biological Matter",
+  "BigBio_Obsv"   = "Big Biological Matter",
+  "SmallBio_Obsv" = "Small Biological Matter", 
   "Drop_Obsv"     = "Recorded Drop in Field/Lab",
   "OpenBag_Obsv"  = "Open Ziploc Bag Observed",
   "Position_Obsv" = "Position Changed",
   "DryTime_Obsv"  = "Multiple Drying Times Needed",
   "NegValue_Num"  = "Negative Flux Values Calculated"
 )
+
 
 # Field issues use greens and blues.
 # Laboratory and processing issues use artificial warm,
@@ -1289,17 +1293,19 @@ flag_colors <- c(
   "Filter Issues"                   = "#1B4F72",
   "Flood/Ponding"                   = "#2E86AB",
   "Recorded Drop in Field/Lab"      = "#5DADE2",
-  "Negative Flux Values Calculated" = "#48C9B0",
+  "Negative Flux Values Calculated" = "#48C9B0", 
 
   # Likely inflating the mass
   "Rubber Band Issues"              = "#7B241c",
-  "Biological Matter"               = "#C0392B",
+  "Big Biological Matter"           = "#C0392B",
   "Open Ziploc Bag Observed"        = "#E67E22",
   "Multiple Drying Times Needed"    = "#CB4335",
+  
 
-  # Likely neutral
-  "Position Changed"                = "#7F8C8D"
-)
+ # Likely neutral
+ "Position Changed"                = "#7F8C8D", 
+ "Small Biological Matter"         = "azure3"
+  ) 
 
 flag_levels <- names(flag_colors)
 

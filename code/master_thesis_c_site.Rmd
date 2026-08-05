@@ -1145,7 +1145,7 @@ ggsave(("C:\\Users\\savan\\OneDrive - San Francisco State University\\ProjectDat
 
 ```{r, data flags}
 
-flag_cols <- c("Filter_Num", "RB_Num", "Flood_Obsv", "Bio_Obsv", "Drop_Obsv", "OpenBag_Obsv", "Position_Obsv", "DryTime_Obsv", "NegValue_Num")
+flag_cols <- c("Filter_Num", "RB_Num", "Flood_Obsv", "BigBio_Obsv", "SmallBio_Obsv", "Drop_Obsv", "OpenBag_Obsv", "Position_Obsv", "DryTime_Obsv", "NegValue_Num")
 
 long_cm <- cm_data %>% 
   pivot_longer(
@@ -1243,7 +1243,8 @@ flag_cols <- c(
   "Filter_Num",
   "RB_Num",
   "Flood_Obsv",
-  "Bio_Obsv",
+  "BigBio_Obsv",
+  "SmallBio_Obsv",
   "Drop_Obsv",
   "OpenBag_Obsv",
   "Position_Obsv",
@@ -1257,7 +1258,8 @@ flag_labels <- c(
   "Filter_Num"    = "Filter Issues",
   "RB_Num"        = "Rubber Band Issues",
   "Flood_Obsv"    = "Flood/Ponding",
-  "Bio_Obsv"      = "Biological Matter",
+  "BigBio_Obsv"   = "Big Biological Matter",
+  "SmallBio_Obsv" = "Small Biological Matter", 
   "Drop_Obsv"     = "Recorded Drop in Field/Lab",
   "OpenBag_Obsv"  = "Open Ziploc Bag Observed",
   "Position_Obsv" = "Position Changed",
@@ -1278,39 +1280,15 @@ flag_colors <- c(
 
   # Likely inflating the mass
   "Rubber Band Issues"              = "#7B241c",
-  "Biological Matter"               = "#C0392B",
+  "Big Biological Matter"           = "#C0392B",
   "Open Ziploc Bag Observed"        = "#E67E22",
   "Multiple Drying Times Needed"    = "#CB4335",
   
 
  # Likely neutral
- "Position Changed"                = "#7F8C8D"
+ "Position Changed"                = "#7F8C8D", 
+ "Small Biological Matter"         = "azure3"
   ) 
-
-flag_levels <- names(flag_colors)
-
-
-# Convert the wide flag columns to long format
-cm_z_flux_long <- cm_elev |>
-  pivot_longer(
-    cols = all_of(flag_cols),
-    names_to = "Flag_Code",
-    values_to = "Flag_Value"
-  ) |>
-  mutate(
-    Flag_Type = recode(
-      Flag_Code,
-      !!!flag_labels
-    ),
-    Flag_Type = factor(
-      Flag_Type,
-      levels = flag_levels
-    ),
-    Date.removed.from.field = as_date(
-      Date.removed.from.field
-    )
-  )
-
 
 # Keep only recorded flags
 flagged_cm <- cm_z_flux_long |>

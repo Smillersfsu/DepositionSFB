@@ -1074,7 +1074,7 @@ ggsave("C:\\Users\\savan\\OneDrive - San Francisco State University\\ProjectData
 
 
 ```{r}
-flag_cols <- c("Filter_Num", "RB_Num", "Flood_Obsv", "Bio_Obsv", "Drop_Obsv", "OpenBag_Obsv", "Position_Obsv", "DryTime_Obsv", "NegValue_Num")
+flag_cols <- c("Filter_Num", "RB_Num", "Flood_Obsv", "BigBio_Obsv", "SmallBio_Obsv", "Drop_Obsv", "OpenBag_Obsv", "Position_Obsv", "DryTime_Obsv", "NegValue_Num")
 
 long_g <- g_elev %>% 
   pivot_longer(
@@ -1172,7 +1172,8 @@ flag_cols <- c(
   "Filter_Num",
   "RB_Num",
   "Flood_Obsv",
-  "Bio_Obsv",
+  "BigBio_Obsv",
+  "SmallBio_Obsv",
   "Drop_Obsv",
   "OpenBag_Obsv",
   "Position_Obsv",
@@ -1186,7 +1187,8 @@ flag_labels <- c(
   "Filter_Num"    = "Filter Issues",
   "RB_Num"        = "Rubber Band Issues",
   "Flood_Obsv"    = "Flood/Ponding",
-  "Bio_Obsv"      = "Biological Matter",
+  "BigBio_Obsv"   = "Big Biological Matter",
+  "SmallBio_Obsv" = "Small Biological Matter", 
   "Drop_Obsv"     = "Recorded Drop in Field/Lab",
   "OpenBag_Obsv"  = "Open Ziploc Bag Observed",
   "Position_Obsv" = "Position Changed",
@@ -1196,7 +1198,6 @@ flag_labels <- c(
 
 
 # Field issues use greens and blues.
-# Laboratory and processing issues use artificial warm,
 # magenta, and neutral colors.
 flag_colors <- c(
   # Likely Degrading the Mass
@@ -1207,13 +1208,14 @@ flag_colors <- c(
 
   # Likely inflating the mass
   "Rubber Band Issues"              = "#7B241c",
-  "Biological Matter"               = "#C0392B",
+  "Big Biological Matter"           = "#C0392B",
   "Open Ziploc Bag Observed"        = "#E67E22",
   "Multiple Drying Times Needed"    = "#CB4335",
   
 
  # Likely neutral
- "Position Changed"                = "#7F8C8D"
+ "Position Changed"                = "#7F8C8D", 
+ "Small Biological Matter"         = "azure3"
   ) 
 
 flag_levels <- names(flag_colors)

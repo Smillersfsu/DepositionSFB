@@ -136,13 +136,13 @@ usgs_veg <- read.csv("C:\\Users\\savan\\OneDrive - San Francisco State Universit
 thesis_veg <- thesis_veg %>% mutate(AvgHt = ifelse(is.na(AvgHt), 0, AvgHt))
 thesis_veg <- thesis_veg %>% mutate(MaxHt = ifelse(is.na(MaxHt), 0, MaxHt))
 thesis_veg$Season <- str_replace_all(thesis_veg$Season, " ", "")
-thesis_veg$PlotID <- str_replace_all(thesis_veg$PlotID, " ", "")
+thesis_veg$Plot_ID <- str_replace_all(thesis_veg$Plot_ID, " ", "")
 thesis_veg$Year <- str_replace_all(thesis_veg$Year, " ", "")
 thesis_veg$Month <- str_replace_all(thesis_veg$Month, " ", "")
 thesis_veg$Year <- as.character(thesis_veg$Year)
 thesis_veg$Cover <-as.numeric(thesis_veg$Cover)
 thesis_veg <- thesis_veg %>%
-  separate(PlotID, into = c("Tran", "Dist"), sep = "-", remove = FALSE )
+  separate(Plot_ID, into = c("Tran", "Dist"), sep = "-", remove = FALSE )
 thesis_veg$Dist <- as.numeric(thesis_veg$Dist)
 
 usgs_veg <- usgs_veg %>% mutate(AvgHt = ifelse(is.na(AvgHt), 0, AvgHt))
@@ -180,6 +180,8 @@ sed_SAPA <- sed_SAPA %>%
   select(-Date)
 
 ```
+
+
 
 ```{r, focus on SAPA}
 
@@ -240,11 +242,6 @@ SPFO_dist_avg_thesis
 SPFO_dist_c_thesis <- ggplot(data=SPFO_thesis, aes(x=Dist, y=Cover, color=Site)) + geom_point() +facet_wrap(~ Season)
 SPFO_dist_c_thesis
 ```
-```
-
-
-
-
 
 
 ```{r, visualizing relationships of the sediment data to explanatory variables}
@@ -287,10 +284,7 @@ sed_Dist
 
 
 
-
-
-
-```{r, SAPA-checking the range of data for the vegetation dataset}
+```{r}
 # usgs 
 
 SAPA_Season_mxht_usgs <- ggplot(SAPA_usgs, aes(x=MaxHt,fill=Season)) + geom_boxplot()
@@ -322,7 +316,18 @@ SAPA_Avght_Normality_usgs
 #check the data for normality, Cover 
 SAPA_Cover_Normality_usgs <-ggplot(SAPA_usgs, aes(x=Cover)) + geom_histogram(binwidth = 0.5)
 SAPA_Cover_Normality_usgs
+```
 
+
+
+
+
+
+
+
+
+
+```{r}
 # thesis
 
 SAPA_Season_mxht_thesis <- ggplot(SAPA_thesis, aes(x=MaxHt,fill=Season)) + geom_boxplot()
@@ -354,8 +359,16 @@ SAPA_Avght_Normality_thesis
 #check the data for normality, Cover 
 SAPA_Cover_Normality_thesis <-ggplot(SAPA_thesis, aes(x=Cover)) + geom_histogram(binwidth = 0.5)
 SAPA_Cover_Normality_thesis
-
 ```
+
+
+
+
+
+
+
+
+
 
 
 ```{r, SPFO-checking the range of data for the vegetation dataset}

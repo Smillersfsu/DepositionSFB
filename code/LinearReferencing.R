@@ -1,13 +1,13 @@
  ### Savannah Thesis Topographic Survey Plots ###
 
 # Load libraries
-library(readr) # reading CSV files
-library(dplyr) # data manipulation
-library(ggplot2) # plotting
-library(tidyverse) # collection of data science packages 
-library(ggforce) # extra ggplot2 features
-library(patchwork) # combining multiple plots side by side
-library(gtable) # low-level plot layout tools 
+library(readr)
+library(dplyr)
+library(ggplot2)
+library(tidyverse)
+library(ggforce)
+library(patchwork)
+library(gtable)
 
 
 
@@ -15,7 +15,7 @@ library(gtable) # low-level plot layout tools
 ####STANDARD PLOTS####
 
 #set working directory #
-setwd("C:/Users/savan/OneDrive - San Francisco State University/ProjectData/GitHub/DepositionSFB/code")
+setwd("C:/Users/savan/OneDrive/Documents/Code/GitHub/DepositionSFB/data/Topo Surveys")
 
 # Set output folder
 output_dir <- "transect_plots"
@@ -586,3 +586,4 @@ file_paths <- list(
 for (loc in names(file_paths)) {
   plot_transects(file_paths[[loc]], loc)
 }
+

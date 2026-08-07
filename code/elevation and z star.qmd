@@ -4,255 +4,16 @@ format: html
 editor: visual
 ---
 
-## Quarto
 
-Quarto enables you to weave together content and executable code into a finished document. To learn more about Quarto see <https://quarto.org>.
-
-## Running Code
-
-When you click the **Render** button a document will be generated that includes both content and the output of embedded code. You can embed code like this:
 
 ```{r}
 
 # Load necessary libraries
-library(dplyr)
-library(readr)
-library(ggplot2)
-library(reactable)
-library(patchwork)
-library(tinytex)
+source("R/setup.R")
  
 # Load the dataset
 #Make sure to use double \\ to avoid errors
 rtk_data <- read_csv("C:\\Users\\savan\\OneDrive - San Francisco State University\\ProjectData\\GitHub\\DepositionSFB\\data\\All_Sites_Calculated (with z star).csv")
-
-```
-
-```{r}
-# 1. Filter the master dataset to ONLY include sample 'a'
-plot_data_all_a <- rtk_data %>%
-  # grepl("a$", ...) ensures we only keep rows where Point_ID ends with 'a' or 'A'
-  filter(grepl("a$", Point_ID, ignore.case = TRUE))
-
-# 2. Create the Cross-Site Comparison Plot
-cross_site_plot_z <- ggplot(plot_data_all_a, aes(x = Distance_AlongTransect_m, y = z_star, color = Transect_ID)) +
-  geom_point(aes(shape = Site), size = 3, alpha = 0.8) + 
-  geom_line(aes(group = Transect_ID), linewidth = 1, alpha = 0.5) + 
-  
-  # Set up labels
-  labs(
-    title = "Cross-Site z* Value Comparison (Replicates 'a' Only)",
-    subtitle = "Comparing z* value across San Pablo, Corte Madera, Bucks Landing, and Giant Marsh",
-    x = "Distance Along Transect (m)",
-    y = "z*",
-    color = "Transect",
-    shape = "Site"
-  ) +
-  theme_minimal() +
-  scale_color_brewer(palette = "Paired") + 
-  
-  # Format the legend to make it easy to read
-  theme(
-    legend.position = "right",
-    legend.title = element_text(face = "bold"),
-    plot.title = element_text(size = 16, face = "bold")
-  )
-
-
-# 4. Save the plot to your main Plots folder
-overall_plots_folder <- "C:\\Users\\savan\\OneDrive - San Francisco State University\\ProjectData\\GitHub\\DepositionSFB\\images"
-
-# Create the folder if it doesn't exist
-if (!dir.exists(overall_plots_folder)) dir.create(overall_plots_folder, recursive = TRUE)
-
-# Save the high-res image
-ggsave(("C:\\Users\\savan\\OneDrive - San Francisco State University\\ProjectData\\GitHub\\DepositionSFB\\images\\All_Sites_Track_A_Comparison_z.png"),
-  plot = cross_site_plot_z,
- width = 10,  # Keeping it wide to comfortably fit the legend
-  height = 6,
-  dpi = 300,
-  bg = "white"
-)
-
-#cat("Successfully saved the overall comparison plot to:\n", overall_plots_folder, "\n")
-
-
-
-# 1. Filter the master dataset to ONLY include sample 'b'
-plot_data_all_b <- rtk_data %>%
-  # grepl("b$", ...) ensures we only keep rows where Point_ID ends with 'b' or 'B'
-  filter(grepl("b$", Point_ID, ignore.case = TRUE))
-
-# 2. Create the Cross-Site Comparison Plot for track 'b'
-cross_site_plot_b_z <- ggplot(plot_data_all_b, aes(x = Distance_AlongTransect_m, y = z_star, color = Transect_ID)) +
-  geom_point(aes(shape = Site), size = 3, alpha = 0.8) + 
-  geom_line(aes(group = Transect_ID), linewidth = 1, alpha = 0.5) + 
-  
-  # Set up labels
-  labs(
-    title = "Cross-Site Elevation Comparison (Samples 'b' Only)",
-    subtitle = "Comparing z* Values across San Pablo, Corte Madera, Bucks Landing, and Giant Marsh",
-    x = "Distance Along Transect (m)",
-    y = "z*",
-    color = "Transect",
-    shape = "Site"
-  ) +
-  theme_minimal() +
-  
-  # Keeping the same "Paired" palette so Transect colors remain consistent with the 'a' plot
-  scale_color_brewer(palette = "Paired") + 
-  
-  # Format the legend to make it easy to read
-  theme(
-    legend.position = "right",
-    legend.title = element_text(face = "bold"),
-    plot.title = element_text(size = 16, face = "bold")
-  )
-
-# 3. Display the plot
-#print(cross_site_plot_b_z)
-
-# 4. Save the plot to your main Plots folder
-overall_plots_folder <- "C:\\Users\\savan\\OneDrive - San Francisco State University\\ProjectData\\GitHub\\DepositionSFB\\images"
-
-# Save the high-res image
-ggsave(("C:\\Users\\savan\\OneDrive - San Francisco State University\\ProjectData\\GitHub\\DepositionSFB\\images\\All_Sites_Track_B_Comparison.png"),
-  plot = cross_site_plot_b_z,
-  width = 10,  
-  height = 6,
-  dpi = 300,
-  bg = "white"
-)
-
-
-
-# 1. Filter the master dataset to ONLY include sample 'c'
-plot_data_all_c <- rtk_data %>%
-  # grepl("c$", ...) ensures we only keep rows where Point_ID ends with 'c' or 'C'
-  filter(grepl("c$", Point_ID, ignore.case = TRUE))
-
-# 2. Create the Cross-Site Comparison Plot for track 'c'
-cross_site_plot_c_z <- ggplot(plot_data_all_c, aes(x = Distance_AlongTransect_m, y = z_star, color = Transect_ID)) +
-  geom_point(aes(shape = Site), size = 3, alpha = 0.8) + 
-  geom_line(aes(group = Transect_ID), linewidth = 1, alpha = 0.5) + 
-  
-  # Set up labels
-  labs(
-    title = "Cross-Site Elevation Comparison (Track 'c' Only)",
-    subtitle = "Comparing z* values across San Pablo, Corte Madera, Bucks Landing, and Giant Marsh",
-    x = "Distance Along Transect (m)",
-    y = "z*",
-    color = "Transect",
-    shape = "Site"
-  ) +
-  theme_minimal() +
-  
-  # Keeping the same "Paired" palette so Transect colors remain consistent
-  scale_color_brewer(palette = "Paired") + 
-  
-  # Format the legend to make it easy to read
-  theme(
-    legend.position = "right",
-    legend.title = element_text(face = "bold"),
-    plot.title = element_text(size = 16, face = "bold")
-  )
-
-# 3. Display the plot in the notebook
-print(cross_site_plot_c_z)
-
-# 4. Save the plot to your main Plots folder
-overall_plots_folder <- "C:\\Users\\savan\\OneDrive - San Francisco State University\\ProjectData\\GitHub\\DepositionSFB\\images"
-
-# Save the high-res image
-ggsave(("C:\\Users\\savan\\OneDrive - San Francisco State University\\ProjectData\\GitHub\\DepositionSFB\\images\\All_Sites_Track_C_Comparison.png"),
-  plot = cross_site_plot_c_z,
-  width = 10,  
-  height = 6,
-  dpi = 300,
-  bg = "white"
-)
-
-
-
-# 1. Start with only track 'a' data
-plot_data_a <- rtk_data %>%
-  filter(grepl("a$", Point_ID, ignore.case = TRUE))
-
-# 2. Split into Ramped and Scarped datasets
-data_ramped <- plot_data_a %>%
-  filter(Site %in% c("SanPablo", "Buck'sLanding"))
-
-data_scarped <- plot_data_a %>%
-  filter(Site %in% c("CorteMadera", "GiantMarsh"))
-
-# 3. Create the Ramped Plot
-plot_ramped_z <- ggplot(data_ramped, aes(x = Distance_AlongTransect_m, y = z_star, color = Transect_ID)) +
-  geom_point(aes(shape = Site), size = 3, alpha = 0.8) + 
-  geom_line(aes(group = Transect_ID), linewidth = 1, alpha = 0.5) + 
-  labs(
-    subtitle = "Ramped Sites (San Pablo & Bucks Landing)",
-    x = "Distance Along Transect (m)",
-    y = "z*",
-    color = "Transect",
-    shape = "Site"
-  ) +
-  theme_minimal() +
-  scale_color_brewer(palette = "Paired") +
-  # --- NEW: Added guides to force Site on top (order = 1) ---
-  guides(
-    shape = guide_legend(order = 1),
-    color = guide_legend(order = 2)
-  ) +
-  theme(
-    legend.title = element_text(face = "bold"),
-    legend.position = "bottom",          
-    legend.box = "vertical",             
-    plot.subtitle = element_text(size = 11, face = "italic")
-  )
-
-# 4. Create the Scarped Plot
-plot_scarped_z <- ggplot(data_scarped, aes(x = Distance_AlongTransect_m, y = z_star, color = Transect_ID)) +
-  geom_point(aes(shape = Site), size = 3, alpha = 0.8) + 
-  geom_line(aes(group = Transect_ID), linewidth = 1, alpha = 0.5) + 
-  labs(
-    subtitle = "Scarped Sites (Corte Madera & Giant Marsh)"
-  ) +
-  theme_minimal() +
-  scale_color_brewer(palette = "Dark2") +
-  # --- NEW: Added guides to force Site on top (order = 1) ---
-  guides(
-    shape = guide_legend(order = 1),
-    color = guide_legend(order = 2)
-  ) +
-  theme(
-    legend.title = element_text(face = "bold"),
-    legend.position = "bottom",        
-    legend.box = "vertical",
-    plot.subtitle = element_text(size = 11, face = "italic")
-  )
-
-# 5. Combine the plots for side-by-side viewing
-combined_morphology_plot_z <- (plot_ramped_z | plot_scarped_z) +
-  plot_annotation(
-    title = "Marsh Morphology Comparison: Ramped vs. Scarped Sites with z* Calculation",
-    theme = theme(plot.title = element_text(size = 16, face = "bold"))
-  ) &
-  scale_y_continuous(limits = c(c(0.65, 1.25))) # Ensures both graphs are on the exact same vertical scale
-
-# 6. Display the combined plot
-print(combined_morphology_plot_z)
-
-# 7. Save the combined plot to your Overall Comparisons folder
-overall_plots_folder <- "C:\\Users\\savan\\OneDrive - San Francisco State University\\ProjectData\\GitHub\\DepositionSFB\\images"
-if (!dir.exists(overall_plots_folder)) dir.create(overall_plots_folder, recursive = TRUE)
-
-ggsave(("C:\\Users\\savan\\OneDrive - San Francisco State University\\ProjectData\\GitHub\\DepositionSFB\\images\\Morphology_Comparison_Track_A_zstar.png"),
-  plot = combined_morphology_plot_z,
-  width = 12,  
-  height = 7,  
-  dpi = 300,
-  bg = "white"
-)
 
 ```
 
@@ -286,17 +47,22 @@ rtk_detail |>
   select(`Point_ID`, check)
 ```
 
-```{r, combine the rtk database values with thesis_df}
+```{r, combine the rtk database values with master_thesis}
 
 library(dplyr)
 
 elev_z_flux <- sed_thesis_keyed |>
   left_join(rtk_detail, by = c("Site", "Tran", "Dist", "Replicate"))
 
+
+elev_z_flux_clean <- elev_z_flux |> 
+  filter(Flux > 0)
+
 sum(!is.na(elev_z_flux$Elevation_m))
 nrow(elev_z_flux)
 
 # sediment rows with no RTK match
+
 sed_thesis_keyed |>
   anti_join(rtk_detail, by = c("Site", "Tran", "Dist", "Replicate"))
 ```
@@ -364,76 +130,6 @@ ggsave("C:\\Users\\savan\\OneDrive - San Francisco State University\\ProjectData
        limitsize = FALSE)
 ```
 
-```{r, statistics}
-
-elev_z_flux_clean <- elev_z_flux |> 
-  filter(Flux > 0)  # removes negatives and zeros
-
-# Double check it worked
-sum(elev_z_flux_clean$Flux <= 0, na.rm = TRUE)  # should return 0
-summary(elev_z_flux_clean$Flux)
-
-
-# 1. Test if slopes are significantly different between morphology types
-library(lme4)
-model <- lmer(log(Flux) ~ z_star * marsh_edge_type + (1|Site) + (1|Study.Phase), 
-              data = elev_z_flux_clean)
-summary(model)
-
-
-```
-
-```{r, more statistics}
-
-# 1. Get p-values formally
-library(lmerTest)
-model_full <- lmer(log(Flux) ~ z_star * marsh_edge_type + 
-                   (1 | Site) + (1 | Study.Phase),  
-                   data = elev_z_flux_clean,
-                   REML = FALSE)
-summary(model_full)  # lmerTest will now show p-values
-
-# 2. Calculate R-squared
-library(MuMIn)
-r.squaredGLMM(model_full)
-# R2m = variance explained by fixed effects only
-# R2c = variance explained by entire model including random effects
-
-# 3. Get predicted slopes per edge type for reporting
-library(emmeans)
-emtrends(model_full, ~ marsh_edge_type, var = "z_star")
-```
-
-```{r, more results again}
-
-# 1. Get formal p-values for reporting
-library(lmerTest)
-summary(model_full)
-
-# 2. Get R-squared values
-library(MuMIn)
-r.squaredGLMM(model_full)
-
-# 3. Plot the predicted trends cleanly for a publication figure
-library(ggeffects)
-pred <- ggpredict(model_full, terms = c("z_star [all]", "marsh_edge_type"))
-
-ggplot(pred, aes(x = x, y = predicted, color = group, fill = group)) +
-  geom_line(linewidth = 1.2) +
-  geom_ribbon(aes(ymin = conf.low, ymax = conf.high), alpha = 0.2, color = NA) +
-  geom_point(data = elev_z_flux_clean, 
-             aes(x = z_star, y = log(Flux), color = marsh_edge_type),
-             alpha = 0.3, size = 1.5, inherit.aes = FALSE) +
-  scale_color_manual(values = c("Ramped" = "#E69F00", "Scarped" = "#0072B2")) +
-  scale_fill_manual(values  = c("Ramped" = "#E69F00", "Scarped" = "#0072B2")) +
-  labs(x = "z*", 
-       y = "log(Sediment Flux g/m²)",
-       color = "Edge Type", 
-       fill  = "Edge Type",
-       title = "Sediment Deposition by Marsh Edge Morphology") +
-  theme_bw() +
-  theme(legend.position = "right")
-```
 
 ```{r}
 
@@ -566,130 +262,11 @@ ggsave("flux_total_dist.png",
 ```
 
 ```{r}
-#############################################################
-# FLUX vs z* BY SITE, WITH LINEAR TREND + R^2 ANNOTATION
-#
-# Replaces the four separate ~85-line chunks (San Pablo, Corte
-# Madera, Giant Marsh, Buck's Landing) with one function.
-#
-# This also fixes, by construction, the four copy-paste bugs
-# from the original chunks (points 4 in the review):
-#   - San Pablo chunk printed "CorteMadera" instead of "SanPablo"
-#   - Giant Marsh chunk used nrow(s_df) and range(s_df$x)
-#     instead of its own g_df
-#   - Buck's Landing chunk used "CorteMadera" and s_df in the
-#     same way
-# Since every site now runs through the same function body
-# using its own df, there's no longer a second copy of the
-# logic that could drift out of sync with the first.
-#############################################################
-
-plot_flux_vs_zstar <- function(site_name, data = elev_z_flux) {
-
-  if (!site_name %in% data[["Site"]]) {
-    stop(paste0(
-      "No rows found for site '", site_name, "'. ",
-      "Available sites: ", paste(unique(data[["Site"]]), collapse = ", ")
-    ))
-  }
-
-  df <- data %>%
-    filter(.data[["Site"]] == site_name) %>%
-    select(x = all_of("z_star"), y = all_of("Flux")) %>%
-    na.omit()
-
-  # --- Fit linear model and get R^2 ---
-  fit       <- lm(y ~ x, data = df)
-  r_squared <- summary(fit)$r.squared
-  slope     <- coef(fit)[2]
-  intercept <- coef(fit)[1]
-  p_value   <- summary(fit)$coefficients[2, 4]
-
-  cat("Site:", site_name, "\n")
-  cat("n =", nrow(df), "\n")
-  cat(sprintf("slope = %.4f, intercept = %.4f\n", slope, intercept))
-  cat(sprintf("R^2 = %.4f, p = %.4g\n", r_squared, p_value))
-
-  # --- Build plot ---
-  r2_label <- paste0("R^2 == ", round(r_squared, 2))
-
-  p <- ggplot(df, aes(x = x, y = y)) +
-    geom_hline(yintercept = 0, color = "gray40", linewidth = 0.5) +
-    geom_point(size = 3, color = "#3b6fa0", alpha = 0.9) +
-    geom_smooth(method = "lm", se = FALSE, color = "black", linewidth = 1) +
-    annotate(
-      "text",
-      x = min(df$x) + 0.05 * diff(range(df$x)),
-      y = max(df$y) * 0.9,
-      label = r2_label,
-      parse = TRUE,
-      hjust = 0,
-      size = 5,
-      color = "dimgray"
-    ) +
-    labs(
-      title = site_name,
-      x = "z*",
-      y = "Flux"
-    ) +
-    theme_minimal(base_size = 13) +
-    theme(
-      panel.background = element_rect(fill = "#e9e9e9", color = NA),
-      plot.background  = element_rect(fill = "white", color = NA),
-      panel.grid.major = element_line(color = "white"),
-      panel.grid.minor = element_line(color = "white"),
-      plot.title = element_text(hjust = 0.5)
-    )
-
-  print(p)
-  p
-}
-
-#############################################################
-# RUN FOR ALL FOUR SITES
-#
-# Kept the original explanatory header as context for why this
-# code exists (per your call to preserve it), just trimmed down
-# to the actual working line -- no more copy-pasted CONFIG block.
-#
-# ------------------------------------------------------------
-# Plot flux (elevation/accretion surplus, mm/yr) vs z* for ONE site,
-# with a linear trend line and R^2 annotation -- styled after Thorne et al.
-#
-# Expected input: a CSV with at least these columns:
-#   site   : site/category name, e.g. "SFB Elevation", "SC Accretion"
-#   z_star : position within tidal frame (x-axis)
-#   flux   : elevation/accretion surplus rate, mm/yr (y-axis)
-# ------------------------------------------------------------
-#############################################################
+source("R/plotting.R")
 
 p_san_pablo  <- plot_flux_vs_zstar("SanPablo")
 p_corte_mad  <- plot_flux_vs_zstar("CorteMadera")
 p_giant_mar  <- plot_flux_vs_zstar("GiantMarsh")
 p_bucks_land <- plot_flux_vs_zstar("Buck'sLanding")
-
-#############################################################
-# SAVE ALL FOUR (explicit plot = ..., consistent path/filenames
-# -- fixes the bare-relative-filename issue from point 5)
-#############################################################
-
-images_folder <- "C:\\Users\\savan\\OneDrive - San Francisco State University\\ProjectData\\GitHub\\DepositionSFB\\images"
-
-ggsave(file.path(images_folder, "flux_vs_zstar_sanpablo.png"),
-  plot = p_san_pablo, width = 8, height = 6, dpi = 200, bg = "white")
-
-ggsave(file.path(images_folder, "flux_vs_zstar_cortemadera.png"),
-  plot = p_corte_mad, width = 8, height = 6, dpi = 200, bg = "white")
-
-ggsave(file.path(images_folder, "flux_vs_zstar_giantmarsh.png"),
-  plot = p_giant_mar, width = 8, height = 6, dpi = 200, bg = "white")
-
-ggsave(file.path(images_folder, "flux_vs_zstar_buckslanding.png"),
-  plot = p_bucks_land, width = 8, height = 6, dpi = 200, bg = "white")
-```
-
-`
-
-
 
 

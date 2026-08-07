@@ -1,0 +1,257 @@
+---
+title: "elevation_qc"
+format: html
+editor: visual
+---
+
+```{r}
+# Load necessary libraries
+source("R/setup.R")
+
+# working directory 
+
+knitr::opts_chunk$set(echo = TRUE)
+knitr::opts_knit$set(root.dir = 'C:/Users/savan/OneDrive - San Francisco State University/ProjectData/GitHub/DepositionSFB/data')
+
+# Load the dataset
+#Make sure to use double \\ to avoid errors
+rtk_data <- read_csv("C:\\Users\\savan\\OneDrive - San Francisco State University\\ProjectData\\GitHub\\DepositionSFB\\data\\All_Sites_Calculated (with z star).csv")
+
+```
+
+```{r}
+# 1. Filter the master dataset to ONLY include sample 'a'
+plot_data_all_a <- rtk_data %>%
+  # grepl("a$", ...) ensures we only keep rows where Point_ID ends with 'a' or 'A'
+  filter(grepl("a$", Point_ID, ignore.case = TRUE))
+
+# 2. Create the Cross-Site Comparison Plot
+cross_site_plot_z <- ggplot(plot_data_all_a, aes(x = Distance_AlongTransect_m, y = z_star, color = Transect_ID)) +
+  geom_point(aes(shape = Site), size = 3, alpha = 0.8) + 
+  geom_line(aes(group = Transect_ID), linewidth = 1, alpha = 0.5) + 
+  
+  # Set up labels
+  labs(
+    title = "Cross-Site z* Value Comparison (Replicates 'a' Only)",
+    subtitle = "Comparing z* value across San Pablo, Corte Madera, Bucks Landing, and Giant Marsh",
+    x = "Distance Along Transect (m)",
+    y = "z*",
+    color = "Transect",
+    shape = "Site"
+  ) +
+  theme_minimal() +
+  scale_color_brewer(palette = "Paired") + 
+  
+  # Format the legend to make it easy to read
+  theme(
+    legend.position = "right",
+    legend.title = element_text(face = "bold"),
+    plot.title = element_text(size = 16, face = "bold")
+  )
+
+
+# 4. Save the plot to your main Plots folder
+overall_plots_folder <- "C:\\Users\\savan\\OneDrive - San Francisco State University\\ProjectData\\GitHub\\DepositionSFB\\images"
+
+# Create the folder if it doesn't exist
+if (!dir.exists(overall_plots_folder)) dir.create(overall_plots_folder, recursive = TRUE)
+
+# Save the high-res image
+ggsave(("C:\\Users\\savan\\OneDrive - San Francisco State University\\ProjectData\\GitHub\\DepositionSFB\\images\\All_Sites_Track_A_Comparison_z.png"),
+       plot = cross_site_plot_z,
+       width = 10,  # Keeping it wide to comfortably fit the legend
+       height = 6,
+       dpi = 300,
+       bg = "white"
+)
+
+#cat("Successfully saved the overall comparison plot to:\n", overall_plots_folder, "\n")
+
+
+
+# 1. Filter the master dataset to ONLY include sample 'b'
+plot_data_all_b <- rtk_data %>%
+  # grepl("b$", ...) ensures we only keep rows where Point_ID ends with 'b' or 'B'
+  filter(grepl("b$", Point_ID, ignore.case = TRUE))
+
+# 2. Create the Cross-Site Comparison Plot for track 'b'
+cross_site_plot_b_z <- ggplot(plot_data_all_b, aes(x = Distance_AlongTransect_m, y = z_star, color = Transect_ID)) +
+  geom_point(aes(shape = Site), size = 3, alpha = 0.8) + 
+  geom_line(aes(group = Transect_ID), linewidth = 1, alpha = 0.5) + 
+  
+  # Set up labels
+  labs(
+    title = "Cross-Site Elevation Comparison (Samples 'b' Only)",
+    subtitle = "Comparing z* Values across San Pablo, Corte Madera, Bucks Landing, and Giant Marsh",
+    x = "Distance Along Transect (m)",
+    y = "z*",
+    color = "Transect",
+    shape = "Site"
+  ) +
+  theme_minimal() +
+  
+  # Keeping the same "Paired" palette so Transect colors remain consistent with the 'a' plot
+  scale_color_brewer(palette = "Paired") + 
+  
+  # Format the legend to make it easy to read
+  theme(
+    legend.position = "right",
+    legend.title = element_text(face = "bold"),
+    plot.title = element_text(size = 16, face = "bold")
+  )
+
+# 3. Display the plot
+#print(cross_site_plot_b_z)
+
+# 4. Save the plot to your main Plots folder
+overall_plots_folder <- "C:\\Users\\savan\\OneDrive - San Francisco State University\\ProjectData\\GitHub\\DepositionSFB\\images"
+
+# Save the high-res image
+ggsave(("C:\\Users\\savan\\OneDrive - San Francisco State University\\ProjectData\\GitHub\\DepositionSFB\\images\\All_Sites_Track_B_Comparison.png"),
+       plot = cross_site_plot_b_z,
+       width = 10,  
+       height = 6,
+       dpi = 300,
+       bg = "white"
+)
+
+
+
+# 1. Filter the master dataset to ONLY include sample 'c'
+plot_data_all_c <- rtk_data %>%
+  # grepl("c$", ...) ensures we only keep rows where Point_ID ends with 'c' or 'C'
+  filter(grepl("c$", Point_ID, ignore.case = TRUE))
+
+# 2. Create the Cross-Site Comparison Plot for track 'c'
+cross_site_plot_c_z <- ggplot(plot_data_all_c, aes(x = Distance_AlongTransect_m, y = z_star, color = Transect_ID)) +
+  geom_point(aes(shape = Site), size = 3, alpha = 0.8) + 
+  geom_line(aes(group = Transect_ID), linewidth = 1, alpha = 0.5) + 
+  
+  # Set up labels
+  labs(
+    title = "Cross-Site Elevation Comparison (Track 'c' Only)",
+    subtitle = "Comparing z* values across San Pablo, Corte Madera, Bucks Landing, and Giant Marsh",
+    x = "Distance Along Transect (m)",
+    y = "z*",
+    color = "Transect",
+    shape = "Site"
+  ) +
+  theme_minimal() +
+  
+  # Keeping the same "Paired" palette so Transect colors remain consistent
+  scale_color_brewer(palette = "Paired") + 
+  
+  # Format the legend to make it easy to read
+  theme(
+    legend.position = "right",
+    legend.title = element_text(face = "bold"),
+    plot.title = element_text(size = 16, face = "bold")
+  )
+
+# 3. Display the plot in the notebook
+print(cross_site_plot_c_z)
+
+# 4. Save the plot to your main Plots folder
+overall_plots_folder <- "C:\\Users\\savan\\OneDrive - San Francisco State University\\ProjectData\\GitHub\\DepositionSFB\\images"
+
+# Save the high-res image
+ggsave(("C:\\Users\\savan\\OneDrive - San Francisco State University\\ProjectData\\GitHub\\DepositionSFB\\images\\All_Sites_Track_C_Comparison.png"),
+       plot = cross_site_plot_c_z,
+       width = 10,  
+       height = 6,
+       dpi = 300,
+       bg = "white"
+)
+
+
+
+# 1. Start with only track 'a' data
+plot_data_a <- rtk_data %>%
+  filter(grepl("a$", Point_ID, ignore.case = TRUE))
+
+# 2. Split into Ramped and Scarped datasets
+data_ramped <- plot_data_a %>%
+  filter(Site %in% c("SanPablo", "Buck'sLanding"))
+
+data_scarped <- plot_data_a %>%
+  filter(Site %in% c("CorteMadera", "GiantMarsh"))
+
+# 3. Create the Ramped Plot
+plot_ramped_z <- ggplot(data_ramped, aes(x = Distance_AlongTransect_m, y = z_star, color = Transect_ID)) +
+  geom_point(aes(shape = Site), size = 3, alpha = 0.8) + 
+  geom_line(aes(group = Transect_ID), linewidth = 1, alpha = 0.5) + 
+  labs(
+    subtitle = "Ramped Sites (San Pablo & Bucks Landing)",
+    x = "Distance Along Transect (m)",
+    y = "z*",
+    color = "Transect",
+    shape = "Site"
+  ) +
+  theme_minimal() +
+  scale_color_brewer(palette = "Paired") +
+  # --- NEW: Added guides to force Site on top (order = 1) ---
+  guides(
+    shape = guide_legend(order = 1),
+    color = guide_legend(order = 2)
+  ) +
+  theme(
+    legend.title = element_text(face = "bold"),
+    legend.position = "bottom",          
+    legend.box = "vertical",             
+    plot.subtitle = element_text(size = 11, face = "italic")
+  )
+
+# 4. Create the Scarped Plot
+plot_scarped_z <- ggplot(data_scarped, aes(x = Distance_AlongTransect_m, y = z_star, color = Transect_ID)) +
+  geom_point(aes(shape = Site), size = 3, alpha = 0.8) + 
+  geom_line(aes(group = Transect_ID), linewidth = 1, alpha = 0.5) + 
+  labs(
+    subtitle = "Scarped Sites (Corte Madera & Giant Marsh)"
+  ) +
+  theme_minimal() +
+  scale_color_brewer(palette = "Dark2") +
+  # --- NEW: Added guides to force Site on top (order = 1) ---
+  guides(
+    shape = guide_legend(order = 1),
+    color = guide_legend(order = 2)
+  ) +
+  theme(
+    legend.title = element_text(face = "bold"),
+    legend.position = "bottom",        
+    legend.box = "vertical",
+    plot.subtitle = element_text(size = 11, face = "italic")
+  )
+
+# 5. Combine the plots for side-by-side viewing
+combined_morphology_plot_z <- (plot_ramped_z | plot_scarped_z) +
+  plot_annotation(
+    title = "Marsh Morphology Comparison: Ramped vs. Scarped Sites with z* Calculation",
+    theme = theme(plot.title = element_text(size = 16, face = "bold"))
+  ) &
+  scale_y_continuous(limits = c(c(0.65, 1.25))) # Ensures both graphs are on the exact same vertical scale
+
+# 6. Display the combined plot
+print(combined_morphology_plot_z)
+
+# 7. Save the combined plot to your Overall Comparisons folder
+overall_plots_folder <- "C:\\Users\\savan\\OneDrive - San Francisco State University\\ProjectData\\GitHub\\DepositionSFB\\images"
+if (!dir.exists(overall_plots_folder)) dir.create(overall_plots_folder, recursive = TRUE)
+
+ggsave(("C:\\Users\\savan\\OneDrive - San Francisco State University\\ProjectData\\GitHub\\DepositionSFB\\images\\Morphology_Comparison_Track_A_zstar.png"),
+       plot = combined_morphology_plot_z,
+       width = 12,  
+       height = 7,  
+       dpi = 300,
+       bg = "white"
+)
+
+```
+
+You can add options to executable code like this
+
+```{r}
+#| echo: false
+2 * 2
+```
+
+The `echo: false` option disables the printing of code (only output is displayed).

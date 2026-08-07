@@ -349,3 +349,67 @@ ggsave("C:\\Users\\savan\\OneDrive - San Francisco State University\\ProjectData
        dpi = 300,
        limitsize = FALSE)
 ```
+
+```{r}
+
+elev_z_flux_clean <- elev_z_flux |> 
+  filter(Flux > 0)  # removes negatives and zeros
+
+# Double check it worked
+sum(elev_z_flux_clean$Flux <= 0, na.rm = TRUE)  # should return 0
+summary(elev_z_flux_clean$Flux)
+
+
+# 1. Test if slopes are significantly different between morphology types
+library(lme4)
+model <- lmer(log(Flux) ~ z_star * marsh_edge_type + (1|Site) + (1|Study.Phase), 
+              data = elev_z_flux_clean)
+summary(model)
+
+# 1. Get p-values formally
+library(lmerTest)
+model_full <- lmer(log(Flux) ~ z_star * marsh_edge_type + 
+                     (1 | Site) + (1 | Study.Phase),  
+                   data = elev_z_flux_clean,
+                   REML = FALSE)
+summary(model_full)  # lmerTest will now show p-values
+
+# 2. Calculate R-squared
+library(MuMIn)
+r.squaredGLMM(model_full)
+# R2m = variance explained by fixed effects only
+# R2c = variance explained by entire model including random effects
+
+# 3. Get predicted slopes per edge type for reporting
+library(emmeans)
+emtrends(model_full, ~ marsh_edge_type, var = "z_star")
+
+
+# 1. Get formal p-values for reporting
+library(lmerTest)
+summary(model_full)
+
+# 2. Get R-squared values
+library(MuMIn)
+r.squaredGLMM(model_full)
+
+# 3. Plot the predicted trends cleanly for a publication figure
+library(ggeffects)
+pred <- ggpredict(model_full, terms = c("z_star [all]", "marsh_edge_type"))
+
+ggplot(pred, aes(x = x, y = predicted, color = group, fill = group)) +
+  geom_line(linewidth = 1.2) +
+  geom_ribbon(aes(ymin = conf.low, ymax = conf.high), alpha = 0.2, color = NA) +
+  geom_point(data = elev_z_flux_clean, 
+             aes(x = z_star, y = log(Flux), color = marsh_edge_type),
+             alpha = 0.3, size = 1.5, inherit.aes = FALSE) +
+  scale_color_manual(values = c("Ramped" = "#E69F00", "Scarped" = "#0072B2")) +
+  scale_fill_manual(values  = c("Ramped" = "#E69F00", "Scarped" = "#0072B2")) +
+  labs(x = "z*", 
+       y = "log(Sediment Flux g/m²)",
+       color = "Edge Type", 
+       fill  = "Edge Type",
+       title = "Sediment Deposition by Marsh Edge Morphology") +
+  theme_bw() +
+  theme(legend.position = "right")
+```

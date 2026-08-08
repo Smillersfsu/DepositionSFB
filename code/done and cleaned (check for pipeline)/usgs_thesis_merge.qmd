@@ -1,0 +1,161 @@
+---
+title: "usgs_thesis_merge"
+format: html
+editor: visual
+---
+
+Prep half of the old Comparing_USGS_to_Thesis.qmd, per the reorg plan --
+this file only builds usgs_thesis.rds. Modeling (Shapiro-Wilk, GLMMs,
+ramped/scarped comparisons, etc.) moves to the repurposed
+"Research question 2.qmd", not duplicated here.
+
+```{r, load packages}
+source("R/setup.R")
+# No spatial_setup.R needed -- this file never calls sf/ggmap/leaflet,
+# and it renders to html, not pdf, so tinytex isn't needed either.
+```
+
+```{r, load tier5 and usgs_bay from disk}
+# Loads real data into properly-named objects -- the original file read
+# into master_tier3/usgs_bay but then used sed_thesis/sed_usgs everywhere
+# after, which were never created; it only "worked" by silently relying
+# on objects left over in memory from another file's session. Fixed here
+# by loading directly into the names the rest of this file actually uses.
+#
+# master_tier3.csv -> master_tier5.csv: under the current tier numbering,
+# tier5 = (all sites, full flag criteria), which is what the old tier3
+# meant before the tier renumbering earlier in this project.
+#
+# readr::read_csv() (not base read.csv()) so Date.placed.in.field /
+# Date.removed.from.field come back as proper Date columns automatically,
+# same reasoning as the read fix in master_analysis_cleanup.Rmd.
+
+sed_thesis <- readr::read_csv("C:\\Users\\savan\\OneDrive - San Francisco State University\\ProjectData\\GitHub\\DepositionSFB\\data\\master_tier5.csv")
+
+sed_usgs <- readr::read_csv("C:\\Users\\savan\\OneDrive - San Francisco State University\\ProjectData\\GitHub\\DepositionSFB\\data\\usgs_bay.csv")
+
+str(sed_thesis)
+str(sed_usgs)
+```
+
+```{r, clean whitespace and re-factor columns lost on CSV round-trip}
+# CSVs don't preserve R factor levels, so both sides need re-factoring
+# after the disk read -- this is real, necessary work, not duplication.
+#
+# NOT re-derived here (already present in both files from their upstream
+# prep -- master_tier5.csv inherits marsh_edge_type/marsh_orientation
+# from master_thesis via elev_z_flux; usgs_bay.csv already has
+# marsh_edge_type/marsh_orientation/Study.Phase from master_analysis_usgs.Rmd):
+#   - marsh_edge_type, marsh_orientation
+#   - Study.Phase
+# Re-deriving these again here would just be the same ~135 lines of
+# case_when() logic duplicated a third time.
+
+sed_thesis$Dist        <- str_replace_all(as.character(sed_thesis$Dist), " ", "")
+sed_thesis$Tran         <- str_replace_all(as.character(sed_thesis$Tran), " ", "")
+sed_thesis$Site         <- str_replace_all(sed_thesis$Site, " ", "")
+sed_thesis$Replicate    <- str_replace_all(as.character(sed_thesis$Replicate), " ", "")
+sed_thesis$marsh_edge_type  <- as.factor(sed_thesis$marsh_edge_type)
+sed_thesis$marsh_orientation <- as.factor(sed_thesis$marsh_orientation)
+sed_thesis$Study.Phase  <- factor(sed_thesis$Study.Phase, levels = paste0("M", 1:12))
+
+sed_usgs$Dist        <- str_replace_all(as.character(sed_usgs$Dist), " ", "")
+sed_usgs$Tran         <- str_replace_all(as.character(sed_usgs$Tran), " ", "")
+sed_usgs$Site         <- str_replace_all(sed_usgs$Site, " ", "")
+sed_usgs$Replicate    <- str_replace_all(as.character(sed_usgs$Replicate), " ", "")
+sed_usgs$marsh_edge_type  <- as.factor(sed_usgs$marsh_edge_type)
+sed_usgs$marsh_orientation <- as.factor(sed_usgs$marsh_orientation)
+sed_usgs$Study.Phase  <- factor(sed_usgs$Study.Phase, levels = paste0("M", 1:12))
+
+# Quick QC check before binding -- catches a site-naming mismatch here
+# rather than discovering it as a silent NA later.
+unique(sed_thesis$Site)
+unique(sed_usgs$Site)
+```
+
+```{r, derive Month for comparability}
+# Derived from Date.removed.from.field rather than assumed to already
+# exist as a raw column -- gives USGS/thesis comparability at the Month
+# level, per your call to use Month (not the old Winter/Summer Season
+# split) for this comparison.
+#
+# Factor levels ordered chronologically starting from July (the first
+# month of data collection), not alphabetically -- so plots/models
+# using Month read left-to-right in actual study order instead of
+# April/August/December/... etc.
+
+study_month_levels <- c("July", "August", "September", "October",
+                         "November", "December", "January", "February",
+                         "March", "April", "May", "June")
+
+sed_thesis <- sed_thesis %>%
+  mutate(Month = factor(month(Date.removed.from.field, label = TRUE, abbr = FALSE),
+                         levels = study_month_levels, ordered = TRUE))
+
+sed_usgs <- sed_usgs %>%
+  mutate(Month = factor(month(Date.removed.from.field, label = TRUE, abbr = FALSE),
+                         levels = study_month_levels, ordered = TRUE))
+```
+
+```{r, Study Dataset column}
+sed_thesis$Study.Dataset <- "Thesis"
+sed_usgs$Study.Dataset   <- "USGS"
+```
+
+```{r, merge}
+usgs_thesis <- bind_rows(sed_thesis, sed_usgs)
+
+# bind_rows() fills any column that only exists on one side (e.g.
+# z_star/Elevation_m, which only master_tier5 carries) with NA on the
+# other side automatically -- expected, not a bug.
+
+nrow(sed_thesis)
+nrow(sed_usgs)
+nrow(usgs_thesis)
+
+# Safety filter -- both sides should already only have valid M1-M12
+# Study.Phase values (usgs_bay.csv already dropped NA Study.Phase rows
+# in master_analysis_usgs.Rmd), but keep this as a guard.
+usgs_thesis <- usgs_thesis %>%
+  filter(Study.Phase %in% paste0("M", 1:12))
+
+unique(usgs_thesis$Study.Dataset)
+unique(usgs_thesis$Study.Phase)
+table(usgs_thesis$Study.Dataset, usgs_thesis$Month)
+```
+
+```{r, QC check against marsh area match guide}
+# Non-blocking: warns instead of stopping if the guide is missing or a
+# mismatch is found. This only validates usgs_thesis -- it never alters
+# it or blocks the save below, even if this whole chunk fails.
+
+crosswalk_check <- tryCatch({
+  source("R/marsh_area_crosswalk.R")
+  build_marsh_area_crosswalk()
+}, error = function(e) {
+  warning("Marsh_Area crosswalk check skipped -- could not load guide: ", conditionMessage(e))
+  NULL
+})
+
+if (!is.null(crosswalk_check)) {
+  mismatch_check <- usgs_thesis %>%
+    dplyr::left_join(
+      crosswalk_check$long %>% dplyr::mutate(Dist = as.character(Dist)),
+      by = c("Site", "Study.Dataset", "Dist"),
+      suffix = c("", "_guide")
+    ) %>%
+    dplyr::filter(!is.na(Marsh_Area_guide),
+                  as.character(Marsh_Area) != as.character(Marsh_Area_guide))
+
+  if (nrow(mismatch_check) > 0) {
+    warning(nrow(mismatch_check), " row(s) have a Marsh_Area that disagrees ",
+            "with the match guide -- see mismatch_check for details.")
+  } else {
+    message("Marsh_Area crosswalk check passed -- no disagreements found with the match guide.")
+  }
+}
+```
+
+```{r, save merged dataset}
+saveRDS(usgs_thesis, "C:\\Users\\savan\\OneDrive - San Francisco State University\\ProjectData\\GitHub\\DepositionSFB\\data\\usgs_thesis.rds")
+```

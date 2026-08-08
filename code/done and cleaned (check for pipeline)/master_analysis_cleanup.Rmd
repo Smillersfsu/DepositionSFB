@@ -159,7 +159,7 @@ readr::write_csv(sed_thesis, "C:\\Users\\savan\\OneDrive - San Francisco State U
 ```{r, double check factor variable levels for Master Data Sheet}
 
 # Deposition alone 
-master_thesis <- readr::read_csv("C:\\Users\\savan\\OneDrive - San Francisco State University\\ProjectData\\GitHub\\DepositionSFB\\data\\clean\\master_thesis.csv")
+master_thesis <- readr::read_csv("C:\\Users\\savan\\OneDrive - San Francisco State University\\ProjectData\\GitHub\\DepositionSFB\\data\\master_thesis.csv")
 
 # Reassign factors to appropriate variables 
 # NOTE: Date.placed.in.field and Date.removed.from.field no longer

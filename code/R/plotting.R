@@ -25,8 +25,20 @@
 # once z* is ready to go, following the same pattern below.
 
 #############################################################
-make_sed_plots <- function(data, title_suffix = "") {
+make_sed_plots <- function(data, title_suffix = "", 
+                           phase_var = "Date.removed.from.field", phase_label = NULL) {
 
+  # phase_var: column used for the "phase_*" plots below (phase_site,
+  # phase_site_log, phase_edge, phase_area). Defaults to
+  # "Date.removed.from.field" for all datasets (full/noG/noG2/tiers alike)
+  # -- Study.Phase is no longer used anywhere in this function. Override
+  # phase_var if you ever want to group these plots by something else.
+  # phase_label: axis/legend label text; auto-derived from phase_var if
+  # not supplied (dots -> spaces).
+  if (is.null(phase_label)) {
+    phase_label <- gsub("\\.", " ", phase_var)
+  }
+  
 make_box_plot <- function(mapping, title, x_lab, facet = NULL, log_y = FALSE) {
   p <- ggplot(data, mapping) +
     geom_boxplot() +
@@ -61,13 +73,13 @@ plots <- list(
   
   site_area = make_box_plot(aes(x = Marsh_Area, y = Flux, color = Site), "Deposition by Marsh Area by Site", "Marsh Area"),
   
-  phase_site = make_box_plot(aes(x = Study.Phase, y = Flux, color = Site), "Deposition by Study Phase by Site", "Study Phase"),
+  phase_site = make_box_plot(aes(x = .data[[phase_var]],y = Flux, color = Site), "Deposition by Date Removed From Field by Site", "Date Removed From Field"),
   
-  phase_site_log = make_box_plot(aes(x = Study.Phase, y = Flux, color = Site), "Deposition by Study Phase by Site (log)", "Study Phase", log_y = TRUE),
+  phase_site_log = make_box_plot(aes(x = .data[[phase_var]], y = Flux, color = Site), "Deposition by Date Removed From Field by Site (log)", "Date Removed From Field", log_y = TRUE),
   
-  phase_edge = make_box_plot(aes(x = Study.Phase, y = Flux, color = marsh_edge_type), "Deposition by Study Phase by Marsh Edge Type", "Study Phase"),
+  phase_edge = make_box_plot(aes(x = .data[[phase_var]], y = Flux, color = marsh_edge_type), "Deposition by Date Removed From Field by Marsh Edge Type", "Date Removed From Field"),
   
-  phase_area = make_box_plot(aes(x = Marsh_Area, y = Flux, color = Study.Phase), "Deposition by Study Phase Across Marsh Area", "Marsh Area", facet = ~Site)
+  phase_area = make_box_plot(aes(x = Marsh_Area, y = Flux, color = .data[[phase_var]]), "Deposition by Date Removed From Field Across Marsh Area", "Marsh Area", facet = ~Site)
   )
 
 if ("z_star" %in% names(data)) {
@@ -245,3 +257,181 @@ ggsave(file.path(images_folder, "flux_vs_zstar_giantmarsh.png"),
 
 ggsave(file.path(images_folder, "flux_vs_zstar_buckslanding.png"),
        plot = p_bucks_land, width = 8, height = 6, dpi = 200, bg = "white")
+
+
+#############################################################
+# make_rq_plots()
+#
+# Moved here from master_analysis_flagtier.qmd (was already
+# consolidated there, replacing 4 near-identical chunks -- one per
+# tier). Living in plotting.R since it's a plot-producing function
+# like make_sed_plots(), not a stats-table function like
+# make_flux_table() in flux_summary.R.
+#
+# Returns a named list of 6 ggplots plus one summary dataframe
+# (slopes_by_transect, kept for reference/export, not a plot):
+#   interval - collection interval length over time, by transect
+#   edge     - edge type comparison: flux by marsh edge type (violin + jitter by site) -- feeds RQ1
+#   dist     - inundation gradient: flux vs distance along transect, faceted by edge type -- feeds RQ1
+#   time     - trend check: flux over time by transect (thesis-only,
+#              faceted by edge type -- NOT the cross-dataset RQ2 test)
+#   slope    - trend check: per-transect flux-vs-time slope summary
+#              (same thesis-only scope as `time`)
+#   season   - seasonality check, flux by month pooled across years
+#   site     - site comparison: flux by site, sorted by median -- feeds RQ3
+#
+# None of these six plots are placeholders or auto-populate later --
+# every one runs fully now on whatever tier dataframe you pass in,
+# using only thesis-side columns (marsh_edge_type, Dist, Tran, Site,
+# Date.removed.from.field). The "feeds RQ1/RQ3" notes above just
+# describe which eventual write-up section each plot supports.
+#
+# The actual RQ2 (GLMM / Shapiro-Wilk comparison between USGS and
+# thesis datasets) happens later, in Research question 2.qmd, once
+# usgs_thesis_merge.qmd has produced the combined dataframe with the
+# "Study Dataset" column. This function only ever sees one tier's
+# thesis data at a time, so it can't and doesn't answer that question.
+#############################################################
+
+make_rq_plots <- function(df, tier_label) {
+  
+  # ---------------------------------------------------------------
+  # Collection Interval Consistency
+  # ---------------------------------------------------------------
+  data_intervals <- df %>%
+    mutate(interval_days = as.numeric(difftime(Date.removed.from.field, Date.placed.in.field, units = "days"))) %>%
+    distinct(Tran, Date.removed.from.field, interval_days)
+  
+  p_interval <- ggplot(data_intervals, aes(x = Date.removed.from.field, y = interval_days, color = Tran)) +
+    geom_point(size = 2, alpha = 0.7) +
+    geom_hline(yintercept = 30, linetype = "dashed", color = "gray40") +
+    labs(
+      title = paste("Collection Interval Length Over Time —", tier_label),
+      subtitle = "Dashed line = nominal 30-day target",
+      x = "Time", y = "Interval Length (days)", color = "Transect"
+    ) +
+    scale_x_date(date_labels = "%b %Y", date_breaks = "3 months") +
+    theme_minimal() +
+    theme(legend.position = "none", axis.text.x = element_text(angle = 45, hjust = 1))
+  
+  print(summary(data_intervals$interval_days))
+  
+  # ---------------------------------------------------------------
+  # Edge Type Comparison: Flux by Marsh Edge Type
+  # (fully computed now, thesis-only columns -- feeds into RQ1, but
+  # does not depend on the USGS merge)
+  # ---------------------------------------------------------------
+  p_edge <- ggplot(df, aes(x = marsh_edge_type, y = Flux, fill = marsh_edge_type)) +
+    geom_violin(alpha = 0.4, trim = FALSE) +
+    geom_jitter(aes(color = Site), width = 0.15, size = 2, alpha = 0.7) +
+    labs(
+      title = paste("Sediment Flux by Marsh Edge Type —", tier_label),
+      subtitle = "Points colored by Site — check if the two sites within each type agree",
+      x = NULL, y = "Flux (g/m2/day)"
+    ) +
+    theme_minimal() +
+    theme(legend.position = "right")
+  
+  # ---------------------------------------------------------------
+  # Inundation Gradient: Flux vs. Distance Along Transect
+  # (fully computed now, thesis-only columns -- feeds into RQ1, but
+  # does not depend on the USGS merge)
+  # ---------------------------------------------------------------
+  p_dist <- ggplot(df, aes(x = Dist, y = Flux, color = Tran, group = Tran)) +
+    geom_point(size = 2, alpha = 0.7) +
+    geom_line(alpha = 0.5) +
+    geom_smooth(mapping = aes(group = marsh_edge_type),
+                method = "loess", color = "black",
+                linewidth = 1, se = TRUE, inherit.aes = FALSE) +
+    facet_wrap(~ marsh_edge_type) +
+    labs(
+      title = paste("Sediment Flux vs Distance Along Transect —", tier_label),
+      subtitle = "Black smooth = overall trend within edge type; colored lines = individual transects",
+      x = "Distance Along Transect (m)", y = "Flux (g/m2/day)", color = "Transect"
+    ) +
+    theme_minimal() +
+    theme(legend.position = "none")
+  
+  # ---------------------------------------------------------------
+  # Trend: Flux Over Time, by Edge Type
+  # (thesis-only check that flux stays constant over time within this
+  # tier -- NOT the cross-dataset RQ2 GLMM comparison, which happens
+  # later in Research question 2.qmd once USGS + thesis are merged)
+  # ---------------------------------------------------------------
+  p_time <- ggplot(df, aes(x = Date.removed.from.field, y = Flux, color = Tran, group = Tran)) +
+    geom_point(size = 2, alpha = 0.7) +
+    geom_line(alpha = 0.4) +
+    geom_smooth(mapping = aes(group = marsh_edge_type),
+                method = "lm", se = TRUE, color = "black",
+                linewidth = 1, inherit.aes = FALSE) +
+    facet_wrap(~ marsh_edge_type) +
+    labs(
+      title = paste("Sediment Flux Over Time by Transect —", tier_label),
+      subtitle = "A flat black trend line within a panel supports a constant-flux hypothesis",
+      x = "Time (Year-Month)", y = "Flux (g/m2/day)", color = "Transect"
+    ) +
+    scale_x_date(date_labels = "%b %Y", date_breaks = "3 months") +
+    theme_minimal() +
+    theme(legend.position = "none", axis.text.x = element_text(angle = 45, hjust = 1))
+  
+  # ---------------------------------------------------------------
+  # Trend: Per-Transect Slope Summary
+  # (same thesis-only scope as p_time above)
+  # ---------------------------------------------------------------
+  slopes_by_transect <- df %>%
+    group_by(Tran, marsh_edge_type) %>%
+    summarize(
+      slope = coef(lm(Flux ~ as.numeric(Date.removed.from.field)))[2],
+      .groups = "drop"
+    )
+  
+  p_slope <- ggplot(slopes_by_transect, aes(x = marsh_edge_type, y = slope, color = marsh_edge_type)) +
+    geom_jitter(width = 0.1, size = 3, alpha = 0.8) +
+    geom_hline(yintercept = 0, linetype = "dashed", color = "gray50") +
+    labs(
+      title = paste("Flux Trend Over Time, by Transect —", tier_label),
+      subtitle = "Values near zero support the constant-flux hypothesis",
+      x = NULL, y = "Slope of Flux vs Time (per day)"
+    ) +
+    theme_minimal()
+  
+  # ---------------------------------------------------------------
+  # Seasonality Check (Exploratory)
+  # ---------------------------------------------------------------
+  p_season <- ggplot(df, aes(x = factor(month(Date.removed.from.field)), y = Flux, fill = marsh_edge_type)) +
+    geom_boxplot(alpha = 0.7) +
+    labs(
+      title = paste("Sediment Flux by Month (Pooled Across Years) —", tier_label),
+      subtitle = "Checks whether flux varies seasonally, independent of longer-term trend",
+      x = "Month", y = "Flux (g/m2/day)", fill = "Edge Type"
+    ) +
+    theme_minimal()
+  
+  # ---------------------------------------------------------------
+  # Site Comparison: Flux by Site
+  # (fully computed now, thesis-only columns -- feeds into RQ3, but
+  # does not depend on the USGS merge)
+  # ---------------------------------------------------------------
+  p_site <- ggplot(df, aes(x = reorder(Site, Flux, median), y = Flux, fill = marsh_edge_type)) +
+    geom_boxplot(alpha = 0.7) +
+    labs(
+      title = paste("Sediment Flux by Site —", tier_label),
+      subtitle = "Sorted by median — flags whether MorphType groups sites as expected",
+      x = "Site", y = "Flux (g/m2/day)", fill = "Edge Type"
+    ) +
+    theme_minimal() +
+    coord_flip()
+  
+  # Return everything as a named list so you can access/print/save individually,
+  # e.g. rq_plots$tier4$edge, or walk(rq_plots$tier4, print)
+  list(
+    interval = p_interval,
+    edge     = p_edge,
+    dist     = p_dist,
+    time     = p_time,
+    slope    = p_slope,
+    season   = p_season,
+    site     = p_site,
+    slopes_by_transect = slopes_by_transect  # data, not a plot, kept for reference/export
+  )
+}

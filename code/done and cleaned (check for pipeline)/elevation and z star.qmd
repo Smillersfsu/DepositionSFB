@@ -10,6 +10,10 @@ editor: visual
 
 # Load necessary libraries
 source("R/setup.R")
+source("R/plotting.R")  # moved up from later in this file -- now a pure
+                         # function library, so safe to load early; also
+                         # makes images_folder available for the ggsave()
+                         # calls throughout this file, not just at the end
  
 # Load the dataset
 #Make sure to use double \\ to avoid errors
@@ -136,7 +140,7 @@ ggsave("C:\\Users\\savan\\OneDrive - San Francisco State University\\ProjectData
 library(ggdist)
 library(ggplot2)
 
-flux_sites_season = ggplot(elev_z_flux_clean, aes(x =z_star , y = log(Flux),
+flux_sites_edge = ggplot(elev_z_flux_clean, aes(x =z_star , y = log(Flux),
                                fill = marsh_edge_type,
                                color = marsh_edge_type)) +
   geom_boxplot(width = 0.4, outlier.shape = NA,
@@ -153,9 +157,9 @@ flux_sites_season = ggplot(elev_z_flux_clean, aes(x =z_star , y = log(Flux),
        title = str_wrap("Sediment Deposition Rates Across Study Months Between Scarped and Ramped Marsh Edge Sites")) +
   theme_bw() +
   theme(legend.position = "bottom")
-flux_sites_season
+flux_sites_edge
 
-ggsave("C:\\Users\\savan\\OneDrive - San Francisco State University\\ProjectData\\GitHub\\DepositionSFB\\images\\flux_sites_season.png", 
+ggsave("C:\\Users\\savan\\OneDrive - San Francisco State University\\ProjectData\\GitHub\\DepositionSFB\\images\\flux_sites_edge.png", 
        width = 8, 
        height = 5, 
        dpi = 300,
@@ -168,7 +172,7 @@ ggsave("C:\\Users\\savan\\OneDrive - San Francisco State University\\ProjectData
 library(ggdist)
 library(ggplot2)
 
-ggplot(elev_z_flux_clean, aes(x = Study.Phase, y = log(Flux), 
+flux_edge_season = ggplot(elev_z_flux_clean, aes(x = Study.Phase, y = log(Flux), 
                                fill = marsh_edge_type, 
                                color = marsh_edge_type)) +
   stat_halfeye(adjust = 0.5, width = 0.6, justification = -0.2, 
@@ -183,6 +187,14 @@ ggplot(elev_z_flux_clean, aes(x = Study.Phase, y = log(Flux),
        fill = "Edge type", color = "Edge type",
        title = "Sediment flux distribution across distances by marsh edge type") +
   theme_bw() + facet_wrap(~ marsh_edge_type, ncol = 1)
+
+flux_edge_season
+
+ggsave("C:\\Users\\savan\\OneDrive - San Francisco State University\\ProjectData\\GitHub\\DepositionSFB\\images\\flux_edge_season.png", 
+       width = 8, 
+       height = 5, 
+       dpi = 300,
+       limitsize = FALSE)
 ```
 
 ```{r}
@@ -242,7 +254,7 @@ flux_total_dist = ggplot(summary_df, aes(x = Dist, y = mean_flux,
   theme_bw()
 flux_total_dist
 
-ggsave("flux_total_dist.png", 
+ggsave(file.path(images_folder, "flux_total_dist.png"), 
        plot = flux_total_dist,    # always specify the plot explicitly
        width = 8, 
        height = 5, 
@@ -262,11 +274,25 @@ ggsave("flux_total_dist.png",
 ```
 
 ```{r}
-source("R/plotting.R")
+
 
 p_san_pablo  <- plot_flux_vs_zstar("SanPablo")
 p_corte_mad  <- plot_flux_vs_zstar("CorteMadera")
 p_giant_mar  <- plot_flux_vs_zstar("GiantMarsh")
 p_bucks_land <- plot_flux_vs_zstar("Buck'sLanding")
 
+```
+
+
+```{r}
+
+ggsave(file.path(images_folder, "flux_vs_zstar_sanpablo.png"), plot = p_san_pablo, width = 8, height = 6, dpi = 200, bg = "white")
+
+ggsave(file.path(images_folder, "flux_vs_zstar_cortemadera.png"), plot = p_corte_mad, width = 8, height = 6, dpi = 200, bg = "white")
+
+ggsave(file.path(images_folder, "flux_vs_zstar_giantmarsh.png"), plot = p_giant_mar, width = 8, height = 6, dpi = 200, bg = "white")
+
+ggsave(file.path(images_folder, "flux_vs_zstar_buckslanding.png"), plot = p_bucks_land, width = 8, height = 6, dpi = 200, bg = "white")
+
+```
 

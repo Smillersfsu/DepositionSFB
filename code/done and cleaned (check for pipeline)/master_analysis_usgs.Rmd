@@ -14,77 +14,13 @@ When you click the **Render** button a document will be generated that includes 
 
 ```{r, load packages and working directory}
 
-# data import and database management 
-# reading files, reshaping data, and efficient data handling 
-
-#######################################################
-
-library(readxl) # import excel spreadsheets
-library(data.table) #quick manipulation of large datasets
-library(stringr) # text and string processing 
-library(lubridate) # data and time handling 
-library(writexl) # exports editted databases into excel files
-
-#######################################################
-
-# General data science workflow 
-# Collection of packages for data manipulation and plotting
-
-#######################################################
-
-library(tidyverse)
-
-#######################################################
-
-#Statistical analyses and mixed models 
-# Hypothesis testing, summaries, and model fitting 
-
-#######################################################
-
-library(gt) # displaying formatted tables for statistics 
-library(rstatix) # statistical tests and assumption checking
-library(lmerTest) # p-values and tests for lme4 models 
-library(lme4) # linear and generalized mixed-effects models
-library(ggeffects) # predicted values and marginal effects 
-
-#######################################################
-
-# Data visualization 
-# Plot creation, figure assembly, and publication formatting 
-
-#######################################################
-
-library(patchwork) #comvine ggplots into multi-panel figures
-library(cowplot) # figure arrangement and plot annotations
-library(rcartocolor) # color palettes
-library(ggh4x) # advanced ggplot extensions
-library(scales) # axis labels, formatting, and scaling 
-
-#######################################################
-# Spatial data and mapping 
-# GIS data handling and map visualization
-#######################################################
-
-library(sf) #spatial vector data
-library(ggmap) #basemaps and geographic visualization
-library(ggspatial) #spatial annotations and map elements
-library(leaflet) #interactive web maps
-
-#######################################################
-
-#Tables and report outputs 
-# Interactive tables and report presentation 
-
-#######################################################
-
-library(reactable) #interactive tables for reports
-
-#######################################################
-# R markdown and document rendering 
-# PDF generation and LaTeX support 
-#######################################################
-
-library(tinytex) #LaTeX engine for PDF knitting
+source("R/setup.R")
+source("R/spatial_setup.R")  # this file renders to PDF (format: pdf in
+                              # the YAML header), so tinytex is needed
+                              # even though sf/ggmap/leaflet themselves
+                              # are never actually called in this file
+source("R/plotting.R")       # for make_sed_plots(), save_sed_plots()
+source("R/flux_summary.R")   # for make_flux_table()
 ```
 
 ```{r, working directory and consistent plot theme}
@@ -273,139 +209,27 @@ sed_usgs_river %>% filter(is.na(Marsh_Area)) %>% count(Site, Dist)
 
 ```
 
-```{r}
+```{r, usgs plots}
+# make_sed_plots_usgs_bay() and the local save_sed_plots() are gone --
+# both replaced by the shared versions in R/plotting.R (sourced above).
+#
+# This also fixes three real bugs that were in make_sed_plots_usgs_bay():
+#   1. It ignored its own `data` and `title_suffix` arguments and always
+#      used the global sed_usgs_bay directly.
+#   2. An orphaned, unnamed labs() call (leftover from a commented-out
+#      z* plot) was sitting inside the returned list -- save_sed_plots()
+#      would error on it the moment this ran end-to-end.
+#   3. season_usgs / site_season_usgs referenced a `Season` column that
+#      doesn't exist anywhere in this file's data -- would have errored
+#      with "object 'Season' not found". Looks like leftover code from
+#      master_analysis_thesis.Rmd, which does have a Season column.
+#      Dropped rather than ported, since Season isn't part of this
+#      pipeline's data. Flag if you actually want a Season breakdown --
+#      it'd need to be derived here first, then could be added to
+#      make_sed_plots() as a conditional block (same pattern as the
+#      z_star -> elev_site block already in there).
 
-make_sed_plots_usgs_bay <- function(data, title_suffix = "USGS") {
-  
-  data_phase <- sed_usgs_bay %>% filter(!is.na(Date.removed.from.field))
-  
-  list(
-
-basic_usgs= ggplot(sed_usgs_bay, aes(x = Flux)) +
-  geom_histogram(bins = 30) +
-  theme_minimal() +
-  labs(x = expression(Flux~(g/m^2/day)), y = "Count"), 
-
-# Deposition by Edge Type 
-edge_usgs = ggplot(sed_usgs_bay, aes(x = marsh_edge_type, y = Flux)) +
-  geom_boxplot() + 
-  geom_jitter(width = 0.15, alpha = 0.5) +
-  theme_minimal() +
-  labs(x = "Marsh Edge Type", y = expression(Flux~(g/m^2/day))), 
-
-# Deposition by Elevation (do this later once you've figured out z*) 
-#z_usgs= ggplot(sed_usgs_bay, aes(x = z_star, y = Flux, color = marsh_edge_type)) +
-#geom_boxplot() + 
-#geom_jitter(width = 0.15, alpha = 0.5) +
- #theme_minimal() +
-labs(x = "z*", y = expression(Flux~(g/m^2/day))), 
-
-# Deposition by Distance from Marsh Edge 
-dist_edge_usgs= ggplot(sed_usgs_bay, aes(x = Dist, y = Flux, color = marsh_edge_type)) +
-  geom_boxplot() + 
-  geom_jitter(width = 0.15, alpha = 0.5) +
-  theme_minimal() +
-  labs(x = "Distance from the Marsh Edge (m) ", y = expression(Flux~(g/m^2/day))), 
-
-# Deposition by Hydrological Time
-
-# Deposition by Season
-season_usgs= ggplot(sed_usgs_bay, aes(x = Season, y = Flux)) +
-  geom_boxplot() + 
-  geom_jitter(width = 0.15, alpha = 0.5) +
-  theme_minimal() +
-  labs(x = "Season ", y = expression(Flux~(g/m^2/day))), 
-
-# Deposition by Marsh Area
-edge_area_usgs= ggplot(sed_usgs_bay, aes(x = Marsh_Area, y = Flux, color = marsh_edge_type)) +
-  geom_boxplot() + 
-  geom_jitter(width = 0.15, alpha = 0.5) +
-  theme_minimal() +
-  labs(x = "Marsh Area ", y = expression(Flux~(g/m^2/day))), 
-
-# Deposition by Season by Site
-site_season_usgs= ggplot(sed_usgs_bay, aes(x = Season, y = Flux, color = Site)) +
-  geom_boxplot() + 
-  geom_jitter(width = 0.15, alpha = 0.5) +
-  theme_minimal() +
-  labs(x = "Season ", y = expression(Flux~(g/m^2/day))), 
-
-# Deposition by Marsh Area by Site
-site_area_usgs= ggplot(sed_usgs_bay, aes(x = Marsh_Area, y = Flux, color = Site)) +
-  geom_boxplot() + 
-  geom_jitter(width = 0.15, alpha = 0.5) +
-  theme_minimal() +
-  labs(x = "Marsh Area ", y = expression(Flux~(g/m^2/day))), 
-
-
-# Deposition by Date Removed From Field by Site
-phase_site_usgs = sed_usgs_bay %>%
-  filter(!is.na(Date.removed.from.field)) %>%
-  ggplot(aes(x = Date.removed.from.field, y = Flux, color = Site)) +
-  geom_boxplot() + 
-  geom_jitter(width = 0.15, alpha = 0.5) +
-  theme_minimal() +
-  labs(x = "Date Removed From Field ", y = expression(Flux~(g/m^2/day))), 
-
-# Deposition by Date Removed From Field by Site (log)
-phase_site_log_usgs = sed_usgs_bay %>%
-  filter(!is.na(Date.removed.from.field)) %>%
-  ggplot(aes(x = Date.removed.from.field, y = Flux, color = Site)) +
-  geom_boxplot() + 
-  geom_jitter(width = 0.15, alpha = 0.5) +
-  scale_y_log10() +
-  theme_minimal() +
-  labs(x = "Date removed from field ", y = expression(Flux~(g/m^2/day))), 
-
-# Deposition by Date Removed From Field by Marsh Edge Type
-
-phase_edge_usgs = sed_usgs_bay %>%
-  filter(!is.na(Date.removed.from.field)) %>%
-  ggplot(aes(x = Date.removed.from.field, y = Flux, color = marsh_edge_type)) +
-  geom_boxplot() + 
-  geom_jitter(width = 0.15, alpha = 0.5) +
-  theme_minimal() +
-  labs(x = "Marsh Edge Type ", y = expression(Flux~(g/m^2/day))), 
-
-# Deposition by Date Removed From Field Across Marsh Area
-phase_area_usgs = sed_usgs_bay %>%
-  filter(!is.na(Date.removed.from.field)) %>%
-  ggplot(aes(x = Marsh_Area, y = Flux, color = Date.removed.from.field)) +
-  facet_wrap(~Site) +
-  geom_boxplot() + 
-  geom_jitter(width = 0.15, alpha = 0.5) +
-  theme_minimal() +
-  labs(x = "Marsh Area ", y = expression(Flux~(g/m^2/day))
-  ) 
-)
-}
-
-
-```
-
-```{r, save usgs plots data}
-
-
-# Same save_sed_plots() helper defined in master_analysis_cleanup.Rmd --
-# redefined here so this file can run standalone.
-
-save_sed_plots <- function(plot_list, folder, prefix) {
-  if (!dir.exists(folder)) dir.create(folder, recursive = TRUE)
-  
-  for (name in names(plot_list)) {
-    print(plot_list[[name]])
-    ggsave(
-      filename = file.path(folder, paste0(prefix, "_", name, ".png")),
-      plot = plot_list[[name]],
-      width = 8,
-      height = 5,
-      dpi = 300,
-      bg = "white"
-    )
-  }
-}
-
-all_plots_usgs <- make_sed_plots_usgs_bay(sed_usgs_bay, title_suffix = " (USGS)")
+all_plots_usgs <- make_sed_plots(sed_usgs_bay, title_suffix = " (USGS)")
 
 # View any individual plot the same way you would have before:
 all_plots_usgs$basic
@@ -413,8 +237,56 @@ all_plots_usgs$phase_site_log
 all_plots_usgs$dist_edge
 
 images_folder <- "C:\\Users\\savan\\OneDrive - San Francisco State University\\ProjectData\\GitHub\\DepositionSFB\\images\\usgsdata"
+# NOTE: this intentionally overrides the general images_folder that
+# R/plotting.R sets when sourced -- USGS output goes to its own
+# subfolder. Keep this override AFTER the source() calls at the top.
 
 save_sed_plots(all_plots_usgs, images_folder, "sed_usgs_bay")
+```
+
+## Replaces lines 661-737 (Statistical Table USGS, hand-rolled) --------
+
+```{r, usgs statistics}
+# Mirrors the make_flux_table() pattern from master_analysis_cleanup.Rmd
+
+general_result_usgs <- make_flux_table(
+  sed_usgs_bay,
+  title = "Summary Statistics for Sediment Flux (USGS)",
+  include_ci = TRUE
+)
+general_summary_usgs <- general_result_usgs$data
+
+phen_result_usgs <- make_flux_table(
+  sed_usgs_bay, group_vars = "Phen_Period",
+  title = "Sediment Flux by Phenological Period (USGS)",
+  group_labels = list(Phen_Period = "Phenological Period")
+)
+phen_summary_usgs <- phen_result_usgs$data
+
+site_result_usgs <- make_flux_table(
+  sed_usgs_bay, group_vars = "Site",
+  title = "Sediment Flux by Site (USGS)",
+  group_labels = list(Site = "Site")
+)
+site_summary_usgs <- site_result_usgs$data
+
+# Original filtered out NA Date.removed.from.field rows before grouping --
+# make_flux_table() doesn't do this internally, so it's done here first,
+# matching the original chunk's behavior exactly.
+phase_result_usgs <- make_flux_table(
+  sed_usgs_bay %>% filter(!is.na(Date.removed.from.field)),
+  group_vars = "Date.removed.from.field",
+  title = "Sediment Flux by Date Removed From Field (USGS)",
+  group_labels = list(Date.removed.from.field = "Date Removed From Field")
+)
+phase_summary_table_usgs <- phase_result_usgs$data
+
+general_summary_usgs
+phen_summary_usgs
+site_summary_usgs
+phase_summary_table_usgs
+
+
 ```
 
 ```{r}
@@ -658,85 +530,7 @@ ggsave(("C:\\Users\\savan\\OneDrive - San Francisco State University\\ProjectDat
 
 ```
 
-```{r, Statistical Table USGS}
-
-  
-  # Mirrors the "Statistical Table" chunk in master_analysis_cleanup.Rmd
-  
-  # general summary
-  
-  general_summary_usgs <- sed_usgs_bay %>%
-    dplyr::summarise(
-      n = dplyr::n(),
-      Mean = round(mean(Flux, na.rm = TRUE), 3),
-      SD = round(sd(Flux, na.rm = TRUE), 3),
-      Median = round(median(Flux, na.rm = TRUE), 3),
-      Min = round(min(Flux, na.rm = TRUE), 3),
-      Max = round(max(Flux, na.rm = TRUE), 3),
-      SE = round(sd(Flux, na.rm = TRUE) / sqrt(dplyr::n()), 3)
-    ) %>%
-    dplyr::mutate(
-      CI95_Lower = round(Mean - qt(0.975, n - 1) * SE, 3),
-      CI95_Upper = round(Mean + qt(0.975, n - 1) * SE, 3)
-    )
-  
-  general_summary_usgs
-  
-  # Phenological Summary
-  
-  phen_summary_usgs <- sed_usgs_bay %>%
-    dplyr::group_by(Phen_Period) %>%
-    dplyr::summarise(
-      n = dplyr::n(),
-      Mean = round(mean(Flux, na.rm = TRUE), 3),
-      SD = round(sd(Flux, na.rm = TRUE), 3),
-      Median = round(median(Flux, na.rm = TRUE), 3),
-      Min = round(min(Flux, na.rm = TRUE), 3),
-      Max = round(max(Flux, na.rm = TRUE), 3),
-      SE = round(sd(Flux, na.rm = TRUE) / sqrt(dplyr::n()), 3),
-      .groups = "drop"
-    )
-  
-  phen_summary_usgs
-  
-  # site summary
-  
-  site_summary_usgs <- sed_usgs_bay %>%
-    dplyr::group_by(Site) %>%
-    dplyr::summarise(
-      n = dplyr::n(),
-      Mean = round(mean(Flux, na.rm = TRUE), 3),
-      SD = round(sd(Flux, na.rm = TRUE), 3),
-      Median = round(median(Flux, na.rm = TRUE), 3),
-      Min = round(min(Flux, na.rm = TRUE), 3),
-      Max = round(max(Flux, na.rm = TRUE), 3),
-      SE = round(sd(Flux, na.rm = TRUE) / sqrt(dplyr::n()), 3),
-      .groups = "drop"
-    )
-  
-  site_summary_usgs
-  
-  # Date removed from field summary
-  
-  phase_summary_table_usgs <- sed_usgs_bay %>%
-    filter(!is.na(Date.removed.from.field)) %>%
-    dplyr::group_by(Date.removed.from.field) %>%
-    dplyr::summarise(
-      n = dplyr::n(),
-      Mean = round(mean(Flux, na.rm = TRUE), 3),
-      SD = round(sd(Flux, na.rm = TRUE), 3),
-      Median = round(median(Flux, na.rm = TRUE), 3),
-      Min = round(min(Flux, na.rm = TRUE), 3),
-      Max = round(max(Flux, na.rm = TRUE), 3),
-      SE = round(sd(Flux, na.rm = TRUE) / sqrt(dplyr::n()), 3),
-      .groups = "drop"
-    )
-  
-  phase_summary_table_usgs
-  
-```
-
-```{r, formalize usgs data table to fit for combination of data table with thesis}
+```{r, Statistical Table}
 
 table(sed_usgs_bay$Study.Phase, useNA = "always")
 class(sed_usgs_bay$Study.Phase)

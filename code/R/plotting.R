@@ -73,13 +73,13 @@ plots <- list(
   
   site_area = make_box_plot(aes(x = Marsh_Area, y = Flux, color = Site), "Deposition by Marsh Area by Site", "Marsh Area"),
   
-  phase_site = make_box_plot(aes(x = .data[[phase_var]],y = Flux, color = Site), "Deposition by Date Removed From Field by Site", "Date Removed From Field"),
+  phase_site = make_box_plot(aes(x = .data[[phase_var]], y = Flux, color = Site), paste0("Deposition by ", phase_label, " by Site"), phase_label),
   
-  phase_site_log = make_box_plot(aes(x = .data[[phase_var]], y = Flux, color = Site), "Deposition by Date Removed From Field by Site (log)", "Date Removed From Field", log_y = TRUE),
+  phase_site_log = make_box_plot(aes(x = .data[[phase_var]], y = Flux, color = Site), paste0("Deposition by ", phase_label, " by Site (log)"), phase_label, log_y = TRUE),
   
-  phase_edge = make_box_plot(aes(x = .data[[phase_var]], y = Flux, color = marsh_edge_type), "Deposition by Date Removed From Field by Marsh Edge Type", "Date Removed From Field"),
+  phase_edge = make_box_plot(aes(x = .data[[phase_var]], y = Flux, color = marsh_edge_type), paste0("Deposition by ", phase_label, " by Marsh Edge Type"), phase_label),
   
-  phase_area = make_box_plot(aes(x = Marsh_Area, y = Flux, color = .data[[phase_var]]), "Deposition by Date Removed From Field Across Marsh Area", "Marsh Area", facet = ~Site)
+  phase_area = make_box_plot(aes(x = Marsh_Area, y = Flux, color = .data[[phase_var]]), paste0("Deposition by ", phase_label, " Across Marsh Area"), "Marsh Area", facet = ~Site)
   )
 
 if ("z_star" %in% names(data)) {
@@ -112,31 +112,14 @@ save_sed_plots <- function(plot_list, folder, prefix) {
 
 images_folder <- "C:\\Users\\savan\\OneDrive - San Francisco State University\\ProjectData\\GitHub\\DepositionSFB\\images"
 
-
-# Save Full Dataset Plots 
-
-plots_full <- make_sed_plots(master_thesis, title_suffix = " (Full Dataset)")
-
-
-save_sed_plots(plots_full, file.path(images_folder, "all_sites_raw_plot"), "sed_full")
-
-
-#############################################################
-# BUILD ALL THREE SETS
-#############################################################
-
-all_plots  <- make_sed_plots(master_thesis)
-noG_plots  <- make_sed_plots(plot_data_noG,  title_suffix = " (No Giant Marsh)")
-noG2_plots <- make_sed_plots(plot_data_noG2, title_suffix = " (No Giant Marsh, Tran 2)")
-
-save_sed_plots(all_plots,  file.path(images_folder, "all_sites"),         "sed")
-save_sed_plots(noG_plots,  file.path(images_folder, "no_giant_marsh"),    "sed_noG")
-save_sed_plots(noG2_plots, file.path(images_folder, "no_giant_marsh_t2"), "sed_noG2")
-
-# View any individual plot the same way you would have before:
-all_plots$basic
-noG_plots$phase_site_log
-noG2_plots$dist_edge
+# NOTE: this file is a pure function library now -- no top-level code
+# that runs on source(). The calls that used to live here (building
+# plots_full / all_plots / noG_plots / noG2_plots from master_thesis /
+# plot_data_noG / plot_data_noG2, plus their save_sed_plots() calls)
+# moved to master_analysis_cleanup.Rmd, since that's where those
+# objects actually get built -- sourcing this file used to error
+# immediately in any document (like flagtier.qmd) that doesn't also
+# have master_thesis/plot_data_noG/plot_data_noG2 defined.
 
 
 #############################################################
@@ -219,44 +202,16 @@ plot_flux_vs_zstar <- function(site_name, data = elev_z_flux) {
 }
 
 #############################################################
-# RUN FOR ALL FOUR SITES
-#
-# Kept the original explanatory header as context for why this
-# code exists (per your call to preserve it), just trimmed down
-# to the actual working line -- no more copy-pasted CONFIG block.
-#
-# ------------------------------------------------------------
-# Plot flux (elevation/accretion surplus, mm/yr) vs z* for ONE site,
-# with a linear trend line and R^2 annotation -- styled after Thorne et al.
-#
-# Expected input: a CSV with at least these columns:
-#   site   : site/category name, e.g. "SFB Elevation", "SC Accretion"
-#   z_star : position within tidal frame (x-axis)
-#   flux   : elevation/accretion surplus rate, mm/yr (y-axis)
-# ------------------------------------------------------------
+# NOTE: the per-site calls that used to live here
+# (p_san_pablo <- plot_flux_vs_zstar("SanPablo"), etc., plus their
+# four ggsave() calls) were duplicate top-level code -- the real,
+# working versions already live in elevation_and_z_star.qmd (~line
+# 264), which is where elev_z_flux actually gets built. Removed here
+# rather than kept as dead weight. If you want those four plots saved
+# to disk, add ggsave() calls in elevation_and_z_star.qmd itself,
+# following the same file.path(images_folder, ...) pattern used
+# elsewhere in this file.
 #############################################################
-
-p_san_pablo  <- plot_flux_vs_zstar("SanPablo")
-p_corte_mad  <- plot_flux_vs_zstar("CorteMadera")
-p_giant_mar  <- plot_flux_vs_zstar("GiantMarsh")
-p_bucks_land <- plot_flux_vs_zstar("Buck'sLanding")
-
-#############################################################
-# SAVE ALL FOUR (explicit plot = ..., consistent path/filenames
-# -- fixes the bare-relative-filename issue from point 5)
-#############################################################
-
-ggsave(file.path(images_folder, "flux_vs_zstar_sanpablo.png"),
-       plot = p_san_pablo, width = 8, height = 6, dpi = 200, bg = "white")
-
-ggsave(file.path(images_folder, "flux_vs_zstar_cortemadera.png"),
-       plot = p_corte_mad, width = 8, height = 6, dpi = 200, bg = "white")
-
-ggsave(file.path(images_folder, "flux_vs_zstar_giantmarsh.png"),
-       plot = p_giant_mar, width = 8, height = 6, dpi = 200, bg = "white")
-
-ggsave(file.path(images_folder, "flux_vs_zstar_buckslanding.png"),
-       plot = p_bucks_land, width = 8, height = 6, dpi = 200, bg = "white")
 
 
 #############################################################

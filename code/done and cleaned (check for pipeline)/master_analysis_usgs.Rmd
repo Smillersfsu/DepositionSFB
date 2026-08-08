@@ -14,13 +14,25 @@ When you click the **Render** button a document will be generated that includes 
 
 ```{r, load packages and working directory}
 
-source("R/setup.R")
-source("R/spatial_setup.R")  # this file renders to PDF (format: pdf in
-                              # the YAML header), so tinytex is needed
-                              # even though sf/ggmap/leaflet themselves
-                              # are never actually called in this file
-source("R/plotting.R")       # for make_sed_plots(), save_sed_plots()
-source("R/flux_summary.R")   # for make_flux_table()
+
+source("C:\\Users\\savan\\OneDrive - San Francisco State University\\ProjectData\\GitHub\\DepositionSFB\\code\\R\\setup.R")
+source("C:\\Users\\savan\\OneDrive - San Francisco State University\\ProjectData\\GitHub\\DepositionSFB\\code\\R\\spatial_setup.R")
+
+# this file renders to PDF (format: pdf in
+# the YAML header), so tinytex is needed
+# even though sf/ggmap/leaflet themselves
+# are never actually called in this file
+
+source("C:\\Users\\savan\\OneDrive - San Francisco State University\\ProjectData\\GitHub\\DepositionSFB\\code\\R\\plotting.R")
+# for make_sed_plots(), save_sed_plots()
+
+source("C:\\Users\\savan\\OneDrive - San Francisco State University\\ProjectData\\GitHub\\DepositionSFB\\code\\R\\flux_summary.R") 
+# for make_flux_table()
+
+
+
+       
+ 
 ```
 
 ```{r, working directory and consistent plot theme}
@@ -542,3 +554,18 @@ table(usgs_bay$Study.Phase, useNA = "always")
 
 usgs_bay = readr::write_csv(usgs_bay, "C:\\Users\\savan\\OneDrive - San Francisco State University\\ProjectData\\GitHub\\DepositionSFB\\data\\usgs_bay.csv")
 ```
+
+```{r, usgs river study phase filter}
+
+table(sed_usgs_river$Study.Phase, useNA = "always")
+class(sed_usgs_river$Study.Phase)
+
+usgs_river = sed_usgs_river %>% 
+  filter(!is.na(Study.Phase))
+
+table(usgs_river$Study.Phase, useNA = "always")
+
+usgs_river = readr::write_csv(usgs_river, "C:\\Users\\savan\\OneDrive - San Francisco State University\\ProjectData\\GitHub\\DepositionSFB\\data\\usgs_river.csv")
+```
+
+

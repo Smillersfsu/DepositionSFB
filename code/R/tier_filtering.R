@@ -40,7 +40,7 @@ filter_flux <- function(data = elev_z_flux,
   out <- switch(site_scope,
     all  = out,
     noG  = dplyr::filter(out, !(Site == "GiantMarsh")),
-    noG2 = dplyr::filter(out, !(Site == "GiantMarsh" & Tran == "2"))
+    noG2 = dplyr::filter(out, !(Site == "GiantMarsh" & Tran == "T2"))
   )
 
   out <- switch(flag_criterion,

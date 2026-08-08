@@ -4,13 +4,14 @@ format: html
 editor: visual
 ---
 
-
-
 ```{r}
 
 # Load necessary libraries
-source("R/setup.R")
-source("R/plotting.R")  # moved up from later in this file -- now a pure
+
+source("C:\\Users\\savan\\OneDrive - San Francisco State University\\ProjectData\\GitHub\\DepositionSFB\\code\\R\\setup.R")
+source("C:\\Users\\savan\\OneDrive - San Francisco State University\\ProjectData\\GitHub\\DepositionSFB\\code\\R\\plotting.R")
+
+# moved up from later in this file -- now a pure
                          # function library, so safe to load early; also
                          # makes images_folder available for the ggsave()
                          # calls throughout this file, not just at the end
@@ -55,9 +56,23 @@ rtk_detail |>
 
 library(dplyr)
 
+# Collapse duplicate RTK points (same Site/Tran/Dist/Replicate) by
+# averaging -- e.g. Buck'sLanding T2 0.5 a had two survey readings
+# (1.63m, 1.64m elevation) that would otherwise double all 12 monthly
+# rows joined to that point.
+rtk_detail <- rtk_detail %>%
+  group_by(Site, Tran, Dist, Replicate) %>%
+  summarise(
+    Point_ID = first(Point_ID),
+    Elevation_m = mean(Elevation_m, na.rm = TRUE),
+    z_star = mean(z_star, na.rm = TRUE),
+    .groups = "drop"
+  )
+
 elev_z_flux <- sed_thesis_keyed |>
   left_join(rtk_detail, by = c("Site", "Tran", "Dist", "Replicate"))
 
+readr::write_csv(elev_z_flux, "C:\\Users\\savan\\OneDrive - San Francisco State University\\ProjectData\\GitHub\\DepositionSFB\\data\\elev_z_flux.csv")
 
 elev_z_flux_clean <- elev_z_flux |> 
   filter(Flux > 0)
@@ -133,7 +148,6 @@ ggsave("C:\\Users\\savan\\OneDrive - San Francisco State University\\ProjectData
        dpi = 300,
        limitsize = FALSE)
 ```
-
 
 ```{r}
 
@@ -283,7 +297,6 @@ p_bucks_land <- plot_flux_vs_zstar("Buck'sLanding")
 
 ```
 
-
 ```{r}
 
 ggsave(file.path(images_folder, "flux_vs_zstar_sanpablo.png"), plot = p_san_pablo, width = 8, height = 6, dpi = 200, bg = "white")
@@ -295,4 +308,3 @@ ggsave(file.path(images_folder, "flux_vs_zstar_giantmarsh.png"), plot = p_giant_
 ggsave(file.path(images_folder, "flux_vs_zstar_buckslanding.png"), plot = p_bucks_land, width = 8, height = 6, dpi = 200, bg = "white")
 
 ```
-

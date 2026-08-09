@@ -1,0 +1,598 @@
+---
+title: "master_analysis_usgs"
+format: pdf
+editor: visual
+---
+
+## Quarto
+
+Quarto enables you to weave together content and executable code into a finished document. To learn more about Quarto see <https://quarto.org>.
+
+## Running Code
+
+When you click the **Render** button a document will be generated that includes both content and the output of embedded code. You can embed code like this:
+
+```{r, load packages and working directory}
+
+
+source("C:\\Users\\savan\\OneDrive - San Francisco State University\\ProjectData\\GitHub\\DepositionSFB\\code\\R\\setup.R")
+source("C:\\Users\\savan\\OneDrive - San Francisco State University\\ProjectData\\GitHub\\DepositionSFB\\code\\R\\spatial_setup.R")
+
+# this file renders to PDF (format: pdf in
+# the YAML header), so tinytex is needed
+# even though sf/ggmap/leaflet themselves
+# are never actually called in this file
+
+source("C:\\Users\\savan\\OneDrive - San Francisco State University\\ProjectData\\GitHub\\DepositionSFB\\code\\R\\plotting.R")
+# for make_sed_plots(), save_sed_plots()
+
+source("C:\\Users\\savan\\OneDrive - San Francisco State University\\ProjectData\\GitHub\\DepositionSFB\\code\\R\\flux_summary.R") 
+# for make_flux_table()
+
+
+
+       
+ 
+```
+
+```{r, working directory and consistent plot theme}
+
+knitr::opts_chunk$set(echo = TRUE)
+knitr::opts_knit$set(root.dir = 'C:/Users/savan/OneDrive - San Francisco State University/ProjectData/GitHub/DepositionSFB/data')
+```
+
+```{r, load raw data and prep}
+
+sed_usgs <- read.csv("C:/Users/savan/OneDrive - San Francisco State University/ProjectData/GitHub/DepositionSFB/data/usgs_SFB_sediment_pad_data.csv")
+
+str(sed_usgs)
+
+
+# Clean whitespace from character columns only
+sed_usgs$Dist <- str_replace_all(sed_usgs$Dist, " ", "")
+sed_usgs$Tran <- str_replace_all(sed_usgs$Tran, " ", "")
+sed_usgs$Year     <- str_replace_all(sed_usgs$Year, " ", "")
+sed_usgs$Site    <- str_replace_all(sed_usgs$Site, " ", "")
+sed_usgs$Replicate    <- str_replace_all(sed_usgs$Replicate, " ", "")
+sed_usgs$Flux   <- str_replace_all(sed_usgs$Flux, " ", "")
+
+
+# Change to factor (independent variables) and numeric (dependent variables)
+
+sed_usgs$Dist = as.character(sed_usgs$Dist)
+sed_usgs$Date.placed.in.field = as.Date(sed_usgs$Date.placed.in.field, 
+                                          format = "%m/%d/%Y"   # need this so R doesn't automatically assume format
+)
+sed_usgs$Date.removed.from.field = as.Date(sed_usgs$Date.removed.from.field,            format = "%m/%d/%Y"   # need this so R doesn't automatically assume format
+)
+
+sed_usgs$Site <- as.factor(sed_usgs$Site)
+sed_usgs$Tran <- as.factor(sed_usgs$Tran)
+sed_usgs$Dist <- as.factor(sed_usgs$Dist)
+sed_usgs$Replicate<- as.factor(sed_usgs$Replicate)
+sed_usgs$Year<- as.factor(sed_usgs$Year)
+sed_usgs$Flux <- as.numeric(sed_usgs$Flux)
+
+
+# Making a Marsh Edge Type Categorization 
+
+sed_usgs <- sed_usgs %>% 
+  mutate(marsh_edge_type = case_when(
+    Site %in% c("CorteMadera") ~ "Scarped", 
+    Site %in% c("SanPablo") ~ "Ramped", 
+    TRUE ~ "Other"
+  ), 
+  marsh_edge_type = factor(marsh_edge_type, levels = c("Scarped", "Ramped"))
+  )
+
+# marsh orientation
+
+sed_usgs <- sed_usgs %>% 
+  mutate(marsh_orientation = case_when(
+    Site %in% c("CorteMadera") ~ "East.facing", 
+    Site %in% c("SanPablo") ~ "South.facing", 
+    TRUE ~ "Other"
+  ), 
+  marsh_orientation = factor(marsh_orientation, levels = c("East.facing", "South.facing", "West.facing"))
+  )
+
+#If your dates look like "01/15/2023" (MM/DD/YYYY)
+#sed_usgs <- sed_usgs %>%
+#mutate(Date.placed.in.field = as.Date(Date.placed.in.field, format = "%m/%d/%Y"))
+#mutate(Date.removed.from.field = as.Date(Date.removed.from.field, format = "%m/%d/%Y"))
+
+
+sed_usgs <- sed_usgs %>% 
+  mutate(Study.Phase = case_when(
+    Site == "CorteMadera" & Date.placed.in.field >= as.Date("6/29/2022", format = "%m/%d/%Y") & Date.removed.from.field <= as.Date("7/27/2022", format = "%m/%d/%Y") ~ "M1",
+    Site == "CorteMadera" & Date.placed.in.field >= as.Date("7/27/2022", format = "%m/%d/%Y") & Date.removed.from.field <= as.Date("8/24/2022", format = "%m/%d/%Y") ~ "M2",
+    Site == "CorteMadera" & Date.placed.in.field >= as.Date("8/24/2022", format = "%m/%d/%Y") & Date.removed.from.field <= as.Date("9/21/2022", format = "%m/%d/%Y") ~ "M3",
+    Site == "CorteMadera" & Date.placed.in.field >= as.Date("9/21/2022", format = "%m/%d/%Y") & Date.removed.from.field <= as.Date("10/25/2022", format = "%m/%d/%Y") ~ "M4",
+    Site == "CorteMadera" & Date.placed.in.field >= as.Date("10/25/2022", format = "%m/%d/%Y") & Date.removed.from.field <= as.Date("11/30/2022", format = "%m/%d/%Y") ~ "M5",
+    Site == "CorteMadera" & Date.placed.in.field >= as.Date("11/30/2022", format = "%m/%d/%Y") & Date.removed.from.field <= as.Date("12/21/2022", format = "%m/%d/%Y") ~ "M6",
+    Site == "CorteMadera" & Date.placed.in.field >= as.Date("12/21/2022", format = "%m/%d/%Y") & Date.removed.from.field <= as.Date("1/18/2023", format = "%m/%d/%Y") ~ "M7",
+    Site == "CorteMadera" & Date.placed.in.field >= as.Date("1/18/2023", format = "%m/%d/%Y") & Date.removed.from.field <= as.Date("2/17/2023", format = "%m/%d/%Y") ~ "M8",
+    Site == "CorteMadera" & Date.placed.in.field >= as.Date("2/17/2023", format = "%m/%d/%Y") & Date.removed.from.field <= as.Date("3/23/2023", format = "%m/%d/%Y") ~ "M9",
+    Site == "CorteMadera" & Date.placed.in.field >= as.Date("3/23/2023", format = "%m/%d/%Y") & Date.removed.from.field <= as.Date("4/20/2023", format = "%m/%d/%Y") ~ "M10",
+    Site == "CorteMadera" & Date.placed.in.field >= as.Date("4/20/2023", format = "%m/%d/%Y") & Date.removed.from.field <= as.Date("5/18/2023", format = "%m/%d/%Y") ~ "M11",
+    Site == "CorteMadera" & Date.placed.in.field >= as.Date("5/18/2023", format = "%m/%d/%Y") & Date.removed.from.field <= as.Date("6/20/2023", format = "%m/%d/%Y") ~ "M12",
+    # San Pablo
+    Site == "SanPablo" & Date.placed.in.field >= as.Date("6/30/2022", format = "%m/%d/%Y") & Date.removed.from.field <= as.Date("7/28/2022", format = "%m/%d/%Y") ~ "M1",
+    Site == "SanPablo" & Date.placed.in.field >= as.Date("7/28/2022", format = "%m/%d/%Y") & Date.removed.from.field <= as.Date("8/25/2022", format = "%m/%d/%Y") ~ "M2",
+    Site == "SanPablo" & Date.placed.in.field >= as.Date("8/25/2022", format = "%m/%d/%Y") & Date.removed.from.field <= as.Date("9/22/2022", format = "%m/%d/%Y") ~ "M3",
+    Site == "SanPablo" & Date.placed.in.field >= as.Date("9/22/2022", format = "%m/%d/%Y") & Date.removed.from.field <= as.Date("10/26/2022", format = "%m/%d/%Y") ~ "M4",
+    Site == "SanPablo" & Date.placed.in.field >= as.Date("10/26/2022", format = "%m/%d/%Y") & Date.removed.from.field <= as.Date("11/22/2022", format = "%m/%d/%Y") ~ "M5",
+    Site == "SanPablo" & Date.placed.in.field >= as.Date("11/22/2022", format = "%m/%d/%Y") & Date.removed.from.field <= as.Date("12/20/2022", format = "%m/%d/%Y") ~ "M6",
+    Site == "SanPablo" & Date.placed.in.field >= as.Date("12/20/2022", format = "%m/%d/%Y") & Date.removed.from.field <= as.Date("1/17/2023", format = "%m/%d/%Y") ~ "M7",
+    Site == "SanPablo" & Date.placed.in.field >= as.Date("1/17/2023", format = "%m/%d/%Y") & Date.removed.from.field <= as.Date("2/15/2023", format = "%m/%d/%Y") ~ "M8",
+    Site == "SanPablo" & Date.placed.in.field >= as.Date("2/15/2023", format = "%m/%d/%Y") & Date.removed.from.field <= as.Date("3/23/2023", format = "%m/%d/%Y") ~ "M9",
+    Site == "SanPablo" & Date.placed.in.field >= as.Date("3/23/2023", format = "%m/%d/%Y") & Date.removed.from.field <= as.Date("4/21/2023", format = "%m/%d/%Y") ~ "M10",
+    Site == "SanPablo" & Date.placed.in.field >= as.Date("4/21/2023", format = "%m/%d/%Y") & Date.removed.from.field <= as.Date("5/19/2023", format = "%m/%d/%Y") ~ "M11",
+    Site == "SanPablo" & Date.placed.in.field >= as.Date("5/19/2023", format = "%m/%d/%Y") & Date.removed.from.field <= as.Date("6/21/2023", format = "%m/%d/%Y") ~ "M12",
+    TRUE ~ NA_character_
+  ))
+
+sed_usgs$Study.Phase <- str_replace_all(sed_usgs$Study.Phase, " ", "")
+sed_usgs$Study.Phase <- factor(sed_usgs$Study.Phase, levels = paste0("M", 1:12))
+
+# Phenological Period 
+
+sed_usgs <- sed_usgs %>%
+  mutate(Phen_Period = case_when(
+    Study.Phase %in% c("M1", "M2", "M3") ~ "Late_Dry\n(Months 1-3)",
+    Study.Phase %in% c("M4", "M5", "M6") ~ "Tran\n(Months 4-6)",
+    Study.Phase %in% c("M7", "M8", "M9") ~ "Wet\n(Months 7-9)",
+    Study.Phase %in% c("M10", "M11", "M12") ~ "Growth\n(Months 10-12)"
+  ),
+  Phen_Period = factor(Phen_Period, levels = c("Late_Dry\n(Months 1-3)", "Tran\n(Months 4-6)", "Wet\n(Months 7-9)", "Growth\n(Months 10-12)")
+  ))
+
+# Check replication to prevent design problems
+
+#sed_usgs %>% count(Flux, Year) 
+#sed_usgs %>% count(Year, Study.Phase)
+#sed_usgs %>% count(Tran, Replicate)
+
+master_usgs <- sed_usgs
+
+
+str(master_usgs)
+table(master_usgs$Site)
+table(master_usgs$marsh_edge_type)
+table(master_usgs$marsh_orientation)
+table(master_usgs$Study.Phase)
+
+
+readr::write_csv(master_usgs, "C:\\Users\\savan\\OneDrive - San Francisco State University\\ProjectData\\GitHub\\DepositionSFB\\data\\master_usgs.csv"
+) 
+
+str(master_usgs)
+
+```
+
+<!--
+NEW STEP, run between here and the Bay/River split below:
+run usgs_elevation_and_z_star.qmd now. It reads master_usgs.csv (just
+written above), joins usgs_locations_z.csv onto it, and writes
+usgs_elev_z_flux.csv. This mirrors the thesis pipeline's order --
+elevation_and_z_star.qmd runs before master_analysis_flagtier.qmd's
+tiering, so tiering (the Bay/River split + Marsh_Area assignment below)
+works on a fully-populated row set instead of joining elevation on
+after the fact.
+-->
+
+```{r, read back the elevation-joined data}
+# Replaces sed_usgs for everything downstream -- carries Elevation_m,
+# z_star, and Marsh_Loc (bay/channel, reference only) into the
+# Bay/River split and every plot/model built on sed_usgs_bay /
+# sed_usgs_river below.
+sed_usgs <- read.csv("C:\\Users\\savan\\OneDrive - San Francisco State University\\ProjectData\\GitHub\\DepositionSFB\\data\\usgs_elev_z_flux.csv")
+
+# Dist got written out as numeric by usgs_elevation_and_z_star.qmd's
+# join step -- restore the factor type/level order the rest of this
+# file (Marsh_Area case_when, the final Dist releveling) expects.
+sed_usgs <- sed_usgs %>%
+  mutate(Dist = as.character(Dist)) %>%
+  mutate(Dist = factor(Dist, levels = c("0.5", "2", "6", "9", "12", "18", "24", "30", "48", "72", "150")))
+
+# Bay adjacent transects A and B directly comparable to thesis
+
+sed_usgs_bay <- sed_usgs %>% 
+  filter(Tran %in% c("A", "B")) %>%
+  mutate(
+    Marsh_Area = case_when (
+    Site == "CorteMadera" & Tran %in% c("A", "B") & Dist %in% c("0.5", "2", "6") ~ "Edge", 
+    Site == "CorteMadera" & Tran %in% c("A", "B") & Dist %in% c("12", "18", "24") ~ "Platform", 
+    Site == "CorteMadera" & Tran %in% c("A", "B") & Dist %in% c("30", "48") ~ "Upland", 
+    Site == "SanPablo" & Tran %in% c("A", "B") & Dist %in% c("0.5", "2", "6", "9", "12", "18") ~ "Intertidal", 
+    Site == "SanPablo" & Tran %in% c("A", "B") & Dist %in% c("24") ~ "Edge", 
+    Site == "SanPablo" & Tran %in% c("A", "B") & Dist %in% c("48") ~ "Platform", 
+    Site == "SanPablo" & Tran %in% c("A", "B") & Dist %in% c("72", "150") ~ "Upland", 
+    TRUE ~ NA_character_
+  ), 
+  Marsh_Area = factor(Marsh_Area, levels = c("Intertidal", "Edge", "Platform", "Upland")) 
+  )
+
+sed_usgs_bay <- sed_usgs_bay %>%
+  mutate(Dist = factor(Dist, levels = c("0.5", "2", "6", "9", "12", "18", "24", "30", "48", "72", "150")))
+
+# river database
+
+sed_usgs_river <- sed_usgs %>% 
+  filter(Tran %in% c("C", "D")) %>%
+  mutate(
+    Marsh_Area = case_when (
+    Site == "CorteMadera" & Tran %in% c("C", "D") & Dist %in% c("0.5", "2", "6") ~ "Edge", 
+    Site == "CorteMadera" & Tran %in% c("C", "D") & Dist %in% c("12", "18", "24") ~ "Platform", 
+    Site == "CorteMadera" & Tran %in% c("C", "D") & Dist %in% c("30", "48") ~ "Upland", 
+    Site == "SanPablo" & Tran %in% c("C", "D") & Dist %in% c("0.5", "2", "6", "9", "12", "18") ~ "Intertidal", 
+    Site == "SanPablo" & Tran %in% c("C", "D") & Dist %in% c("24") ~ "Edge", 
+    Site == "SanPablo" & Tran %in% c("C", "D") & Dist %in% c("48") ~ "Platform", 
+    Site == "SanPablo" & Tran %in% c("C", "D") & Dist %in% c("72", "150") ~ "Upland", 
+    TRUE ~ NA_character_
+  ), 
+  Marsh_Area = factor(Marsh_Area, levels = c("Intertidal", "Edge", "Platform", "Upland")) 
+  )
+
+sed_usgs_river <- sed_usgs_river %>%
+  mutate(Dist = factor(Dist, levels = c("0.5", "2", "6", "9", "12", "18", "24", "30", "48", "72", "150")))
+
+# Confirm the split adds up to the original row count, no overlap/loss
+nrow(sed_usgs_bay) + nrow(sed_usgs_river) == nrow(sed_usgs)
+
+# Confirm no unexpected NAs snuck through (would mean a Dist value
+# wasn't covered in your case_when, e.g. a typo or a value you forgot)
+sed_usgs_bay %>% filter(is.na(Marsh_Area)) %>% count(Site, Dist)
+sed_usgs_river %>% filter(is.na(Marsh_Area)) %>% count(Site, Dist)
+
+
+```
+
+```{r, usgs plots}
+# make_sed_plots_usgs_bay() and the local save_sed_plots() are gone --
+# both replaced by the shared versions in R/plotting.R (sourced above).
+#
+# This also fixes three real bugs that were in make_sed_plots_usgs_bay():
+#   1. It ignored its own `data` and `title_suffix` arguments and always
+#      used the global sed_usgs_bay directly.
+#   2. An orphaned, unnamed labs() call (leftover from a commented-out
+#      z* plot) was sitting inside the returned list -- save_sed_plots()
+#      would error on it the moment this ran end-to-end.
+#   3. season_usgs / site_season_usgs referenced a `Season` column that
+#      doesn't exist anywhere in this file's data -- would have errored
+#      with "object 'Season' not found". Looks like leftover code from
+#      master_analysis_thesis.Rmd, which does have a Season column.
+#      Dropped rather than ported, since Season isn't part of this
+#      pipeline's data. Flag if you actually want a Season breakdown --
+#      it'd need to be derived here first, then could be added to
+#      make_sed_plots() as a conditional block (same pattern as the
+#      z_star -> elev_site block already in there).
+
+all_plots_usgs <- make_sed_plots(sed_usgs_bay, title_suffix = " (USGS)")
+
+# View any individual plot the same way you would have before:
+all_plots_usgs$basic
+all_plots_usgs$phase_site_log
+all_plots_usgs$dist_edge
+
+images_folder <- "C:\\Users\\savan\\OneDrive - San Francisco State University\\ProjectData\\GitHub\\DepositionSFB\\images\\usgsdata"
+# NOTE: this intentionally overrides the general images_folder that
+# R/plotting.R sets when sourced -- USGS output goes to its own
+# subfolder. Keep this override AFTER the source() calls at the top.
+
+save_sed_plots(all_plots_usgs, images_folder, "sed_usgs_bay")
+```
+
+## Replaces lines 661-737 (Statistical Table USGS, hand-rolled) --------
+
+```{r, usgs statistics}
+# Mirrors the make_flux_table() pattern from master_analysis_cleanup.Rmd
+
+general_result_usgs <- make_flux_table(
+  sed_usgs_bay,
+  title = "Summary Statistics for Sediment Flux (USGS)",
+  include_ci = TRUE
+)
+general_summary_usgs <- general_result_usgs$data
+
+phen_result_usgs <- make_flux_table(
+  sed_usgs_bay, group_vars = "Phen_Period",
+  title = "Sediment Flux by Phenological Period (USGS)",
+  group_labels = list(Phen_Period = "Phenological Period")
+)
+phen_summary_usgs <- phen_result_usgs$data
+
+site_result_usgs <- make_flux_table(
+  sed_usgs_bay, group_vars = "Site",
+  title = "Sediment Flux by Site (USGS)",
+  group_labels = list(Site = "Site")
+)
+site_summary_usgs <- site_result_usgs$data
+
+# Original filtered out NA Date.removed.from.field rows before grouping --
+# make_flux_table() doesn't do this internally, so it's done here first,
+# matching the original chunk's behavior exactly.
+phase_result_usgs <- make_flux_table(
+  sed_usgs_bay %>% filter(!is.na(Date.removed.from.field)),
+  group_vars = "Date.removed.from.field",
+  title = "Sediment Flux by Date Removed From Field (USGS)",
+  group_labels = list(Date.removed.from.field = "Date Removed From Field")
+)
+phase_summary_table_usgs <- phase_result_usgs$data
+
+general_summary_usgs
+phen_summary_usgs
+site_summary_usgs
+phase_summary_table_usgs
+
+
+```
+
+```{r}
+ggplot(
+  sed_usgs_bay,
+  aes(
+    Dist,
+    Flux
+  )
+) +
+  geom_point(alpha = 0.3) +
+  geom_smooth(method = "lm") +
+  facet_wrap(~ Site, scales = "free_y") +
+  theme_minimal()
+
+usgs_dist_summary <- sed_usgs_bay %>%
+  group_by(Site, Dist) %>%
+  summarise(
+    mean_flux = mean(Flux, na.rm = TRUE),
+    se_flux = sd(Flux, na.rm = TRUE) / sqrt(n()),
+    .groups = "drop"
+  )
+
+ggplot(
+  usgs_dist_summary,
+  aes(
+    x = Dist,
+    y = mean_flux
+  )
+) +
+  geom_line() +
+  geom_point(size = 3) +
+  geom_errorbar(
+    aes(
+      ymin = mean_flux - se_flux,
+      ymax = mean_flux + se_flux
+    ),
+    width = 0.2
+  ) +
+  facet_wrap(~ Site, scales = "free_y") +
+  theme_minimal() +
+  labs(
+    x = "Distance from Marsh Edge (m)",
+    y = expression(Mean~Flux~(g/m^2/day))
+  )
+
+
+usgs_phase_summary <- sed_usgs_bay %>%
+  group_by(Date.removed.from.field) %>%
+  summarise(
+    mean_flux = mean(Flux, na.rm = TRUE),
+    se_flux = sd(Flux, na.rm = TRUE)/sqrt(n())
+  )
+
+ggplot(usgs_phase_summary,
+       aes(Date.removed.from.field, mean_flux)) +
+  geom_point(size = 3) +
+  geom_errorbar(
+    aes(
+      ymin = mean_flux - se_flux,
+      ymax = mean_flux + se_flux
+    ),
+    width = 0.2
+  )
+```
+
+```{r}
+
+
+# flux through time 
+
+phase_summary_usgs_c <- sed_usgs_bay %>%
+  filter(Site == "CorteMadera") %>%
+  group_by(Date.removed.from.field) %>%
+  summarise(
+    mean_flux = mean(Flux, na.rm = TRUE),
+    se_flux = sd(Flux, na.rm = TRUE) / sqrt(n()),
+    n = n(),
+    .groups = "drop"
+  )
+
+meanflux_time_c_usgs = ggplot(
+  phase_summary_usgs_c,
+  aes(x = Date.removed.from.field, y = mean_flux, group = 1)
+) +
+  geom_line(linewidth = 0.8) +
+  geom_point(size = 3) +
+  geom_errorbar(
+    aes(
+      ymin = mean_flux - se_flux,
+      ymax = mean_flux + se_flux
+    ),
+    width = 0.2
+  ) +
+  theme_minimal(base_size = 14) +
+  coord_cartesian(ylim = c(0,30)) +
+  labs(
+    title = paste("Mean Flux Through Time at", "Corte Madera"),
+    subtitle = "Negative flux values set to zero",
+    x = "Date removed from field",
+    y = expression(Mean~Flux~(g/m^2/day))
+  )
+meanflux_time_c_usgs
+
+# Save the high-res image
+ggsave(("C:\\Users\\savan\\OneDrive - San Francisco State University\\ProjectData\\GitHub\\DepositionSFB\\images\\usgsdata\\meanflux_time_c_usgs.png"),
+       plot = meanflux_time_c_usgs,
+       width = 10,  
+       height = 6,
+       dpi = 300,
+       bg = "white"
+)
+
+# flux through time 
+
+phase_summary_usgs_s <- sed_usgs_bay %>%
+  filter(Site == "SanPablo") %>%
+  group_by(Date.removed.from.field) %>%
+  summarise(
+    mean_flux = mean(Flux, na.rm = TRUE),
+    se_flux = sd(Flux, na.rm = TRUE) / sqrt(n()),
+    n = n(),
+    .groups = "drop"
+  )
+
+meanflux_time_s_usgs = ggplot(
+  phase_summary_usgs_s,
+  aes(x = Date.removed.from.field, y = mean_flux, group = 1)
+) +
+  geom_line(linewidth = 0.8) +
+  geom_point(size = 3) +
+  geom_errorbar(
+    aes(
+      ymin = mean_flux - se_flux,
+      ymax = mean_flux + se_flux
+    ),
+    width = 0.2
+  ) +
+  theme_minimal(base_size = 14) +
+  labs(
+    title = paste("Mean Flux Through Time at", "San Pablo"),
+    subtitle = "Negative flux values set to zero",
+    x = "Date removed from field",
+    y = expression(Mean~Flux~(g/m^2/day))
+  )
+meanflux_time_s_usgs
+
+# Save the high-res image
+ggsave(("C:\\Users\\savan\\OneDrive - San Francisco State University\\ProjectData\\GitHub\\DepositionSFB\\images\\usgsdata\\meanflux_time_s_usgs.png"),
+       plot = meanflux_time_s_usgs,
+       width = 10,  
+       height = 6,
+       dpi = 300,
+       bg = "white"
+)
+```
+
+```{r, more detailed plots for time and space}
+
+# Corte Madera
+
+# mean flux per distance (Date removed from field-time)
+
+usgstime_dist_summary <- sed_usgs_bay %>%
+  group_by(Dist, Date.removed.from.field) %>%
+  summarise(
+    mean_flux = mean(Flux, na.rm = TRUE),
+    se_flux = sd(Flux, na.rm = TRUE) / sqrt(n()),
+    .groups = "drop"
+  )
+
+usgsmeanflux_dist_sp_c = ggplot(
+  usgstime_dist_summary,
+  aes(x = Dist, y = mean_flux, group = 1)
+) +
+  geom_line(linewidth = 0.8) +
+  geom_point(size = 3) +
+  geom_errorbar(
+    aes(
+      ymin = mean_flux - se_flux,
+      ymax = mean_flux + se_flux
+    ),
+    width = 0.2
+  ) +
+  facet_wrap(vars(Date.removed.from.field), scales = "fixed") +
+  theme_minimal(base_size = 14) +
+  coord_cartesian(ylim = c(0,9.5)) +
+  labs(
+    title = paste("Mean Flux by Distance from Marsh Edge at", " Per Date removed from field"),
+    x = "Distance from Marsh Edge (m)",
+    y = expression(Mean~Flux~(g/m^2/day))
+  )
+
+usgsmeanflux_dist_sp_c
+
+
+# Save the high-res image
+ggsave(("C:\\Users\\savan\\OneDrive - San Francisco State University\\ProjectData\\GitHub\\DepositionSFB\\images\\usgsdata\\usgsmeanflux_dist_sp.png"),
+       plot = usgsmeanflux_dist_sp_c,
+       width = 10,  
+       height = 6,
+       dpi = 300,
+       bg = "white"
+)
+
+#mean flux per Date removed from field (distance)
+
+usgsmeanflux_sp_dist = ggplot(
+  usgstime_dist_summary,
+  aes(x = Date.removed.from.field, y = mean_flux, group = 1)
+) +
+  geom_line(linewidth = 0.8) +
+  geom_point(size = 3) +
+  geom_errorbar(
+    aes(
+      ymin = mean_flux - se_flux,
+      ymax = mean_flux + se_flux
+    ),
+    width = 0.2
+  ) +
+  facet_wrap(vars(Dist), scales = "fixed") +
+  theme_minimal(base_size = 14) +
+  labs(
+    title = paste("Mean Flux by Distance from Marsh Edge at", "Corte Madera"),
+    x = "Distance from Marsh Edge (m)",
+    y = expression(Mean~Flux~(g/m^2/day))
+  )
+
+
+usgsmeanflux_sp_dist
+
+# Save the high-res image
+ggsave(("C:\\Users\\savan\\OneDrive - San Francisco State University\\ProjectData\\GitHub\\DepositionSFB\\images\\usgsdata\\usgsmeanflux_sp_dist.png"),
+       plot = usgsmeanflux_sp_dist,
+       width = 10,  
+       height = 6,
+       dpi = 300,
+       bg = "white"
+)
+
+
+```
+
+```{r, Statistical Table}
+
+table(sed_usgs_bay$Study.Phase, useNA = "always")
+class(sed_usgs_bay$Study.Phase)
+
+usgs_bay = sed_usgs_bay %>% 
+  filter(!is.na(Study.Phase))
+
+table(usgs_bay$Study.Phase, useNA = "always")
+
+usgs_bay = readr::write_csv(usgs_bay, "C:\\Users\\savan\\OneDrive - San Francisco State University\\ProjectData\\GitHub\\DepositionSFB\\data\\usgs_bay.csv")
+```
+
+```{r, usgs river study phase filter}
+
+table(sed_usgs_river$Study.Phase, useNA = "always")
+class(sed_usgs_river$Study.Phase)
+
+usgs_river = sed_usgs_river %>% 
+  filter(!is.na(Study.Phase))
+
+table(usgs_river$Study.Phase, useNA = "always")
+
+usgs_river = readr::write_csv(usgs_river, "C:\\Users\\savan\\OneDrive - San Francisco State University\\ProjectData\\GitHub\\DepositionSFB\\data\\usgs_river.csv")
+```
+
+

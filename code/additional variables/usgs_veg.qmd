@@ -1,0 +1,120 @@
+---
+title: "usgs veg"
+format: html
+editor: visual
+---
+
+<!--
+Chains onto usgs_elevation_and_z_star.qmd's output -- reads
+usgs_elev_z_flux.csv (elevation already joined) and adds veg on top,
+so both covariates are present before the Bay/River split, matching
+elevation's "join before tier" position. Writes
+usgs_elev_veg_flux_long.csv.
+
+THIS FILE'S OUTPUT IS NOT AN INPUT TO master_analysis_usgs.Rmd's
+sed_usgs / tiering, BY DESIGN, PERMANENTLY -- see the note in that
+file's "read back" chunk. Multi-species fan-out means this table has
+more rows than one-per-flux-observation; it exists as its own parallel
+object for species-level visualization, not as a replacement for
+usgs_elev_z_flux.csv in the core pipeline.
+
+Cleaning logic below reuses the pattern already in veg.Rmd's usgs_veg
+chunk (NA -> 0 for AvgHt/MaxHt, whitespace stripping, Cover as numeric)
+-- not reinvented, just relocated into the pipeline and adapted for
+column-name specifics found in the actual uploaded CSV (trailing space
+in "Month " and "Season", ALL CAPS month names, no Replicate column).
+
+MULTI-SPECIES ROWS KEPT INTENTIONALLY, CONFIRMED: usgs_SFB_1m_vegetation_data.csv
+has multiple species rows at the same Site+Plot+Month+Year (up to 3 --
+e.g. San Pablo C24 in July 2023 has SAPA, SPFO, and a third species all
+logged separately). This is by design, for per-species visualization
+(the SAPA_usgs/SPFO_usgs-style breakdowns already in veg.Rmd), not
+something to collapse. "_long" in the filename means "one row per
+species per flux observation, by design."
+
+CONSEQUENCE THAT STILL MATTERS: any Flux-based aggregate (mean flux,
+tier statistics, a Flux ~ ... model) computed directly on this
+long-form table will double- or triple-count Flux at multi-species
+plots. Fine for species-level visualization; not fine for anything
+summarizing or modeling Flux without filtering to one species first.
+-->
+
+```{r, load packages}
+source("C:\\Users\\savan\\OneDrive - San Francisco State University\\ProjectData\\GitHub\\DepositionSFB\\code\\R\\setup.R")
+```
+
+```{r, load elevation-joined flux data and raw veg data}
+# Reads the elevation join's output, not master_usgs.csv directly --
+# this is the chained step, elevation then veg, both before tiering.
+usgs_elev_z_flux <- read.csv("C:\\Users\\savan\\OneDrive - San Francisco State University\\ProjectData\\GitHub\\DepositionSFB\\data\\usgs_elev_z_flux.csv")
+
+usgs_veg_raw <- read.csv("C:\\Users\\savan\\OneDrive - San Francisco State University\\ProjectData\\GitHub\\DepositionSFB\\data\\usgs_SFB_1m_vegetation_data.csv")
+```
+
+```{r, clean usgs veg -- same pattern as veg.Rmd's usgs_veg chunk}
+usgs_veg <- usgs_veg_raw |>
+  rename(Month = `Month.`) |>   # trailing space in the raw column name
+  mutate(
+    AvgHt   = ifelse(is.na(AvgHt), 0, AvgHt),
+    MaxHt   = ifelse(is.na(MaxHt), 0, MaxHt),
+    Cover   = as.numeric(Cover),
+    Season  = str_squish(Season),
+    Site    = str_remove_all(Site, " "),                 # "Corte Madera" -> "CorteMadera", matches master_usgs.csv
+    Year    = str_squish(as.character(Year)),
+    Month   = str_to_title(str_squish(Month)),            # "AUGUST" -> "August", matches master_usgs.csv's Month
+    Tran    = str_extract(`Plot.ID`, "^[A-Za-z]+"),
+    Dist    = as.numeric(str_extract(`Plot.ID`, "[0-9.]+$"))
+  )
+
+str(usgs_veg)
+
+# Confirms the fan-out risk flagged above, before it hits the join --
+# any Site+Tran+Dist+Month+Year with n > 1 has multiple species logged.
+usgs_veg |>
+  count(Site, Tran, Dist, Month, Year) |>
+  filter(n > 1) |>
+  nrow()
+```
+
+```{r, key the flux data to match}
+usgs_flux_keyed <- usgs_elev_z_flux |>
+  mutate(
+    Site  = str_squish(as.character(Site)),
+    Tran  = str_squish(as.character(Tran)),
+    Dist  = as.numeric(as.character(Dist)),
+    Month = str_squish(as.character(Month)),
+    Year  = str_squish(as.character(Year))
+  )
+```
+
+```{r, join -- long form, species not collapsed}
+# 5-key join (Site, Tran, Dist, Month, Year -- no Replicate, same
+# broadcast logic as elevation, but now also time-matched since veg
+# was only sampled 3 times rather than being a static survey).
+usgs_elev_veg_flux_long <- usgs_flux_keyed |>
+  left_join(
+    usgs_veg |> select(Site, Tran, Dist, Month, Year, Species, AvgHt, MaxHt, Cover),
+    by = c("Site", "Tran", "Dist", "Month", "Year")
+  )
+
+readr::write_csv(usgs_elev_veg_flux_long, "C:\\Users\\savan\\OneDrive - San Francisco State University\\ProjectData\\GitHub\\DepositionSFB\\data\\usgs_elev_veg_flux_long.csv")
+```
+
+```{r, diagnostics -- shows the fan-out and the temporal sparsity, fixes nothing}
+# Row count BEFORE this join (should equal nrow(usgs_flux_keyed) if
+# every flux row matched at most one veg row -- it won't, because of
+# the multi-species fan-out, which is intentional -- see header note).
+nrow(usgs_flux_keyed)
+nrow(usgs_elev_veg_flux_long)
+nrow(usgs_elev_veg_flux_long) - nrow(usgs_flux_keyed)   # rows added by species fan-out, expected and fine here
+
+# How many distinct flux observations (not species-rows) actually got
+# ANY veg match at all -- expected to be small, since veg was only
+# sampled in 3 of the 16 Month/Year windows the flux data spans.
+usgs_flux_keyed |>
+  left_join(
+    usgs_veg |> distinct(Site, Tran, Dist, Month, Year) |> mutate(has_veg = TRUE),
+    by = c("Site", "Tran", "Dist", "Month", "Year")
+  ) |>
+  count(has_veg)
+```

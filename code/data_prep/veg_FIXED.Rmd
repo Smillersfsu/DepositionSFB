@@ -1,0 +1,578 @@
+---
+title: "Sediment Deposition Rates Across Distances and Plant Dimensions\n In Two Marshes of San Pablo Bay, CA"
+author: "Savannah K. Miller"
+date: "2025-03-21"
+output: pdf_document
+---
+
+#### Dataset Card Source: (<https://github.com/Smillersfsu/DepositionSFB/blob/0a6b8b2033b76344b3b1574f88ab81aa244e5210/DatasetCard.md>)
+
+## Background
+
+Sediment is the structural foundation of the salt marsh ecosystem where endemic species live and acquire resources (Levin et al. 2001; Janousek et al. 2017). The salt marsh ecosystem is host to many endemic species that are specially adapted to the conditions of the salt marsh (Dunson and Travis 1994; Schile et al. 2011; Moffett, Robinson, and Gorelick 2010; Rankin et al. 2023), and the very sediment they walk and live within is in short supply (Schoellhamer and Marineau, n.d.). Salt marshes play strong roles in dampening impacts of atmospheric rivers and extreme weather events, offering a protection to coastal communities(Smolders et al. 2015; Castagno et al. 2022; Lee and Nepf 2024; Taylor-Burns et al. 2024). Already, there has been a long human history of disturbance to existing salt marshes, which puts ecological and human communities at severe risk(Gedan, Silliman, and Bertness 2009). Under these circumstances, the few salt marshes left are at risk of elimination due to drowning if action is not taken and the benefits of this ecosystem could be forever lost.(Endris et al. 2024).
+
+Across the state, salt marshes are decreasing in number and area due to a variety of factors (Endris et al. 2024). This unfortunate circumstance paired with changing water levels along the coastline increases the sense of urgency to understand, conserve, and restore California’s salt marshes. To assist in raising the elevation of the salt marshes to adapt to natural hazards, we need to understand the fundamental processes of how sediment accumulates within the salt marsh over a brief period (short-term deposition) (Fagherazzi 2013; Houttuijn Bloemendaal et al. 2021; Vandenbruwaene et al. 2011). In this study, I will measure short-term deposition rates across marsh edges of multiple marshes within a single estuary in San Pablo Bay of the San Francisco Bay Estuary and comparing those rates to measurements of the surrounding marsh landscape. This study will provide information to ongoing restoration efforts of salt marshes in San Pablo Bay.(Callaway 2024; University of San Francisco et al. 2011; K. M. Thorne et al. 2019; Haltiner et al. 1996) My study provides novel insights for land managers to characterize their marshes edges to adapt to natural hazards and enhance community resiliency (Reed et al. 1999).
+
+In this study, I will measure short-term deposition rates on multiple marshes within the San Francisco Bay Estuary and will compare those rates to measurements of the surrounding marsh landscape. This study builds on the work of Karen Thorne and U.S. Geological Survey (2025; Inter-and Intra-Annual Sediment Dynamics in Two Tidal Marshes: Deposition, Accretion, and Vegetation Data - ScienceBase-Catalog) to understand differences in sediment deposition on marshes with different edge characteristics, vegetation densities and geographic settings. Moreover, I will measure variables such as elevation, vegetation structure, and observations of marsh edge traits and comparing to rates of short-term deposition measured to understand patterns between variables. Other environmental variables such as season at time of collection and tide level at time of collection will be recorded and considered in analyses.
+
+## Research Objective
+
+This study will measure short-term deposition rates of sediment across the exposed (bay-adjacent) salt marshes in the northern part of the San Francisco Bay Estuary of the San Pablo Bay. I will compare these rates to biological structures of each salt marsh.
+
+### Research Aim:
+
+Marsh characteristics of the vegetation also are one of the first interactions with the waves bay ward and along the marsh edge. These vegetation characteristics will be measured at each marsh and compared with the rates of sediment deposition measured over the course of a year’s spring-neap tidal cycles.
+
+### Expected Outcome:
+
+Deposition rates vary significantly with characteristics of the marsh vegetation, specifically maximum height.
+
+### Null Hypothesis:
+
+Deposition rates of sediment do not vary with differences in height of Salicornia pacificia (Pickleweed).
+
+### Alternate hypothesis
+
+Deposition rates of sediment do vary with differences in height of Salicornia pacifica (Pickleweed).
+
+## Data analysis Plan
+
+First, I played with both the vegetation and sediment data sets to understand patterns that each of those explanatory variables had with the landscape and abiotic factors, such as distance from the water source ("Distance"), weather factors ("Season"), time factors ("Year" and "Month"), and location ("Site").
+
+As the sample distribution for the sediment flux measurements was not normally distributed, which was my main independent variable, I did not run a two-sampled t-test.
+
+I ran a general linear mixed model with both sites data and sediment deposition versus the maximum plant height. I followed this by running a general linear mixed model for each site with those same explanatory variables to compare the AIC values and find the best fit, with distance from the marsh edge as an additional predictor. Within these models, I accounted for random effects such as "Year", "Season" and "Site".
+
+```{r, Load necessary packages}
+
+# data import and database management 
+# reading files, reshaping data, and efficient data handling 
+
+#######################################################
+
+library(readxl) # import excel spreadsheets
+library(data.table) #quick manipulation of large datasets
+library(stringr) # text and string processing 
+library(lubridate) # data and time handling 
+library(writexl) # exports editted databases into excel files
+
+#######################################################
+
+# General data science workflow 
+# Collection of packages for data manipulation and plotting
+
+#######################################################
+
+library(tidyverse)
+
+#######################################################
+
+#Statistical analyses and mixed models 
+# Hypothesis testing, summaries, and model fitting 
+
+#######################################################
+
+library(gt) # displaying formatted tables for statistics 
+library(rstatix) # statistical tests and assumption checking
+library(lmerTest) # p-values and tests for lme4 models 
+library(lme4) # linear and generalized mixed-effects models
+library(ggeffects) # predicted values and marginal effects 
+
+#######################################################
+
+# Data visualization 
+# Plot creation, figure assembly, and publication formatting 
+
+#######################################################
+
+library(patchwork) #comvine ggplots into multi-panel figures
+library(cowplot) # figure arrangement and plot annotations
+library(rcartocolor) # color palettes
+library(ggh4x) # advanced ggplot extensions
+library(scales) # axis labels, formatting, and scaling 
+
+#######################################################
+# Spatial data and mapping 
+# GIS data handling and map visualization
+#######################################################
+
+library(sf) #spatial vector data
+library(ggmap) #basemaps and geographic visualization
+library(ggspatial) #spatial annotations and map elements
+library(leaflet) #interactive web maps
+
+#######################################################
+
+#Tables and report outputs 
+# Interactive tables and report presentation 
+
+#######################################################
+
+library(reactable) #interactive tables for reports
+
+#######################################################
+# R markdown and document rendering 
+# PDF generation and LaTeX support 
+#######################################################
+
+library(tinytex) #LaTeX engine for PDF knitting
+
+
+```
+
+```{r, set working directory}
+
+knitr::opts_knit$set(root.dir = "C:\\Users\\savan\\OneDrive - San Francisco State University\\ProjectData\\GitHub\\DepositionSFB\\data")
+
+```
+
+```{r, cleaning data}
+# load data
+thesis_veg <- read.csv("C:\\Users\\savan\\OneDrive - San Francisco State University\\ProjectData\\GitHub\\DepositionSFB\\data\\thesis_veg.csv") 
+
+usgs_veg <- read.csv("C:\\Users\\savan\\OneDrive - San Francisco State University\\ProjectData\\GitHub\\DepositionSFB\\data\\usgs_SFB_1m_vegetation_data.csv") 
+
+
+thesis_veg <- thesis_veg %>% mutate(AvgHt = ifelse(is.na(AvgHt), 0, AvgHt))
+thesis_veg <- thesis_veg %>% mutate(MaxHt = ifelse(is.na(MaxHt), 0, MaxHt))
+thesis_veg$Season <- str_replace_all(thesis_veg$Season, " ", "")
+thesis_veg$Plot_ID <- str_replace_all(thesis_veg$Plot_ID, " ", "")
+thesis_veg$Year <- str_replace_all(thesis_veg$Year, " ", "")
+thesis_veg$Month <- str_replace_all(thesis_veg$Month, " ", "")
+thesis_veg$Year <- as.character(thesis_veg$Year)
+thesis_veg$Cover <-as.numeric(thesis_veg$Cover)
+thesis_veg <- thesis_veg %>%
+  separate(Plot_ID, into = c("Tran", "Dist"), sep = "-", remove = FALSE )
+thesis_veg$Dist <- as.numeric(thesis_veg$Dist)
+
+usgs_veg <- usgs_veg %>% mutate(AvgHt = ifelse(is.na(AvgHt), 0, AvgHt))
+usgs_veg <- usgs_veg %>% mutate(MaxHt = ifelse(is.na(MaxHt), 0, MaxHt))
+usgs_veg$Season <- str_replace_all(usgs_veg$Season, " ", "")
+usgs_veg$Plot.ID <- str_replace_all(usgs_veg$Plot.ID, " ", "")
+usgs_veg$Year <- str_replace_all(usgs_veg$Year, " ", "")
+usgs_veg$Month <- str_replace_all(usgs_veg$Month, " ", "")
+usgs_veg$Year <- as.character(usgs_veg$Year)
+usgs_veg$Cover <-as.numeric(usgs_veg$Cover)
+usgs_veg <-usgs_veg %>%
+  mutate(
+    Tran = str_extract(Plot.ID, "^[A-Za-z]+"), 
+    Dist = as.numeric(str_extract(Plot.ID, "[0-9.]+$"))
+  )
+
+str(thesis_veg)
+str(usgs_veg)
+
+
+```
+
+
+
+```{r, load sediment flux data -- MISSING IN ORIGINAL}
+# BUG FIX: the original script used `sed` and `veg` below without ever
+# creating them -- this chunk was missing entirely, so the join two chunks
+# down would fail with "object 'sed' not found."
+#
+# TODO: point this at your actual sediment flux CSV (the file with
+# FluxAvgRep, Site, Season, Distance, Transect, Year, Month columns).
+sed <- read.csv("C:\\Users\\savan\\OneDrive - San Francisco State University\\ProjectData\\GitHub\\DepositionSFB\\data\\sed_thesis.csv")  # TODO: confirm actual filename
+
+# `veg` (singular) is referenced later (sed_DistPlant chunk) as if it's a
+# combined thesis + usgs vegetation table. Building that here from the two
+# data frames already loaded above. TODO: confirm this is the intended
+# combination -- thesis_veg and usgs_veg have different Site/Plot naming
+# conventions (Plot_ID vs Plot.ID) that were reconciled into Tran/Dist
+# above, but double check Site values match between the two before trusting
+# any Site-level comparison across thesis vs usgs data.
+veg <- bind_rows(
+  thesis_veg %>% mutate(Dataset = "thesis"),
+  usgs_veg %>% mutate(Dataset = "usgs")
+)
+```
+
+```{r, veg and SAPA combined dataframe}
+
+sed_SAPA <- sed %>% left_join(veg, by = c("Site", "Season", "Distance", "Transect", "Year", "Month"))
+sed_SAPA <- sed_SAPA %>%
+  mutate(FluxAvgRep = ifelse(is.na(FluxAvgRep), 0, FluxAvgRep),
+        Species = ifelse(is.na(Species), 0, Species), 
+        AvgHt = ifelse(is.na(AvgHt), 0, AvgHt),
+        MaxHt = ifelse(is.na(MaxHt), 0, MaxHt), 
+        Cover = ifelse(is.na(Cover), 0, Cover))
+sed_SAPA <- sed_SAPA %>%
+  select(-Date)
+
+```
+
+
+
+```{r, focus on SAPA}
+
+SAPA_usgs <- usgs_veg %>% 
+  filter(Species == "SAPA")
+
+SAPA_thesis <- thesis_veg %>% 
+  filter(Species ==  "SAPA")
+
+SAPA_dist_mx_usgs <- ggplot(data=SAPA_usgs, aes(x=Dist, y=MaxHt, color=Site)) + geom_point() +  facet_wrap(~ Season)
+SAPA_dist_mx_usgs
+
+SAPA_dist_avg_usgs <- ggplot(data=SAPA_usgs, aes(x=Dist, y=AvgHt, color=Site)) + geom_point() + facet_wrap(~ Season)
+SAPA_dist_avg_usgs
+
+SAPA_dist_c_usgs <- ggplot(data=SAPA_usgs, aes(x=Dist, y=Cover, color=Site)) + geom_point() +facet_wrap(~ Season)
+SAPA_dist_c_usgs
+
+#thesis 
+
+SAPA_dist_mx_thesis <- ggplot(data=SAPA_thesis, aes(x=Dist, y=MaxHt, color=Site)) + geom_point() +  facet_wrap(~ Season)
+SAPA_dist_mx_thesis
+
+SAPA_dist_avg_thesis <- ggplot(data=SAPA_thesis, aes(x=Dist, y=AvgHt, color=Site)) + geom_point() + facet_wrap(~ Season)
+SAPA_dist_avg_thesis
+
+SAPA_dist_c_thesis <- ggplot(data=SAPA_thesis, aes(x=Dist, y=Cover, color=Site)) + geom_point() +facet_wrap(~ Season)
+SAPA_dist_c_thesis
+```
+
+
+
+```{r, focus on SPFO}
+
+SPFO_usgs <- usgs_veg %>% 
+  filter(Species == "SPFO")
+
+SPFO_thesis <- thesis_veg %>% 
+  filter(Species ==  "SPFO")
+
+SPFO_dist_mx_usgs <- ggplot(data=SPFO_usgs, aes(x=Dist, y=MaxHt, color=Site)) + geom_point() +  facet_wrap(~ Season)
+SPFO_dist_mx_usgs
+
+SPFO_dist_avg_usgs <- ggplot(data=SPFO_usgs, aes(x=Dist, y=AvgHt, color=Site)) + geom_point() + facet_wrap(~ Season)
+SPFO_dist_avg_usgs
+
+SPFO_dist_c_usgs <- ggplot(data=SPFO_usgs, aes(x=Dist, y=Cover, color=Site)) + geom_point() +facet_wrap(~ Season)
+SPFO_dist_c_usgs
+
+#thesis 
+
+SPFO_dist_mx_thesis <- ggplot(data=SPFO_thesis, aes(x=Dist, y=MaxHt, color=Site)) + geom_point() +  facet_wrap(~ Season)
+SPFO_dist_mx_thesis
+
+SPFO_dist_avg_thesis <- ggplot(data=SPFO_thesis, aes(x=Dist, y=AvgHt, color=Site)) + geom_point() + facet_wrap(~ Season)
+SPFO_dist_avg_thesis
+
+SPFO_dist_c_thesis <- ggplot(data=SPFO_thesis, aes(x=Dist, y=Cover, color=Site)) + geom_point() +facet_wrap(~ Season)
+SPFO_dist_c_thesis
+```
+
+
+```{r, visualizing relationships of the sediment data to explanatory variables}
+
+sed_space <-ggplot(data=sed_SAPA, aes(x=Distance, y=FluxAvgRep, color=Site)) +geom_point() + geom_jitter(width = 0.2, height = 0.2, alpha = 0.6) + theme_minimal() +
+ coord_cartesian(ylim = c(0, 357)) + facet_wrap(~ Season)
+sed_space
+
+sed_time <-ggplot(data=sed_SAPA, aes(x=Season, y=FluxAvgRep, color=Site)) + geom_point() + geom_jitter(width = 0.2, height = 0.2, alpha = 0.6) + theme_minimal() +
+ coord_cartesian(ylim = c(0, 357))
+sed_time
+
+sed_year <- ggplot(sed_SAPA, aes(x= Season, y= FluxAvgRep, color= Site)) +geom_point() + facet_wrap(~Year)
+sed_year
+
+sed_season_site = ggplot(sed, aes(x = Season, y = FluxAvgRep, fill = Site)) +
+  facet_wrap(~Distance) +
+  geom_col(position = "dodge") +
+  scale_y_log10() +
+  labs(x = "Season", y = "Log Flux of Sediment Deposition") 
+sed_season_site
+
+sed_Siteseason <- ggplot(sed_SAPA, aes(x= Site, y=FluxAvgRep, color = Season)) +geom_point() + geom_boxplot()
+sed_Siteseason
+
+sed_season = ggplot(sed, aes(x = Site, y = FluxAvgRep, fill = Season)) + 
+  geom_col(position = "dodge") +
+  scale_y_log10() +
+  labs(x = "Site", y = "Log Flux of Sediment Deposition") 
+sed_season
+
+sed_Dist = ggplot(sed, aes(x = Distance, y = FluxAvgRep, color = Site)) + 
+  geom_point(aes(x = Distance, y = FluxAvgRep), data = sed, position = position_jitter(w = 0.05, h = 0)) +
+  #scale_y_log10() + 
+   geom_smooth(method = "lm", se = FALSE) +
+  labs(x = "Distance", y = "Log Flux of Sediment Deposition", 
+       title = "Sediment Deposition Rates Across Distances")
+sed_Dist
+```
+
+
+
+```{r}
+# usgs 
+
+SAPA_Season_mxht_usgs <- ggplot(SAPA_usgs, aes(x=MaxHt,fill=Season)) + geom_boxplot()
+SAPA_Season_mxht_usgs
+
+SAPA_Season_avght_usgs <-ggplot(SAPA_usgs, aes(x=AvgHt,fill=Season)) + geom_boxplot()
+SAPA_Season_avght_usgs
+
+SAPA_Season_cover_usgs <- ggplot(SAPA_usgs, aes(x=Cover, fill = Season)) + geom_boxplot()
+SAPA_Season_cover_usgs
+
+SAPA_Site_cover_usgs <- ggplot(SAPA_usgs, aes(x= Cover, fill = Site)) + geom_boxplot()
+SAPA_Site_cover_usgs
+
+SAPA_Site_mxht_usgs <- ggplot(SAPA_usgs, aes(x = MaxHt, fill = Site)) + geom_boxplot()
+SAPA_Site_mxht_usgs
+
+SAPA_Site_avght_usgs <- ggplot(SAPA_usgs, aes(x = AvgHt, fill = Site)) + geom_boxplot()
+SAPA_Site_avght_usgs
+
+#check the data for normality, MaxHt 
+SAPA_Maxht_Normality_usgs <-ggplot(SAPA_usgs, aes(x=MaxHt)) + geom_histogram(binwidth = 0.5)
+SAPA_Maxht_Normality_usgs
+
+#check the data for normality, AvgHt  
+SAPA_Avght_Normality_usgs <-ggplot(SAPA_usgs, aes(x=AvgHt)) + geom_histogram(binwidth = 0.5)
+SAPA_Avght_Normality_usgs
+
+#check the data for normality, Cover 
+SAPA_Cover_Normality_usgs <-ggplot(SAPA_usgs, aes(x=Cover)) + geom_histogram(binwidth = 0.5)
+SAPA_Cover_Normality_usgs
+```
+
+
+
+
+
+
+
+
+
+
+```{r}
+# thesis
+
+SAPA_Season_mxht_thesis <- ggplot(SAPA_thesis, aes(x=MaxHt,fill=Season)) + geom_boxplot()
+SAPA_Season_mxht_thesis
+
+SAPA_Season_avght_thesis <-ggplot(SAPA_thesis, aes(x=AvgHt,fill=Season)) + geom_boxplot()
+SAPA_Season_avght_thesis
+
+SAPA_Season_cover_thesis <- ggplot(SAPA_thesis, aes(x=Cover, fill = Season)) + geom_boxplot()
+SAPA_Season_cover_thesis
+
+SAPA_Site_cover_thesis <- ggplot(SAPA_thesis, aes(x= Cover, fill = Site)) + geom_boxplot()
+SAPA_Site_cover_thesis
+
+SAPA_Site_mxht_thesis <- ggplot(SAPA_thesis, aes(x = MaxHt, fill = Site)) + geom_boxplot()
+SAPA_Site_mxht_thesis
+
+SAPA_Site_avght_thesis <- ggplot(SAPA_thesis, aes(x = AvgHt, fill = Site)) + geom_boxplot()
+SAPA_Site_avght_thesis
+
+#check the data for normality, MaxHt 
+SAPA_Maxht_Normality_thesis <-ggplot(SAPA_thesis, aes(x=MaxHt)) + geom_histogram(binwidth = 0.5)
+SAPA_Maxht_Normality_thesis
+
+#check the data for normality, AvgHt  
+SAPA_Avght_Normality_thesis <-ggplot(SAPA_thesis, aes(x=AvgHt)) + geom_histogram(binwidth = 0.5)
+SAPA_Avght_Normality_thesis
+
+#check the data for normality, Cover 
+SAPA_Cover_Normality_thesis <-ggplot(SAPA_thesis, aes(x=Cover)) + geom_histogram(binwidth = 0.5)
+SAPA_Cover_Normality_thesis
+```
+
+
+
+
+
+
+
+
+
+
+
+```{r, SPFO-checking the range of data for the vegetation dataset}
+
+# usgs 
+
+SPFO_Season_mxht_usgs <- ggplot(SPFO_usgs, aes(x=MaxHt,fill=Season)) + geom_boxplot()
+SPFO_Season_mxht_usgs
+
+SPFO_Season_avght_usgs <-ggplot(SPFO_usgs, aes(x=AvgHt,fill=Season)) + geom_boxplot()
+SPFO_Season_avght_usgs
+
+SPFO_Season_cover_usgs <- ggplot(SPFO_usgs, aes(x=Cover, fill = Season)) + geom_boxplot()
+SPFO_Season_cover_usgs
+
+SPFO_Site_cover_usgs <- ggplot(SPFO_usgs, aes(x= Cover, fill = Site)) + geom_boxplot()
+SPFO_Site_cover_usgs
+
+SPFO_Site_mxht_usgs <- ggplot(SPFO_usgs, aes(x = MaxHt, fill = Site)) + geom_boxplot()
+SPFO_Site_mxht_usgs
+
+SPFO_Site_avght_usgs <- ggplot(SPFO_usgs, aes(x = AvgHt, fill = Site)) + geom_boxplot()
+SPFO_Site_avght_usgs
+
+#check the data for normality, MaxHt 
+SPFO_Maxht_Normality_usgs <-ggplot(SPFO_usgs, aes(x=MaxHt)) + geom_histogram(binwidth = 0.5)
+SPFO_Maxht_Normality_usgs
+
+#check the data for normality, AvgHt  
+SPFO_Avght_Normality_usgs <-ggplot(SPFO_usgs, aes(x=AvgHt)) + geom_histogram(binwidth = 0.5)
+SPFO_Avght_Normality_usgs
+
+#check the data for normality, Cover 
+SPFO_Cover_Normality_usgs <-ggplot(SPFO_usgs, aes(x=Cover)) + geom_histogram(binwidth = 0.5)
+SPFO_Cover_Normality_usgs
+
+# thesis
+
+SPFO_Season_mxht_thesis <- ggplot(SPFO_thesis, aes(x=MaxHt,fill=Season)) + geom_boxplot()
+SPFO_Season_mxht_thesis
+
+SPFO_Season_avght_thesis <-ggplot(SPFO_thesis, aes(x=AvgHt,fill=Season)) + geom_boxplot()
+SPFO_Season_avght_thesis
+
+SPFO_Season_cover_thesis <- ggplot(SPFO_thesis, aes(x=Cover, fill = Season)) + geom_boxplot()
+SPFO_Season_cover_thesis
+
+SPFO_Site_cover_thesis <- ggplot(SPFO_thesis, aes(x= Cover, fill = Site)) + geom_boxplot()
+SPFO_Site_cover_thesis
+
+SPFO_Site_mxht_thesis <- ggplot(SPFO_thesis, aes(x = MaxHt, fill = Site)) + geom_boxplot()
+SPFO_Site_mxht_thesis
+
+SPFO_Site_avght_thesis <- ggplot(SPFO_thesis, aes(x = AvgHt, fill = Site)) + geom_boxplot()
+SPFO_Site_avght_thesis
+
+#check the data for normality, MaxHt 
+SPFO_Maxht_Normality_thesis <-ggplot(SPFO_thesis, aes(x=MaxHt)) + geom_histogram(binwidth = 0.5)
+SPFO_Maxht_Normality_thesis
+
+#check the data for normality, AvgHt  
+SPFO_Avght_Normality_thesis <-ggplot(SPFO_thesis, aes(x=AvgHt)) + geom_histogram(binwidth = 0.5)
+SPFO_Avght_Normality_thesis
+
+#check the data for normality, Cover 
+SPFO_Cover_Normality_thesis <-ggplot(SPFO_thesis, aes(x=Cover)) + geom_histogram(binwidth = 0.5)
+SPFO_Cover_Normality_thesis
+```
+
+
+
+
+
+```{r, Fit GLM with Poisson family}
+# NOTE (not fixed here, flagging for the modeling-design conversation):
+# FluxAvgRep is a continuous sediment deposition rate, not count data, so
+# Poisson (mean = variance, integer support) is likely the wrong family --
+# your Methodological Plan calls for Gamma or log-normal instead. Leaving
+# this as-is since it's the historical class analysis, not touching the
+# stats until you've had a chance to chew on the modeling design.
+
+sedvegglm <-glm(FluxAvgRep~MaxHt, family = "poisson", data=sed_SAPA)
+sedvegglm
+
+sedvegglm_AIC_text <- paste("AIC: 7914")
+sedvegglm_AIC_text
+
+sedvegglm_coefficient_MaxHt <- paste("Coefficient for Max Height: -0.01325 ")
+sedvegglm_coefficient_MaxHt
+
+```
+
+```{r, Plot model diagnostics}
+
+plot(sedvegglm)
+```
+
+```{r, glmm trial and error with random effects}
+# NOTE: (1|Site) below has the same singular-fit risk flagged in your
+# RQ2 modeling plan doc -- if sed_SAPA only has 2 Site levels, lme4/glmmTMB
+# won't be able to estimate that variance component reliably. Worth the
+# same fix (Site as fixed effect) if this model gets carried forward.
+
+library(glmmTMB)
+sed_glmm = glmmTMB(FluxAvgRep~MaxHt + Distance + (1|Site) + (1|Season) + (1|Year), family = poisson(), data=sed_SAPA)
+summary(sed_glmm)
+
+sed_glmm2 = glmmTMB(FluxAvgRep~MaxHt + Distance + (1|Site) + (1|Season), family = poisson(), data=sed_SAPA)
+summary(sed_glmm2)
+
+sed_glmm3 = glmmTMB(FluxAvgRep~MaxHt + Distance + (1|Site), family = poisson(), data=sed_SAPA)
+summary(sed_glmm3)
+
+sed_glmm4 = glmmTMB(FluxAvgRep~MaxHt + Distance + (1|Site) + (1|Year), family = poisson(), data=sed_SAPA)
+summary(sed_glmm4)
+
+sed_glmm5 = glmmTMB(FluxAvgRep~MaxHt + Distance + (1|Year) + (1|Season), family = poisson(), data=sed_SAPA)
+summary(sed_glmm5)
+
+AIC(sed_glmm)
+AIC(sed_glmm, sed_glmm2, sed_glmm3, sed_glmm4, sed_glmm5)
+
+```
+
+```{r, graphing the relationships}
+
+sed_MxHt_season <- ggplot(sed_SAPA, aes(x = MaxHt, y = FluxAvgRep, color = Season)) +
+  geom_point(position = position_jitter(w = 0.05, h = 0)) +
+  geom_smooth(method = "lm", se = FALSE) +
+  scale_y_log10() +
+  labs(
+    x = expression("Maximum Height of Pickleweed " * italic("(Salicornia pacifica)")),
+    y = "Log Flux of Sediment Deposition",
+    title = "Sediment Deposition Rates Across Differences in Maximum Plant Height\n Between Two Seasons"
+  )
+
+sed_MxHt_season
+
+sed_DistPlant <- ggplot(veg, aes(x = Distance, y = MaxHt, color = Site)) + 
+  geom_point(position = position_jitter(w = 0.05, h = 0)) +
+  scale_y_log10() + 
+  labs(
+    x = "Distance from Marsh Edge",
+    y = expression("Maximum Height of Pickleweed " * italic("(Salicornia pacifica)")),
+    title = "Sediment Deposition Rates Across Plant Structure\n(Maximum Height)"
+  )
+
+sed_DistPlant
+
+```
+
+## Summary of Results/Conclusions
+
+```{r, final figure}
+
+sed_MxHt_site <- ggplot(sed_SAPA, aes(x = MaxHt, y = FluxAvgRep, color = Site)) +
+  geom_point(position = position_jitter(w = 0.05, h = 0)) +
+  geom_smooth(method = "lm", se = FALSE) +
+  scale_y_log10() +
+  labs(
+    x = expression("Maximum Height of Pickleweed " * italic("(Salicornia pacifica)")),
+    y = "Log Flux of Sediment Deposition",
+    title = "Sediment Deposition Rates Across Differences in Maximum Plant Height\n Between Two Marshes"
+  )
+sed_MxHt_site
+
+```
+
+Within this graph, sediment deposition is marked with a log function as there were some outliers within the data set, specifically at the San Pablo site that made it difficult to observe patterns in the data.
+
+The graph above and the GLMM outputs demonstrates that maximum height of Pickleweed does play a role in sediment deposition, though site specific differences play a role in influencing those relationships. Season and Year also did play a role in the strength of these predictor variables, however since some of the interest of this study is based off of replication across site, this was the final graph that I chose.
+
+Based off of the conclusions of the linear regressions, as well as the comparisons of the outputs for the general linear mixed models (GLMM), it is apparent that site, season, and year are strong influences on both of the independent variables I measured, which includes maximum height of an ecologically important marsh species, Pickleweed (*Salicornia pacifica*) and the average sediment deposition rates across a marsh bay ward edge. This is demonstrated from the six GLMMs performed, where the AIC values fell all within a close range, but only the model with all three random effects of Site, Season, and Year had the lowest value and was therefore the best fit model.
+
+Based on the repeated outputs of coefficients for both distance and maximum height of Pickleweed, it is observed that both of these predictors are significant in terms of their effect on sediment deposition, but in very different ways.
+
+There appears to be a negative relationship with distance and sediment deposition-meaning that the farther you go away from the marsh edge, the less sediment is deposited on the marsh platform. This makes sense from the ecological understanding, as the marsh edge is the commonly inundated with water than other points in the marsh, and the edge is more likely to encounter dynamic wave energy and scarps that suspended sediment in the water column would first interact with prior to settling out.
+
+There also appears to be a positive relationship with maximum height and sediment deposition. This also makes sense ecologically, as a taller plant would create more of an obstruction to suspended sediment in the water column, causing for it to settle out quicker than with a shorter plant.
+
+Both distance and maximum height are interrelated to other variables of the marsh, such as slope and average tide levels throughout the marsh. As demonstrated from the GLMM outputs, site specific characteristics such as slope and tide level cannot be ignored as predictors for sediment deposition rates, but they were not measured within this study. Slope is not accounted for in this model, and future analyses could take into account this additional variable as it could characterize the landscape differences between marshes that would result in such differences in both plant growth and sediment deposition. Slope is related to the mean low low water tide levels of the marsh, which are also pertinent variables to consider when measuring differences in sediment deposition as well as plant growth differences.
+
+These results demonstrate that I can reject my null hypothesis based on the significance of the effect of distance and maximum height on differences in sediment deposition rates!
+
+I am excited to see in my thesis studies how many of these additional variables I can measure to see if I can uncover at least one clear pattern with my own data-that would be incredible. Thanks for this class Jenna! I will sincerely miss it!

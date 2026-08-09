@@ -1,0 +1,221 @@
+---
+title: "thesis slope"
+format: html
+editor: visual
+---
+
+<!--
+Uses local_slope_at() / add_local_slope() from
+transect_slope_crosswalk_FIXED.R (source it, don't redefine here) and
+the confirmed crosswalk in that same file. All four sites now have
+real topo data.
+
+SITE NAME NOTE: GallinasCreek_06172025_LinRef.csv = Buck'sLanding
+(old name), SonomaBaylands_06032025_LinRef.csv = SanPablo (old name,
+though that file's own Location column already says "SanPablo"
+internally -- just the filename wasn't updated).
+
+CASE NORMALIZATION: GallinasCreek's Transect_ID column is uppercase
+("XSA"/"XSB"/"XSC"/"XSD") where every other file uses lowercase
+("xsA" etc). Normalized to lowercase immediately on load below --
+otherwise topo_data_by_transect's "xsA"/"xsB" keys would silently miss
+Buck'sLanding's rows entirely, or need a second set of keys.
+
+PIN-RELATIVE REBASING: same fix as before, extended to all four
+sites -- confirmed each of the 8 transects (2 per site) has its own
+real pin marker, none at distance 0. rebase_to_pin() handles this
+uniformly.
+
+CONFIRMED FROM REAL DATA -- two different problems, not the same one:
+  - EXTRAPOLATION (coverage gap): GiantMarsh T2, Buck'sLanding T1,
+    Buck'sLanding T2 don't reach Dist=48 after rebasing to pin --
+    Buck'sLanding T2 is the worst case, off by +1.6m at that point.
+    DECISION: flag and keep, not drop. The `extrapolated` column in
+    slope_check (and, once built, in the eventual join onto
+    elev_z_flux) stays attached to these rows rather than silently
+    removing them -- so any downstream use can filter them out, weight
+    them differently, or footnote them, but the data isn't just gone.
+  - NEAR-EDGE DISAGREEMENT WITHOUT EXTRAPOLATION: Buck'sLanding T2 and
+    SanPablo T2 show consistent >10cm disagreement between the topo
+    spline and the recorded elevation at Dist 0.5-12, even though
+    those points sit INSIDE the surveyed range (not extrapolated).
+    DECISION: accepted as spline noise, not investigated further for
+    now -- consistent with a field-level read on Buck'sLanding/
+    SanPablo specifically (both Ramped sites; GiantMarsh/CorteMadera,
+    both Scarped, didn't show this). Noted here and in the consistency
+    check's own output, not silently smoothed over or treated as
+    a registration bug requiring another fix.
+
+ALSO FLAGGED, NOT RESOLVED: Buck'sLanding has an unexpected 4th
+replicate at one point (B2-0.5d, alongside the usual a/b/c) in
+All_Sites_Calculated. Worth confirming whether that's a genuine extra
+reading or a labeling slip -- not something this file resolves.
+-->
+
+```{r, load packages and the crosswalk + functions}
+source("C:\\Users\\savan\\OneDrive - San Francisco State University\\ProjectData\\GitHub\\DepositionSFB\\code\\R\\setup.R")
+source("C:\\Users\\savan\\OneDrive - San Francisco State University\\ProjectData\\GitHub\\DepositionSFB\\code\\R\\transect_slope_crosswalk_FIXED.R")
+```
+
+```{r, rebase a transect's distances to its own pin}
+rebase_to_pin <- function(topo_df) {
+  pin_rows <- topo_df[grepl("pin", topo_df$Point_ID, ignore.case = TRUE), ]
+
+  if (nrow(pin_rows) != 1) {
+    stop("Expected exactly 1 pin row, found ", nrow(pin_rows),
+         " for transect(s): ", paste(unique(topo_df$Transect_ID), collapse = ", "))
+  }
+
+  pin_dist <- pin_rows$Distance_AlongTransect_m[1]
+  topo_df$Distance_AlongTransect_m <- topo_df$Distance_AlongTransect_m - pin_dist
+  topo_df
+}
+```
+
+```{r, load all four real topo files, restricted to thesis sampling transects}
+# Transect_ID lowercased on load -- normalizes GallinasCreek's
+# uppercase convention against everything else, once, here, rather
+# than special-casing it downstream.
+load_topo <- function(path) {
+  readr::read_csv(path) |>
+    mutate(Transect_ID = str_to_lower(Transect_ID)) |>
+    filter(Transect_ID %in% c("xsa", "xsb"))   # drops xsc/xsd where present
+}
+
+giant_marsh_topo   <- load_topo("C:\\Users\\savan\\OneDrive - San Francisco State University\\ProjectData\\GitHub\\DepositionSFB\\data\\GiantMarsh_06022025_LinRef.csv")
+corte_madera_topo  <- load_topo("C:\\Users\\savan\\OneDrive - San Francisco State University\\ProjectData\\GitHub\\DepositionSFB\\data\\CorteMadera_06162025_LinRef.csv")
+san_pablo_topo      <- load_topo("C:\\Users\\savan\\OneDrive - San Francisco State University\\ProjectData\\GitHub\\DepositionSFB\\data\\SonomaBaylands_06032025_LinRef.csv")
+bucks_landing_topo <- load_topo("C:\\Users\\savan\\OneDrive - San Francisco State University\\ProjectData\\GitHub\\DepositionSFB\\data\\GallinasCreek_06172025_LinRef.csv")
+
+# Rebase EACH transect separately -- each has its own pin at its own
+# position, confirmed different for every transect across all 4 sites.
+topo_data_by_transect <- list(
+  xsa = bind_rows(
+    giant_marsh_topo    |> filter(Transect_ID == "xsa") |> rebase_to_pin() |> mutate(Site = "GiantMarsh"),
+    corte_madera_topo   |> filter(Transect_ID == "xsa") |> rebase_to_pin() |> mutate(Site = "CorteMadera"),
+    san_pablo_topo      |> filter(Transect_ID == "xsa") |> rebase_to_pin() |> mutate(Site = "SanPablo"),
+    bucks_landing_topo  |> filter(Transect_ID == "xsa") |> rebase_to_pin() |> mutate(Site = "Buck'sLanding")
+  ),
+  xsb = bind_rows(
+    giant_marsh_topo    |> filter(Transect_ID == "xsb") |> rebase_to_pin() |> mutate(Site = "GiantMarsh"),
+    corte_madera_topo   |> filter(Transect_ID == "xsb") |> rebase_to_pin() |> mutate(Site = "CorteMadera"),
+    san_pablo_topo      |> filter(Transect_ID == "xsb") |> rebase_to_pin() |> mutate(Site = "SanPablo"),
+    bucks_landing_topo  |> filter(Transect_ID == "xsb") |> rebase_to_pin() |> mutate(Site = "Buck'sLanding")
+  )
+)
+
+# CAUTION: xsa/xsb are shared labels across all four sites -- the list
+# above bundles all four sites' xsa points together under one key.
+# Fine as long as every downstream lookup filters by Site first (see
+# the pmap below) -- if add_local_slope() is ever called without that
+# Site-first filter, it WILL silently blend different sites' elevation
+# profiles into one spline.
+```
+
+```{r, apply to the standard sediment pad distances}
+pad_dists <- c(0.5, 2, 6, 12, 18, 24, 48)
+
+slope_lookup <- transect_crosswalk |>
+  mutate(Topo_Transect_ID = str_to_lower(Topo_Transect_ID)) |>
+  filter(!is.na(Topo_Transect_ID))
+
+slope_check <- pmap_dfr(
+  list(slope_lookup$Site, slope_lookup$Tran, slope_lookup$Topo_Transect_ID),
+  function(Site, Tran, Topo_Transect_ID) {
+    topo_df <- topo_data_by_transect[[Topo_Transect_ID]]
+    topo_df <- topo_df[topo_df$Site == Site, ]
+
+    local_slope_and_elevation_at(topo_df, pad_dists) |>
+      mutate(
+        Site = Site,
+        Tran = Tran,
+        surveyed_min = min(topo_df$Distance_AlongTransect_m),
+        surveyed_max = max(topo_df$Distance_AlongTransect_m),
+        extrapolated = Dist < surveyed_min | Dist > surveyed_max
+      ) |>
+      relocate(Site, Tran)
+  }
+)
+
+slope_check
+
+# Written to disk so downstream files (e.g. a combined
+# elevation+wind+slope file) can read this directly instead of
+# re-deriving it from the topo files -- same "each covariate writes
+# its own CSV" pattern elevation, veg, and wind already follow. This
+# was a real gap before: slope_check only existed in memory.
+readr::write_csv(slope_check, "C:\\Users\\savan\\OneDrive - San Francisco State University\\ProjectData\\GitHub\\DepositionSFB\\data\\local_slope_thesis.csv")
+```
+
+```{r, extrapolated points -- flagged and kept, not dropped}
+# DECISION: these rows stay in slope_check and in any downstream join
+# -- extrapolated is a column, not a filter. Anyone using local_slope
+# in a model or plot can choose to exclude, weight, or footnote these
+# specific rows, but this file never removes them.
+slope_check |>
+  filter(extrapolated) |>
+  select(Site, Tran, Dist, local_slope, surveyed_min, surveyed_max)
+```
+
+```{r, consistency check against All_Sites_Calculated -- all 4 sites}
+all_sites_z <- readr::read_csv("C:\\Users\\savan\\OneDrive - San Francisco State University\\ProjectData\\GitHub\\DepositionSFB\\data\\All_Sites_Calculated (with z star).csv")
+
+site_tran_code <- tribble(
+  ~Site,           ~Tran, ~Transect_ID,
+  "GiantMarsh",    "T1",  "G1",
+  "GiantMarsh",    "T2",  "G2",
+  "CorteMadera",   "T1",  "C1",
+  "CorteMadera",   "T2",  "C2",
+  "SanPablo",      "T1",  "S1",
+  "SanPablo",      "T2",  "S2",
+  "Buck'sLanding", "T1",  "B1",
+  "Buck'sLanding", "T2",  "B2"
+)
+
+# Dist extraction uses a regex that stops at the first non-numeric
+# character after the hyphen -- correctly handles any replicate letter
+# (a/b/c, or the unexpected "d" at Buck'sLanding B2-0.5d) without
+# needing to special-case it.
+recorded_elev <- all_sites_z |>
+  inner_join(site_tran_code, by = "Transect_ID") |>
+  mutate(Dist = as.numeric(str_extract(Point_ID, "(?<=-)\\d+\\.?\\d*"))) |>
+  group_by(Site, Tran, Dist) |>
+  summarise(recorded_elevation_m = mean(Elevation_m, na.rm = TRUE), n_replicates = n(), .groups = "drop")
+
+# Flags Buck'sLanding's unexpected 4th replicate here, as data, rather
+# than silently averaging it in without comment.
+recorded_elev |>
+  filter(n_replicates != 3) |>
+  select(Site, Tran, Dist, n_replicates)
+
+slope_check |>
+  left_join(recorded_elev, by = c("Site", "Tran", "Dist")) |>
+  mutate(diff_m = fitted_elevation_m - recorded_elevation_m) |>
+  select(Site, Tran, Dist, fitted_elevation_m, recorded_elevation_m, diff_m, extrapolated) |>
+  arrange(Site, Tran, Dist)
+
+# DECISION on the Buck'sLanding T2 / SanPablo T2 near-edge gap (Dist
+# 0.5-12, non-extrapolated rows with diff_m > ~0.10): accepted as
+# spline noise, not investigated further. Consistent with a
+# field-level read on those two sites specifically -- both Ramped;
+# GiantMarsh/CorteMadera, both Scarped, didn't show this pattern.
+# Not smoothed over or silently dropped -- still visible in the table
+# above via diff_m, just not treated as a bug requiring another fix.
+```
+
+<!--
+NOT DONE HERE: joining local_slope onto elev_z_flux.csv itself. That
+needs elev_z_flux.csv to actually exist on disk (output of
+elevation_and_z_star.qmd, which itself needs master_thesis.csv) --
+not confirmed present alongside this file yet. Once elev_z_flux.csv is
+available, the join is:
+
+  elev_z_slope_flux <- elev_z_flux |>
+    left_join(transect_crosswalk, by = c("Site", "Tran")) |>
+    ... same add_local_slope() call as transect_slope_crosswalk_FIXED.R's
+    own Step 3.
+
+Carry the extrapolated flag through into that join too, not just this
+diagnostic file -- the flag-and-keep decision above only holds if the
+column survives past this point.
+-->

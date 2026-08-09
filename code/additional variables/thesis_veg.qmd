@@ -1,0 +1,149 @@
+---
+title: "thesis veg"
+format: html
+editor: visual
+---
+
+<!--
+Mirrors usgs_veg.qmd's structure, adapted for veg_final.xlsx's own
+column shapes. Chains onto elev_z_flux.csv (elevation_and_z_star.qmd's
+output) -- reads it, joins veg_final.xlsx on top, writes
+elev_z_veg_flux_long.csv.
+
+THIS FILE'S OUTPUT IS NOT AN INPUT TO master_analysis_flagtier.qmd,
+BY DESIGN, PERMANENTLY -- not a placeholder pending a future decision.
+master_analysis_flagtier.qmd keeps reading elev_z_flux.csv (elevation
+only) directly, unchanged. Multi-species fan-out means this table has
+more rows than one-per-flux-observation, so feeding it into tiering
+would silently inflate every Flux-based statistic tiering produces.
+elev_z_veg_flux_long.csv exists as its own parallel object for
+species-level visualization (SAPA_thesis/SPFO_thesis-style breakdowns),
+separate from the core tiering pipeline -- the same relationship
+usgs_elev_veg_flux_long.csv has to master_analysis_usgs.Rmd's sed_usgs.
+
+MULTI-SPECIES ROWS ARE KEPT INTENTIONALLY, NOT A PENDING DECISION.
+Confirmed: you want every species preserved per plot for per-species
+visualization (the SAPA_thesis/SPFO_thesis-style breakdowns already in
+veg.Rmd). So this file, like usgs_veg.qmd, joins in long form on
+purpose -- "_long" in the filename means "one row per species per flux
+observation, by design," not "not yet collapsed."
+
+CONSEQUENCE THAT STILL MATTERS: any Flux-based aggregate (mean flux,
+tier statistics, a model using Flux as the response) computed directly
+on this long-form table will double- or triple-count Flux at any plot
+with multiple species logged. That's fine for veg-focused visualization
+(you want to see Flux the ggplot ends up faceting/coloring by Species,
+where the repeated Flux rows are correct/expected), but NOT fine for
+anything computing Flux summary statistics or fitting a Flux ~ ...
+model without filtering to one species first (or otherwise handling
+the duplication). Keep both use cases in mind: this table is for
+species-level visualization, not a drop-in replacement for
+elev_z_flux.csv in a model.
+-->
+
+```{r, load packages}
+source("C:\\Users\\savan\\OneDrive - San Francisco State University\\ProjectData\\GitHub\\DepositionSFB\\code\\R\\setup.R")
+library(readxl)
+```
+
+```{r, load elevation-joined flux data and raw veg data}
+elev_z_flux <- readr::read_csv("C:\\Users\\savan\\OneDrive - San Francisco State University\\ProjectData\\GitHub\\DepositionSFB\\data\\elev_z_flux.csv")
+
+thesis_veg_raw <- read_excel("C:\\Users\\savan\\OneDrive - San Francisco State University\\ProjectData\\GitHub\\DepositionSFB\\data\\veg_final.xlsx")
+```
+
+```{r, clean thesis veg}
+# Site letter codes -> full names, same mapping as
+# master_analysis_cleanup.Rmd's own case_when (kept identical on
+# purpose so this matches whatever Site values elev_z_flux.csv has,
+# rather than inventing a second mapping that could drift from the
+# original). str_squish first -- "S " has a trailing space in the raw
+# file that would otherwise fail every San Pablo match silently.
+thesis_veg <- thesis_veg_raw |>
+  mutate(
+    Site = str_squish(as.character(Site)),
+    Site = case_when(
+      Site == "C" ~ "CorteMadera",
+      Site == "G" ~ "GiantMarsh",
+      Site == "B" ~ "Buck'sLanding",
+      Site == "S" ~ "SanPablo",
+      TRUE ~ "Other"
+    ),
+    AvgHt = ifelse(is.na(AvgHt), 0, AvgHt),
+    MaxHt = ifelse(is.na(MaxHt), 0, MaxHt),
+    Cover = as.numeric(Cover),
+    Month = str_to_title(str_squish(Month)),   # "FEBRUARY" -> "February"
+    Year  = str_squish(as.character(Year))
+  ) |>
+  # PlotID is already "T1-0.5" -- Tran and Dist separated by a hyphen,
+  # same recipe already used for thesis_veg in veg.Rmd, just PlotID
+  # instead of Plot_ID as the source column name.
+  separate(PlotID, into = c("Tran", "Dist"), sep = "-", remove = FALSE) |>
+  mutate(Dist = as.numeric(Dist))
+
+str(thesis_veg)
+
+# Confirms the (intentional) multi-species fan-out before it hits the
+# join -- same check as usgs_veg.qmd, kept for visibility, not because
+# it changes what happens next.
+thesis_veg |>
+  count(Site, Tran, Dist, Month, Year) |>
+  filter(n > 1) |>
+  nrow()
+```
+
+```{r, key the flux data to match}
+# Month is derived fresh here from Date.removed.from.field rather than
+# trusted off elev_z_flux.csv -- unlike usgs_veg.qmd (which could
+# confirm master_usgs.csv already carries a clean Month column),
+# there's no confirmation master_thesis.csv/elev_z_flux.csv has one at
+# all (master_analysis_cleanup.Rmd's visible code never derives it).
+# Deriving it locally keeps this file self-contained and avoids
+# assuming a column exists sight-unseen -- same defensive choice
+# usgs_thesis_merge.qmd already makes for both sides of that merge.
+study_month_levels <- c("July", "August", "September", "October",
+                         "November", "December", "January", "February",
+                         "March", "April", "May", "June")
+
+elev_z_flux_keyed <- elev_z_flux |>
+  mutate(
+    Site  = str_squish(as.character(Site)),
+    Tran  = str_squish(as.character(Tran)),
+    Dist  = as.numeric(as.character(Dist)),
+    Year  = str_squish(as.character(Year)),
+    Month = as.character(month(Date.removed.from.field, label = TRUE, abbr = FALSE))
+  )
+```
+
+```{r, join -- long form, species kept by design}
+# 5-key join (Site, Tran, Dist, Month, Year -- no Replicate), same
+# broadcast + time-match logic as usgs_veg.qmd: veg was surveyed once
+# per point per visit, not per individual sediment-trap replicate, so
+# every replicate (a/b/c) at a matching point+month gets the same
+# species rows.
+elev_z_veg_flux_long <- elev_z_flux_keyed |>
+  left_join(
+    thesis_veg |> select(Site, Tran, Dist, Month, Year, Species, Cover, AvgHt, MaxHt),
+    by = c("Site", "Tran", "Dist", "Month", "Year")
+  )
+
+readr::write_csv(elev_z_veg_flux_long, "C:\\Users\\savan\\OneDrive - San Francisco State University\\ProjectData\\GitHub\\DepositionSFB\\data\\elev_z_veg_flux_long.csv")
+```
+
+```{r, diagnostics}
+nrow(elev_z_flux_keyed)
+nrow(elev_z_veg_flux_long)
+nrow(elev_z_veg_flux_long) - nrow(elev_z_flux_keyed)   # rows added by species fan-out, expected and fine here
+
+# Coverage -- veg_final.xlsx only covers Feb/June 2026 so far (this
+# season's survey isn't complete), so most flux rows across the full
+# ~12-month campaign are expected to show has_veg = FALSE. Not a bug --
+# same kind of sparsity as the USGS veg join, just from an
+# still-in-progress collection rather than a fixed 3-visit design.
+elev_z_flux_keyed |>
+  left_join(
+    thesis_veg |> distinct(Site, Tran, Dist, Month, Year) |> mutate(has_veg = TRUE),
+    by = c("Site", "Tran", "Dist", "Month", "Year")
+  ) |>
+  count(has_veg)
+```

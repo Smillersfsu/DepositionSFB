@@ -1,0 +1,114 @@
+---
+title: "thesis covariates combined"
+format: html
+editor: visual
+---
+
+<!--
+Combines the three "merge into core pipeline" covariates -- elevation,
+wind, and slope -- into one file, matching the categorization decided
+earlier this session: elevation/slope/wind/tidal merge into the
+tiering pipeline, veg and storm periods stay separate (see
+thesis_veg.qmd / usgs_veg.qmd's own notes on why). Tidal isn't built
+yet -- picking that up in the next session, per your own plan. This
+file is meant to eventually replace elev_z_flux.csv as
+master_analysis_flagtier.qmd's input; that swap isn't made here (see
+closing note), since it's a real pipeline change worth doing
+deliberately, not as a side effect of this file existing.
+
+JOIN GRANULARITY, WORTH BEING EXPLICIT ABOUT: elevation and wind are
+already present in elev_z_wind_flux.csv at the Site+Tran+Dist+
+Replicate level (elevation was surveyed per replicate position; wind
+is a per-deployment-window value broadcast across whatever rows share
+that window). Slope is NOT replicate-specific -- it's a property of
+the transect line at a given distance, from the dense along-transect
+survey, independent of which individual replicate sits there. So the
+join below is Site+Tran+Dist (3 keys, no Replicate) for slope, even
+though the base table already has a Replicate column -- every
+replicate at a given point gets the same local_slope value, same
+broadcast logic as the USGS elevation/veg joins.
+
+COVERAGE INHERITED FROM UPSTREAM, NOT NEW HERE: slope only exists for
+GiantMarsh and CorteMadera's rebased range -- SanPablo and
+Buck'sLanding coverage was completed this session (see
+thesis_slope.qmd), so all 4 sites should now have slope, but the
+extrapolated flag and the accepted Buck'sLanding/SanPablo near-edge
+noise both carry through unchanged, not re-decided here. Wind only
+covers the July 2025-June 2026 campaign -- July 2022-June 2023 rows
+will have NA wind metrics, inherited from elev_z_wind_flux.csv.
+-->
+
+```{r, load packages}
+source("C:\\Users\\savan\\OneDrive - San Francisco State University\\ProjectData\\GitHub\\DepositionSFB\\code\\R\\setup.R")
+```
+
+```{r, load elevation+wind and slope}
+elev_z_wind_flux <- readr::read_csv("C:\\Users\\savan\\OneDrive - San Francisco State University\\ProjectData\\GitHub\\DepositionSFB\\data\\elev_z_wind_flux.csv")
+
+local_slope_thesis <- readr::read_csv("C:\\Users\\savan\\OneDrive - San Francisco State University\\ProjectData\\GitHub\\DepositionSFB\\data\\local_slope_thesis.csv")
+```
+
+```{r, key both sides consistently before joining}
+elev_z_wind_flux_keyed <- elev_z_wind_flux |>
+  mutate(
+    Site = str_squish(as.character(Site)),
+    Tran = str_squish(as.character(Tran)),
+    Dist = as.numeric(as.character(Dist))
+  )
+
+local_slope_keyed <- local_slope_thesis |>
+  mutate(
+    Site = str_squish(as.character(Site)),
+    Tran = str_squish(as.character(Tran)),
+    Dist = as.numeric(as.character(Dist))
+  ) |>
+  select(Site, Tran, Dist, local_slope, fitted_elevation_m, extrapolated) |>
+  rename(slope_fitted_elevation_m = fitted_elevation_m)   # avoid colliding with the base table's own Elevation_m
+```
+
+```{r, join -- broadcast slope across replicates, same pattern as USGS elevation/veg}
+elev_z_wind_slope_flux <- elev_z_wind_flux_keyed |>
+  left_join(local_slope_keyed, by = c("Site", "Tran", "Dist"))
+
+readr::write_csv(elev_z_wind_slope_flux, "C:\\Users\\savan\\OneDrive - San Francisco State University\\ProjectData\\GitHub\\DepositionSFB\\data\\elev_z_wind_slope_flux.csv")
+
+nrow(elev_z_wind_slope_flux) == nrow(elev_z_wind_flux)   # confirms no fan-out or row loss from this join
+```
+
+```{r, coverage diagnostics -- confirms what's present, fixes nothing}
+# How many rows have each covariate, and how many have all three --
+# expected to be less than 100% for slope (SanPablo/Buck'sLanding
+# coverage just added, worth confirming it actually joined) and for
+# wind (2022-2023 rows will show FALSE).
+elev_z_wind_slope_flux |>
+  summarise(
+    n_total = n(),
+    has_elevation = sum(!is.na(Elevation_m)),
+    has_wind = sum(!is.na(mean_wind_speed_kt)),
+    has_slope = sum(!is.na(local_slope)),
+    has_all_three = sum(!is.na(Elevation_m) & !is.na(mean_wind_speed_kt) & !is.na(local_slope))
+  )
+
+# Breakdown by Site -- confirms slope coverage reaches all 4 sites now,
+# not just the 2 that had topo data earlier this session.
+elev_z_wind_slope_flux |>
+  group_by(Site) |>
+  summarise(
+    n = n(),
+    has_slope = sum(!is.na(local_slope)),
+    has_wind = sum(!is.na(mean_wind_speed_kt)),
+    .groups = "drop"
+  )
+```
+
+<!--
+NOT DONE HERE: pointing master_analysis_flagtier.qmd at
+elev_z_wind_slope_flux.csv instead of elev_z_flux.csv. That's the
+actual pipeline swap that makes this file matter -- tiering currently
+still reads elevation-only data. Worth doing deliberately (confirm the
+coverage summary above looks right first) rather than as an implicit
+side effect of this file existing on disk.
+
+NOT DONE HERE: tidal. Next session, per your own plan -- this file
+only combines the three covariates that were actually ready today.
+-->

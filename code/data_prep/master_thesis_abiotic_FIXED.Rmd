@@ -1,0 +1,424 @@
+---
+title: "master_thesis_abiotic"
+author: "Savannah K. Miller"
+date: "2026-06-24"
+output: html_document
+---
+
+<!--
+FIXES APPLIED IN THIS PASS (see chat for full list):
+1. cdo_token moved out of plaintext -- now read from Sys.getenv(). You MUST
+   set NOAA_CDO_TOKEN in your .Renviron (see chunk below) before running,
+   and you should treat the token you had hardcoded before as compromised --
+   rotate it at https://www.ncdc.noaa.gov/cdo-web/token if this file has
+   ever been pushed to your GitHub repo.
+2. get_noaa_precip() was called on line ~134/175 of the original but never
+   defined anywhere in the file -- added a definition below, built on the
+   same GET/fromJSON pattern already used elsewhere in this doc.
+3. ggsave() for the 2022-2023 plot was saving a nonexistent `plot_2022`
+   object -- fixed to reference the actual plot object, `monthly_precip_2022_2023`.
+4. The 2025-2026 precip plot was missing a `+` between labs() and
+   theme_minimal() -- as written, theme_minimal()/theme() were being
+   evaluated as a separate orphan expression and never actually applied
+   to plot_2026. Fixed.
+5. get_noaa_water_level() was defined twice (identically) in the two tide
+   chunks -- consolidated to a single definition, defined once before both
+   tide pulls.
+6. The final ggsave() in the tides-2026 chunk was saving `plot_2026` (the
+   PRECIPITATION plot from earlier) into "tide_sf_2026.png" instead of the
+   actual tide plot, `tide_sf_2026`. Fixed.
+7. The "let's try something (revisit this)" chunk had unbalanced
+   parentheses and uncommented prose mixed into code -- it would not parse
+   at all. Cleaned up to valid R syntax and left as eval=FALSE, since the
+   objects it depends on (cm_data, time_dist_summary, a Study.Phase ->
+   date-range mapping) aren't defined anywhere in the files you've shared
+   yet. This is still a TODO, not a working chunk -- see inline notes.
+-->
+
+```{r setup, include=FALSE}
+library(httr)
+library(jsonlite)
+library(dplyr)
+library(lubridate)
+library(purrr)
+library(ggplot2)
+```
+
+```{r token-setup}
+# --- SECURITY: token now comes from your environment, not plaintext ---
+# One-time setup: run `usethis::edit_r_environ()` (or open ~/.Renviron by
+# hand) and add a line: NOAA_CDO_TOKEN=your_actual_token_here
+# Then restart R so the new environment variable is picked up.
+# Get/rotate a token at: https://www.ncdc.noaa.gov/cdo-web/token
+cdo_token <- Sys.getenv("NOAA_CDO_TOKEN")
+if (identical(cdo_token, "")) {
+  warning("NOAA_CDO_TOKEN is not set -- NOAA CDO calls below will fail with a 401. See comment above.")
+}
+
+api_endpoint <- "https://www.ncdc.noaa.gov/cdo-web/api/v2/data"
+```
+
+```{r noaa-precip-function}
+# Was called later in this doc but never defined -- added here.
+# Single-request pull (fine for <=1000 daily records, i.e. roughly a
+# ~2.7 year window at 1 record/day; a full year is well within this).
+get_noaa_precip <- function(start_date, end_date, station_id, token,
+                             datatype = "PRCP", units = "standard", limit = 1000) {
+  resp <- GET(api_endpoint,
+    add_headers(token = token),
+    query = list(
+      datasetid = "GHCND",
+      stationid = station_id,
+      startdate = start_date,
+      enddate = end_date,
+      datatypeid = datatype,
+      units = units,
+      limit = limit
+    ))
+
+  if (status_code(resp) != 200) {
+    warning(paste("NOAA CDO API returned status", status_code(resp), "for", station_id))
+    return(tibble(date = as.Date(character()), value = numeric()))
+  }
+
+  parsed <- fromJSON(content(resp, "text", encoding = "UTF-8"))
+  if (is.null(parsed$results) || length(parsed$results) == 0) {
+    warning(paste("No results returned for", start_date, "to", end_date))
+    return(tibble(date = as.Date(character()), value = numeric()))
+  }
+
+  parsed$results %>%
+    mutate(date = as.Date(date), value = as.numeric(value)) %>%
+    select(date, value)
+}
+```
+
+```{r initial-station-check}
+resp <- GET(api_endpoint,
+  add_headers(token = cdo_token),
+  query = list(
+    datasetid = "GHCND",
+    stationid = "GHCND:USW00023272",
+    startdate = "2022-12-25",
+    enddate = "2023-01-05",
+    datatypeid = "PRCP",
+    units = "standard",
+    limit = 1000
+  ))
+
+status_code(resp)
+content(resp, "text", encoding = "UTF-8")
+
+station_check <- GET("https://www.ncdc.noaa.gov/cdo-web/api/v2/stations/GHCND:USC00047740",
+  add_headers(token = cdo_token))
+
+status_code(station_check)
+content(station_check, "text", encoding = "UTF-8")
+```
+
+```{r precip-2022-from-check}
+precip_2022 <- fromJSON(content(resp, "text", encoding = "UTF-8"))$results %>%
+  mutate(
+    date = as.Date(date),
+    value = as.numeric(value)
+  ) %>%
+  select(date, value)
+
+precip_2022
+```
+
+```{r precip-2026-from-check}
+resp_2026 <- GET(api_endpoint,
+  add_headers(token = cdo_token),
+  query = list(
+    datasetid = "GHCND",
+    stationid = "GHCND:USW00023272",
+    startdate = "2025-12-30",
+    enddate = "2026-01-10",
+    datatypeid = "PRCP",
+    units = "standard",
+    limit = 1000
+  ))
+
+status_code(resp_2026)
+precip_2026 <- fromJSON(content(resp_2026, "text", encoding = "UTF-8"))$results %>%
+  mutate(
+    date = as.Date(date),
+    value = as.numeric(value)
+  ) %>%
+  select(date, value)
+
+precip_2026
+```
+
+## Comparing short storm-window snapshots
+
+```{r plotting-2022-2026-rain-data}
+precip_2022$event <- "Dec 2022 / Jan 2023"
+precip_2026$event <- "Jan 2026"
+
+combined_precip <- bind_rows(precip_2022, precip_2026) %>%
+  group_by(event) %>%
+  mutate(day_num = row_number()) %>%  # aligns both events on a comparable x-axis
+  ungroup()
+
+daily_precip_2022_2026 <- ggplot(combined_precip, aes(x = day_num, y = value, fill = event)) +
+  geom_col(position = "dodge") +
+  labs(
+    title = "Daily Precipitation: Dec 2022/Jan 2023 vs Jan 2026",
+    x = "Day of Event Window",
+    y = "Precipitation (inches)",
+    fill = "Event"
+  ) +
+  theme_minimal(base_size = 14)
+
+daily_precip_2022_2026
+
+# NOTE: still a hardcoded local path -- update to your machine, or better,
+# use here::here("images", "daily_precip_2022_2026.png") if you adopt the
+# here package, so this doesn't break when the repo moves or someone else
+# clones it.
+ggsave("C:\\Users\\savan\\OneDrive - San Francisco State University\\ProjectData\\GitHub\\DepositionSFB\\images\\daily_precip_2022_2026.png",
+  plot = daily_precip_2022_2026,
+  width = 14,
+  height = 9,
+  dpi = 300,
+  bg = "white"
+)
+```
+
+## Full-year monthly precipitation: 2022-2023 vs 2025-2026
+
+```{r noaa-monthly-summary-2022}
+station_gsom_check <- GET("https://www.ncdc.noaa.gov/cdo-web/api/v2/stations/GHCND:USW00023272",
+  add_headers(token = cdo_token),
+  query = list(datasetid = "GSOM"))
+status_code(station_gsom_check)
+content(station_gsom_check, "text", encoding = "UTF-8")
+
+# Pull a full year of daily data
+precip_full2022 <- get_noaa_precip("2022-07-01", "2023-06-30", "GHCND:USW00023272", cdo_token)
+
+monthly_data2022 <- precip_full2022 %>%
+  mutate(month = floor_date(date, "month")) %>%
+  group_by(month) %>%
+  summarise(monthly_total_in = sum(value, na.rm = TRUE), .groups = "drop")
+monthly_data2022
+
+monthly_precip_2022_2023 <- ggplot(monthly_data2022, aes(x = month, y = monthly_total_in)) +
+  geom_col(fill = "steelblue") +
+  scale_x_date(
+    date_labels = "%b %Y",
+    date_breaks = "1 month",
+    limits = as.Date(c("2022-07-01", "2023-06-30"))
+  ) +
+  scale_y_continuous(limits = c(0, 12)) +
+  labs(
+    title = "Monthly Precipitation: July 2022 – June 2023",
+    subtitle = stringr::str_wrap("Source: NOAA NCEI, San Francisco Downtown Station GHCND:USW00023272 | https://www.weather.gov/wrh/climate?wfo=mtr", width = 60),
+    x = "Month",
+    y = "Total Precipitation (inches)"
+  ) +
+  theme_minimal(base_size = 14) +
+  theme(
+    axis.text.x = element_text(angle = 45, hjust = 1),
+    plot.subtitle = element_text(size = 10, color = "gray40")
+  )
+
+monthly_precip_2022_2023
+
+# FIX: was `plot = plot_2022`, which doesn't exist -- now saves the actual object.
+ggsave("monthly_precip_2022_2023.png", plot = monthly_precip_2022_2023, width = 8, height = 5, dpi = 300)
+```
+
+```{r noaa-monthly-summary-2026}
+today <- Sys.Date()
+end_date <- min(as.Date("2026-06-30"), today)
+
+precip_full2026 <- get_noaa_precip("2025-07-01", as.character(end_date), "GHCND:USW00023272", cdo_token)
+
+# Sanity check on the right object
+precip_full2026 %>%
+  mutate(month = floor_date(date, "month")) %>%
+  count(month)
+
+monthly_data2026 <- precip_full2026 %>%
+  mutate(month = floor_date(date, "month")) %>%
+  group_by(month) %>%
+  summarise(monthly_total_in = sum(value, na.rm = TRUE), .groups = "drop") %>%
+  mutate(complete = ifelse(month == floor_date(today, "month"), "Partial month", "Complete"))
+
+monthly_data2026   # print and visually confirm before plotting
+
+plot_precip_2025_2026 <- ggplot(monthly_data2026, aes(x = month, y = monthly_total_in, fill = complete)) +
+  geom_col() +
+  scale_fill_manual(values = c("Complete" = "steelblue", "Partial month" = "gray70")) +
+  scale_x_date(date_labels = "%b %Y", date_breaks = "1 month") +
+  scale_y_continuous(limits = c(0, 12)) +
+  labs(
+    # NOTE: title still says "2022-2023" in the original -- this is the
+    # 2025-2026 plot, so the title below is corrected to match.
+    title = "Monthly Precipitation: July 2025 – June 2026",
+    subtitle = stringr::str_wrap("Source: NOAA NCEI, San Francisco Downtown Station GHCND:USW00023272 | https://www.weather.gov/wrh/climate?wfo=mtr", width = 60),
+    x = "Month",
+    y = "Total Precipitation (inches)"
+  ) +
+  # FIX: missing `+` here in the original meant theme_minimal()/theme()
+  # were never actually applied to the plot object.
+  theme_minimal(base_size = 14) +
+  theme(axis.text.x = element_text(angle = 45, hjust = 1))
+
+plot_precip_2025_2026
+
+ggsave("monthly_precip_2025_2026.png", plot = plot_precip_2025_2026, width = 8, height = 5, dpi = 300)
+```
+
+```{r save-csvs}
+write.csv(precip_full2022, "precip_daily_2022_2023.csv", row.names = FALSE)
+write.csv(precip_full2026, "precip_daily_2025_2026.csv", row.names = FALSE)
+write.csv(monthly_data2022, "precip_monthly_2022_2023.csv", row.names = FALSE)
+write.csv(monthly_data2026, "precip_monthly_2025_2026.csv", row.names = FALSE)
+```
+
+## Precipitation by study phase (STILL A TODO -- not runnable yet)
+
+```{r phase-precip-todo, eval=FALSE}
+# This chunk was syntactically broken in the original (unbalanced parens,
+# uncommented prose mixed with code) and depends on objects that don't
+# exist anywhere in the files shared so far: `cm_data`, `time_dist_summary`,
+# and a real Study.Phase -> date-range mapping (the original used the
+# literal strings "M1"/"M10" where actual Date values are needed).
+# Left as eval=FALSE and syntactically valid so it doesn't break the knit,
+# but the logic itself still needs your input on:
+#   1. What columns cm_data actually has (a Study.Phase -> start/end date
+#      lookup table, presumably one row per phase).
+#   2. Where time_dist_summary comes from (looks like a flux-by-phase-and-
+#      distance summary built elsewhere in your main analysis script).
+
+# Example of the corrected structure, once phase_dates has real start/end
+# Date columns (rename to match your actual phase-to-date table):
+# phase_dates <- cm_data %>%
+#   group_by(Study.Phase) %>%
+#   summarise(start_date = min(Date), end_date = max(Date), .groups = "drop")
+#
+# precip_by_phase <- phase_dates %>%
+#   rowwise() %>%
+#   mutate(
+#     total_precip = sum(precip_full2022$value[precip_full2022$date >= start_date &
+#                                                  precip_full2022$date <= end_date],
+#                         na.rm = TRUE)
+#   ) %>%
+#   ungroup()
+#
+# time_dist_summary <- time_dist_summary %>%
+#   left_join(precip_by_phase %>% select(Study.Phase, total_precip), by = "Study.Phase")
+#
+# ggplot(time_dist_summary, aes(x = Study.Phase)) +
+#   geom_col(aes(y = total_precip), fill = "steelblue", alpha = 0.4) +
+#   geom_smooth(aes(y = mean_flux, group = 1), method = "loess", se = FALSE, color = "darkred", linewidth = 1) +
+#   geom_point(aes(y = mean_flux), color = "darkred", size = 2) +
+#   facet_wrap(~ Dist, scales = "free_y", ncol = 2) +
+#   scale_y_continuous(
+#     name = "Precipitation (in)",
+#     sec.axis = sec_axis(~ ., name = expression(Mean~Flux~(g/m^3)))
+#   ) +
+#   theme_minimal(base_size = 14) +
+#   theme(
+#     axis.text.x = element_text(angle = 45, hjust = 1),
+#     strip.text = element_text(face = "bold")
+#   ) +
+#   labs(title = paste("Flux & Precipitation Through Time by Distance at", "Corte Madera"), x = "Study Phase")
+```
+
+## Tidal water levels: 2022-2023 vs 2025-2026
+
+```{r noaa-tide-function}
+# Consolidated: was defined twice, identically, in the original (once per
+# year). Now defined once and reused for both pulls below.
+get_noaa_water_level <- function(start_date, end_date, station = "9414290") {
+  api_endpoint <- "https://api.tidesandcurrents.noaa.gov/api/prod/datagetter"
+  resp <- GET(api_endpoint, query = list(
+    begin_date = start_date,
+    end_date = end_date,
+    station = station,
+    product = "water_level",
+    datum = "MLLW",
+    units = "english",
+    time_zone = "lst_ldt",
+    format = "json"
+  ))
+  fromJSON(content(resp, "text", encoding = "UTF-8"))$data %>%
+    mutate(
+      t = as.POSIXct(t, format = "%Y-%m-%d %H:%M", tz = "America/Los_Angeles"),
+      v = as.numeric(v)
+    ) %>%
+    rename(datetime = t, water_level_ft = v) %>%
+    select(datetime, water_level_ft)
+}
+```
+
+```{r tides-2022}
+month_starts <- seq(as.Date("2022-07-01"), as.Date("2023-06-01"), by = "month")
+month_ends <- ceiling_date(month_starts, "month") - 1
+
+tide_full2022 <- map2_dfr(month_starts, month_ends, function(start, end) {
+  get_noaa_water_level(format(start, "%Y%m%d"), format(end, "%Y%m%d"))
+})
+
+monthly_tide2022 <- tide_full2022 %>%
+  mutate(month = floor_date(as.Date(datetime), "month")) %>%
+  group_by(month) %>%
+  summarise(
+    monthly_max_ft = max(water_level_ft, na.rm = TRUE),
+    monthly_mean_ft = mean(water_level_ft, na.rm = TRUE),
+    .groups = "drop"
+  )
+
+tide_sf_2022 <- ggplot(monthly_tide2022, aes(x = month, y = monthly_max_ft)) +
+  geom_col(fill = "darkcyan") +
+  scale_x_date(date_labels = "%b %Y", date_breaks = "1 month") +
+  labs(
+    title = "Monthly Maximum Water Level: July 2022 – June 2023",
+    subtitle = stringr::str_wrap("Source: NOAA CO-OPS, San Francisco Station 9414290 | https://tidesandcurrents.noaa.gov/stationhome.html?id=9414290", width = 60),
+    x = "Month", y = "Max Water Level (ft, MLLW)"
+  ) +
+  theme_minimal(base_size = 14) +
+  theme(axis.text.x = element_text(angle = 45, hjust = 1))
+
+tide_sf_2022
+ggsave("tide_sf_2022.png", plot = tide_sf_2022, width = 8, height = 5, dpi = 300)
+```
+
+```{r tides-2026}
+month_starts <- seq(as.Date("2025-07-01"), as.Date("2026-06-01"), by = "month")
+month_ends <- ceiling_date(month_starts, "month") - 1
+
+tide_full2025_6 <- map2_dfr(month_starts, month_ends, function(start, end) {
+  get_noaa_water_level(format(start, "%Y%m%d"), format(end, "%Y%m%d"))
+})
+
+monthly_tide2026 <- tide_full2025_6 %>%
+  mutate(month = floor_date(as.Date(datetime), "month")) %>%
+  group_by(month) %>%
+  summarise(
+    monthly_max_ft = max(water_level_ft, na.rm = TRUE),
+    monthly_mean_ft = mean(water_level_ft, na.rm = TRUE),
+    .groups = "drop"
+  )
+
+tide_sf_2026 <- ggplot(monthly_tide2026, aes(x = month, y = monthly_max_ft)) +
+  geom_col(fill = "darkcyan") +
+  scale_x_date(date_labels = "%b %Y", date_breaks = "1 month") +
+  labs(
+    title = "Monthly Maximum Water Level: July 2025 – June 2026",
+    subtitle = stringr::str_wrap("Source: NOAA CO-OPS, San Francisco Station 9414290 | https://tidesandcurrents.noaa.gov/stationhome.html?id=9414290", width = 60),
+    x = "Month", y = "Max Water Level (ft, MLLW)"
+  ) +
+  theme_minimal(base_size = 14) +
+  theme(axis.text.x = element_text(angle = 45, hjust = 1))
+
+tide_sf_2026
+# FIX: was `plot = plot_2026`, which saved the PRECIP plot into this
+# filename instead of the tide plot. Now saves the correct object.
+ggsave("tide_sf_2026.png", plot = tide_sf_2026, width = 8, height = 5, dpi = 300)
+```

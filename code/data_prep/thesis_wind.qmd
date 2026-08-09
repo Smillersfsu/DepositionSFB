@@ -1,0 +1,194 @@
+---
+title: "thesis wind"
+format: html
+editor: visual
+---
+
+<!--
+Chains onto elev_z_flux.csv (elevation_and_z_star.qmd's output), same
+"join before tier" position as veg and (eventually) slope. Computes
+mean wind speed (and max gust) over each sediment trap's actual
+deployment window -- Date.placed.in.field to Date.removed.from.field
+-- not a calendar-month average. Writes elev_z_wind_flux.csv.
+
+SITE -> STATION MAPPING (as given, not yet corrected):
+  CorteMadera, GiantMarsh, Buck'sLanding -> station 9414863
+  SanPablo                                -> station 9415141
+Known limitation, not fixed here: three sites currently share one
+buoy's readings, which may not reflect real local wind conditions at
+each of those three marshes individually. Flagged for later
+correction, per your own note -- not addressed in this file.
+
+COVERAGE GAP, REAL AND UNAVOIDABLE WITH CURRENT DATA: both station
+files only cover 1/1/2025 through 7/13/2026. That covers the July
+2025-June 2026 main campaign. It does NOT cover the July 2022-June
+2023 repeat-year subset (2 marshes) -- those deployment windows will
+get NA wind metrics, not a fabricated value. This also means USGS
+flux data (entirely 2022-2023) cannot get wind metrics from this data
+at all -- no usgs_wind.qmd built here for that reason; it would be
+100% NA rows, not a useful file.
+
+DUPLICATE COLUMN NAME IN THE RAW FILES: both CSVs have two columns
+literally named "Direction" -- one numeric degrees (e.g. 113), one
+compass abbreviation (e.g. "ESE"). R's read.csv() will auto-rename the
+second to "Direction.1" by default; renamed explicitly below to
+Direction_deg / Direction_compass so this isn't left to an implicit
+default someone has to rediscover later.
+
+MISSING READINGS: San Pablo's station has 44 missing Speed values
+(gaps in the hourly record) -- handled with na.rm = TRUE in the
+averaging, not imputed.
+-->
+
+```{r, load packages}
+source("C:\\Users\\savan\\OneDrive - San Francisco State University\\ProjectData\\GitHub\\DepositionSFB\\code\\R\\setup.R")
+library(lubridate)
+```
+
+```{r, site to station crosswalk}
+site_station_map <- tribble(
+  ~Site,             ~station_id,
+  "CorteMadera",     "9414863",
+  "GiantMarsh",      "9414863",
+  "Buck'sLanding",   "9414863",
+  "SanPablo",        "9415141"
+)
+```
+
+```{r, load and clean both wind station files}
+load_wind_station <- function(path, station_id) {
+  raw <- read.csv(path, check.names = FALSE)
+  # Explicit rename -- do not rely on read.csv's automatic ".1"
+  # suffixing for the duplicate "Direction" columns; name by content
+  # (first is numeric degrees, second is compass abbreviation),
+  # confirmed by inspecting the raw column order directly.
+  names(raw) <- c("datetime_raw", "wind_speed_kt", "direction_deg",
+                   "direction_compass", "gust_kt", "x_flag", "r_flag")
+
+  raw |>
+    mutate(
+      datetime = mdy_hm(datetime_raw),
+      wind_speed_kt = as.numeric(wind_speed_kt),
+      gust_kt = as.numeric(gust_kt),
+      station_id = station_id
+    ) |>
+    select(station_id, datetime, wind_speed_kt, direction_deg, direction_compass, gust_kt)
+}
+
+wind_9414863 <- load_wind_station(
+  "C:\\Users\\savan\\OneDrive - San Francisco State University\\ProjectData\\GitHub\\DepositionSFB\\data\\CO-OPS__9414863_Corte-Madera-Marsh_and_Giant-Marsh_and_Bucks.csv",
+  "9414863"
+)
+wind_9415141 <- load_wind_station(
+  "C:\\Users\\savan\\OneDrive - San Francisco State University\\ProjectData\\GitHub\\DepositionSFB\\data\\CO-OPS__9415141_San-Pablo-NWR.csv",
+  "9415141"
+)
+
+wind_by_station <- list(`9414863` = wind_9414863, `9415141` = wind_9415141)
+
+# Confirms the coverage window rather than assuming it -- re-run this
+# if the station files are ever refreshed with more data.
+range(wind_9414863$datetime, na.rm = TRUE)
+range(wind_9415141$datetime, na.rm = TRUE)
+sum(is.na(wind_9415141$wind_speed_kt))
+```
+
+```{r, compute mean wind speed over a deployment window}
+# Not a calendar-month average -- averages every hourly reading whose
+# timestamp falls within [deploy_start, deploy_end], inclusive. Returns
+# n_obs alongside the mean so a window with very few matching readings
+# (partial station coverage, or a short deployment) is visible rather
+# than looking identical to a well-covered one.
+# BOUNDARY ASSUMPTION, FLAGGED NOT RESOLVED: deploy_start/deploy_end
+# are Date (calendar day), while station timestamps are full
+# datetimes. R will coerce Date to midnight (00:00) for the
+# comparison, so deploy_end effectively means "through the start of
+# the removal day," not "through the end of it" -- readings from
+# 1am-11pm on the actual removal day get excluded. Over a ~30-day
+# window this is unlikely to move a mean much, but it's a real
+# simplification, not something to assume away silently. If you want
+# the full removal day included, change deploy_end below to
+# `deploy_end + hours(23) + minutes(59)` (or similar) before comparing.
+wind_metrics_for_window <- function(station_id, deploy_start, deploy_end) {
+  station_df <- wind_by_station[[as.character(station_id)]]
+
+  in_window <- station_df |>
+    filter(datetime >= deploy_start, datetime <= deploy_end)
+
+  tibble(
+    mean_wind_speed_kt = mean(in_window$wind_speed_kt, na.rm = TRUE),
+    max_gust_kt = max(in_window$gust_kt, na.rm = TRUE),
+    n_obs = sum(!is.na(in_window$wind_speed_kt))
+  )
+}
+```
+
+```{r, load elevation-joined flux data, get distinct deployment windows}
+elev_z_flux <- readr::read_csv("C:\\Users\\savan\\OneDrive - San Francisco State University\\ProjectData\\GitHub\\DepositionSFB\\data\\elev_z_flux.csv")
+
+# Keyed on the ACTUAL placed/removed dates per Site, not assumed
+# uniform across Tran/Dist/Replicate within a nominal collection round
+# -- avoids redundant computation (many rows share a window) without
+# assuming something about the field logistics that isn't confirmed.
+deployment_windows <- elev_z_flux |>
+  distinct(Site, Date.placed.in.field, Date.removed.from.field) |>
+  left_join(site_station_map, by = "Site")
+
+# Any Site with no station mapping at all would show up here as NA
+# station_id -- confirms the crosswalk covers every Site actually
+# present in the flux data before relying on it.
+deployment_windows |> filter(is.na(station_id)) |> distinct(Site)
+```
+
+```{r, apply wind_metrics_for_window to every distinct deployment}
+wind_by_window <- deployment_windows |>
+  rowwise() |>
+  mutate(
+    wind_metrics_for_window(station_id, Date.placed.in.field, Date.removed.from.field)
+  ) |>
+  ungroup()
+
+wind_by_window
+```
+
+```{r, coverage diagnostics -- documents the 2022-2023 gap, fixes nothing}
+# Deployment windows with n_obs = 0 -- expected for anything in the
+# July 2022-June 2023 repeat-year subset, since the wind stations
+# don't have data that far back. Confirms the size of that gap rather
+# than assuming it.
+wind_by_window |>
+  filter(n_obs == 0) |>
+  count(Site)
+
+wind_by_window |>
+  filter(n_obs > 0) |>
+  count(Site)
+```
+
+```{r, join onto elev_z_flux and write}
+elev_z_wind_flux <- elev_z_flux |>
+  left_join(
+    wind_by_window |> select(Site, Date.placed.in.field, Date.removed.from.field,
+                              mean_wind_speed_kt, max_gust_kt, n_obs),
+    by = c("Site", "Date.placed.in.field", "Date.removed.from.field")
+  )
+
+readr::write_csv(elev_z_wind_flux, "C:\\Users\\savan\\OneDrive - San Francisco State University\\ProjectData\\GitHub\\DepositionSFB\\data\\elev_z_wind_flux.csv")
+
+nrow(elev_z_wind_flux) == nrow(elev_z_flux)   # confirms the join didn't fan out or drop rows
+```
+
+<!--
+NOT DONE HERE: combining this with veg (elev_z_veg_flux_long.csv,
+kept separate on purpose -- see that file) or slope (not yet actually
+joined onto elev_z_flux.csv at all -- see thesis_slope.qmd) into one
+single pre-tier file. Wind, elevation, and eventually slope and tidal
+are the "merge into core pipeline" covariates per your own
+categorization; veg and storm periods stay separate. This file only
+handles wind's own join -- reconciling all of elevation + slope + wind
++ tidal into one file feeding master_analysis_flagtier.qmd is a
+separate integration step, not done yet.
+
+ALSO NOT DONE: correcting the three-sites-one-buoy mapping. Flagged in
+the header, not addressed -- per your own note, for later.
+-->

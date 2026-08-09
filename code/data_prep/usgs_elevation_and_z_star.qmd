@@ -1,0 +1,118 @@
+---
+title: "usgs elevation and z star"
+format: html
+editor: visual
+---
+
+<!--
+Mirrors elevation_and_z_star.qmd's role in the thesis pipeline: joins
+elevation/z* onto the flux data BEFORE tiering, so tiering (here, the
+Bay/River split + Marsh_Area assignment in master_analysis_usgs.Rmd) has
+a fully-populated row set to work with.
+
+DIFFERENCES FROM THE THESIS VERSION -- these aren't bugs, just real
+structural differences confirmed against master_usgs.csv and
+usgs_locations_z.csv:
+  - Join key is Site + Tran + Dist (3 keys). There is NO Replicate column
+    in usgs_locations_z.csv -- one elevation/z* value per Site+Tran+Dist,
+    broadcast across whichever replicate rows share that point. The
+    thesis version joins on 4 keys (adds Replicate) because thesis
+    surveyed elevation per individual replicate position; USGS didn't.
+  - usgs_locations_z.csv's Site column has spaces ("Corte Madera") --
+    stripped here to match master_usgs.csv's spaceless convention
+    ("CorteMadera"), same fix pattern as the GiantMarsh bug from the
+    session status doc.
+  - Tran is already bare letters (A/B/C/D) on both sides -- no renaming
+    needed, unlike thesis's "T1"/"T2" convention.
+  - usgs_locations_z.csv's "Marsh location" (Bay/Channel) is NOT the
+    marsh_orientation covariate (that already exists as its own column
+    in master_usgs.csv, East/South-facing). It lines up instead with
+    master_analysis_usgs.Rmd's own Tran A/B ("bay") vs C/D ("river")
+    split -- carried through here as a sanity-check column, not used as
+    a join key.
+  - KNOWN GAP, ACCEPTED AS-IS: usgs_locations_z.csv has no elevation/z*
+    survey for Dist = 9, 18, 30 -- these exist in the flux data but not
+    the survey grid. 192 of 2907 rows (SanPablo Dist 9/18, CorteMadera
+    Dist 18/30) get NA Elevation_m/z_star after this join, left that way
+    on purpose. Decision: no spline interpolation here (unlike
+    transect_slope_crosswalk.R's local_slope, which fits a spline to a
+    dense RTK survey along the transect) -- z* interpolated between
+    sparse survey points would be a modeled estimate presented as if it
+    were a measurement, not something to build inference on. These rows
+    will drop out of any model/plot that requires non-missing z_star
+    (R's default listwise handling) -- that's expected, not a bug, and
+    is worth stating as a limitation wherever z*-based results get
+    written up (same instinct as the Methodological Plan's other
+    explicit-limitation notes, e.g. the single-timepoint causality
+    caveat in section 4.2).
+-->
+
+```{r, load necessary packages}
+source("C:\\Users\\savan\\OneDrive - San Francisco State University\\ProjectData\\GitHub\\DepositionSFB\\code\\R\\setup.R")
+```
+
+```{r, load usgs flux data and location/z star data}
+# master_usgs.csv is the output of master_analysis_usgs.Rmd's
+# "load raw data and prep" chunk -- run that chunk (through the
+# write_csv(master_usgs, ...) line) before this file.
+master_usgs <- read.csv("C:\\Users\\savan\\OneDrive - San Francisco State University\\ProjectData\\GitHub\\DepositionSFB\\data\\master_usgs.csv")
+
+usgs_locations_z <- read.csv("C:\\Users\\savan\\OneDrive - San Francisco State University\\ProjectData\\GitHub\\DepositionSFB\\data\\usgs_locations_z.csv")
+```
+
+```{r, clean and key the location/z star table}
+usgs_loc_keyed <- usgs_locations_z |>
+  mutate(
+    Site         = str_remove_all(as.character(Site), " "),   # "Corte Madera" -> "CorteMadera"
+    Tran         = str_squish(as.character(Transect)),
+    Dist         = as.numeric(Distance),
+    Marsh_Loc    = `Marsh.location`,                          # bay/channel, kept for reference only -- not a join key
+    Elevation_m  = `Elev..m.`,
+    z_star       = z_star
+  ) |>
+  select(Site, Tran, Dist, Marsh_Loc, Elevation_m, z_star)
+
+# Defensive check, matching the pattern in elevation_and_z_star.qmd:
+# should be one row per Site+Tran+Dist. If this finds duplicates, they'd
+# need the same group_by + summarise(mean(...)) averaging the thesis
+# script uses for repeated RTK readings -- not expected here since this
+# table looks like one row per surveyed point, but worth confirming
+# rather than assuming.
+usgs_loc_keyed |>
+  count(Site, Tran, Dist) |>
+  filter(n > 1)
+```
+
+```{r, key the flux data to match}
+master_usgs_keyed <- master_usgs |>
+  mutate(
+    Site = str_squish(as.character(Site)),
+    Tran = str_squish(as.character(Tran)),
+    Dist = as.numeric(as.character(Dist))
+  )
+```
+
+```{r, join -- broadcast elevation/z star across replicates}
+# 3-key join (no Replicate): every replicate row (a/b/c) at a given
+# Site+Tran+Dist receives the same elevation/z_star value.
+usgs_elev_z_flux <- master_usgs_keyed |>
+  left_join(usgs_loc_keyed, by = c("Site", "Tran", "Dist"))
+
+readr::write_csv(usgs_elev_z_flux, "C:\\Users\\savan\\OneDrive - San Francisco State University\\ProjectData\\GitHub\\DepositionSFB\\data\\usgs_elev_z_flux.csv")
+```
+
+```{r, coverage diagnostics -- documents the accepted gap, no fix applied}
+# Confirms the exact counts of the accepted Dist 9/18/30 gap each time
+# this runs, in case the raw data changes. No interpolation happens --
+# these rows keep NA Elevation_m/z_star and will listwise-drop out of
+# any z*-based model or plot downstream. Re-run this check if
+# usgs_locations_z.csv or master_usgs.csv are ever updated, since the
+# gap's size/location could shift.
+usgs_elev_z_flux |>
+  filter(is.na(Elevation_m)) |>
+  count(Site, Dist)
+
+nrow(usgs_elev_z_flux) == nrow(master_usgs)   # confirm the join didn't fan out or drop rows
+sum(!is.na(usgs_elev_z_flux$Elevation_m))     # rows with a usable z_star
+nrow(usgs_elev_z_flux)                        # total rows, NA included -- all still present, none dropped by the join itself
+```

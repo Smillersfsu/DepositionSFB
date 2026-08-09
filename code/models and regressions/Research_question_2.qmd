@@ -1,0 +1,285 @@
+---
+title: "Research Question 2 (USGS vs. Thesis)"
+format: docx
+editor: visual
+---
+
+Repurposed from the old Research_question_2.qmd per Session_Status step 5. Loads usgs_thesis.rds (built by usgs_thesis_merge.qmd) instead of relying on session-leftover objects. Two model variants throughout -- Month and Phen_Period -- replacing Study.Phase and Season, neither of which exist in the merged data anymore.
+
+Study.Dataset (USGS vs Thesis) replaces Year as the actual comparison variable throughout every model and plot. Year had 4 messy, non-adjacent levels (2022, 2023, 2025, 2026) that only ever served as a noisy proxy for which dataset a row came from -- Study.Dataset says that directly. Also fixes a real bug this surfaced: Year was never re-factored after the CSV round-trip in usgs_thesis_merge.qmd, so it silently came through as continuous numeric, which is why an earlier version of this file's emmeans plot rendered Year as a blue color gradient instead of distinct groups.
+
+```{=html}
+<!--
+Consolidated this session: a standalone "distance visualizations" file
+was drafted alongside this one, but its content either duplicated RQ1
+(raw-Dist plots, already covered by RQ1-spatial.Rmd and
+Research_question_1_distance_deepdive.qmd) or was USGS-only (not an
+actual USGS-vs-Thesis comparison, which is RQ2's real question). Folded
+in as one new section instead: Marsh Area x Study.Dataset, faceted by
+Site -- genuinely new, since the existing rq2 boxplot below only breaks
+the USGS-vs-Thesis comparison down by Site, not by Marsh_Area within
+each site. Uses Month/Phen_Period (not Study.Phase), matching the
+temporal variables already proven to work on thesis_rq2 in this file --
+no new data-source guessing needed.
+-->
+```
+
+```{r, load packages}
+library(ggplot2)
+library(tidyverse)
+library(rstatix)
+library(tidyr)
+library(data.table)
+library(dplyr)
+library(lme4)
+library(stringr)
+library(readxl)
+library(lmerTest)
+library(ggeffects)
+library(ggforce)
+library(emmeans)   # was missing -- needed for the emmeans() calls below
+library(rcartocolor)
+library(scales)
+
+knitr::opts_knit$set(root.dir = 'C:/Users/savan/OneDrive - San Francisco State University/ProjectData/GitHub/DepositionSFB/data')
+```
+
+```{r, load merged dataset}
+usgs_thesis <- readRDS("C:\\Users\\savan\\OneDrive - San Francisco State University\\ProjectData\\GitHub\\DepositionSFB\\data\\usgs_thesis.rds")
+
+str(usgs_thesis)
+```
+
+```{r, build thesis_rq2}
+# Despite the name, this keeps BOTH datasets -- it only drops the two
+# thesis-only sites that have no USGS counterpart (Buck'sLanding,
+# GiantMarsh), so Corte Madera + San Pablo rows from both USGS and
+# Thesis remain.
+#
+# Restricted to Marsh_Area %in% c("Edge", "Platform") -- excludes
+# Upland everywhere (thesis Dist=48, USGS Corte Madera Dist=48/30,
+# USGS San Pablo Dist=72/150) and Intertidal at San Pablo (Dist 0.5
+# through 18). This is the correct way to do this: using Marsh_Area
+# instead of raw Dist values handles the fact that Dist=48 means
+# Platform at San Pablo but Upland at Corte Madera -- filtering by a
+# raw Dist number instead would have either wrongly kept or wrongly
+# dropped one of those two, depending which way it was done.
+
+thesis_rq2 <- usgs_thesis %>%
+  filter(!Site %in% c("Buck'sLanding", "GiantMarsh")) %>%
+  filter(Marsh_Area %in% c("Edge", "Platform"))
+
+thesis_rq2 <- thesis_rq2 %>%
+  select(-marsh_edge_type, -marsh_orientation)
+
+thesis_rq2$Study.Dataset <- as.factor(thesis_rq2$Study.Dataset)
+
+unique(thesis_rq2$Site)
+unique(thesis_rq2$Study.Dataset)
+unique(thesis_rq2$Marsh_Area)  # should show only Edge, Platform
+
+str(thesis_rq2)
+nrow(thesis_rq2)
+```
+
+```{r, statistics}
+shapiro.test(thesis_rq2$Flux)
+
+qqnorm(thesis_rq2$Flux)
+qqline(thesis_rq2$Flux)
+```
+
+## Model 1: Study.Dataset x temporal grouping, random intercept for Site
+
+```{r, model 1 - Month variant}
+usgsthesis_model_month <- lmer(
+  Flux ~ Study.Dataset + Month + Study.Dataset * Month + Site,
+  data = thesis_rq2
+)
+summary(usgsthesis_model_month)
+```
+
+```{r, model 1 - Phen_Period variant}
+usgsthesis_model_phenperiod <- lmer(
+  Flux ~ Study.Dataset + Phen_Period + Study.Dataset * Phen_Period + (1 | Site),
+  data = thesis_rq2
+)
+summary(usgsthesis_model_phenperiod)
+```
+
+## Model 2: Site effect, random intercepts for Study.Dataset + temporal grouping
+
+```{r, model 2 - Month variant}
+usgsthesis_model2_month <- lmer(
+  Flux ~ Site + (1 | Study.Dataset) + (1 | Month),
+  data = thesis_rq2
+)
+summary(usgsthesis_model2_month)
+```
+
+```{r, model 2 - Phen_Period variant}
+usgsthesis_model2_phenperiod <- lmer(
+  Flux ~ Site + (1 | Study.Dataset) + (1 | Phen_Period),
+  data = thesis_rq2
+)
+summary(usgsthesis_model2_phenperiod)
+```
+
+## Estimated marginal means -- Month variant
+
+```{r, emmeans and plots - Month variant}
+emm_month <- emmeans(usgsthesis_model_month, ~ Month * Study.Dataset)
+emm_month_df <- as.data.frame(emm_month)
+
+ggplot(emm_month_df, aes(x = Month, y = emmean, color = Study.Dataset, group = Study.Dataset)) +
+  geom_point(size = 3, position = position_dodge(0.3)) +
+  geom_errorbar(aes(ymin = lower.CL, ymax = upper.CL),
+                width = 0.2, position = position_dodge(0.3)) +
+  geom_line(position = position_dodge(0.3)) +
+  labs(title = "Estimated Marginal Means by Month and Study Dataset",
+       y = "log(Flux)", x = "Month", color = "Study Dataset") +
+  theme_bw() +
+  theme(axis.text.x = element_text(angle = 45, hjust = 1))
+
+ggplot(thesis_rq2, aes(x = Site, y = Flux, fill = Study.Dataset)) +
+  geom_boxplot(alpha = 0.5, outlier.shape = NA) +
+  geom_jitter(aes(color = Study.Dataset),
+              alpha = 0.4, size = 0.8, width = 0.2) +
+  labs(title = str_wrap("Research Question 2: Is Sediment Deposition Consistent Between USGS and Thesis Study Periods at Corte Madera Marsh and San Pablo NWR?", width = 40),
+       y = "Log of Average Flux (g/m^3/day)",
+       x = "Site",
+       fill = "Study Dataset", color = "Study Dataset") +
+  scale_y_log10() +
+  theme_bw() +
+  theme(
+    axis.title.y = element_text(size = 13),
+    axis.text.y = element_text(size = 13),
+    axis.text.x = element_text(size = 13),
+    axis.title.x = element_text(size = 13),
+    legend.text = element_text(size = 12),
+    legend.title = element_text(size = 13),
+    plot.title = element_text(hjust = 0.5)
+  )
+```
+
+## Estimated marginal means -- Phen_Period variant
+
+```{r, emmeans and plots - Phen_Period variant}
+emm_phenperiod <- emmeans(usgsthesis_model_phenperiod, ~ Phen_Period * Study.Dataset)
+emm_phenperiod_df <- as.data.frame(emm_phenperiod)
+
+ggplot(emm_phenperiod_df, aes(x = Phen_Period, y = emmean, color = Study.Dataset, group = Study.Dataset)) +
+  geom_point(size = 3, position = position_dodge(0.3)) +
+  geom_errorbar(aes(ymin = lower.CL, ymax = upper.CL),
+                width = 0.2, position = position_dodge(0.3)) +
+  geom_line(position = position_dodge(0.3)) +
+  labs(title = "Estimated Marginal Means by Phenological Period and Study Dataset",
+       y = "log(Flux)", x = "Phenological Period", color = "Study Dataset") +
+  theme_bw()
+```
+
+## Marsh Area comparison (USGS vs Thesis)
+
+New this session -- the boxplot above (in the Month-variant chunk) shows Flux by Site x Study.Dataset, but doesn't break that down by Marsh_Area within each site. This does, in both Month and Phen_Period variants to match the rest of the file.
+
+```{r, marsh area comparison - Month variant}
+# REMEMBER: this runs on thesis_rq2, so it inherits the same
+# restrictions as the rest of the file -- only Corte Madera + San Pablo
+# (no Buck'sLanding/GiantMarsh), and only Edge/Platform (no Upland). If
+# you ever want this comparison to include Upland or the other two
+# sites, build a separate object without those filters rather than
+# reusing thesis_rq2 here.
+
+marsh_area_month <- thesis_rq2 %>%
+  group_by(Site, Marsh_Area, Study.Dataset, Month) %>%
+  summarise(
+    mean_flux = mean(Flux, na.rm = TRUE),
+    se_flux = sd(Flux, na.rm = TRUE) / sqrt(n()),
+    .groups = "drop"
+  )
+
+ggplot(thesis_rq2, aes(x = Marsh_Area, y = Flux, fill = Study.Dataset)) +
+  geom_boxplot(alpha = 0.5, outlier.shape = NA) +
+  geom_jitter(aes(color = Study.Dataset), alpha = 0.4, size = 0.8,
+              position = position_jitterdodge(jitter.width = 0.15, dodge.width = 0.75)) +
+  facet_wrap(~ Site) +
+  scale_y_log10() +
+  labs(
+    title = "Sediment Flux by Marsh Area, Site, and Study Dataset",
+    y = "Log of Flux (g/m²/day)", x = "Marsh Area",
+    fill = "Study Dataset", color = "Study Dataset"
+  ) +
+  theme_bw() +
+  theme(
+    plot.title = element_text(hjust = 0.5),
+    strip.text = element_text(face = "bold"),
+    legend.position = "bottom"
+  )
+
+ggplot(marsh_area_month, aes(x = Month, y = mean_flux, color = Study.Dataset, group = Study.Dataset)) +
+  geom_line() +
+  geom_point(size = 2) +
+  geom_errorbar(aes(ymin = mean_flux - se_flux, ymax = mean_flux + se_flux), width = 0.2) +
+  facet_grid(Site ~ Marsh_Area) +
+  labs(
+    title = "Mean Flux by Marsh Area Across Months, USGS vs Thesis",
+    y = expression(Mean~Flux~(g/m^2/day)), x = "Month", color = "Study Dataset"
+  ) +
+  theme_bw() +
+  theme(
+    axis.text.x = element_text(angle = 45, hjust = 1),
+    strip.text = element_text(face = "bold"),
+    legend.position = "bottom"
+  )
+```
+
+```{r, marsh area comparison - Phen_Period variant}
+marsh_area_phenperiod <- thesis_rq2 %>%
+  group_by(Site, Marsh_Area, Study.Dataset, Phen_Period) %>%
+  summarise(
+    mean_flux = mean(Flux, na.rm = TRUE),
+    se_flux = sd(Flux, na.rm = TRUE) / sqrt(n()),
+    .groups = "drop"
+  )
+
+ggplot(marsh_area_phenperiod, aes(x = Phen_Period, y = mean_flux, color = Study.Dataset, group = Study.Dataset)) +
+  geom_line() +
+  geom_point(size = 2) +
+  geom_errorbar(aes(ymin = mean_flux - se_flux, ymax = mean_flux + se_flux), width = 0.2) +
+  facet_grid(Site ~ Marsh_Area) +
+  labs(
+    title = "Mean Flux by Marsh Area Across Phenological Periods, USGS vs Thesis",
+    y = expression(Mean~Flux~(g/m^2/day)), x = "Phenological Period", color = "Study Dataset"
+  ) +
+  theme_bw() +
+  theme(
+    axis.text.x = element_text(angle = 45, hjust = 1),
+    strip.text = element_text(face = "bold"),
+    legend.position = "bottom"
+  )
+```
+
+```{r, transect comparison by site}
+# NOTE: the original file used an object called usgsthesiscomp here,
+# which is never built anywhere in this document or its predecessor --
+# a fully broken reference, not a session-dependency issue. Using
+# thesis_rq2 instead, which is the closest existing equivalent. Flag
+# if usgsthesiscomp was meant to be something more specific (e.g. a
+# transect-level aggregate) and I'll rebuild that instead.
+
+ggplot(thesis_rq2, aes(x = Site, y = log(Flux), fill = as.factor(Tran), colour = as.factor(Tran))) +
+  geom_boxplot(alpha = 0.4, outlier.shape = NA) +
+  geom_sina(alpha = 0.6, size = 2) +
+  labs(
+    x = "Site",
+    y = "Log of Average Flux (g/cm³)",
+    fill = "Transect",
+    colour = "Transect"
+  ) +
+  theme_classic(base_size = 18) +
+  theme(
+    axis.text.x = element_text(angle = 45, hjust = 1, size = 14),
+    strip.background = element_blank(),
+    strip.text = element_text(size = 18, face = "bold")
+  )
+```

@@ -1,0 +1,212 @@
+---
+title: "Research Question 1 (Distance Deep Dive)"
+format: docx
+editor: visual
+---
+
+Renamed and rebuilt from the old marsh_areas.qmd. Explores whether Flux varies by marsh position (Edge/Platform/Upland) and whether that pattern differs by Site, marsh_edge_type, or marsh_orientation -- includes both the exploratory visualizations and the formal nested model comparison. Named specifically (not just "Research Question 1") since master_thesis_regressions.Rmd already covers RQ1 more broadly at the full Dist level; this file is the coarser, 3-zone deep dive.
+
+```{r, load packages and data}
+source("C:\\Users\\savan\\OneDrive - San Francisco State University\\ProjectData\\GitHub\\DepositionSFB\\code\\R\\setup.R")
+# Covers everything the old file's individual library() calls needed
+# (ggplot2, tidyverse, lme4, lmerTest, ggeffects, patchwork, ggh4x,
+# rcartocolor, scales) -- no separate library() calls needed.
+
+master_tier5 <- readr::read_csv("C:\\Users\\savan\\OneDrive - San Francisco State University\\ProjectData\\GitHub\\DepositionSFB\\data\\master_tier5.csv")
+
+# CSVs don't preserve factor levels -- re-factor after the disk read.
+master_tier5$Site <- factor(master_tier5$Site,
+  levels = c("GiantMarsh", "SanPablo", "Buck'sLanding", "CorteMadera"))
+master_tier5$marsh_edge_type <- as.factor(master_tier5$marsh_edge_type)
+master_tier5$marsh_orientation <- as.factor(master_tier5$marsh_orientation)
+master_tier5$Study.Phase <- factor(master_tier5$Study.Phase, levels = paste0("M", 1:12))
+
+# Marsh_Area used directly instead of re-deriving it as "DistGroup" --
+# same Edge/Platform/Upland thresholds, already built once in
+# master_analysis_cleanup.Rmd. Re-deriving it here under a different
+# name with different code (nested ifelse vs. case_when) was pure
+# duplication.
+master_tier5$Marsh_Area <- factor(master_tier5$Marsh_Area, levels = c("Edge", "Platform", "Upland"))
+
+sed_areas <- master_tier5
+```
+
+```{r, distribution by site}
+# Two views of the same thing (bar totals, then boxplot distribution) --
+# kept both since they show different things (totals vs. spread), but
+# flagging: this boxplot is very close in structure to Plot 1 in the
+# combined panels below (same Marsh_Area x Site boxplot). Worth
+# reviewing whether one of the two is redundant once you see them
+# side by side.
+
+ggplot(sed_areas, aes(x = Marsh_Area, y = Flux)) +
+  geom_col(position = position_dodge(preserve = "single")) +
+  scale_y_log10() +
+  facet_grid(Site ~ ., scales = "fixed") +
+  labs(
+    x = "Marsh Areas",
+    y = "Total flux (g/m²/day)",
+    title = "Sediment Flux Across Distances From Marsh Edge at Four Marshes"
+  ) +
+  theme_minimal(base_size = 64) +
+  theme(
+    plot.title = element_text(hjust = 0.5, size = 78),
+    strip.text = element_text(face = "bold", size = 64),
+    legend.position = "bottom",
+    legend.text = element_text(size = 80),
+    legend.title = element_text(size = 88),
+    legend.key.size = unit(3, "cm"),
+    panel.grid.minor = element_blank(),
+    axis.text.x = element_text(angle = 45, hjust = 1, size = 60),
+    axis.text.y = element_text(size = 60),
+    axis.title = element_text(size = 60)
+  )
+
+ggsave("C:\\Users\\savan\\OneDrive - San Francisco State University\\ProjectData\\GitHub\\DepositionSFB\\images\\sed_marshareas2.png",width = 60, height = 40, dpi = 300, limitsize = FALSE)
+
+file.info("C:\\Users\\savan\\OneDrive - San Francisco State University\\ProjectData\\GitHub\\DepositionSFB\\images\\sed_marshareas2.png")$mtime
+
+ggplot(sed_areas, aes(x = Marsh_Area, y = Flux)) +
+  geom_boxplot() +
+  scale_y_log10() +
+  facet_grid(Site ~ ., scales = "fixed") +
+  annotation_logticks(sides = "1") +
+  labs(
+    x = "Marsh Areas",
+    y = "Total flux (g/m²/day)",
+    title = "Sediment Flux Across Distances From Marsh Edge at Four Marshes"
+  ) +
+  theme_minimal(base_size = 64) +
+  theme(
+    plot.title = element_text(hjust = 0.5, size = 78),
+    strip.text = element_text(face = "bold", size = 64),
+    legend.position = "bottom",
+    legend.text = element_text(size = 80),
+    legend.title = element_text(size = 88),
+    legend.key.size = unit(3, "cm"),
+    panel.grid.minor = element_blank(),
+    axis.text.x = element_text(angle = 45, hjust = 1, size = 60),
+    axis.text.y = element_text(size = 60),
+    axis.title = element_text(size = 60)
+  )
+
+ggsave("C:\\Users\\savan\\OneDrive - San Francisco State University\\ProjectData\\GitHub\\DepositionSFB\\images\\sed_marshareas3.png",
+       width = 60, height = 40, dpi = 300, limitsize = FALSE)
+```
+
+```{r, combined panel function}
+# The three blocks below (by Site, by marsh_edge_type, by
+# marsh_orientation) were identical code three times over, differing
+# only in the grouping variable and output filename. Consolidated into
+# one function instead.
+
+make_marsh_area_panel <- function(data, group_var, panel_title, filename) {
+  group_sym <- rlang::sym(group_var)
+
+  summary_df <- data %>%
+    dplyr::group_by(!!group_sym, Marsh_Area) %>%
+    dplyr::summarise(
+      mean_flux = mean(Flux, na.rm = TRUE),
+      sd_flux = sd(Flux, na.rm = TRUE),
+      n = length(Flux),
+      .groups = "drop"
+    ) %>%
+    dplyr::mutate(se_flux = sd_flux / sqrt(n))
+
+  p1 <- ggplot(data, aes(x = Marsh_Area, y = Flux)) +
+    geom_boxplot(aes(fill = Marsh_Area), outlier.shape = 16, outlier.size = 3) +
+    scale_y_log10() +
+    facet_grid(as.formula(paste(group_var, "~ .")), scales = "fixed") +
+    annotation_logticks(sides = "1") +
+    labs(x = "Marsh Area", y = "Sediment Flux (g/m²/day)",
+         title = "A) Distribution of Flux by Marsh Area") +
+    theme_bw(base_size = 64) +
+    theme(
+      plot.title = element_text(hjust = 0.5, size = 70),
+      strip.text = element_text(face = "bold", size = 64),
+      legend.position = "none",
+      axis.text.x = element_text(angle = 45, hjust = 1, size = 60),
+      axis.text.y = element_text(size = 60),
+      axis.title = element_text(size = 60)
+    )
+
+  p2 <- ggplot(summary_df, aes(x = Marsh_Area, y = mean_flux,
+                                colour = !!group_sym, group = !!group_sym, fill = !!group_sym,
+                                ymin = mean_flux - se_flux, ymax = mean_flux + se_flux)) +
+    geom_ribbon(alpha = 0.15, colour = NA) +
+    geom_line(linewidth = 1.5) +
+    geom_point(size = 5) +
+    scale_y_log10() +
+    labs(x = "Marsh Area", y = "Mean Flux — log scale (g/m²/day)",
+         title = "B) Distance Decay Across Sites") +
+    theme_bw(base_size = 64) +
+    theme(
+      plot.title = element_text(hjust = 0.5, size = 70),
+      legend.position = "bottom",
+      legend.text = element_text(size = 60),
+      legend.title = element_text(size = 64),
+      legend.key.size = unit(3, "cm"),
+      axis.text.x = element_text(angle = 45, hjust = 1, size = 60),
+      axis.text.y = element_text(size = 60),
+      axis.title = element_text(size = 60)
+    )
+
+  combined <- p1 + p2 +
+    plot_annotation(
+      title = panel_title,
+      theme = theme(plot.title = element_text(hjust = 0.5, size = 78))
+    )
+
+  ggsave(file.path("C:\\Users\\savan\\OneDrive - San Francisco State University\\ProjectData\\GitHub\\DepositionSFB\\images", filename),
+         plot = combined, width = 80, height = 45, dpi = 300, limitsize = FALSE)
+
+  combined
+}
+```
+
+```{r, panel by site}
+make_marsh_area_panel(sed_areas, "Site",
+  "Sediment Flux Across Distances From Marsh Edge at Four Marshes",
+  "sed_combined_panel.png")
+```
+
+```{r, panel by marsh edge type}
+make_marsh_area_panel(sed_areas, "marsh_edge_type",
+  "Sediment Flux Across Distances From Marsh Edge at Four Marshes",
+  "sed_combined_panel2.png")
+```
+
+```{r, panel by marsh orientation}
+make_marsh_area_panel(sed_areas, "marsh_orientation",
+  "Sediment Flux Across Distances From Marsh Edge at Four Marshes",
+  "sed_combined_panel3.png")
+```
+
+```{r, statistics}
+# Season replaced -- doesn't exist anymore. m3 already used Study.Phase
+# alongside Season, so Study.Phase is this file's own established
+# temporal variable, not something new being introduced. Extended the
+# same choice to marsh_area1, which only had Season and would
+# otherwise lose its temporal control entirely.
+
+sed_areas_clean <- sed_areas %>% filter(Flux > 0)
+
+marsh_area1 <- lmer(log(Flux) ~ Marsh_Area + marsh_edge_type + Study.Phase + (1|Site), data = sed_areas_clean)
+summary(marsh_area1)
+
+# Null
+m0 <- lmer(log(Flux) ~ 1 + (1|Site), data = sed_areas_clean)
+
+# Spatial structure only
+m1 <- lmer(log(Flux) ~ Marsh_Area + (1|Site), data = sed_areas_clean)
+
+# Add edge type interaction
+m2 <- lmer(log(Flux) ~ Marsh_Area * marsh_edge_type + (1|Site), data = sed_areas_clean)
+
+# Full model
+m3 <- lmer(log(Flux) ~ Marsh_Area * marsh_edge_type + Study.Phase + (1|Site),
+           data = sed_areas_clean)
+
+# Compare
+AIC(m0, m1, m2, m3)
+```

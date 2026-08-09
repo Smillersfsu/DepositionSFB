@@ -4,13 +4,10 @@ format: html
 editor: visual
 ---
 
-Prep half of the old Comparing_USGS_to_Thesis.qmd, per the reorg plan --
-this file only builds usgs_thesis.rds. Modeling (Shapiro-Wilk, GLMMs,
-ramped/scarped comparisons, etc.) moves to the repurposed
-"Research question 2.qmd", not duplicated here.
+Prep half of the old Comparing_USGS_to_Thesis.qmd, per the reorg plan -- this file only builds usgs_thesis.rds. Modeling (Shapiro-Wilk, GLMMs, ramped/scarped comparisons, etc.) moves to the repurposed "Research question 2.qmd", not duplicated here.
 
 ```{r, load packages}
-source("R/setup.R")
+source("C:\\Users\\savan\\OneDrive - San Francisco State University\\ProjectData\\GitHub\\DepositionSFB\\code\\R\\setup.R")
 # No spatial_setup.R needed -- this file never calls sf/ggmap/leaflet,
 # and it renders to html, not pdf, so tinytex isn't needed either.
 ```
@@ -130,7 +127,7 @@ table(usgs_thesis$Study.Dataset, usgs_thesis$Month)
 # it or blocks the save below, even if this whole chunk fails.
 
 crosswalk_check <- tryCatch({
-  source("R/marsh_area_crosswalk.R")
+  source("C:\\Users\\savan\\OneDrive - San Francisco State University\\ProjectData\\GitHub\\DepositionSFB\\code\\R\\marsh_area_crosswalk.R")
   build_marsh_area_crosswalk()
 }, error = function(e) {
   warning("Marsh_Area crosswalk check skipped -- could not load guide: ", conditionMessage(e))

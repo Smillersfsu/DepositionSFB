@@ -15,8 +15,8 @@ output:
 
 ```{r, load packages and working directory}
 
-source("R/setup.R")
-source("R/spatial_setup.R")
+source("C:\\Users\\savan\\OneDrive - San Francisco State University\\ProjectData\\GitHub\\DepositionSFB\\code\\R\\setup.R")
+source("C:\\Users\\savan\\OneDrive - San Francisco State University\\ProjectData\\GitHub\\DepositionSFB\\code\\R\\spatial_setup.R")
 
 # working directory 
 
@@ -210,8 +210,9 @@ plot_data_noG2 <- master_thesis %>%
 
 ```{r, source plotting and flux summary functions}
 
-source("R/plotting.R")
-source("R/flux_summary.R")
+source("C:\\Users\\savan\\OneDrive - San Francisco State University\\ProjectData\\GitHub\\DepositionSFB\\code\\R\\plotting.R")
+source("C:\\Users\\savan\\OneDrive - San Francisco State University\\ProjectData\\GitHub\\DepositionSFB\\code\\R\\flux_summary.R")
+
 
 ```
 

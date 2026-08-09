@@ -1,0 +1,626 @@
+---
+title: "master_thesis_regressions"
+author: "Savannah K. Miller"
+date: "2026-06-22"
+output: html_document
+---
+
+```{r, load packages and working directory}
+
+
+source("C:\\Users\\savan\\OneDrive - San Francisco State University\\ProjectData\\GitHub\\DepositionSFB\\code\\R\\setup.R")
+source("C:\\Users\\savan\\OneDrive - San Francisco State University\\ProjectData\\GitHub\\DepositionSFB\\code\\R\\plotting.R")
+```
+
+## R Markdown
+
+This is an R Markdown document. Markdown is a simple formatting syntax for authoring HTML, PDF, and MS Word documents. For more details on using R Markdown see <http://rmarkdown.rstudio.com>.
+
+When you click the **Knit** button a document will be generated that includes both content as well as the output of any embedded R code chunks within the document. You can embed an R code chunk like this:
+
+```{r, working directory and master data file}
+
+knitr::opts_chunk$set(echo = TRUE)
+knitr::opts_knit$set(root.dir = 'C:/Users/savan/OneDrive - San Francisco State University/ProjectData/GitHub/DepositionSFB/data')
+
+# master_thesis load removed -- it was never actually used anywhere else
+# in this file, only master_tier3 (now master_tier5) and elev_z_flux were.
+
+# old tier3 (all sites, full flag criteria) is now tier5 under the
+# current numbering -- see Session_Status / Pipeline_Flow for why.
+master_tier5 <- readr::read_csv("C:\\Users\\savan\\OneDrive - San Francisco State University\\ProjectData\\GitHub\\DepositionSFB\\data\\master_tier5.csv")
+
+# elev_z_flux now loads from disk instead of assuming it's still in
+# session from having just run elevation_and_z_star.qmd
+elev_z_flux <- readr::read_csv("C:\\Users\\savan\\OneDrive - San Francisco State University\\ProjectData\\GitHub\\DepositionSFB\\data\\elev_z_flux.csv")
+
+```
+
+## Including Plots
+
+You can also embed plots, for example:
+
+```{r, RQ1 Scarp}
+
+#install.packages("tidytext")
+library(tidytext)
+
+site_order <- master_tier5 %>%
+  distinct(Site, marsh_edge_type) %>%
+  arrange(marsh_edge_type, Site) %>%
+  pull(Site)
+
+master_tier5 <- master_tier5 %>%
+  mutate(Site = factor(Site, levels = site_order))
+
+rq1_site = ggplot(master_tier5, aes(x =Site , y = log(Flux),
+                                                  fill = marsh_edge_type,
+                                                  color = marsh_edge_type)) +
+  geom_boxplot(width = 0.4, outlier.shape = NA,
+               alpha = 0.3,
+               position = position_dodge(0.5)) +
+  geom_point(aes(color = marsh_edge_type),
+             position = position_jitterdodge(jitter.width = 0.15, dodge.width = 0.5),
+             size = 1.5, alpha = 0.3) +
+  scale_fill_manual(values = c("Ramped" = "#378ADD", "Scarped" = "#D85A30")) +
+  scale_color_manual(values = c("Ramped" = "#378ADD", "Scarped" = "#D85A30")) +
+  ylim(0, 6) +
+  labs(y = "Log(Flux (g/m^2/day))", x = "Site",
+       fill = "Marsh Edge Type", color = "Marsh Edge Type",
+       title = str_wrap("Sediment Deposition Rates Across Sites Between Scarped and Ramped Marsh Edge Sites")) +
+  theme_bw() +
+  theme(legend.position = "bottom")
+rq1_site
+
+ggsave("C:\\Users\\savan\\OneDrive - San Francisco State University\\ProjectData\\GitHub\\DepositionSFB\\images\\rq1_site.png", 
+       width = 8, 
+       height = 5, 
+       dpi = 300,
+       limitsize = FALSE)
+
+tran_order <- master_tier5 %>%
+  distinct(Tran, marsh_edge_type) %>%
+  arrange(marsh_edge_type, Tran) %>%
+  pull(Tran)
+
+
+
+rq1_tran = ggplot(master_tier5, aes(x =Site , y = log(Flux),
+                                    fill = Tran,
+                                    color = Tran)) +
+  geom_boxplot(width = 0.4, outlier.shape = NA,
+               alpha = 0.3,
+               position = position_dodge(0.5)) + facet_wrap(~marsh_edge_type, scales = "free_x") +
+  geom_point(aes(color = marsh_edge_type),
+             position = position_jitterdodge(jitter.width = 0.15, dodge.width = 0.5),
+             size = 1.5, alpha = 0.3) +
+  scale_fill_manual(values = c("T1" = "#378ADD", "T2" = "#D85A30")) +
+  scale_color_manual(values = c("T1" = "#378ADD", "T2" = "#D85A30")) +
+  scale_x_reordered() +
+  ylim(0, 6) +
+  labs(y = "Log(Flux (g/m^2/day))", x = "Site",
+       fill = "Marsh Edge Type", color = "Marsh Edge Type",
+       title = str_wrap("Sediment Deposition Rates Across Transects Between Scarped and Ramped Marsh Edge Sites")) +
+  theme_bw() +
+  theme(legend.position = "bottom")
+rq1_tran
+
+ggsave("C:\\Users\\savan\\OneDrive - San Francisco State University\\ProjectData\\GitHub\\DepositionSFB\\images\\rq1_tran.png", 
+       width = 8, 
+       height = 5, 
+       dpi = 300,
+       limitsize = FALSE)
+
+
+
+```
+
+```{r, rq1 distance}
+
+rq1_dist = ggplot(master_tier5, aes(x = factor(Dist), y = Flux, color = Tran, fill = Tran)) +
+  geom_violin(alpha = 0.3, position = position_dodge(0.8)) +
+  geom_jitter(position = position_jitterdodge(jitter.width = 0.15, dodge.width = 0.8),
+              size = 1.2, alpha = 0.4) +
+  facet_wrap(~Site, scales = "free_y", ncol = 2) +
+  scale_color_manual(values = c("T1" = "#D85A30", "T2" = "#378ADD")) +
+  scale_fill_manual(values = c("T1" = "#D85A30", "T2" = "#378ADD")) +
+  theme_minimal(base_size = 20) +
+  labs(x = "Distance", y = expression(Flux~(g/m^2/day)),
+       color = "Transect", fill = "Transect") +
+  theme(legend.position = "bottom",
+        strip.text = element_text(face = "bold", size = 18),
+        axis.text = element_text(size = 14),
+        axis.title = element_text(size = 18, face = "bold"),
+        legend.text = element_text(size = 16),
+        legend.title = element_text(size = 16, face = "bold"),
+        plot.title = element_text(size = 20, face = "bold"))
+rq1_dist
+
+ggsave("C:\\Users\\savan\\OneDrive - San Francisco State University\\ProjectData\\GitHub\\DepositionSFB\\images\\rq1_dist.png",
+       plot = rq1_dist,
+       width = 13.33,
+       height = 7.5,
+       dpi = 300,
+       limitsize = FALSE)
+
+rq1_dist_noG = ggplot(filter(master_tier5, Site != "GiantMarsh"), 
+                      aes(x = factor(Dist), y = Flux, color = Tran, fill = Tran)) +
+  geom_violin(alpha = 0.3, position = position_dodge(0.8)) +
+  geom_jitter(position = position_jitterdodge(jitter.width = 0.15, dodge.width = 0.8),
+              size = 1.2, alpha = 0.4) +
+  facet_wrap(~Site, scales = "free_y") +
+  scale_color_manual(values = c("T1" = "#D85A30", "T2" = "#378ADD")) +
+  scale_fill_manual(values = c("T1" = "#D85A30", "T2" = "#378ADD")) +
+  theme_minimal(base_size = 20) +
+  labs(x = "Distance", y = expression(Flux~(g/m^2/day)),
+       color = "Transect", fill = "Transect") +
+  theme(legend.position = "bottom",
+        strip.text = element_text(face = "bold", size = 18),
+        axis.text = element_text(size = 14),
+        axis.title = element_text(size = 18, face = "bold"),
+        legend.text = element_text(size = 16),
+        legend.title = element_text(size = 16, face = "bold"))
+rq1_dist_noG
+
+ggsave("C:\\Users\\savan\\OneDrive - San Francisco State University\\ProjectData\\GitHub\\DepositionSFB\\images\\rq1_dist_noG.png",
+       plot = rq1_dist_noG,
+       width = 13.33,
+       height = 7.5,
+       dpi = 300,
+       limitsize = FALSE)
+```
+
+```{r}
+
+master_tier5 <- master_tier5 %>%
+  mutate(Site_Tran = paste(Site, Tran, sep = " - "))
+
+rq1_ramped = ggplot(filter(master_tier5, marsh_edge_type == "Ramped"), 
+                    aes(x = factor(Dist), y = Flux, color = Site_Tran, fill = Site_Tran)) +
+  geom_violin(alpha = 0.3, position = position_dodge(0.8)) +
+  geom_jitter(position = position_jitterdodge(jitter.width = 0.15, dodge.width = 1.2),
+              size = 0.8, alpha = 0.3) +
+  theme_minimal(base_size = 13) +
+  labs(x = "Distance", y = expression(Flux~(g/m^2)),
+       color = "Site - Transect", fill = "Site - Transect",
+       title = "Sediment Deposition Rates Across Ramped Sites") +
+  theme(legend.position = "bottom")
+rq1_ramped
+
+rq1_scarped = ggplot(filter(master_tier5, marsh_edge_type == "Scarped"), 
+                     aes(x = factor(Dist), y = Flux, color = Site_Tran, fill = Site_Tran)) +
+  geom_violin(alpha = 0.3, position = position_dodge(0.8)) +
+  geom_jitter(position = position_jitterdodge(jitter.width = 0.15, dodge.width = 1.2),
+              size = 0.8, alpha = 0.3) +
+  theme_minimal(base_size = 13) +
+  labs(x = "Distance", y = expression(Flux~(g/m^2)),
+       color = "Site - Transect", fill = "Site - Transect",
+       title = "Sediment Deposition Rates Across Scarped Sites") +
+  theme(legend.position = "bottom")
+rq1_scarped
+
+```
+
+```{r}
+
+rq1_z = ggplot(master_tier5, aes(x = z_star, y = Flux, color = Tran)) +
+  geom_point(alpha = 0.4, size = 1.5) +
+  geom_rug(sides = "b", alpha = 0.3, length = unit(0.03, "npc")) +
+  facet_wrap(~Site, scales = "free") +
+  scale_color_manual(values = c("T1" = "#D85A30", "T2" = "#378ADD")) +
+  theme_minimal(base_size = 16) +
+  labs(x = "Relative Elevation (Z*)", y = expression(Flux~(g/m^2/day)),
+       color = "Transect") +
+  theme(strip.text = element_text(face = "bold", size = 16),
+        axis.title = element_text(face = "bold", size = 15),
+        axis.text = element_text(size = 12))
+rq1_z
+
+ggsave("C:\\Users\\savan\\OneDrive - San Francisco State University\\ProjectData\\GitHub\\DepositionSFB\\images\\rq1_z.png",
+       plot = rq1_z,
+       width = 13.33,
+       height = 7.5,
+       dpi = 300,
+       limitsize = FALSE)
+
+
+```
+
+```{r, rq1 time}
+
+summary_df <- master_tier5 %>%
+  group_by(Site, Tran, Date.removed.from.field) %>%
+  summarise(median_flux = median(Flux, na.rm = TRUE),
+            q25 = quantile(Flux, 0.25, na.rm = TRUE),
+            q75 = quantile(Flux, 0.75, na.rm = TRUE),
+            .groups = "drop")
+
+rq1_time_trend = ggplot(summary_df, aes(x = Date.removed.from.field, y = median_flux, color = Tran, fill = Tran)) +
+  geom_ribbon(aes(ymin = q25, ymax = q75), alpha = 0.15, color = NA) +
+  geom_line(linewidth = 0.8) +
+  geom_point(size = 1.8) +
+  facet_wrap(~Site, scales = "free_y") +
+  scale_color_manual(values = c("T1" = "#D85A30", "T2" = "#378ADD")) +
+  scale_fill_manual(values = c("T1" = "#D85A30", "T2" = "#378ADD")) +
+  theme_minimal(base_size = 15) +
+  labs(x = "Date Removed from Field", y = expression(Median~Flux~(g/m^2/day)),
+       color = "Transect", fill = "Transect") +
+  theme(legend.position = "bottom",
+        strip.text = element_text(face = "bold"))
+rq1_time_trend
+
+ggsave("C:\\Users\\savan\\OneDrive - San Francisco State University\\ProjectData\\GitHub\\DepositionSFB\\images\\rq1_time_trend.png",
+       plot = rq1_time_trend,
+       width = 13.33,
+       height = 7.5,
+       dpi = 300,
+       limitsize = FALSE)
+
+rq1_time = ggplot(master_tier5, aes(x = Date.removed.from.field, y = Flux, color = Tran, fill = Tran)) +
+  geom_boxplot(aes(group = interaction(Date.removed.from.field, Tran)), 
+               alpha = 0.3, outlier.shape = NA, 
+               position = position_dodge(width = 6)) +
+  geom_jitter(position = position_jitterdodge(jitter.width = 1.5, dodge.width = 6),
+              size = 0.8, alpha = 0.3) +
+  facet_wrap(~Site, scales = "free_y") +
+  scale_x_date(date_breaks = "1 month", date_labels = "%b %Y") + 
+  scale_color_manual(values = c("T1" = "#D85A30", "T2" = "#378ADD")) +
+  scale_fill_manual(values = c("T1" = "#D85A30", "T2" = "#378ADD")) +
+  theme_minimal(base_size = 15) +
+  labs(x = "Date Removed from Field", y = expression(Flux~(g/m^2/day)),
+       color = "Transect", fill = "Transect") +
+  theme(legend.position = "bottom",
+        strip.text = element_text(face = "bold"),
+        axis.text.x = element_text(angle = 45, hjust = 1))
+rq1_time
+
+ggsave("C:\\Users\\savan\\OneDrive - San Francisco State University\\ProjectData\\GitHub\\DepositionSFB\\images\\rq1_time.png",
+       plot = rq1_time,
+       width = 13.33,
+       height = 7.5,
+       dpi = 300,
+       limitsize = FALSE)
+```
+
+```{r}
+
+elev_z_flux_clean <- elev_z_flux |> 
+  filter(Flux > 0)  # removes negatives and zeros
+
+# Double check it worked
+sum(elev_z_flux_clean$Flux <= 0, na.rm = TRUE)  # should return 0
+summary(elev_z_flux_clean$Flux)
+
+
+# 1. Test if slopes are significantly different between morphology types
+library(lme4)
+model <- lmer(log(Flux) ~ z_star * marsh_edge_type + (1|Site) + (1|Study.Phase), 
+              data = elev_z_flux_clean)
+summary(model)
+
+# 1. Get p-values formally
+library(lmerTest)
+model_full <- lmer(log(Flux) ~ z_star * marsh_edge_type + 
+                     (1 | Site) + (1 | Study.Phase),  
+                   data = elev_z_flux_clean,
+                   REML = FALSE)
+summary(model_full)  # lmerTest will now show p-values
+
+# 2. Calculate R-squared
+library(MuMIn)
+r.squaredGLMM(model_full)
+# R2m = variance explained by fixed effects only
+# R2c = variance explained by entire model including random effects
+
+# 3. Get predicted slopes per edge type for reporting
+library(emmeans)
+emtrends(model_full, ~ marsh_edge_type, var = "z_star")
+
+
+# 1. Get formal p-values for reporting
+library(lmerTest)
+summary(model_full)
+
+# 2. Get R-squared values
+library(MuMIn)
+r.squaredGLMM(model_full)
+
+# 3. Plot the predicted trends cleanly for a publication figure
+library(ggeffects)
+pred <- ggpredict(model_full, terms = c("z_star [all]", "marsh_edge_type"))
+
+ggplot(pred, aes(x = x, y = predicted, color = group, fill = group)) +
+  geom_line(linewidth = 1.2) +
+  geom_ribbon(aes(ymin = conf.low, ymax = conf.high), alpha = 0.2, color = NA) +
+  geom_point(data = elev_z_flux_clean, 
+             aes(x = z_star, y = log(Flux), color = marsh_edge_type),
+             alpha = 0.3, size = 1.5, inherit.aes = FALSE) +
+  scale_color_manual(values = c("Ramped" = "#E69F00", "Scarped" = "#0072B2")) +
+  scale_fill_manual(values  = c("Ramped" = "#E69F00", "Scarped" = "#0072B2")) +
+  labs(x = "z*", 
+       y = "log(Sediment Flux g/m²)",
+       color = "Edge Type", 
+       fill  = "Edge Type",
+       title = "Sediment Deposition by Marsh Edge Morphology") +
+  theme_bw() +
+  theme(legend.position = "right")
+```
+
+```{r, derive Month for reference models}
+
+## Append these chunks to the END of master_thesis_regressions.Rmd,
+## after its existing final chunk (the ggpredict plot).
+##
+## Adapted from Pre-Research_Questions.qmd and Research_Questions.qmd,
+## both marked reference-only in Session_Status. Rebuilt against
+## master_tier5 directly -- this file is thesis-only by design, and
+## master_tier5 never had USGS data to filter out in the first place,
+## so the "drop USGS" step both source files did isn't needed here.
+##
+## Left out entirely, per your call:
+##   - Research_Questions.qmd's marshedge object: filtered to
+##     thesis-only on one line, then immediately overwritten by an
+##     unfiltered version on the next line -- dead code either way.
+##   - Research_Questions.qmd's marsh_edge_model_time chunk (the two
+##     emmeans() plots) -- that model is never actually built anywhere,
+##     in this file or its predecessor. Would error if included.
+##   - A leftover combined <- read_excel(...) call pointing at an
+##     unrelated desktop path, whose result was never used again.
+##
+## Built on the FULL master_tier5 (all M1-M12), not the M1-M6-only
+## subset both source files used -- confirmed that was just a function
+## of partial data at the time, not an intentional restriction.
+# Same derivation and chronological ordering (July start) as
+# usgs_thesis_merge.qmd, for consistency across the pipeline.
+
+study_month_levels <- c("July", "August", "September", "October",
+                        "November", "December", "January", "February",
+                        "March", "April", "May", "June")
+
+master_tier5 <- master_tier5 %>%
+  mutate(Month = factor(month(Date.removed.from.field, label = TRUE, abbr = FALSE),
+                        levels = study_month_levels, ordered = TRUE))
+```
+
+ 
+
+```{r, distance model prep}
+# From Pre-Research_Questions.qmd's avgdist -- Flux averaged per
+# Dist x Site x Tran combination.
+
+avgdist <- aggregate(Flux ~ Dist + Site + Tran, data = master_tier5, FUN = mean)
+avgdist$Dist <- factor(avgdist$Dist, levels = c(0.5, 2, 6, 12, 18, 24, 48))
+
+shapiro.test(avgdist$Flux)
+shapiro.test(log(avgdist$Flux))
+
+qqnorm(avgdist$Flux)
+qqline(avgdist$Flux)
+
+```
+
+```{r, distance models}
+distmodel <- glmer(Flux ~ Dist + (1|Site) + (1|Tran), data = avgdist)
+summary(distmodel)
+
+logdistmodel <- lmer(log(Flux) ~ Dist + (1|Site) + (1|Tran), data = avgdist)
+summary(logdistmodel)
+
+plot(logdistmodel)        # residuals vs fitted
+qqnorm(resid(logdistmodel))
+qqline(resid(logdistmodel))
+
+# Outlier check
+outliers <- which(abs(scale(resid(logdistmodel))) > 2.5)
+distmodel_no_outliers <- lmer(log(Flux) ~ Dist + (1|Site) + (1|Tran),
+                              data = avgdist[-outliers, ])
+summary(logdistmodel)
+summary(distmodel_no_outliers)
+
+distmodelcont <- lmer(log(Flux) ~ Dist + (1|Site) + (1|Tran), data = avgdist)
+summary(distmodelcont)
+```
+
+```{r, distance x site model and plots}
+  distsitemodel <- lmer(log(Flux) ~ Dist + Site + Dist*Site + (1|Tran), data = avgdist)
+summary(distsitemodel)
+
+avgdist$predicted <- predict(distsitemodel)
+preds <- ggpredict(distsitemodel, terms = c("Dist [all]", "Site"), back.transform = FALSE)
+
+ggplot() +
+  geom_point(data = avgdist,
+             aes(x = Dist, y = log(Flux), colour = Site, shape = Site),
+             size = 3, alpha = 0.5) +
+  geom_line(data = preds,
+            aes(x = x, y = predicted, colour = group, group = group),
+            linewidth = 1) +
+  geom_ribbon(data = preds,
+              aes(x = x, ymin = conf.low, ymax = conf.high, fill = group, group = group),
+              alpha = 0.2) +
+  labs(x = "Distance (m)", y = "Log of Average Flux (g/cm^3)",
+       colour = "Site", fill = "Site", shape = "Site") +
+  theme_classic(base_size = 16)
+
+# Manual prediction grid version (population-level, random effects at 0)
+# Dist here must match distsitemodel's factor levels exactly, since
+# that's how the model was actually fit -- using plain numeric (like
+# the original file did) silently mismatches the model's expected
+# input type instead of erroring, which is worse.
+pred_grid <- expand.grid(
+  Dist = factor(levels(avgdist$Dist), levels = levels(avgdist$Dist)),
+  Site = unique(avgdist$Site),
+  Tran = NA
+)
+
+preds_manual <- predict(distsitemodel, newdata = pred_grid,
+                        re.form = ~0, se.fit = TRUE)
+
+pred_grid$predicted <- preds_manual$fit
+pred_grid$lower <- preds_manual$fit - 1.96 * preds_manual$se.fit
+pred_grid$upper <- preds_manual$fit + 1.96 * preds_manual$se.fit
+
+ggplot() +
+  geom_point(data = avgdist,
+             aes(x = Dist, y = log(Flux), colour = Site, shape = Site),
+             size = 3, alpha = 0.5) +
+  geom_line(data = pred_grid,
+            aes(x = Dist, y = predicted, colour = Site, group = Site),
+            linewidth = 1) +
+  geom_ribbon(data = pred_grid,
+              aes(x = Dist, ymin = lower, ymax = upper, fill = Site, group = Site),
+              alpha = 0.2) +
+  labs(x = "Distance (m)", y = "Log of Average Flux (g/cm^3)",
+       colour = "Site", fill = "Site", shape = "Site") +
+  theme_classic(base_size = 18) +
+  theme(axis.text.x = element_text(angle = 90, hjust = 1, size = 15))
+
+```
+
+```{r, transect x site model}
+ 
+library(ggforce)  # for geom_sina() in the reference-additions plots
+
+ transite <- lmer(log(Flux) ~ Tran + Site + Tran*Site + (1|Dist), data = avgdist)
+  summary(transite)
+  
+  ggplot(avgdist, aes(x = as.factor(Tran), y = log(Flux), fill = Site, colour = Site)) +
+    geom_boxplot(alpha = 0.4, outlier.shape = NA) +
+    geom_sina(alpha = 0.6, size = 2) +
+    labs(x = "Transect", y = "Log of Average Flux (g/cm^3/6 months)",
+         fill = "Site", colour = "Site") +
+    theme_classic(base_size = 18) +
+    theme(axis.text.x = element_text(angle = 45, hjust = 1, size = 18))
+ 
+```
+
+```{r, transect x site model with replicate and phase}
+# From Pre-Research_Questions.qmd's thesis_df_clean prep, rebuilt
+# directly on master_tier5 -- removes NAs, negatives/zeros, and any
+# non-finite values after log transform.
+
+master_tier5_clean <- master_tier5[master_tier5$Flux > 0 &
+                                     !is.na(master_tier5$Flux) &
+                                     is.finite(log(master_tier5$Flux)), ]
+
+sum(is.na(master_tier5_clean$Flux))
+sum(master_tier5_clean$Flux <= 0)
+nrow(master_tier5_clean)
+
+master_tier5_clean$Tran <- as.factor(master_tier5_clean$Tran)
+master_tier5_clean$Site <- as.factor(master_tier5_clean$Site)
+master_tier5_clean$Replicate <- as.factor(master_tier5_clean$Replicate)
+master_tier5_clean$Study.Phase <- factor(master_tier5_clean$Study.Phase,  levels = paste0("M", 1:12))
+
+transite1 <- lmer(log(Flux) ~ Tran + Site + Tran*Site +
+                    (1|Dist) + (1|Replicate) + (1|Study.Phase),
+                  data = master_tier5_clean)
+summary(transite1)
+
+ggplot(master_tier5_clean, aes(x = as.factor(Tran), y = log(Flux), fill = Site, colour = Site)) +
+  geom_boxplot(alpha = 0.4, outlier.shape = NA) +
+  geom_sina(alpha = 0.6, size = 2) +
+  facet_wrap(~Site, scales = "free_x") +
+  labs(x = "Transect", y = "Log of Average Flux (g/cm^3/month)",
+       fill = "Site", colour = "Site") +
+  theme_classic(base_size = 18) +
+  theme(axis.text.x = element_text(angle = 45, hjust = 1, size = 18),
+        axis.text.y = element_text(hjust = 1, size = 12))
+
+ggplot(master_tier5_clean, aes(x = as.factor(Study.Phase), y = log(Flux), color = Site)) +
+  geom_point(alpha = 0.4) +
+  geom_sina(alpha = 0.6, size = 2) +
+  labs(x = "Month of Study", y = "Log of Average Flux (g/cm^3/month)",
+       colour = "Site") +
+  theme_classic(base_size = 18) +
+  theme(axis.text.x = element_text(angle = 45, hjust = 1, size = 18))
+
+ggplot(master_tier5_clean, aes(x = Dist, y = log(Flux), color = Site)) +
+  facet_wrap("Study.Phase") +
+  geom_point(alpha = 0.4) +
+  geom_sina(alpha = 0.6, size = 2) +
+  labs(x = "Distance", y = "Log of Average Flux (g/cm^3/month)",
+       colour = "Site") +
+  theme_classic(base_size = 18) +
+  theme(axis.text.x = element_text(angle = 45, hjust = 1, size = 18))
+```
+
+```{r, marsh edge type and orientation model prep}
+
+  # From Research_Questions.qmd's avgtotal -- Month included and
+  # derived above (Research_Questions.qmd originally had it as a raw
+  # column; here it's built from Date.removed.from.field instead).
+  
+  avgtotal <- aggregate(Flux ~ Site + Dist + Replicate + Month + Study.Phase +
+                          marsh_orientation + marsh_edge_type,
+                        data = master_tier5, FUN = mean)
+  str(avgtotal)
+  
+  shapiro.test(avgtotal$Flux)
+  shapiro.test(log(avgtotal$Flux))
+  
+  qqnorm(avgtotal$Flux)
+  qqline(avgtotal$Flux)
+  
+  # Residual diagnostic for distsitemodel (built above) -- this only
+  # resolves correctly because distsitemodel is now defined earlier in
+  # this same file; it depended on Pre-Research_Questions.qmd having
+  # already run in the same session in the original files.
+  shapiro.test(resid(distsitemodel))
+  qqnorm(resid(distsitemodel))
+  qqline(resid(distsitemodel))
+
+
+```
+
+```{r, marsh edge type and orientation models}
+marsh_edge_model_edge <- lmer(Flux ~ marsh_edge_type + (1|Dist), data = avgtotal)
+summary(marsh_edge_model_edge)
+
+
+marsh_edge_model_orient <- lmer(Flux ~ marsh_orientation + (1|Dist), data = avgtotal)
+summary(marsh_edge_model_orient)
+
+```
+
+```{r, marsh edge type and orientation plots}
+ggplot(avgtotal, aes(x = marsh_edge_type, y = log(Flux), fill = marsh_orientation)) +
+  geom_boxplot(alpha = 0.4, outlier.shape = NA) +
+  geom_sina(alpha = 0.6, size = 2, aes(colour = marsh_orientation)) +
+  labs(x = "Marsh Edge Type", y = "Log of Average Flux (g/cm³)",
+       fill = "Marsh Orientation", colour = "Marsh Orientation") +
+  theme_classic(base_size = 18) +
+  theme(axis.text.x = element_text(angle = 45, hjust = 1, size = 18))
+
+ggplot(master_tier5, aes(x = marsh_edge_type, y = log(Flux), fill = marsh_orientation)) +
+  geom_violin(alpha = 0.6) +
+  geom_boxplot(width = 0.2, position = position_dodge(0.9)) +
+  scale_fill_manual(values = c("East.facing" = "#E07070",
+                               "South.facing" = "#70B870",
+                               "West.facing" = "#7090D0")) +
+  theme_bw()
+
+ggplot(avgtotal, aes(x = marsh_edge_type, y = Flux, fill = marsh_edge_type)) +
+  geom_boxplot(alpha = 0.5, outlier.shape = NA) +
+  geom_jitter(alpha = 0.4, width = 0.2, size = 0.8) +
+  scale_y_log10() +
+  labs(title = str_wrap("Sediment Flux by Marsh Edge Type", width = 40),
+       y = "Log of Average Flux (g/m³/day)", x = "Marsh Edge Type") +
+  theme_bw() +
+  theme(legend.position = "none",
+        axis.text.x = element_text(size = 13),
+        axis.title = element_text(size = 13),
+        plot.title = element_text(hjust = 0.5))
+
+ggplot(avgtotal, aes(x = marsh_orientation, y = Flux, fill = marsh_orientation)) +
+  geom_boxplot(alpha = 0.5, outlier.shape = NA) +
+  geom_jitter(alpha = 0.4, width = 0.2, size = 0.8) +
+  scale_y_log10() +
+  labs(title = str_wrap("Sediment Flux by Marsh Orientation", width = 40),
+       y = "Log of Average Flux (g/cm³/month)", x = "Marsh Orientation") +
+  theme_bw() +
+  theme(legend.position = "none",
+        axis.text.x = element_text(size = 13),
+        axis.title = element_text(size = 13),
+        plot.title = element_text(hjust = 0.5))
+```

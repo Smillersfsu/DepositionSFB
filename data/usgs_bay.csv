@@ -1,2305 +1,2305 @@
-Site,Tran,Dist,Replicate,Date.placed.in.field,Date.removed.from.field,Season,Month,Year,Flux,LOI,marsh_edge_type,marsh_orientation,Study.Phase,Phen_Period,Marsh_Area
+Site,Tran,Dist,Replicate,Date.placed.in.field,Date.removed.from.field,Season,Month,Year,Flux,LOI,marsh_edge_type,marsh_orientation,Study.Phase,Phen_Period,Marsh_Loc,Elevation_m,z_star,Marsh_Area
 CorteMadera,A,0.5,a,2022-06-29,2022-07-27,Summer,July,2022,NA,NA,Scarped,East.facing,M1,"Late_Dry
-(Months 1-3)",Edge
+(Months 1-3)",Bay,1.598,0.69919351,Edge
 CorteMadera,A,0.5,b,2022-06-29,2022-07-27,Summer,July,2022,0.018375563,NA,Scarped,East.facing,M1,"Late_Dry
-(Months 1-3)",Edge
+(Months 1-3)",Bay,1.598,0.69919351,Edge
 CorteMadera,A,0.5,c,2022-06-29,2022-07-27,Summer,July,2022,0.200293638,NA,Scarped,East.facing,M1,"Late_Dry
-(Months 1-3)",Edge
+(Months 1-3)",Bay,1.598,0.69919351,Edge
 CorteMadera,A,2,a,2022-06-29,2022-07-27,Summer,July,2022,1.781029575,5.718824464,Scarped,East.facing,M1,"Late_Dry
-(Months 1-3)",Edge
+(Months 1-3)",Bay,1.684,0.801794321,Edge
 CorteMadera,A,2,b,2022-06-29,2022-07-27,Summer,July,2022,9.543654942,NA,Scarped,East.facing,M1,"Late_Dry
-(Months 1-3)",Edge
+(Months 1-3)",Bay,1.684,0.801794321,Edge
 CorteMadera,A,2,c,2022-06-29,2022-07-27,Summer,July,2022,19.3457928,NA,Scarped,East.facing,M1,"Late_Dry
-(Months 1-3)",Edge
+(Months 1-3)",Bay,1.684,0.801794321,Edge
 CorteMadera,A,6,a,2022-06-29,2022-07-27,Summer,July,2022,2.372897712,NA,Scarped,East.facing,M1,"Late_Dry
-(Months 1-3)",Edge
+(Months 1-3)",Bay,1.691,0.81014555,Edge
 CorteMadera,A,6,b,2022-06-29,2022-07-27,Summer,July,2022,3.799760184,NA,Scarped,East.facing,M1,"Late_Dry
-(Months 1-3)",Edge
+(Months 1-3)",Bay,1.691,0.81014555,Edge
 CorteMadera,A,6,c,2022-06-29,2022-07-27,Summer,July,2022,3.803129038,7.646671061,Scarped,East.facing,M1,"Late_Dry
-(Months 1-3)",Edge
+(Months 1-3)",Bay,1.691,0.81014555,Edge
 CorteMadera,A,12,a,2022-06-29,2022-07-27,Summer,July,2022,8.246952708,NA,Scarped,East.facing,M1,"Late_Dry
-(Months 1-3)",Platform
+(Months 1-3)",Bay,1.705,0.826848008,Platform
 CorteMadera,A,12,b,2022-06-29,2022-07-27,Summer,July,2022,9.255158602,NA,Scarped,East.facing,M1,"Late_Dry
-(Months 1-3)",Platform
+(Months 1-3)",Bay,1.705,0.826848008,Platform
 CorteMadera,A,12,c,2022-06-29,2022-07-27,Summer,July,2022,7.933343098,11.58298945,Scarped,East.facing,M1,"Late_Dry
-(Months 1-3)",Platform
+(Months 1-3)",Bay,1.705,0.826848008,Platform
 CorteMadera,A,24,a,2022-06-29,2022-07-27,Summer,July,2022,11.51290278,10.91061453,Scarped,East.facing,M1,"Late_Dry
-(Months 1-3)",Platform
+(Months 1-3)",Bay,1.664,0.777933667,Platform
 CorteMadera,A,24,b,2022-06-29,2022-07-27,Summer,July,2022,21.36220459,NA,Scarped,East.facing,M1,"Late_Dry
-(Months 1-3)",Platform
+(Months 1-3)",Bay,1.664,0.777933667,Platform
 CorteMadera,A,24,c,2022-06-29,2022-07-27,Summer,July,2022,12.25160042,NA,Scarped,East.facing,M1,"Late_Dry
-(Months 1-3)",Platform
+(Months 1-3)",Bay,1.664,0.777933667,Platform
 CorteMadera,A,48,a,2022-06-29,2022-07-27,Summer,July,2022,8.340120036,9.66551745,Scarped,East.facing,M1,"Late_Dry
-(Months 1-3)",Upland
+(Months 1-3)",Bay,1.724,0.849515629,Upland
 CorteMadera,A,48,b,2022-06-29,2022-07-27,Summer,July,2022,5.326463216,NA,Scarped,East.facing,M1,"Late_Dry
-(Months 1-3)",Upland
+(Months 1-3)",Bay,1.724,0.849515629,Upland
 CorteMadera,A,48,c,2022-06-29,2022-07-27,Summer,July,2022,9.551617686,NA,Scarped,East.facing,M1,"Late_Dry
-(Months 1-3)",Upland
+(Months 1-3)",Bay,1.724,0.849515629,Upland
 CorteMadera,B,0.5,a,2022-06-29,2022-07-27,Summer,July,2022,NA,NA,Scarped,East.facing,M1,"Late_Dry
-(Months 1-3)",Edge
+(Months 1-3)",Bay,1.576,0.672946791,Edge
 CorteMadera,B,0.5,b,2022-06-29,2022-07-27,Summer,July,2022,0.03981372,NA,Scarped,East.facing,M1,"Late_Dry
-(Months 1-3)",Edge
+(Months 1-3)",Bay,1.576,0.672946791,Edge
 CorteMadera,B,0.5,c,2022-06-29,2022-07-27,Summer,July,2022,0.010412819,NA,Scarped,East.facing,M1,"Late_Dry
-(Months 1-3)",Edge
+(Months 1-3)",Bay,1.576,0.672946791,Edge
 CorteMadera,B,2,a,2022-06-29,2022-07-27,Summer,July,2022,6.694830147,NA,Scarped,East.facing,M1,"Late_Dry
-(Months 1-3)",Edge
+(Months 1-3)",Bay,1.605,0.707544739,Edge
 CorteMadera,B,2,b,2022-06-29,2022-07-27,Summer,July,2022,16.31321238,7.142857143,Scarped,East.facing,M1,"Late_Dry
-(Months 1-3)",Edge
+(Months 1-3)",Bay,1.605,0.707544739,Edge
 CorteMadera,B,2,c,2022-06-29,2022-07-27,Summer,July,2022,6.701567853,NA,Scarped,East.facing,M1,"Late_Dry
-(Months 1-3)",Edge
+(Months 1-3)",Bay,1.605,0.707544739,Edge
 CorteMadera,B,6,a,2022-06-29,2022-07-27,Summer,July,2022,3.425817476,8.774834437,Scarped,East.facing,M1,"Late_Dry
-(Months 1-3)",Edge
+(Months 1-3)",Bay,1.672,0.787477929,Edge
 CorteMadera,B,6,b,2022-06-29,2022-07-27,Summer,July,2022,2.733058748,NA,Scarped,East.facing,M1,"Late_Dry
-(Months 1-3)",Edge
+(Months 1-3)",Bay,1.672,0.787477929,Edge
 CorteMadera,B,6,c,2022-06-29,2022-07-27,Summer,July,2022,2.371060155,NA,Scarped,East.facing,M1,"Late_Dry
-(Months 1-3)",Edge
+(Months 1-3)",Bay,1.672,0.787477929,Edge
 CorteMadera,B,12,a,2022-06-29,2022-07-27,Summer,July,2022,9.620219788,NA,Scarped,East.facing,M1,"Late_Dry
-(Months 1-3)",Platform
+(Months 1-3)",Bay,1.664,0.777933667,Platform
 CorteMadera,B,12,b,2022-06-29,2022-07-27,Summer,July,2022,10.23233855,9.208375894,Scarped,East.facing,M1,"Late_Dry
-(Months 1-3)",Platform
+(Months 1-3)",Bay,1.664,0.777933667,Platform
 CorteMadera,B,12,c,2022-06-29,2022-07-27,Summer,July,2022,10.22355078,NA,Scarped,East.facing,M1,"Late_Dry
-(Months 1-3)",Platform
+(Months 1-3)",Bay,1.664,0.777933667,Platform
 CorteMadera,B,24,a,2022-06-29,2022-07-27,Summer,July,2022,8.983200268,NA,Scarped,East.facing,M1,"Late_Dry
-(Months 1-3)",Platform
+(Months 1-3)",Bay,1.642,0.751686948,Platform
 CorteMadera,B,24,b,2022-06-29,2022-07-27,Summer,July,2022,23.06123494,11.39299611,Scarped,East.facing,M1,"Late_Dry
-(Months 1-3)",Platform
+(Months 1-3)",Bay,1.642,0.751686948,Platform
 CorteMadera,B,24,c,2022-06-29,2022-07-27,Summer,July,2022,13.09381373,NA,Scarped,East.facing,M1,"Late_Dry
-(Months 1-3)",Platform
+(Months 1-3)",Bay,1.642,0.751686948,Platform
 CorteMadera,B,48,a,2022-06-29,2022-07-27,Summer,July,2022,10.0446953,NA,Scarped,East.facing,M1,"Late_Dry
-(Months 1-3)",Upland
+(Months 1-3)",Bay,1.692,0.811338583,Upland
 CorteMadera,B,48,b,2022-06-29,2022-07-27,Summer,July,2022,9.076303121,NA,Scarped,East.facing,M1,"Late_Dry
-(Months 1-3)",Upland
+(Months 1-3)",Bay,1.692,0.811338583,Upland
 CorteMadera,B,48,c,2022-06-29,2022-07-27,Summer,July,2022,10.90834676,9.142402397,Scarped,East.facing,M1,"Late_Dry
-(Months 1-3)",Upland
+(Months 1-3)",Bay,1.692,0.811338583,Upland
 SanPablo,A,0.5,a,2022-06-30,2022-07-28,Summer,July,2022,NA,NA,Ramped,South.facing,M1,"Late_Dry
-(Months 1-3)",Intertidal
+(Months 1-3)",Bay,0.735,-0.344512321,Intertidal
 SanPablo,A,0.5,b,2022-06-30,2022-07-28,Summer,July,2022,13.25735624,NA,Ramped,South.facing,M1,"Late_Dry
-(Months 1-3)",Intertidal
+(Months 1-3)",Bay,0.735,-0.344512321,Intertidal
 SanPablo,A,0.5,c,2022-06-30,2022-07-28,Summer,July,2022,11.35548546,NA,Ramped,South.facing,M1,"Late_Dry
-(Months 1-3)",Intertidal
+(Months 1-3)",Bay,0.735,-0.344512321,Intertidal
 SanPablo,A,2,a,2022-06-30,2022-07-28,Summer,July,2022,38.05701616,NA,Ramped,South.facing,M1,"Late_Dry
-(Months 1-3)",Intertidal
+(Months 1-3)",Bay,0.751,-0.326125828,Intertidal
 SanPablo,A,2,b,2022-06-30,2022-07-28,Summer,July,2022,17.20136459,NA,Ramped,South.facing,M1,"Late_Dry
-(Months 1-3)",Intertidal
+(Months 1-3)",Bay,0.751,-0.326125828,Intertidal
 SanPablo,A,2,c,2022-06-30,2022-07-28,Summer,July,2022,7.002314569,NA,Ramped,South.facing,M1,"Late_Dry
-(Months 1-3)",Intertidal
+(Months 1-3)",Bay,0.751,-0.326125828,Intertidal
 SanPablo,A,6,a,2022-06-30,2022-07-28,Summer,July,2022,4.152264736,NA,Ramped,South.facing,M1,"Late_Dry
-(Months 1-3)",Intertidal
+(Months 1-3)",Bay,0.889,-0.167542323,Intertidal
 SanPablo,A,6,b,2022-06-30,2022-07-28,Summer,July,2022,3.398254131,NA,Ramped,South.facing,M1,"Late_Dry
-(Months 1-3)",Intertidal
+(Months 1-3)",Bay,0.889,-0.167542323,Intertidal
 SanPablo,A,6,c,2022-06-30,2022-07-28,Summer,July,2022,4.041398839,NA,Ramped,South.facing,M1,"Late_Dry
-(Months 1-3)",Intertidal
+(Months 1-3)",Bay,0.889,-0.167542323,Intertidal
 SanPablo,A,12,a,2022-06-30,2022-07-28,Summer,July,2022,0.367511261,NA,Ramped,South.facing,M1,"Late_Dry
-(Months 1-3)",Intertidal
+(Months 1-3)",Bay,1.069,0.039305726,Intertidal
 SanPablo,A,12,b,2022-06-30,2022-07-28,Summer,July,2022,0.934091123,NA,Ramped,South.facing,M1,"Late_Dry
-(Months 1-3)",Intertidal
+(Months 1-3)",Bay,1.069,0.039305726,Intertidal
 SanPablo,A,12,c,2022-06-30,2022-07-28,Summer,July,2022,3.232874064,NA,Ramped,South.facing,M1,"Late_Dry
-(Months 1-3)",Intertidal
+(Months 1-3)",Bay,1.069,0.039305726,Intertidal
 SanPablo,A,24,a,2022-06-30,2022-07-28,Summer,July,2022,0.274408409,NA,Ramped,South.facing,M1,"Late_Dry
-(Months 1-3)",Edge
+(Months 1-3)",Bay,1.713,0.779362081,Edge
 SanPablo,A,24,b,2022-06-30,2022-07-28,Summer,July,2022,0.290946415,NA,Ramped,South.facing,M1,"Late_Dry
-(Months 1-3)",Edge
+(Months 1-3)",Bay,1.713,0.779362081,Edge
 SanPablo,A,24,c,2022-06-30,2022-07-28,Summer,July,2022,1.254438439,NA,Ramped,South.facing,M1,"Late_Dry
-(Months 1-3)",Edge
+(Months 1-3)",Bay,1.713,0.779362081,Edge
 SanPablo,A,48,a,2022-06-30,2022-07-28,Summer,July,2022,13.44172439,NA,Ramped,South.facing,M1,"Late_Dry
-(Months 1-3)",Platform
+(Months 1-3)",Bay,2.01,1.120661362,Platform
 SanPablo,A,48,b,2022-06-30,2022-07-28,Summer,July,2022,3.35415278,10.65820247,Ramped,South.facing,M1,"Late_Dry
-(Months 1-3)",Platform
+(Months 1-3)",Bay,2.01,1.120661362,Platform
 SanPablo,A,48,c,2022-06-30,2022-07-28,Summer,July,2022,8.438058564,9.458062611,Ramped,South.facing,M1,"Late_Dry
-(Months 1-3)",Platform
+(Months 1-3)",Bay,2.01,1.120661362,Platform
 SanPablo,A,72,a,2022-06-30,2022-07-28,Summer,July,2022,5.701937222,NA,Ramped,South.facing,M1,"Late_Dry
-(Months 1-3)",Upland
+(Months 1-3)",Bay,2.04,1.155136037,Upland
 SanPablo,A,72,b,2022-06-30,2022-07-28,Summer,July,2022,7.290810909,NA,Ramped,South.facing,M1,"Late_Dry
-(Months 1-3)",Upland
+(Months 1-3)",Bay,2.04,1.155136037,Upland
 SanPablo,A,72,c,2022-06-30,2022-07-28,Summer,July,2022,6.433897151,NA,Ramped,South.facing,M1,"Late_Dry
-(Months 1-3)",Upland
+(Months 1-3)",Bay,2.04,1.155136037,Upland
 SanPablo,A,150,a,2022-06-30,2022-07-28,Summer,July,2022,11.39223659,NA,Ramped,South.facing,M1,"Late_Dry
-(Months 1-3)",Upland
+(Months 1-3)",Bay,1.974,1.079291752,Upland
 SanPablo,A,150,b,2022-06-30,2022-07-28,Summer,July,2022,11.44430068,16.95552976,Ramped,South.facing,M1,"Late_Dry
-(Months 1-3)",Upland
+(Months 1-3)",Bay,1.974,1.079291752,Upland
 SanPablo,A,150,c,2022-06-30,2022-07-28,Summer,July,2022,13.38169755,NA,Ramped,South.facing,M1,"Late_Dry
-(Months 1-3)",Upland
+(Months 1-3)",Bay,1.974,1.079291752,Upland
 SanPablo,B,0.5,a,2022-06-30,2022-07-28,Summer,July,2022,16.76341367,NA,Ramped,South.facing,M1,"Late_Dry
-(Months 1-3)",Intertidal
+(Months 1-3)",Bay,0.774,-0.299695244,Intertidal
 SanPablo,B,0.5,b,2022-06-30,2022-07-28,Summer,July,2022,13.72470806,NA,Ramped,South.facing,M1,"Late_Dry
-(Months 1-3)",Intertidal
+(Months 1-3)",Bay,0.774,-0.299695244,Intertidal
 SanPablo,B,0.5,c,2022-06-30,2022-07-28,Summer,July,2022,11.14294145,NA,Ramped,South.facing,M1,"Late_Dry
-(Months 1-3)",Intertidal
+(Months 1-3)",Bay,0.774,-0.299695244,Intertidal
 SanPablo,B,2,a,2022-06-30,2022-07-28,Summer,July,2022,5.843429058,NA,Ramped,South.facing,M1,"Late_Dry
-(Months 1-3)",Intertidal
+(Months 1-3)",Bay,0.805,-0.264071413,Intertidal
 SanPablo,B,2,b,2022-06-30,2022-07-28,Summer,July,2022,3.294738459,NA,Ramped,South.facing,M1,"Late_Dry
-(Months 1-3)",Intertidal
+(Months 1-3)",Bay,0.805,-0.264071413,Intertidal
 SanPablo,B,2,c,2022-06-30,2022-07-28,Summer,July,2022,11.74749747,NA,Ramped,South.facing,M1,"Late_Dry
-(Months 1-3)",Intertidal
+(Months 1-3)",Bay,0.805,-0.264071413,Intertidal
 SanPablo,B,6,a,2022-06-30,2022-07-28,Summer,July,2022,3.107307716,NA,Ramped,South.facing,M1,"Late_Dry
-(Months 1-3)",Intertidal
+(Months 1-3)",Bay,0.837,-0.227298427,Intertidal
 SanPablo,B,6,b,2022-06-30,2022-07-28,Summer,July,2022,20.60145628,NA,Ramped,South.facing,M1,"Late_Dry
-(Months 1-3)",Intertidal
+(Months 1-3)",Bay,0.837,-0.227298427,Intertidal
 SanPablo,B,6,c,2022-06-30,2022-07-28,Summer,July,2022,18.50847965,NA,Ramped,South.facing,M1,"Late_Dry
-(Months 1-3)",Intertidal
+(Months 1-3)",Bay,0.837,-0.227298427,Intertidal
 SanPablo,B,12,a,2022-06-30,2022-07-28,Summer,July,2022,1.49270824,NA,Ramped,South.facing,M1,"Late_Dry
-(Months 1-3)",Intertidal
+(Months 1-3)",Bay,1.042,0.008278519,Intertidal
 SanPablo,B,12,b,2022-06-30,2022-07-28,Summer,July,2022,3.27452534,NA,Ramped,South.facing,M1,"Late_Dry
-(Months 1-3)",Intertidal
+(Months 1-3)",Bay,1.042,0.008278519,Intertidal
 SanPablo,B,12,c,2022-06-30,2022-07-28,Summer,July,2022,2.279794859,NA,Ramped,South.facing,M1,"Late_Dry
-(Months 1-3)",Intertidal
+(Months 1-3)",Bay,1.042,0.008278519,Intertidal
 SanPablo,B,24,a,2022-06-30,2022-07-28,Summer,July,2022,0.736247561,NA,Ramped,South.facing,M1,"Late_Dry
-(Months 1-3)",Edge
+(Months 1-3)",Bay,1.563,0.606988706,Edge
 SanPablo,B,24,b,2022-06-30,2022-07-28,Summer,July,2022,0.327085023,NA,Ramped,South.facing,M1,"Late_Dry
-(Months 1-3)",Edge
+(Months 1-3)",Bay,1.563,0.606988706,Edge
 SanPablo,B,24,c,2022-06-30,2022-07-28,Summer,July,2022,0.878351915,NA,Ramped,South.facing,M1,"Late_Dry
-(Months 1-3)",Edge
+(Months 1-3)",Bay,1.563,0.606988706,Edge
 SanPablo,B,48,a,2022-06-30,2022-07-28,Summer,July,2022,14.50566949,10.24442209,Ramped,South.facing,M1,"Late_Dry
-(Months 1-3)",Platform
+(Months 1-3)",Bay,1.978,1.083888376,Platform
 SanPablo,B,48,b,2022-06-30,2022-07-28,Summer,July,2022,17.77651972,NA,Ramped,South.facing,M1,"Late_Dry
-(Months 1-3)",Platform
+(Months 1-3)",Bay,1.978,1.083888376,Platform
 SanPablo,B,48,c,2022-06-30,2022-07-28,Summer,July,2022,18.25060925,NA,Ramped,South.facing,M1,"Late_Dry
-(Months 1-3)",Platform
+(Months 1-3)",Bay,1.978,1.083888376,Platform
 SanPablo,B,72,a,2022-06-30,2022-07-28,Summer,July,2022,18.56728145,NA,Ramped,South.facing,M1,"Late_Dry
-(Months 1-3)",Upland
+(Months 1-3)",Bay,2.012,1.122959674,Upland
 SanPablo,B,72,b,2022-06-30,2022-07-28,Summer,July,2022,13.69591968,11.97104197,Ramped,South.facing,M1,"Late_Dry
-(Months 1-3)",Upland
+(Months 1-3)",Bay,2.012,1.122959674,Upland
 SanPablo,B,72,c,2022-06-30,2022-07-28,Summer,July,2022,11.86203848,13.49612275,Ramped,South.facing,M1,"Late_Dry
-(Months 1-3)",Upland
+(Months 1-3)",Bay,2.012,1.122959674,Upland
 SanPablo,B,150,a,2022-06-30,2022-07-28,Summer,July,2022,4.804597225,NA,Ramped,South.facing,M1,"Late_Dry
-(Months 1-3)",Upland
+(Months 1-3)",Bay,2.014,1.125257985,Upland
 SanPablo,B,150,b,2022-06-30,2022-07-28,Summer,July,2022,6.591314475,NA,Ramped,South.facing,M1,"Late_Dry
-(Months 1-3)",Upland
+(Months 1-3)",Bay,2.014,1.125257985,Upland
 SanPablo,B,150,c,2022-06-30,2022-07-28,Summer,July,2022,5.684174178,NA,Ramped,South.facing,M1,"Late_Dry
-(Months 1-3)",Upland
+(Months 1-3)",Bay,2.014,1.125257985,Upland
 CorteMadera,A,0.5,a,2022-07-27,2022-08-24,Summer,August,2022,0.131691535,NA,Scarped,East.facing,M2,"Late_Dry
-(Months 1-3)",Edge
+(Months 1-3)",Bay,1.598,0.69919351,Edge
 CorteMadera,A,0.5,b,2022-07-27,2022-08-24,Summer,August,2022,0.689696134,NA,Scarped,East.facing,M2,"Late_Dry
-(Months 1-3)",Edge
+(Months 1-3)",Bay,1.598,0.69919351,Edge
 CorteMadera,A,0.5,c,2022-07-27,2022-08-24,Summer,August,2022,0.62721922,NA,Scarped,East.facing,M2,"Late_Dry
-(Months 1-3)",Edge
+(Months 1-3)",Bay,1.598,0.69919351,Edge
 CorteMadera,A,2,a,2022-07-27,2022-08-24,Summer,August,2022,5.975733112,NA,Scarped,East.facing,M2,"Late_Dry
-(Months 1-3)",Edge
+(Months 1-3)",Bay,1.684,0.801794321,Edge
 CorteMadera,A,2,b,2022-07-27,2022-08-24,Summer,August,2022,3.093219784,NA,Scarped,East.facing,M2,"Late_Dry
-(Months 1-3)",Edge
+(Months 1-3)",Bay,1.684,0.801794321,Edge
 CorteMadera,A,2,c,2022-07-27,2022-08-24,Summer,August,2022,2.260194258,NA,Scarped,East.facing,M2,"Late_Dry
-(Months 1-3)",Edge
+(Months 1-3)",Bay,1.684,0.801794321,Edge
 CorteMadera,A,6,a,2022-07-27,2022-08-24,Summer,August,2022,2.583604168,NA,Scarped,East.facing,M2,"Late_Dry
-(Months 1-3)",Edge
+(Months 1-3)",Bay,1.691,0.81014555,Edge
 CorteMadera,A,6,b,2022-07-27,2022-08-24,Summer,August,2022,2.81146115,NA,Scarped,East.facing,M2,"Late_Dry
-(Months 1-3)",Edge
+(Months 1-3)",Bay,1.691,0.81014555,Edge
 CorteMadera,A,6,c,2022-07-27,2022-08-24,Summer,August,2022,1.886557809,NA,Scarped,East.facing,M2,"Late_Dry
-(Months 1-3)",Edge
+(Months 1-3)",Bay,1.691,0.81014555,Edge
 CorteMadera,A,12,a,2022-07-27,2022-08-24,Summer,August,2022,6.913499347,8.859859018,Scarped,East.facing,M2,"Late_Dry
-(Months 1-3)",Platform
+(Months 1-3)",Bay,1.705,0.826848008,Platform
 CorteMadera,A,12,b,2022-07-27,2022-08-24,Summer,August,2022,7.601357925,NA,Scarped,East.facing,M2,"Late_Dry
-(Months 1-3)",Platform
+(Months 1-3)",Bay,1.705,0.826848008,Platform
 CorteMadera,A,12,c,2022-07-27,2022-08-24,Summer,August,2022,10.09492183,NA,Scarped,East.facing,M2,"Late_Dry
-(Months 1-3)",Platform
+(Months 1-3)",Bay,1.705,0.826848008,Platform
 CorteMadera,A,24,a,2022-07-27,2022-08-24,Summer,August,2022,11.35181035,11.41299927,Scarped,East.facing,M2,"Late_Dry
-(Months 1-3)",Platform
+(Months 1-3)",Bay,1.664,0.777933667,Platform
 CorteMadera,A,24,b,2022-07-27,2022-08-24,Summer,August,2022,26.38914613,NA,Scarped,East.facing,M2,"Late_Dry
-(Months 1-3)",Platform
+(Months 1-3)",Bay,1.664,0.777933667,Platform
 CorteMadera,A,24,c,2022-07-27,2022-08-24,Summer,August,2022,15.79134639,10.29628073,Scarped,East.facing,M2,"Late_Dry
-(Months 1-3)",Platform
+(Months 1-3)",Bay,1.664,0.777933667,Platform
 CorteMadera,A,48,a,2022-07-27,2022-08-24,Summer,August,2022,7.269372752,7.971841705,Scarped,East.facing,M2,"Late_Dry
-(Months 1-3)",Upland
+(Months 1-3)",Bay,1.724,0.849515629,Upland
 CorteMadera,A,48,b,2022-07-27,2022-08-24,Summer,August,2022,5.47408024,NA,Scarped,East.facing,M2,"Late_Dry
-(Months 1-3)",Upland
+(Months 1-3)",Bay,1.724,0.849515629,Upland
 CorteMadera,A,48,c,2022-07-27,2022-08-24,Summer,August,2022,6.2005275,NA,Scarped,East.facing,M2,"Late_Dry
-(Months 1-3)",Upland
+(Months 1-3)",Bay,1.724,0.849515629,Upland
 CorteMadera,B,0.5,a,2022-07-27,2022-08-24,Summer,August,2022,NA,NA,Scarped,East.facing,M2,"Late_Dry
-(Months 1-3)",Edge
+(Months 1-3)",Bay,1.576,0.672946791,Edge
 CorteMadera,B,0.5,b,2022-07-27,2022-08-24,Summer,August,2022,0.331372654,NA,Scarped,East.facing,M2,"Late_Dry
-(Months 1-3)",Edge
+(Months 1-3)",Bay,1.576,0.672946791,Edge
 CorteMadera,B,0.5,c,2022-07-27,2022-08-24,Summer,August,2022,0.129853979,NA,Scarped,East.facing,M2,"Late_Dry
-(Months 1-3)",Edge
+(Months 1-3)",Bay,1.576,0.672946791,Edge
 CorteMadera,B,2,a,2022-07-27,2022-08-24,Summer,August,2022,6.082311378,NA,Scarped,East.facing,M2,"Late_Dry
-(Months 1-3)",Edge
+(Months 1-3)",Bay,1.605,0.707544739,Edge
 CorteMadera,B,2,b,2022-07-27,2022-08-24,Summer,August,2022,3.387228793,7.878787879,Scarped,East.facing,M2,"Late_Dry
-(Months 1-3)",Edge
+(Months 1-3)",Bay,1.605,0.707544739,Edge
 CorteMadera,B,2,c,2022-07-27,2022-08-24,Summer,August,2022,0.839150714,8.81294964,Scarped,East.facing,M2,"Late_Dry
-(Months 1-3)",Edge
+(Months 1-3)",Bay,1.605,0.707544739,Edge
 CorteMadera,B,6,a,2022-07-27,2022-08-24,Summer,August,2022,2.764297205,6.99011267,Scarped,East.facing,M2,"Late_Dry
-(Months 1-3)",Edge
+(Months 1-3)",Bay,1.672,0.787477929,Edge
 CorteMadera,B,6,b,2022-07-27,2022-08-24,Summer,August,2022,4.794796925,NA,Scarped,East.facing,M2,"Late_Dry
-(Months 1-3)",Edge
+(Months 1-3)",Bay,1.672,0.787477929,Edge
 CorteMadera,B,6,c,2022-07-27,2022-08-24,Summer,August,2022,3.024005163,NA,Scarped,East.facing,M2,"Late_Dry
-(Months 1-3)",Edge
+(Months 1-3)",Bay,1.672,0.787477929,Edge
 CorteMadera,B,12,a,2022-07-27,2022-08-24,Summer,August,2022,9.144292705,NA,Scarped,East.facing,M2,"Late_Dry
-(Months 1-3)",Platform
+(Months 1-3)",Bay,1.664,0.777933667,Platform
 CorteMadera,B,12,b,2022-07-27,2022-08-24,Summer,August,2022,6.677815737,NA,Scarped,East.facing,M2,"Late_Dry
-(Months 1-3)",Platform
+(Months 1-3)",Bay,1.664,0.777933667,Platform
 CorteMadera,B,12,c,2022-07-27,2022-08-24,Summer,August,2022,9.625732457,8.495257626,Scarped,East.facing,M2,"Late_Dry
-(Months 1-3)",Platform
+(Months 1-3)",Bay,1.664,0.777933667,Platform
 CorteMadera,B,24,a,2022-07-27,2022-08-24,Summer,August,2022,19.5448614,10.84667357,Scarped,East.facing,M2,"Late_Dry
-(Months 1-3)",Platform
+(Months 1-3)",Bay,1.642,0.751686948,Platform
 CorteMadera,B,24,b,2022-07-27,2022-08-24,Summer,August,2022,26.95388844,NA,Scarped,East.facing,M2,"Late_Dry
-(Months 1-3)",Platform
+(Months 1-3)",Bay,1.642,0.751686948,Platform
 CorteMadera,B,24,c,2022-07-27,2022-08-24,Summer,August,2022,26.96613881,12.81291173,Scarped,East.facing,M2,"Late_Dry
-(Months 1-3)",Platform
+(Months 1-3)",Bay,1.642,0.751686948,Platform
 CorteMadera,B,48,a,2022-07-27,2022-08-24,Summer,August,2022,6.396533506,11.60978973,Scarped,East.facing,M2,"Late_Dry
-(Months 1-3)",Upland
+(Months 1-3)",Bay,1.692,0.811338583,Upland
 CorteMadera,B,48,b,2022-07-27,2022-08-24,Summer,August,2022,7.124818323,NA,Scarped,East.facing,M2,"Late_Dry
-(Months 1-3)",Upland
+(Months 1-3)",Bay,1.692,0.811338583,Upland
 CorteMadera,B,48,c,2022-07-27,2022-08-24,Summer,August,2022,7.372275905,NA,Scarped,East.facing,M2,"Late_Dry
-(Months 1-3)",Upland
+(Months 1-3)",Bay,1.692,0.811338583,Upland
 SanPablo,A,0.5,a,2022-07-28,2022-08-25,Summer,August,2022,7.160344411,NA,Ramped,South.facing,M2,"Late_Dry
-(Months 1-3)",Intertidal
+(Months 1-3)",Bay,0.735,-0.344512321,Intertidal
 SanPablo,A,0.5,b,2022-07-28,2022-08-25,Summer,August,2022,NA,NA,Ramped,South.facing,M2,"Late_Dry
-(Months 1-3)",Intertidal
+(Months 1-3)",Bay,0.735,-0.344512321,Intertidal
 SanPablo,A,0.5,c,2022-07-28,2022-08-25,Summer,August,2022,6.149688442,NA,Ramped,South.facing,M2,"Late_Dry
-(Months 1-3)",Intertidal
+(Months 1-3)",Bay,0.735,-0.344512321,Intertidal
 SanPablo,A,2,a,2022-07-28,2022-08-25,Summer,August,2022,16.51350602,NA,Ramped,South.facing,M2,"Late_Dry
-(Months 1-3)",Intertidal
+(Months 1-3)",Bay,0.751,-0.326125828,Intertidal
 SanPablo,A,2,b,2022-07-28,2022-08-25,Summer,August,2022,17.95905031,NA,Ramped,South.facing,M2,"Late_Dry
-(Months 1-3)",Intertidal
+(Months 1-3)",Bay,0.751,-0.326125828,Intertidal
 SanPablo,A,2,c,2022-07-28,2022-08-25,Summer,August,2022,16.45837933,NA,Ramped,South.facing,M2,"Late_Dry
-(Months 1-3)",Intertidal
+(Months 1-3)",Bay,0.751,-0.326125828,Intertidal
 SanPablo,A,6,a,2022-07-28,2022-08-25,Summer,August,2022,8.060747002,NA,Ramped,South.facing,M2,"Late_Dry
-(Months 1-3)",Intertidal
+(Months 1-3)",Bay,0.889,-0.167542323,Intertidal
 SanPablo,A,6,b,2022-07-28,2022-08-25,Summer,August,2022,6.180314381,NA,Ramped,South.facing,M2,"Late_Dry
-(Months 1-3)",Intertidal
+(Months 1-3)",Bay,0.889,-0.167542323,Intertidal
 SanPablo,A,6,c,2022-07-28,2022-08-25,Summer,August,2022,5.494293359,NA,Ramped,South.facing,M2,"Late_Dry
-(Months 1-3)",Intertidal
+(Months 1-3)",Bay,0.889,-0.167542323,Intertidal
 SanPablo,A,12,a,2022-07-28,2022-08-25,Summer,August,2022,1.11478416,NA,Ramped,South.facing,M2,"Late_Dry
-(Months 1-3)",Intertidal
+(Months 1-3)",Bay,1.069,0.039305726,Intertidal
 SanPablo,A,12,b,2022-07-28,2022-08-25,Summer,August,2022,3.325976916,NA,Ramped,South.facing,M2,"Late_Dry
-(Months 1-3)",Intertidal
+(Months 1-3)",Bay,1.069,0.039305726,Intertidal
 SanPablo,A,12,c,2022-07-28,2022-08-25,Summer,August,2022,3.044218283,NA,Ramped,South.facing,M2,"Late_Dry
-(Months 1-3)",Intertidal
+(Months 1-3)",Bay,1.069,0.039305726,Intertidal
 SanPablo,A,24,a,2022-07-28,2022-08-25,Summer,August,2022,2.499076578,NA,Ramped,South.facing,M2,"Late_Dry
-(Months 1-3)",Edge
+(Months 1-3)",Bay,1.713,0.779362081,Edge
 SanPablo,A,24,b,2022-07-28,2022-08-25,Summer,August,2022,2.462325452,NA,Ramped,South.facing,M2,"Late_Dry
-(Months 1-3)",Edge
+(Months 1-3)",Bay,1.713,0.779362081,Edge
 SanPablo,A,24,c,2022-07-28,2022-08-25,Summer,August,2022,0.661520271,NA,Ramped,South.facing,M2,"Late_Dry
-(Months 1-3)",Edge
+(Months 1-3)",Bay,1.713,0.779362081,Edge
 SanPablo,A,48,a,2022-07-28,2022-08-25,Summer,August,2022,1.799580144,NA,Ramped,South.facing,M2,"Late_Dry
-(Months 1-3)",Platform
+(Months 1-3)",Bay,2.01,1.120661362,Platform
 SanPablo,A,48,b,2022-07-28,2022-08-25,Summer,August,2022,1.856544389,8.010618364,Ramped,South.facing,M2,"Late_Dry
-(Months 1-3)",Platform
+(Months 1-3)",Bay,2.01,1.120661362,Platform
 SanPablo,A,48,c,2022-07-28,2022-08-25,Summer,August,2022,1.354278999,9.283819629,Ramped,South.facing,M2,"Late_Dry
-(Months 1-3)",Platform
+(Months 1-3)",Bay,2.01,1.120661362,Platform
 SanPablo,A,72,a,2022-07-28,2022-08-25,Summer,August,2022,2.733671267,NA,Ramped,South.facing,M2,"Late_Dry
-(Months 1-3)",Upland
+(Months 1-3)",Bay,2.04,1.155136037,Upland
 SanPablo,A,72,b,2022-07-28,2022-08-25,Summer,August,2022,2.459875377,NA,Ramped,South.facing,M2,"Late_Dry
-(Months 1-3)",Upland
+(Months 1-3)",Bay,2.04,1.155136037,Upland
 SanPablo,A,72,c,2022-07-28,2022-08-25,Summer,August,2022,2.973778624,NA,Ramped,South.facing,M2,"Late_Dry
-(Months 1-3)",Upland
+(Months 1-3)",Bay,2.04,1.155136037,Upland
 SanPablo,A,150,a,2022-07-28,2022-08-25,Summer,August,2022,6.003908975,NA,Ramped,South.facing,M2,"Late_Dry
-(Months 1-3)",Upland
+(Months 1-3)",Bay,1.974,1.079291752,Upland
 SanPablo,A,150,b,2022-07-28,2022-08-25,Summer,August,2022,7.352062786,14.18630994,Ramped,South.facing,M2,"Late_Dry
-(Months 1-3)",Upland
+(Months 1-3)",Bay,1.974,1.079291752,Upland
 SanPablo,A,150,c,2022-07-28,2022-08-25,Summer,August,2022,9.190844131,NA,Ramped,South.facing,M2,"Late_Dry
-(Months 1-3)",Upland
+(Months 1-3)",Bay,1.974,1.079291752,Upland
 SanPablo,B,0.5,a,2022-07-28,2022-08-25,Summer,August,2022,6.547825642,NA,Ramped,South.facing,M2,"Late_Dry
-(Months 1-3)",Intertidal
+(Months 1-3)",Bay,0.774,-0.299695244,Intertidal
 SanPablo,B,0.5,b,2022-07-28,2022-08-25,Summer,August,2022,5.910806122,NA,Ramped,South.facing,M2,"Late_Dry
-(Months 1-3)",Intertidal
+(Months 1-3)",Bay,0.774,-0.299695244,Intertidal
 SanPablo,B,0.5,c,2022-07-28,2022-08-25,Summer,August,2022,0.189880818,NA,Ramped,South.facing,M2,"Late_Dry
-(Months 1-3)",Intertidal
+(Months 1-3)",Bay,0.774,-0.299695244,Intertidal
 SanPablo,B,2,a,2022-07-28,2022-08-25,Summer,August,2022,4.691893772,NA,Ramped,South.facing,M2,"Late_Dry
-(Months 1-3)",Intertidal
+(Months 1-3)",Bay,0.805,-0.264071413,Intertidal
 SanPablo,B,2,b,2022-07-28,2022-08-25,Summer,August,2022,3.834367495,NA,Ramped,South.facing,M2,"Late_Dry
-(Months 1-3)",Intertidal
+(Months 1-3)",Bay,0.805,-0.264071413,Intertidal
 SanPablo,B,2,c,2022-07-28,2022-08-25,Summer,August,2022,8.64876502,NA,Ramped,South.facing,M2,"Late_Dry
-(Months 1-3)",Intertidal
+(Months 1-3)",Bay,0.805,-0.264071413,Intertidal
 SanPablo,B,6,a,2022-07-28,2022-08-25,Summer,August,2022,3.987497187,NA,Ramped,South.facing,M2,"Late_Dry
-(Months 1-3)",Intertidal
+(Months 1-3)",Bay,0.837,-0.227298427,Intertidal
 SanPablo,B,6,b,2022-07-28,2022-08-25,Summer,August,2022,2.780835212,NA,Ramped,South.facing,M2,"Late_Dry
-(Months 1-3)",Intertidal
+(Months 1-3)",Bay,0.837,-0.227298427,Intertidal
 SanPablo,B,6,c,2022-07-28,2022-08-25,Summer,August,2022,5.794427556,NA,Ramped,South.facing,M2,"Late_Dry
-(Months 1-3)",Intertidal
+(Months 1-3)",Bay,0.837,-0.227298427,Intertidal
 SanPablo,B,12,a,2022-07-28,2022-08-25,Summer,August,2022,3.491356984,NA,Ramped,South.facing,M2,"Late_Dry
-(Months 1-3)",Intertidal
+(Months 1-3)",Bay,1.042,0.008278519,Intertidal
 SanPablo,B,12,b,2022-07-28,2022-08-25,Summer,August,2022,2.382698012,NA,Ramped,South.facing,M2,"Late_Dry
-(Months 1-3)",Intertidal
+(Months 1-3)",Bay,1.042,0.008278519,Intertidal
 SanPablo,B,12,c,2022-07-28,2022-08-25,Summer,August,2022,0.667645458,NA,Ramped,South.facing,M2,"Late_Dry
-(Months 1-3)",Intertidal
+(Months 1-3)",Bay,1.042,0.008278519,Intertidal
 SanPablo,B,24,a,2022-07-28,2022-08-25,Summer,August,2022,0.906527778,NA,Ramped,South.facing,M2,"Late_Dry
-(Months 1-3)",Edge
+(Months 1-3)",Bay,1.563,0.606988706,Edge
 SanPablo,B,24,b,2022-07-28,2022-08-25,Summer,August,2022,3.924407754,NA,Ramped,South.facing,M2,"Late_Dry
-(Months 1-3)",Edge
+(Months 1-3)",Bay,1.563,0.606988706,Edge
 SanPablo,B,24,c,2022-07-28,2022-08-25,Summer,August,2022,0.796886919,7.797594359,Ramped,South.facing,M2,"Late_Dry
-(Months 1-3)",Edge
+(Months 1-3)",Bay,1.563,0.606988706,Edge
 SanPablo,B,48,a,2022-07-28,2022-08-25,Summer,August,2022,6.870623034,NA,Ramped,South.facing,M2,"Late_Dry
-(Months 1-3)",Platform
+(Months 1-3)",Bay,1.978,1.083888376,Platform
 SanPablo,B,48,b,2022-07-28,2022-08-25,Summer,August,2022,2.171379037,NA,Ramped,South.facing,M2,"Late_Dry
-(Months 1-3)",Platform
+(Months 1-3)",Bay,1.978,1.083888376,Platform
 SanPablo,B,48,c,2022-07-28,2022-08-25,Summer,August,2022,4.10571331,NA,Ramped,South.facing,M2,"Late_Dry
-(Months 1-3)",Platform
+(Months 1-3)",Bay,1.978,1.083888376,Platform
 SanPablo,B,72,a,2022-07-28,2022-08-25,Summer,August,2022,3.365178118,10.69976771,Ramped,South.facing,M2,"Late_Dry
-(Months 1-3)",Upland
+(Months 1-3)",Bay,2.012,1.122959674,Upland
 SanPablo,B,72,b,2022-07-28,2022-08-25,Summer,August,2022,5.950619842,NA,Ramped,South.facing,M2,"Late_Dry
-(Months 1-3)",Upland
+(Months 1-3)",Bay,2.012,1.122959674,Upland
 SanPablo,B,72,c,2022-07-28,2022-08-25,Summer,August,2022,17.19095177,NA,Ramped,South.facing,M2,"Late_Dry
-(Months 1-3)",Upland
+(Months 1-3)",Bay,2.012,1.122959674,Upland
 SanPablo,B,150,a,2022-07-28,2022-08-25,Summer,August,2022,3.641424083,NA,Ramped,South.facing,M2,"Late_Dry
-(Months 1-3)",Upland
+(Months 1-3)",Bay,2.014,1.125257985,Upland
 SanPablo,B,150,b,2022-07-28,2022-08-25,Summer,August,2022,4.40400995,14.08025568,Ramped,South.facing,M2,"Late_Dry
-(Months 1-3)",Upland
+(Months 1-3)",Bay,2.014,1.125257985,Upland
 SanPablo,B,150,c,2022-07-28,2022-08-25,Summer,August,2022,4.277831084,NA,Ramped,South.facing,M2,"Late_Dry
-(Months 1-3)",Upland
+(Months 1-3)",Bay,2.014,1.125257985,Upland
 CorteMadera,A,0.5,a,2022-08-24,2022-09-21,Fall,September,2022,0.036751126,NA,Scarped,East.facing,M3,"Late_Dry
-(Months 1-3)",Edge
+(Months 1-3)",Bay,1.598,0.69919351,Edge
 CorteMadera,A,0.5,b,2022-08-24,2022-09-21,Fall,September,2022,8.121998879,NA,Scarped,East.facing,M3,"Late_Dry
-(Months 1-3)",Edge
+(Months 1-3)",Bay,1.598,0.69919351,Edge
 CorteMadera,A,0.5,c,2022-08-24,2022-09-21,Fall,September,2022,23.53297111,NA,Scarped,East.facing,M3,"Late_Dry
-(Months 1-3)",Edge
+(Months 1-3)",Bay,1.598,0.69919351,Edge
 CorteMadera,A,2,a,2022-08-24,2022-09-21,Fall,September,2022,9.677796552,NA,Scarped,East.facing,M3,"Late_Dry
-(Months 1-3)",Edge
+(Months 1-3)",Bay,1.684,0.801794321,Edge
 CorteMadera,A,2,b,2022-08-24,2022-09-21,Fall,September,2022,12.25650057,12.36323851,Scarped,East.facing,M3,"Late_Dry
-(Months 1-3)",Edge
+(Months 1-3)",Bay,1.684,0.801794321,Edge
 CorteMadera,A,2,c,2022-08-24,2022-09-21,Fall,September,2022,1.102533784,NA,Scarped,East.facing,M3,"Late_Dry
-(Months 1-3)",Edge
+(Months 1-3)",Bay,1.684,0.801794321,Edge
 CorteMadera,A,6,a,2022-08-24,2022-09-21,Fall,September,2022,2.033562314,6.637339889,Scarped,East.facing,M3,"Late_Dry
-(Months 1-3)",Edge
+(Months 1-3)",Bay,1.691,0.81014555,Edge
 CorteMadera,A,6,b,2022-08-24,2022-09-21,Fall,September,2022,1.929434123,6.392224128,Scarped,East.facing,M3,"Late_Dry
-(Months 1-3)",Edge
+(Months 1-3)",Bay,1.691,0.81014555,Edge
 CorteMadera,A,6,c,2022-08-24,2022-09-21,Fall,September,2022,2.799210775,NA,Scarped,East.facing,M3,"Late_Dry
-(Months 1-3)",Edge
+(Months 1-3)",Bay,1.691,0.81014555,Edge
 CorteMadera,A,12,a,2022-08-24,2022-09-21,Fall,September,2022,3.650611864,9.040092521,Scarped,East.facing,M3,"Late_Dry
-(Months 1-3)",Platform
+(Months 1-3)",Bay,1.705,0.826848008,Platform
 CorteMadera,A,12,b,2022-08-24,2022-09-21,Fall,September,2022,3.681237803,NA,Scarped,East.facing,M3,"Late_Dry
-(Months 1-3)",Platform
+(Months 1-3)",Bay,1.705,0.826848008,Platform
 CorteMadera,A,12,c,2022-08-24,2022-09-21,Fall,September,2022,4.410135138,NA,Scarped,East.facing,M3,"Late_Dry
-(Months 1-3)",Platform
+(Months 1-3)",Bay,1.705,0.826848008,Platform
 CorteMadera,A,24,a,2022-08-24,2022-09-21,Fall,September,2022,4.912400529,NA,Scarped,East.facing,M3,"Late_Dry
-(Months 1-3)",Platform
+(Months 1-3)",Bay,1.664,0.777933667,Platform
 CorteMadera,A,24,b,2022-08-24,2022-09-21,Fall,September,2022,6.266067008,NA,Scarped,East.facing,M3,"Late_Dry
-(Months 1-3)",Platform
+(Months 1-3)",Bay,1.664,0.777933667,Platform
 CorteMadera,A,24,c,2022-08-24,2022-09-21,Fall,September,2022,4.88177459,NA,Scarped,East.facing,M3,"Late_Dry
-(Months 1-3)",Platform
+(Months 1-3)",Bay,1.664,0.777933667,Platform
 CorteMadera,A,48,a,2022-08-24,2022-09-21,Fall,September,2022,1.996811187,6.471898336,Scarped,East.facing,M3,"Late_Dry
-(Months 1-3)",Upland
+(Months 1-3)",Bay,1.724,0.849515629,Upland
 CorteMadera,A,48,b,2022-08-24,2022-09-21,Fall,September,2022,1.629299926,NA,Scarped,East.facing,M3,"Late_Dry
-(Months 1-3)",Upland
+(Months 1-3)",Bay,1.724,0.849515629,Upland
 CorteMadera,A,48,c,2022-08-24,2022-09-21,Fall,September,2022,5.292162165,NA,Scarped,East.facing,M3,"Late_Dry
-(Months 1-3)",Upland
+(Months 1-3)",Bay,1.724,0.849515629,Upland
 CorteMadera,B,0.5,a,2022-08-24,2022-09-21,Fall,September,2022,NA,NA,Scarped,East.facing,M3,"Late_Dry
-(Months 1-3)",Edge
+(Months 1-3)",Bay,1.576,0.672946791,Edge
 CorteMadera,B,0.5,b,2022-08-24,2022-09-21,Fall,September,2022,0.410387575,NA,Scarped,East.facing,M3,"Late_Dry
-(Months 1-3)",Edge
+(Months 1-3)",Bay,1.576,0.672946791,Edge
 CorteMadera,B,0.5,c,2022-08-24,2022-09-21,Fall,September,2022,13.04664978,NA,Scarped,East.facing,M3,"Late_Dry
-(Months 1-3)",Edge
+(Months 1-3)",Bay,1.576,0.672946791,Edge
 CorteMadera,B,2,a,2022-08-24,2022-09-21,Fall,September,2022,0.428763138,NA,Scarped,East.facing,M3,"Late_Dry
-(Months 1-3)",Edge
+(Months 1-3)",Bay,1.605,0.707544739,Edge
 CorteMadera,B,2,b,2022-08-24,2022-09-21,Fall,September,2022,0.153129692,NA,Scarped,East.facing,M3,"Late_Dry
-(Months 1-3)",Edge
+(Months 1-3)",Bay,1.605,0.707544739,Edge
 CorteMadera,B,2,c,2022-08-24,2022-09-21,Fall,September,2022,0.771773649,NA,Scarped,East.facing,M3,"Late_Dry
-(Months 1-3)",Edge
+(Months 1-3)",Bay,1.605,0.707544739,Edge
 CorteMadera,B,6,a,2022-08-24,2022-09-21,Fall,September,2022,2.30919576,NA,Scarped,East.facing,M3,"Late_Dry
-(Months 1-3)",Edge
+(Months 1-3)",Bay,1.672,0.787477929,Edge
 CorteMadera,B,6,b,2022-08-24,2022-09-21,Fall,September,2022,1.849806683,NA,Scarped,East.facing,M3,"Late_Dry
-(Months 1-3)",Edge
+(Months 1-3)",Bay,1.672,0.787477929,Edge
 CorteMadera,B,6,c,2022-08-24,2022-09-21,Fall,September,2022,2.664456646,NA,Scarped,East.facing,M3,"Late_Dry
-(Months 1-3)",Edge
+(Months 1-3)",Bay,1.672,0.787477929,Edge
 CorteMadera,B,12,a,2022-08-24,2022-09-21,Fall,September,2022,3.693488178,NA,Scarped,East.facing,M3,"Late_Dry
-(Months 1-3)",Platform
+(Months 1-3)",Bay,1.664,0.777933667,Platform
 CorteMadera,B,12,b,2022-08-24,2022-09-21,Fall,September,2022,4.428510701,NA,Scarped,East.facing,M3,"Late_Dry
-(Months 1-3)",Platform
+(Months 1-3)",Bay,1.664,0.777933667,Platform
 CorteMadera,B,12,c,2022-08-24,2022-09-21,Fall,September,2022,4.973652405,NA,Scarped,East.facing,M3,"Late_Dry
-(Months 1-3)",Platform
+(Months 1-3)",Bay,1.664,0.777933667,Platform
 CorteMadera,B,24,a,2022-08-24,2022-09-21,Fall,September,2022,7.638109051,NA,Scarped,East.facing,M3,"Late_Dry
-(Months 1-3)",Platform
+(Months 1-3)",Bay,1.642,0.751686948,Platform
 CorteMadera,B,24,b,2022-08-24,2022-09-21,Fall,September,2022,17.33428117,NA,Scarped,East.facing,M3,"Late_Dry
-(Months 1-3)",Platform
+(Months 1-3)",Bay,1.642,0.751686948,Platform
 CorteMadera,B,24,c,2022-08-24,2022-09-21,Fall,September,2022,6.798958338,NA,Scarped,East.facing,M3,"Late_Dry
-(Months 1-3)",Platform
+(Months 1-3)",Bay,1.642,0.751686948,Platform
 CorteMadera,B,48,a,2022-08-24,2022-09-21,Fall,September,2022,1.255663477,NA,Scarped,East.facing,M3,"Late_Dry
-(Months 1-3)",Upland
+(Months 1-3)",Bay,1.692,0.811338583,Upland
 CorteMadera,B,48,b,2022-08-24,2022-09-21,Fall,September,2022,3.02584272,NA,Scarped,East.facing,M3,"Late_Dry
-(Months 1-3)",Upland
+(Months 1-3)",Bay,1.692,0.811338583,Upland
 CorteMadera,B,48,c,2022-08-24,2022-09-21,Fall,September,2022,1.347541292,NA,Scarped,East.facing,M3,"Late_Dry
-(Months 1-3)",Upland
+(Months 1-3)",Bay,1.692,0.811338583,Upland
 SanPablo,A,0.5,a,2022-08-25,2022-09-22,Fall,September,2022,4.845023464,NA,Ramped,South.facing,M3,"Late_Dry
-(Months 1-3)",Intertidal
+(Months 1-3)",Bay,0.735,-0.344512321,Intertidal
 SanPablo,A,0.5,b,2022-08-25,2022-09-22,Fall,September,2022,4.116126129,NA,Ramped,South.facing,M3,"Late_Dry
-(Months 1-3)",Intertidal
+(Months 1-3)",Bay,0.735,-0.344512321,Intertidal
 SanPablo,A,0.5,c,2022-08-25,2022-09-22,Fall,September,2022,8.997900719,NA,Ramped,South.facing,M3,"Late_Dry
-(Months 1-3)",Intertidal
+(Months 1-3)",Bay,0.735,-0.344512321,Intertidal
 SanPablo,A,2,a,2022-08-25,2022-09-22,Fall,September,2022,50.58792514,NA,Ramped,South.facing,M3,"Late_Dry
-(Months 1-3)",Intertidal
+(Months 1-3)",Bay,0.751,-0.326125828,Intertidal
 SanPablo,A,2,b,2022-08-25,2022-09-22,Fall,September,2022,33.8906635,NA,Ramped,South.facing,M3,"Late_Dry
-(Months 1-3)",Intertidal
+(Months 1-3)",Bay,0.751,-0.326125828,Intertidal
 SanPablo,A,2,c,2022-08-25,2022-09-22,Fall,September,2022,83.26580148,NA,Ramped,South.facing,M3,"Late_Dry
-(Months 1-3)",Intertidal
+(Months 1-3)",Bay,0.751,-0.326125828,Intertidal
 SanPablo,A,6,a,2022-08-25,2022-09-22,Fall,September,2022,11.90123968,NA,Ramped,South.facing,M3,"Late_Dry
-(Months 1-3)",Intertidal
+(Months 1-3)",Bay,0.889,-0.167542323,Intertidal
 SanPablo,A,6,b,2022-08-25,2022-09-22,Fall,September,2022,5.59842155,NA,Ramped,South.facing,M3,"Late_Dry
-(Months 1-3)",Intertidal
+(Months 1-3)",Bay,0.889,-0.167542323,Intertidal
 SanPablo,A,6,c,2022-08-25,2022-09-22,Fall,September,2022,4.826647901,NA,Ramped,South.facing,M3,"Late_Dry
-(Months 1-3)",Intertidal
+(Months 1-3)",Bay,0.889,-0.167542323,Intertidal
 SanPablo,A,12,a,2022-08-25,2022-09-22,Fall,September,2022,2.107064566,NA,Ramped,South.facing,M3,"Late_Dry
-(Months 1-3)",Intertidal
+(Months 1-3)",Bay,1.069,0.039305726,Intertidal
 SanPablo,A,12,b,2022-08-25,2022-09-22,Fall,September,2022,3.981371999,NA,Ramped,South.facing,M3,"Late_Dry
-(Months 1-3)",Intertidal
+(Months 1-3)",Bay,1.069,0.039305726,Intertidal
 SanPablo,A,12,c,2022-08-25,2022-09-22,Fall,September,2022,2.523577329,NA,Ramped,South.facing,M3,"Late_Dry
-(Months 1-3)",Intertidal
+(Months 1-3)",Bay,1.069,0.039305726,Intertidal
 SanPablo,A,24,a,2022-08-25,2022-09-22,Fall,September,2022,2.437824701,NA,Ramped,South.facing,M3,"Late_Dry
-(Months 1-3)",Edge
+(Months 1-3)",Bay,1.713,0.779362081,Edge
 SanPablo,A,24,b,2022-08-25,2022-09-22,Fall,September,2022,0.189880818,NA,Ramped,South.facing,M3,"Late_Dry
-(Months 1-3)",Edge
+(Months 1-3)",Bay,1.713,0.779362081,Edge
 SanPablo,A,24,c,2022-08-25,2022-09-22,Fall,September,2022,0.679895834,10.34819395,Ramped,South.facing,M3,"Late_Dry
-(Months 1-3)",Edge
+(Months 1-3)",Bay,1.713,0.779362081,Edge
 SanPablo,A,48,a,2022-08-25,2022-09-22,Fall,September,2022,7.53398086,NA,Ramped,South.facing,M3,"Late_Dry
-(Months 1-3)",Platform
+(Months 1-3)",Bay,2.01,1.120661362,Platform
 SanPablo,A,48,b,2022-08-25,2022-09-22,Fall,September,2022,6.854085027,8.67807154,Ramped,South.facing,M3,"Late_Dry
-(Months 1-3)",Platform
+(Months 1-3)",Bay,2.01,1.120661362,Platform
 SanPablo,A,48,c,2022-08-25,2022-09-22,Fall,September,2022,2.156066067,NA,Ramped,South.facing,M3,"Late_Dry
-(Months 1-3)",Platform
+(Months 1-3)",Bay,2.01,1.120661362,Platform
 SanPablo,A,72,a,2022-08-25,2022-09-22,Fall,September,2022,3.319851729,NA,Ramped,South.facing,M3,"Late_Dry
-(Months 1-3)",Upland
+(Months 1-3)",Bay,2.04,1.155136037,Upland
 SanPablo,A,72,b,2022-08-25,2022-09-22,Fall,September,2022,3.932370498,NA,Ramped,South.facing,M3,"Late_Dry
-(Months 1-3)",Upland
+(Months 1-3)",Bay,2.04,1.155136037,Upland
 SanPablo,A,72,c,2022-08-25,2022-09-22,Fall,September,2022,4.685768584,NA,Ramped,South.facing,M3,"Late_Dry
-(Months 1-3)",Upland
+(Months 1-3)",Bay,2.04,1.155136037,Upland
 SanPablo,A,150,a,2022-08-25,2022-09-22,Fall,September,2022,2.646081083,12.09872282,Ramped,South.facing,M3,"Late_Dry
-(Months 1-3)",Upland
+(Months 1-3)",Bay,1.974,1.079291752,Upland
 SanPablo,A,150,b,2022-08-25,2022-09-22,Fall,September,2022,4.771521212,NA,Ramped,South.facing,M3,"Late_Dry
-(Months 1-3)",Upland
+(Months 1-3)",Bay,1.974,1.079291752,Upland
 SanPablo,A,150,c,2022-08-25,2022-09-22,Fall,September,2022,4.814397525,NA,Ramped,South.facing,M3,"Late_Dry
-(Months 1-3)",Upland
+(Months 1-3)",Bay,1.974,1.079291752,Upland
 SanPablo,B,0.5,a,2022-08-25,2022-09-22,Fall,September,2022,15.61922861,NA,Ramped,South.facing,M3,"Late_Dry
-(Months 1-3)",Intertidal
+(Months 1-3)",Bay,0.774,-0.299695244,Intertidal
 SanPablo,B,0.5,b,2022-08-25,2022-09-22,Fall,September,2022,8.416007888,NA,Ramped,South.facing,M3,"Late_Dry
-(Months 1-3)",Intertidal
+(Months 1-3)",Bay,0.774,-0.299695244,Intertidal
 SanPablo,B,0.5,c,2022-08-25,2022-09-22,Fall,September,2022,8.397632325,NA,Ramped,South.facing,M3,"Late_Dry
-(Months 1-3)",Intertidal
+(Months 1-3)",Bay,0.774,-0.299695244,Intertidal
 SanPablo,B,2,a,2022-08-25,2022-09-22,Fall,September,2022,6.008809125,NA,Ramped,South.facing,M3,"Late_Dry
-(Months 1-3)",Intertidal
+(Months 1-3)",Bay,0.805,-0.264071413,Intertidal
 SanPablo,B,2,b,2022-08-25,2022-09-22,Fall,September,2022,5.083905784,NA,Ramped,South.facing,M3,"Late_Dry
-(Months 1-3)",Intertidal
+(Months 1-3)",Bay,0.805,-0.264071413,Intertidal
 SanPablo,B,2,c,2022-08-25,2022-09-22,Fall,September,2022,6.982713968,NA,Ramped,South.facing,M3,"Late_Dry
-(Months 1-3)",Intertidal
+(Months 1-3)",Bay,0.805,-0.264071413,Intertidal
 SanPablo,B,6,a,2022-08-25,2022-09-22,Fall,September,2022,14.9270824,NA,Ramped,South.facing,M3,"Late_Dry
-(Months 1-3)",Intertidal
+(Months 1-3)",Bay,0.837,-0.227298427,Intertidal
 SanPablo,B,6,b,2022-08-25,2022-09-22,Fall,September,2022,14.93933278,NA,Ramped,South.facing,M3,"Late_Dry
-(Months 1-3)",Intertidal
+(Months 1-3)",Bay,0.837,-0.227298427,Intertidal
 SanPablo,B,6,c,2022-08-25,2022-09-22,Fall,September,2022,5.488168172,NA,Ramped,South.facing,M3,"Late_Dry
-(Months 1-3)",Intertidal
+(Months 1-3)",Bay,0.837,-0.227298427,Intertidal
 SanPablo,B,12,a,2022-08-25,2022-09-22,Fall,September,2022,2.290820197,NA,Ramped,South.facing,M3,"Late_Dry
-(Months 1-3)",Intertidal
+(Months 1-3)",Bay,1.042,0.008278519,Intertidal
 SanPablo,B,12,b,2022-08-25,2022-09-22,Fall,September,2022,2.039687501,NA,Ramped,South.facing,M3,"Late_Dry
-(Months 1-3)",Intertidal
+(Months 1-3)",Bay,1.042,0.008278519,Intertidal
 SanPablo,B,12,c,2022-08-25,2022-09-22,Fall,September,2022,0.31850976,NA,Ramped,South.facing,M3,"Late_Dry
-(Months 1-3)",Intertidal
+(Months 1-3)",Bay,1.042,0.008278519,Intertidal
 SanPablo,B,24,a,2022-08-25,2022-09-22,Fall,September,2022,8.269003383,NA,Ramped,South.facing,M3,"Late_Dry
-(Months 1-3)",Edge
+(Months 1-3)",Bay,1.563,0.606988706,Edge
 SanPablo,B,24,b,2022-08-25,2022-09-22,Fall,September,2022,3.577109612,NA,Ramped,South.facing,M3,"Late_Dry
-(Months 1-3)",Edge
+(Months 1-3)",Bay,1.563,0.606988706,Edge
 SanPablo,B,24,c,2022-08-25,2022-09-22,Fall,September,2022,2.370447637,NA,Ramped,South.facing,M3,"Late_Dry
-(Months 1-3)",Edge
+(Months 1-3)",Bay,1.563,0.606988706,Edge
 SanPablo,B,48,a,2022-08-25,2022-09-22,Fall,September,2022,5.096156159,9.496777246,Ramped,South.facing,M3,"Late_Dry
-(Months 1-3)",Platform
+(Months 1-3)",Bay,1.978,1.083888376,Platform
 SanPablo,B,48,b,2022-08-25,2022-09-22,Fall,September,2022,5.610671925,NA,Ramped,South.facing,M3,"Late_Dry
-(Months 1-3)",Platform
+(Months 1-3)",Bay,1.978,1.083888376,Platform
 SanPablo,B,48,c,2022-08-25,2022-09-22,Fall,September,2022,7.962743999,NA,Ramped,South.facing,M3,"Late_Dry
-(Months 1-3)",Platform
+(Months 1-3)",Bay,1.978,1.083888376,Platform
 SanPablo,B,72,a,2022-08-25,2022-09-22,Fall,September,2022,5.310537728,11.7991374,Ramped,South.facing,M3,"Late_Dry
-(Months 1-3)",Upland
+(Months 1-3)",Bay,2.012,1.122959674,Upland
 SanPablo,B,72,b,2022-08-25,2022-09-22,Fall,September,2022,NA,NA,Ramped,South.facing,M3,"Late_Dry
-(Months 1-3)",Upland
+(Months 1-3)",Bay,2.012,1.122959674,Upland
 SanPablo,B,72,c,2022-08-25,2022-09-22,Fall,September,2022,7.515605297,NA,Ramped,South.facing,M3,"Late_Dry
-(Months 1-3)",Upland
+(Months 1-3)",Bay,2.012,1.122959674,Upland
 SanPablo,B,150,a,2022-08-25,2022-09-22,Fall,September,2022,2.97071603,9.663108277,Ramped,South.facing,M3,"Late_Dry
-(Months 1-3)",Upland
+(Months 1-3)",Bay,2.014,1.125257985,Upland
 SanPablo,B,150,b,2022-08-25,2022-09-22,Fall,September,2022,2.027437126,NA,Ramped,South.facing,M3,"Late_Dry
-(Months 1-3)",Upland
+(Months 1-3)",Bay,2.014,1.125257985,Upland
 SanPablo,B,150,c,2022-08-25,2022-09-22,Fall,September,2022,1.825305932,NA,Ramped,South.facing,M3,"Late_Dry
-(Months 1-3)",Upland
+(Months 1-3)",Bay,2.014,1.125257985,Upland
 CorteMadera,B,48,a,2022-09-21,2022-10-25,Fall,October,2022,2.306031079,NA,Scarped,East.facing,M4,"Tran
-(Months 4-6)",Upland
+(Months 4-6)",Bay,1.692,0.811338583,Upland
 CorteMadera,B,48,b,2022-09-21,2022-10-25,Fall,October,2022,2.286568596,NA,Scarped,East.facing,M4,"Tran
-(Months 4-6)",Upland
+(Months 4-6)",Bay,1.692,0.811338583,Upland
 CorteMadera,B,48,c,2022-09-21,2022-10-25,Fall,October,2022,2.687588237,NA,Scarped,East.facing,M4,"Tran
-(Months 4-6)",Upland
+(Months 4-6)",Bay,1.692,0.811338583,Upland
 CorteMadera,B,24,a,2022-09-21,2022-10-25,Fall,October,2022,24.58628721,NA,Scarped,East.facing,M4,"Tran
-(Months 4-6)",Platform
+(Months 4-6)",Bay,1.642,0.751686948,Platform
 CorteMadera,B,24,b,2022-09-21,2022-10-25,Fall,October,2022,24.16806395,NA,Scarped,East.facing,M4,"Tran
-(Months 4-6)",Platform
+(Months 4-6)",Bay,1.642,0.751686948,Platform
 CorteMadera,B,24,c,2022-09-21,2022-10-25,Fall,October,2022,17.81586504,NA,Scarped,East.facing,M4,"Tran
-(Months 4-6)",Platform
+(Months 4-6)",Bay,1.642,0.751686948,Platform
 CorteMadera,B,12,a,2022-09-21,2022-10-25,Fall,October,2022,3.827089331,NA,Scarped,East.facing,M4,"Tran
-(Months 4-6)",Platform
+(Months 4-6)",Bay,1.664,0.777933667,Platform
 CorteMadera,B,12,b,2022-09-21,2022-10-25,Fall,October,2022,3.668194756,NA,Scarped,East.facing,M4,"Tran
-(Months 4-6)",Platform
+(Months 4-6)",Bay,1.664,0.777933667,Platform
 CorteMadera,B,12,c,2022-09-21,2022-10-25,Fall,October,2022,2.535755643,NA,Scarped,East.facing,M4,"Tran
-(Months 4-6)",Platform
+(Months 4-6)",Bay,1.664,0.777933667,Platform
 CorteMadera,B,6,a,2022-09-21,2022-10-25,Fall,October,2022,1.035589086,NA,Scarped,East.facing,M4,"Tran
-(Months 4-6)",Edge
+(Months 4-6)",Bay,1.672,0.787477929,Edge
 CorteMadera,B,6,b,2022-09-21,2022-10-25,Fall,October,2022,1.36901548,NA,Scarped,East.facing,M4,"Tran
-(Months 4-6)",Edge
+(Months 4-6)",Bay,1.672,0.787477929,Edge
 CorteMadera,B,6,c,2022-09-21,2022-10-25,Fall,October,2022,1.952637775,NA,Scarped,East.facing,M4,"Tran
-(Months 4-6)",Edge
+(Months 4-6)",Bay,1.672,0.787477929,Edge
 CorteMadera,B,2,a,2022-09-21,2022-10-25,Fall,October,2022,NA,NA,Scarped,East.facing,M4,"Tran
-(Months 4-6)",Edge
+(Months 4-6)",Bay,1.605,0.707544739,Edge
 CorteMadera,B,2,b,2022-09-21,2022-10-25,Fall,October,2022,NA,NA,Scarped,East.facing,M4,"Tran
-(Months 4-6)",Edge
+(Months 4-6)",Bay,1.605,0.707544739,Edge
 CorteMadera,B,2,c,2022-09-21,2022-10-25,Fall,October,2022,NA,NA,Scarped,East.facing,M4,"Tran
-(Months 4-6)",Edge
+(Months 4-6)",Bay,1.605,0.707544739,Edge
 CorteMadera,A,48,a,2022-09-21,2022-10-25,Fall,October,2022,1.795256482,NA,Scarped,East.facing,M4,"Tran
-(Months 4-6)",Upland
+(Months 4-6)",Bay,1.724,0.849515629,Upland
 CorteMadera,A,48,b,2022-09-21,2022-10-25,Fall,October,2022,1.964744028,NA,Scarped,East.facing,M4,"Tran
-(Months 4-6)",Upland
+(Months 4-6)",Bay,1.724,0.849515629,Upland
 CorteMadera,A,48,c,2022-09-21,2022-10-25,Fall,October,2022,2.70333872,NA,Scarped,East.facing,M4,"Tran
-(Months 4-6)",Upland
+(Months 4-6)",Bay,1.724,0.849515629,Upland
 CorteMadera,A,24,a,2022-09-21,2022-10-25,Fall,October,2022,7.060016492,NA,Scarped,East.facing,M4,"Tran
-(Months 4-6)",Platform
+(Months 4-6)",Bay,1.664,0.777933667,Platform
 CorteMadera,A,24,b,2022-09-21,2022-10-25,Fall,October,2022,7.637028136,NA,Scarped,East.facing,M4,"Tran
-(Months 4-6)",Platform
+(Months 4-6)",Bay,1.664,0.777933667,Platform
 CorteMadera,A,24,c,2022-09-21,2022-10-25,Fall,October,2022,3.63288485,NA,Scarped,East.facing,M4,"Tran
-(Months 4-6)",Platform
+(Months 4-6)",Bay,1.664,0.777933667,Platform
 CorteMadera,A,12,a,2022-09-21,2022-10-25,Fall,October,2022,2.773340865,NA,Scarped,East.facing,M4,"Tran
-(Months 4-6)",Platform
+(Months 4-6)",Bay,1.705,0.826848008,Platform
 CorteMadera,A,12,b,2022-09-21,2022-10-25,Fall,October,2022,3.81336059,NA,Scarped,East.facing,M4,"Tran
-(Months 4-6)",Platform
+(Months 4-6)",Bay,1.705,0.826848008,Platform
 CorteMadera,A,12,c,2022-09-21,2022-10-25,Fall,October,2022,2.770818729,NA,Scarped,East.facing,M4,"Tran
-(Months 4-6)",Platform
+(Months 4-6)",Bay,1.705,0.826848008,Platform
 CorteMadera,A,6,a,2022-09-21,2022-10-25,Fall,October,2022,1.055261748,NA,Scarped,East.facing,M4,"Tran
-(Months 4-6)",Edge
+(Months 4-6)",Bay,1.691,0.81014555,Edge
 CorteMadera,A,6,b,2022-09-21,2022-10-25,Fall,October,2022,0.28147039,NA,Scarped,East.facing,M4,"Tran
-(Months 4-6)",Edge
+(Months 4-6)",Bay,1.691,0.81014555,Edge
 CorteMadera,A,6,c,2022-09-21,2022-10-25,Fall,October,2022,4.337065252,NA,Scarped,East.facing,M4,"Tran
-(Months 4-6)",Edge
+(Months 4-6)",Bay,1.691,0.81014555,Edge
 CorteMadera,A,2,a,2022-09-21,2022-10-25,Fall,October,2022,NA,NA,Scarped,East.facing,M4,"Tran
-(Months 4-6)",Edge
+(Months 4-6)",Bay,1.684,0.801794321,Edge
 CorteMadera,A,2,b,2022-09-21,2022-10-25,Fall,October,2022,0.91149999,NA,Scarped,East.facing,M4,"Tran
-(Months 4-6)",Edge
+(Months 4-6)",Bay,1.684,0.801794321,Edge
 CorteMadera,A,2,c,2022-09-21,2022-10-25,Fall,October,2022,NA,NA,Scarped,East.facing,M4,"Tran
-(Months 4-6)",Edge
+(Months 4-6)",Bay,1.684,0.801794321,Edge
 CorteMadera,B,0.5,a,2022-09-21,2022-10-25,Fall,October,2022,NA,NA,Scarped,East.facing,M4,"Tran
-(Months 4-6)",Edge
+(Months 4-6)",Bay,1.576,0.672946791,Edge
 CorteMadera,B,0.5,b,2022-09-21,2022-10-25,Fall,October,2022,NA,NA,Scarped,East.facing,M4,"Tran
-(Months 4-6)",Edge
+(Months 4-6)",Bay,1.576,0.672946791,Edge
 CorteMadera,B,0.5,c,2022-09-21,2022-10-25,Fall,October,2022,NA,NA,Scarped,East.facing,M4,"Tran
-(Months 4-6)",Edge
+(Months 4-6)",Bay,1.576,0.672946791,Edge
 CorteMadera,A,0.5,a,2022-09-21,2022-10-25,Fall,October,2022,NA,NA,Scarped,East.facing,M4,"Tran
-(Months 4-6)",Edge
+(Months 4-6)",Bay,1.598,0.69919351,Edge
 CorteMadera,A,0.5,b,2022-09-21,2022-10-25,Fall,October,2022,0.283992526,NA,Scarped,East.facing,M4,"Tran
-(Months 4-6)",Edge
+(Months 4-6)",Bay,1.598,0.69919351,Edge
 CorteMadera,A,0.5,c,2022-09-21,2022-10-25,Fall,October,2022,0.149814885,NA,Scarped,East.facing,M4,"Tran
-(Months 4-6)",Edge
+(Months 4-6)",Bay,1.598,0.69919351,Edge
 SanPablo,B,150,b,2022-09-22,2022-10-26,Fall,October,2022,2.179125598,7.527322404,Ramped,South.facing,M4,"Tran
-(Months 4-6)",Upland
+(Months 4-6)",Bay,2.014,1.125257985,Upland
 SanPablo,B,150,c,2022-09-22,2022-10-26,Fall,October,2022,2.848500521,7.314614831,Ramped,South.facing,M4,"Tran
-(Months 4-6)",Upland
+(Months 4-6)",Bay,2.014,1.125257985,Upland
 SanPablo,B,150,a,2022-09-22,2022-10-26,Fall,October,2022,1.624255654,NA,Ramped,South.facing,M4,"Tran
-(Months 4-6)",Upland
+(Months 4-6)",Bay,2.014,1.125257985,Upland
 SanPablo,B,72,b,2022-09-22,2022-10-26,Fall,October,2022,1.439635291,NA,Ramped,South.facing,M4,"Tran
-(Months 4-6)",Upland
+(Months 4-6)",Bay,2.012,1.122959674,Upland
 SanPablo,B,72,c,2022-09-22,2022-10-26,Fall,October,2022,2.724411424,NA,Ramped,South.facing,M4,"Tran
-(Months 4-6)",Upland
+(Months 4-6)",Bay,2.012,1.122959674,Upland
 SanPablo,B,72,a,2022-09-22,2022-10-26,Fall,October,2022,2.950899247,8.664666167,Ramped,South.facing,M4,"Tran
-(Months 4-6)",Upland
+(Months 4-6)",Bay,2.012,1.122959674,Upland
 SanPablo,B,48,b,2022-09-22,2022-10-26,Fall,October,2022,1.009863298,NA,Ramped,South.facing,M4,"Tran
-(Months 4-6)",Platform
+(Months 4-6)",Bay,1.978,1.083888376,Platform
 SanPablo,B,48,c,2022-09-22,2022-10-26,Fall,October,2022,2.064116191,NA,Ramped,South.facing,M4,"Tran
-(Months 4-6)",Platform
+(Months 4-6)",Bay,1.978,1.083888376,Platform
 SanPablo,B,48,a,2022-09-22,2022-10-26,Fall,October,2022,1.525387918,9.752547307,Ramped,South.facing,M4,"Tran
-(Months 4-6)",Platform
+(Months 4-6)",Bay,1.978,1.083888376,Platform
 SanPablo,A,150,b,2022-09-22,2022-10-26,Fall,October,2022,0.550834526,NA,Ramped,South.facing,M4,"Tran
-(Months 4-6)",Upland
+(Months 4-6)",Bay,1.974,1.079291752,Upland
 SanPablo,A,150,c,2022-09-22,2022-10-26,Fall,October,2022,2.828323432,NA,Ramped,South.facing,M4,"Tran
-(Months 4-6)",Upland
+(Months 4-6)",Bay,1.974,1.079291752,Upland
 SanPablo,A,150,a,2022-09-22,2022-10-26,Fall,October,2022,3.188484468,NA,Ramped,South.facing,M4,"Tran
-(Months 4-6)",Upland
+(Months 4-6)",Bay,1.974,1.079291752,Upland
 SanPablo,A,72,b,2022-09-22,2022-10-26,Fall,October,2022,0.273399554,5.572983945,Ramped,South.facing,M4,"Tran
-(Months 4-6)",Upland
+(Months 4-6)",Bay,2.04,1.155136037,Upland
 SanPablo,A,72,c,2022-09-22,2022-10-26,Fall,October,2022,0.856012995,7.322536182,Ramped,South.facing,M4,"Tran
-(Months 4-6)",Upland
+(Months 4-6)",Bay,2.04,1.155136037,Upland
 SanPablo,A,72,a,2022-09-22,2022-10-26,Fall,October,2022,0.637596008,NA,Ramped,South.facing,M4,"Tran
-(Months 4-6)",Upland
+(Months 4-6)",Bay,2.04,1.155136037,Upland
 SanPablo,A,48,b,2022-09-22,2022-10-26,Fall,October,2022,0.873667948,NA,Ramped,South.facing,M4,"Tran
-(Months 4-6)",Platform
+(Months 4-6)",Bay,2.01,1.120661362,Platform
 SanPablo,A,48,c,2022-09-22,2022-10-26,Fall,October,2022,0.726375199,NA,Ramped,South.facing,M4,"Tran
-(Months 4-6)",Platform
+(Months 4-6)",Bay,2.01,1.120661362,Platform
 SanPablo,A,48,a,2022-09-22,2022-10-26,Fall,October,2022,1.176828708,NA,Ramped,South.facing,M4,"Tran
-(Months 4-6)",Platform
+(Months 4-6)",Bay,2.01,1.120661362,Platform
 SanPablo,B,24,b,2022-09-22,2022-10-26,Fall,October,2022,NA,NA,Ramped,South.facing,M4,"Tran
-(Months 4-6)",Edge
+(Months 4-6)",Bay,1.563,0.606988706,Edge
 SanPablo,B,24,c,2022-09-22,2022-10-26,Fall,October,2022,1.909761461,NA,Ramped,South.facing,M4,"Tran
-(Months 4-6)",Edge
+(Months 4-6)",Bay,1.563,0.606988706,Edge
 SanPablo,B,24,a,2022-09-22,2022-10-26,Fall,October,2022,4.204400892,NA,Ramped,South.facing,M4,"Tran
-(Months 4-6)",Edge
+(Months 4-6)",Bay,1.563,0.606988706,Edge
 SanPablo,B,12,b,2022-09-22,2022-10-26,Fall,October,2022,4.366826458,NA,Ramped,South.facing,M4,"Tran
-(Months 4-6)",Intertidal
+(Months 4-6)",Bay,1.042,0.008278519,Intertidal
 SanPablo,B,12,c,2022-09-22,2022-10-26,Fall,October,2022,4.618535641,NA,Ramped,South.facing,M4,"Tran
-(Months 4-6)",Intertidal
+(Months 4-6)",Bay,1.042,0.008278519,Intertidal
 SanPablo,B,12,a,2022-09-22,2022-10-26,Fall,October,2022,0.18512479,NA,Ramped,South.facing,M4,"Tran
-(Months 4-6)",Intertidal
+(Months 4-6)",Bay,1.042,0.008278519,Intertidal
 SanPablo,B,6,b,2022-09-22,2022-10-26,Fall,October,2022,9.9619332,NA,Ramped,South.facing,M4,"Tran
-(Months 4-6)",Intertidal
+(Months 4-6)",Bay,0.837,-0.227298427,Intertidal
 SanPablo,B,6,c,2022-09-22,2022-10-26,Fall,October,2022,11.42225001,NA,Ramped,South.facing,M4,"Tran
-(Months 4-6)",Intertidal
+(Months 4-6)",Bay,0.837,-0.227298427,Intertidal
 SanPablo,B,6,a,2022-09-22,2022-10-26,Fall,October,2022,6.429429367,NA,Ramped,South.facing,M4,"Tran
-(Months 4-6)",Intertidal
+(Months 4-6)",Bay,0.837,-0.227298427,Intertidal
 SanPablo,B,2,b,2022-09-22,2022-10-26,Fall,October,2022,4.163542287,NA,Ramped,South.facing,M4,"Tran
-(Months 4-6)",Intertidal
+(Months 4-6)",Bay,0.805,-0.264071413,Intertidal
 SanPablo,B,2,c,2022-09-22,2022-10-26,Fall,October,2022,11.03081448,NA,Ramped,South.facing,M4,"Tran
-(Months 4-6)",Intertidal
+(Months 4-6)",Bay,0.805,-0.264071413,Intertidal
 SanPablo,B,2,a,2022-09-22,2022-10-26,Fall,October,2022,13.21700206,NA,Ramped,South.facing,M4,"Tran
-(Months 4-6)",Intertidal
+(Months 4-6)",Bay,0.805,-0.264071413,Intertidal
 SanPablo,B,0.5,b,2022-09-22,2022-10-26,Fall,October,2022,9.472638795,NA,Ramped,South.facing,M4,"Tran
-(Months 4-6)",Intertidal
+(Months 4-6)",Bay,0.774,-0.299695244,Intertidal
 SanPablo,B,0.5,c,2022-09-22,2022-10-26,Fall,October,2022,13.40767555,NA,Ramped,South.facing,M4,"Tran
-(Months 4-6)",Intertidal
+(Months 4-6)",Bay,0.774,-0.299695244,Intertidal
 SanPablo,B,0.5,a,2022-09-22,2022-10-26,Fall,October,2022,4.408693917,NA,Ramped,South.facing,M4,"Tran
-(Months 4-6)",Intertidal
+(Months 4-6)",Bay,0.774,-0.299695244,Intertidal
 SanPablo,A,24,b,2022-09-22,2022-10-26,Fall,October,2022,0.649702261,NA,Ramped,South.facing,M4,"Tran
-(Months 4-6)",Edge
+(Months 4-6)",Bay,1.713,0.779362081,Edge
 SanPablo,A,24,c,2022-09-22,2022-10-26,Fall,October,2022,1.091580508,NA,Ramped,South.facing,M4,"Tran
-(Months 4-6)",Edge
+(Months 4-6)",Bay,1.713,0.779362081,Edge
 SanPablo,A,24,a,2022-09-22,2022-10-26,Fall,October,2022,0.402532923,NA,Ramped,South.facing,M4,"Tran
-(Months 4-6)",Edge
+(Months 4-6)",Bay,1.713,0.779362081,Edge
 SanPablo,A,12,b,2022-09-22,2022-10-26,Fall,October,2022,2.249240981,NA,Ramped,South.facing,M4,"Tran
-(Months 4-6)",Intertidal
+(Months 4-6)",Bay,1.069,0.039305726,Intertidal
 SanPablo,A,12,c,2022-09-22,2022-10-26,Fall,October,2022,1.945071367,NA,Ramped,South.facing,M4,"Tran
-(Months 4-6)",Intertidal
+(Months 4-6)",Bay,1.069,0.039305726,Intertidal
 SanPablo,A,12,a,2022-09-22,2022-10-26,Fall,October,2022,3.26263527,NA,Ramped,South.facing,M4,"Tran
-(Months 4-6)",Intertidal
+(Months 4-6)",Bay,1.069,0.039305726,Intertidal
 SanPablo,A,6,b,2022-09-22,2022-10-26,Fall,October,2022,8.237800957,NA,Ramped,South.facing,M4,"Tran
-(Months 4-6)",Intertidal
+(Months 4-6)",Bay,0.889,-0.167542323,Intertidal
 SanPablo,A,6,c,2022-09-22,2022-10-26,Fall,October,2022,6.311393397,NA,Ramped,South.facing,M4,"Tran
-(Months 4-6)",Intertidal
+(Months 4-6)",Bay,0.889,-0.167542323,Intertidal
 SanPablo,A,6,a,2022-09-22,2022-10-26,Fall,October,2022,3.674247882,NA,Ramped,South.facing,M4,"Tran
-(Months 4-6)",Intertidal
+(Months 4-6)",Bay,0.889,-0.167542323,Intertidal
 SanPablo,A,2,b,2022-09-22,2022-10-26,Fall,October,2022,40.19276102,NA,Ramped,South.facing,M4,"Tran
-(Months 4-6)",Intertidal
+(Months 4-6)",Bay,0.751,-0.326125828,Intertidal
 SanPablo,A,2,c,2022-09-22,2022-10-26,Fall,October,2022,50.00134835,NA,Ramped,South.facing,M4,"Tran
-(Months 4-6)",Intertidal
+(Months 4-6)",Bay,0.751,-0.326125828,Intertidal
 SanPablo,A,2,a,2022-09-22,2022-10-26,Fall,October,2022,194.0581964,NA,Ramped,South.facing,M4,"Tran
-(Months 4-6)",Intertidal
+(Months 4-6)",Bay,0.751,-0.326125828,Intertidal
 SanPablo,A,0.5,b,2022-09-22,2022-10-26,Fall,October,2022,53.20849662,NA,Ramped,South.facing,M4,"Tran
-(Months 4-6)",Intertidal
+(Months 4-6)",Bay,0.735,-0.344512321,Intertidal
 SanPablo,A,0.5,c,2022-09-22,2022-10-26,Fall,October,2022,44.15100143,NA,Ramped,South.facing,M4,"Tran
-(Months 4-6)",Intertidal
+(Months 4-6)",Bay,0.735,-0.344512321,Intertidal
 SanPablo,A,0.5,a,2022-09-22,2022-10-26,Fall,October,2022,2.991253424,NA,Ramped,South.facing,M4,"Tran
-(Months 4-6)",Intertidal
+(Months 4-6)",Bay,0.735,-0.344512321,Intertidal
 CorteMadera,A,0.5,a,2022-10-25,2022-11-30,Winter,November,2022,0.040494296,NA,Scarped,East.facing,M5,"Tran
-(Months 4-6)",Edge
+(Months 4-6)",Bay,1.598,0.69919351,Edge
 CorteMadera,A,0.5,b,2022-10-25,2022-11-30,Winter,November,2022,0.132440169,NA,Scarped,East.facing,M5,"Tran
-(Months 4-6)",Edge
+(Months 4-6)",Bay,1.598,0.69919351,Edge
 CorteMadera,A,0.5,c,2022-10-25,2022-11-30,Winter,November,2022,0.039541489,NA,Scarped,East.facing,M5,"Tran
-(Months 4-6)",Edge
+(Months 4-6)",Bay,1.598,0.69919351,Edge
 CorteMadera,A,2,a,2022-10-25,2022-11-30,Winter,November,2022,1.657725334,NA,Scarped,East.facing,M5,"Tran
-(Months 4-6)",Edge
+(Months 4-6)",Bay,1.684,0.801794321,Edge
 CorteMadera,A,2,b,2022-10-25,2022-11-30,Winter,November,2022,2.906537675,NA,Scarped,East.facing,M5,"Tran
-(Months 4-6)",Edge
+(Months 4-6)",Bay,1.684,0.801794321,Edge
 CorteMadera,A,2,c,2022-10-25,2022-11-30,Winter,November,2022,1.835423835,NA,Scarped,East.facing,M5,"Tran
-(Months 4-6)",Edge
+(Months 4-6)",Bay,1.684,0.801794321,Edge
 CorteMadera,A,6,a,2022-10-25,2022-11-30,Winter,November,2022,1.404913883,NA,Scarped,East.facing,M5,"Tran
-(Months 4-6)",Edge
+(Months 4-6)",Bay,1.691,0.81014555,Edge
 CorteMadera,A,6,b,2022-10-25,2022-11-30,Winter,November,2022,5.775915878,NA,Scarped,East.facing,M5,"Tran
-(Months 4-6)",Edge
+(Months 4-6)",Bay,1.691,0.81014555,Edge
 CorteMadera,A,6,c,2022-10-25,2022-11-30,Winter,November,2022,1.648832469,NA,Scarped,East.facing,M5,"Tran
-(Months 4-6)",Edge
+(Months 4-6)",Bay,1.691,0.81014555,Edge
 CorteMadera,A,12,a,2022-10-25,2022-11-30,Winter,November,2022,1.958971139,NA,Scarped,East.facing,M5,"Tran
-(Months 4-6)",Platform
+(Months 4-6)",Bay,1.705,0.826848008,Platform
 CorteMadera,A,12,b,2022-10-25,2022-11-30,Winter,November,2022,1.655502118,NA,Scarped,East.facing,M5,"Tran
-(Months 4-6)",Platform
+(Months 4-6)",Bay,1.705,0.826848008,Platform
 CorteMadera,A,12,c,2022-10-25,2022-11-30,Winter,November,2022,1.776985007,NA,Scarped,East.facing,M5,"Tran
-(Months 4-6)",Platform
+(Months 4-6)",Bay,1.705,0.826848008,Platform
 CorteMadera,A,24,a,2022-10-25,2022-11-30,Winter,November,2022,3.139022577,NA,Scarped,East.facing,M5,"Tran
-(Months 4-6)",Platform
+(Months 4-6)",Bay,1.664,0.777933667,Platform
 CorteMadera,A,24,b,2022-10-25,2022-11-30,Winter,November,2022,5.547242204,NA,Scarped,East.facing,M5,"Tran
-(Months 4-6)",Platform
+(Months 4-6)",Bay,1.664,0.777933667,Platform
 CorteMadera,A,24,c,2022-10-25,2022-11-30,Winter,November,2022,2.824119872,NA,Scarped,East.facing,M5,"Tran
-(Months 4-6)",Platform
+(Months 4-6)",Bay,1.664,0.777933667,Platform
 CorteMadera,A,48,a,2022-10-25,2022-11-30,Winter,November,2022,2.459671204,NA,Scarped,East.facing,M5,"Tran
-(Months 4-6)",Upland
+(Months 4-6)",Bay,1.724,0.849515629,Upland
 CorteMadera,A,48,b,2022-10-25,2022-11-30,Winter,November,2022,2.195796606,NA,Scarped,East.facing,M5,"Tran
-(Months 4-6)",Upland
+(Months 4-6)",Bay,1.724,0.849515629,Upland
 CorteMadera,A,48,c,2022-10-25,2022-11-30,Winter,November,2022,3.166653979,NA,Scarped,East.facing,M5,"Tran
-(Months 4-6)",Upland
+(Months 4-6)",Bay,1.724,0.849515629,Upland
 CorteMadera,B,0.5,a,2022-10-25,2022-11-30,Winter,November,2022,NA,NA,Scarped,East.facing,M5,"Tran
-(Months 4-6)",Edge
+(Months 4-6)",Bay,1.576,0.672946791,Edge
 CorteMadera,B,0.5,b,2022-10-25,2022-11-30,Winter,November,2022,NA,NA,Scarped,East.facing,M5,"Tran
-(Months 4-6)",Edge
+(Months 4-6)",Bay,1.576,0.672946791,Edge
 CorteMadera,B,0.5,c,2022-10-25,2022-11-30,Winter,November,2022,NA,NA,Scarped,East.facing,M5,"Tran
-(Months 4-6)",Edge
+(Months 4-6)",Bay,1.576,0.672946791,Edge
 CorteMadera,B,2,a,2022-10-25,2022-11-30,Winter,November,2022,1.732203079,NA,Scarped,East.facing,M5,"Tran
-(Months 4-6)",Edge
+(Months 4-6)",Bay,1.605,0.707544739,Edge
 CorteMadera,B,2,b,2022-10-25,2022-11-30,Winter,November,2022,4.128036216,NA,Scarped,East.facing,M5,"Tran
-(Months 4-6)",Edge
+(Months 4-6)",Bay,1.605,0.707544739,Edge
 CorteMadera,B,2,c,2022-10-25,2022-11-30,Winter,November,2022,3.379129934,8.268446422,Scarped,East.facing,M5,"Tran
-(Months 4-6)",Edge
+(Months 4-6)",Bay,1.605,0.707544739,Edge
 CorteMadera,B,6,a,2022-10-25,2022-11-30,Winter,November,2022,1.924333803,7.810938169,Scarped,East.facing,M5,"Tran
-(Months 4-6)",Edge
+(Months 4-6)",Bay,1.672,0.787477929,Edge
 CorteMadera,B,6,b,2022-10-25,2022-11-30,Winter,November,2022,1.191485121,NA,Scarped,East.facing,M5,"Tran
-(Months 4-6)",Edge
+(Months 4-6)",Bay,1.672,0.787477929,Edge
 CorteMadera,B,6,c,2022-10-25,2022-11-30,Winter,November,2022,1.704571677,NA,Scarped,East.facing,M5,"Tran
-(Months 4-6)",Edge
+(Months 4-6)",Bay,1.672,0.787477929,Edge
 CorteMadera,B,12,a,2022-10-25,2022-11-30,Winter,November,2022,2.204243713,NA,Scarped,East.facing,M5,"Tran
-(Months 4-6)",Platform
+(Months 4-6)",Bay,1.664,0.777933667,Platform
 CorteMadera,B,12,b,2022-10-25,2022-11-30,Winter,November,2022,1.957065525,NA,Scarped,East.facing,M5,"Tran
-(Months 4-6)",Platform
+(Months 4-6)",Bay,1.664,0.777933667,Platform
 CorteMadera,B,12,c,2022-10-25,2022-11-30,Winter,November,2022,2.872236624,10.67410234,Scarped,East.facing,M5,"Tran
-(Months 4-6)",Platform
+(Months 4-6)",Bay,1.664,0.777933667,Platform
 CorteMadera,B,24,a,2022-10-25,2022-11-30,Winter,November,2022,4.763082064,NA,Scarped,East.facing,M5,"Tran
-(Months 4-6)",Platform
+(Months 4-6)",Bay,1.642,0.751686948,Platform
 CorteMadera,B,24,b,2022-10-25,2022-11-30,Winter,November,2022,3.341017655,10.87185377,Scarped,East.facing,M5,"Tran
-(Months 4-6)",Platform
+(Months 4-6)",Bay,1.642,0.751686948,Platform
 CorteMadera,B,24,c,2022-10-25,2022-11-30,Winter,November,2022,3.660684395,NA,Scarped,East.facing,M5,"Tran
-(Months 4-6)",Platform
+(Months 4-6)",Bay,1.642,0.751686948,Platform
 CorteMadera,B,48,a,2022-10-25,2022-11-30,Winter,November,2022,3.896504121,11.72834486,Scarped,East.facing,M5,"Tran
-(Months 4-6)",Upland
+(Months 4-6)",Bay,1.692,0.811338583,Upland
 CorteMadera,B,48,b,2022-10-25,2022-11-30,Winter,November,2022,4.382435678,NA,Scarped,East.facing,M5,"Tran
-(Months 4-6)",Upland
+(Months 4-6)",Bay,1.692,0.811338583,Upland
 CorteMadera,B,48,c,2022-10-25,2022-11-30,Winter,November,2022,3.960818592,NA,Scarped,East.facing,M5,"Tran
-(Months 4-6)",Upland
+(Months 4-6)",Bay,1.692,0.811338583,Upland
 SanPablo,A,0.5,b,2022-10-26,2022-11-22,Winter,November,2022,45.50097945,NA,Ramped,South.facing,M5,"Tran
-(Months 4-6)",Intertidal
+(Months 4-6)",Bay,0.735,-0.344512321,Intertidal
 SanPablo,A,0.5,c,2022-10-26,2022-11-22,Winter,November,2022,29.15335259,NA,Ramped,South.facing,M5,"Tran
-(Months 4-6)",Intertidal
+(Months 4-6)",Bay,0.735,-0.344512321,Intertidal
 SanPablo,A,0.5,a,2022-10-26,2022-11-22,Winter,November,2022,10.09213147,NA,Ramped,South.facing,M5,"Tran
-(Months 4-6)",Intertidal
+(Months 4-6)",Bay,0.735,-0.344512321,Intertidal
 SanPablo,A,2,b,2022-10-26,2022-11-22,Winter,November,2022,17.8695772,NA,Ramped,South.facing,M5,"Tran
-(Months 4-6)",Intertidal
+(Months 4-6)",Bay,0.751,-0.326125828,Intertidal
 SanPablo,A,2,c,2022-10-26,2022-11-22,Winter,November,2022,12.3369447,NA,Ramped,South.facing,M5,"Tran
-(Months 4-6)",Intertidal
+(Months 4-6)",Bay,0.751,-0.326125828,Intertidal
 SanPablo,A,2,a,2022-10-26,2022-11-22,Winter,November,2022,44.42176675,NA,Ramped,South.facing,M5,"Tran
-(Months 4-6)",Intertidal
+(Months 4-6)",Bay,0.751,-0.326125828,Intertidal
 SanPablo,A,6,b,2022-10-26,2022-11-22,Winter,November,2022,9.511554421,NA,Ramped,South.facing,M5,"Tran
-(Months 4-6)",Intertidal
+(Months 4-6)",Bay,0.889,-0.167542323,Intertidal
 SanPablo,A,6,c,2022-10-26,2022-11-22,Winter,November,2022,0.822590021,NA,Ramped,South.facing,M5,"Tran
-(Months 4-6)",Intertidal
+(Months 4-6)",Bay,0.889,-0.167542323,Intertidal
 SanPablo,A,6,a,2022-10-26,2022-11-22,Winter,November,2022,4.144075133,NA,Ramped,South.facing,M5,"Tran
-(Months 4-6)",Intertidal
+(Months 4-6)",Bay,0.889,-0.167542323,Intertidal
 SanPablo,A,12,b,2022-10-26,2022-11-22,Winter,November,2022,0.494189217,NA,Ramped,South.facing,M5,"Tran
-(Months 4-6)",Intertidal
+(Months 4-6)",Bay,1.069,0.039305726,Intertidal
 SanPablo,A,12,c,2022-10-26,2022-11-22,Winter,November,2022,0.27186759,NA,Ramped,South.facing,M5,"Tran
-(Months 4-6)",Intertidal
+(Months 4-6)",Bay,1.069,0.039305726,Intertidal
 SanPablo,A,12,a,2022-10-26,2022-11-22,Winter,November,2022,NA,NA,Ramped,South.facing,M5,"Tran
-(Months 4-6)",Intertidal
+(Months 4-6)",Bay,1.069,0.039305726,Intertidal
 SanPablo,A,24,b,2022-10-26,2022-11-22,Winter,November,2022,0.635204649,NA,Ramped,South.facing,M5,"Tran
-(Months 4-6)",Edge
+(Months 4-6)",Bay,1.713,0.779362081,Edge
 SanPablo,A,24,c,2022-10-26,2022-11-22,Winter,November,2022,0.666329677,NA,Ramped,South.facing,M5,"Tran
-(Months 4-6)",Edge
+(Months 4-6)",Bay,1.713,0.779362081,Edge
 SanPablo,A,24,a,2022-10-26,2022-11-22,Winter,November,2022,0.454171324,NA,Ramped,South.facing,M5,"Tran
-(Months 4-6)",Edge
+(Months 4-6)",Bay,1.713,0.779362081,Edge
 SanPablo,A,48,b,2022-10-26,2022-11-22,Winter,November,2022,4.913943168,NA,Ramped,South.facing,M5,"Tran
-(Months 4-6)",Platform
+(Months 4-6)",Bay,2.01,1.120661362,Platform
 SanPablo,A,48,c,2022-10-26,2022-11-22,Winter,November,2022,4.626195462,NA,Ramped,South.facing,M5,"Tran
-(Months 4-6)",Platform
+(Months 4-6)",Bay,2.01,1.120661362,Platform
 SanPablo,A,48,a,2022-10-26,2022-11-22,Winter,November,2022,2.603703858,NA,Ramped,South.facing,M5,"Tran
-(Months 4-6)",Platform
+(Months 4-6)",Bay,2.01,1.120661362,Platform
 SanPablo,A,72,b,2022-10-26,2022-11-22,Winter,November,2022,4.959042699,NA,Ramped,South.facing,M5,"Tran
-(Months 4-6)",Upland
+(Months 4-6)",Bay,2.04,1.155136037,Upland
 SanPablo,A,72,c,2022-10-26,2022-11-22,Winter,November,2022,17.49163043,NA,Ramped,South.facing,M5,"Tran
-(Months 4-6)",Upland
+(Months 4-6)",Bay,2.04,1.155136037,Upland
 SanPablo,A,72,a,2022-10-26,2022-11-22,Winter,November,2022,4.664942946,NA,Ramped,South.facing,M5,"Tran
-(Months 4-6)",Upland
+(Months 4-6)",Bay,2.04,1.155136037,Upland
 SanPablo,A,150,b,2022-10-26,2022-11-22,Winter,November,2022,2.183833585,NA,Ramped,South.facing,M5,"Tran
-(Months 4-6)",Upland
+(Months 4-6)",Bay,1.974,1.079291752,Upland
 SanPablo,A,150,c,2022-10-26,2022-11-22,Winter,November,2022,2.509058365,NA,Ramped,South.facing,M5,"Tran
-(Months 4-6)",Upland
+(Months 4-6)",Bay,1.974,1.079291752,Upland
 SanPablo,A,150,a,2022-10-26,2022-11-22,Winter,November,2022,3.259870261,NA,Ramped,South.facing,M5,"Tran
-(Months 4-6)",Upland
+(Months 4-6)",Bay,1.974,1.079291752,Upland
 SanPablo,B,0.5,b,2022-10-26,2022-11-22,Winter,November,2022,1.527667182,NA,Ramped,South.facing,M5,"Tran
-(Months 4-6)",Intertidal
+(Months 4-6)",Bay,0.774,-0.299695244,Intertidal
 SanPablo,B,0.5,c,2022-10-26,2022-11-22,Winter,November,2022,32.31730695,NA,Ramped,South.facing,M5,"Tran
-(Months 4-6)",Intertidal
+(Months 4-6)",Bay,0.774,-0.299695244,Intertidal
 SanPablo,B,0.5,a,2022-10-26,2022-11-22,Winter,November,2022,18.11857742,NA,Ramped,South.facing,M5,"Tran
-(Months 4-6)",Intertidal
+(Months 4-6)",Bay,0.774,-0.299695244,Intertidal
 SanPablo,B,2,b,2022-10-26,2022-11-22,Winter,November,2022,NA,NA,Ramped,South.facing,M5,"Tran
-(Months 4-6)",Intertidal
+(Months 4-6)",Bay,0.805,-0.264071413,Intertidal
 SanPablo,B,2,c,2022-10-26,2022-11-22,Winter,November,2022,9.043408595,NA,Ramped,South.facing,M5,"Tran
-(Months 4-6)",Intertidal
+(Months 4-6)",Bay,0.805,-0.264071413,Intertidal
 SanPablo,B,2,a,2022-10-26,2022-11-22,Winter,November,2022,11.32442849,NA,Ramped,South.facing,M5,"Tran
-(Months 4-6)",Intertidal
+(Months 4-6)",Bay,0.805,-0.264071413,Intertidal
 SanPablo,B,6,b,2022-10-26,2022-11-22,Winter,November,2022,2.778385137,NA,Ramped,South.facing,M5,"Tran
-(Months 4-6)",Intertidal
+(Months 4-6)",Bay,0.837,-0.227298427,Intertidal
 SanPablo,B,6,c,2022-10-26,2022-11-22,Winter,November,2022,8.220818574,NA,Ramped,South.facing,M5,"Tran
-(Months 4-6)",Intertidal
+(Months 4-6)",Bay,0.837,-0.227298427,Intertidal
 SanPablo,B,6,a,2022-10-26,2022-11-22,Winter,November,2022,6.526727773,NA,Ramped,South.facing,M5,"Tran
-(Months 4-6)",Intertidal
+(Months 4-6)",Bay,0.837,-0.227298427,Intertidal
 SanPablo,B,12,b,2022-10-26,2022-11-22,Winter,November,2022,0.778125696,NA,Ramped,South.facing,M5,"Tran
-(Months 4-6)",Intertidal
+(Months 4-6)",Bay,1.042,0.008278519,Intertidal
 SanPablo,B,12,c,2022-10-26,2022-11-22,Winter,November,2022,9.513460035,NA,Ramped,South.facing,M5,"Tran
-(Months 4-6)",Intertidal
+(Months 4-6)",Bay,1.042,0.008278519,Intertidal
 SanPablo,B,12,a,2022-10-26,2022-11-22,Winter,November,2022,0,NA,Ramped,South.facing,M5,"Tran
-(Months 4-6)",Intertidal
+(Months 4-6)",Bay,1.042,0.008278519,Intertidal
 SanPablo,B,24,b,2022-10-26,2022-11-22,Winter,November,2022,3.05342875,NA,Ramped,South.facing,M5,"Tran
-(Months 4-6)",Edge
+(Months 4-6)",Bay,1.563,0.606988706,Edge
 SanPablo,B,24,c,2022-10-26,2022-11-22,Winter,November,2022,1.572766712,NA,Ramped,South.facing,M5,"Tran
-(Months 4-6)",Edge
+(Months 4-6)",Bay,1.563,0.606988706,Edge
 SanPablo,B,24,a,2022-10-26,2022-11-22,Winter,November,2022,3.883641227,NA,Ramped,South.facing,M5,"Tran
-(Months 4-6)",Edge
+(Months 4-6)",Bay,1.563,0.606988706,Edge
 SanPablo,B,48,b,2022-10-26,2022-11-22,Winter,November,2022,2.677387598,NA,Ramped,South.facing,M5,"Tran
-(Months 4-6)",Platform
+(Months 4-6)",Bay,1.978,1.083888376,Platform
 SanPablo,B,48,c,2022-10-26,2022-11-22,Winter,November,2022,5.107680586,NA,Ramped,South.facing,M5,"Tran
-(Months 4-6)",Platform
+(Months 4-6)",Bay,1.978,1.083888376,Platform
 SanPablo,B,48,a,2022-10-26,2022-11-22,Winter,November,2022,6.712842736,NA,Ramped,South.facing,M5,"Tran
-(Months 4-6)",Platform
+(Months 4-6)",Bay,1.978,1.083888376,Platform
 SanPablo,B,72,b,2022-10-26,2022-11-22,Winter,November,2022,5.007318252,NA,Ramped,South.facing,M5,"Tran
-(Months 4-6)",Upland
+(Months 4-6)",Bay,2.012,1.122959674,Upland
 SanPablo,B,72,c,2022-10-26,2022-11-22,Winter,November,2022,5.17374187,NA,Ramped,South.facing,M5,"Tran
-(Months 4-6)",Upland
+(Months 4-6)",Bay,2.012,1.122959674,Upland
 SanPablo,B,72,a,2022-10-26,2022-11-22,Winter,November,2022,6.629630927,NA,Ramped,South.facing,M5,"Tran
-(Months 4-6)",Upland
+(Months 4-6)",Bay,2.012,1.122959674,Upland
 SanPablo,B,150,b,2022-10-26,2022-11-22,Winter,November,2022,2.749800928,NA,Ramped,South.facing,M5,"Tran
-(Months 4-6)",Upland
+(Months 4-6)",Bay,2.014,1.125257985,Upland
 SanPablo,B,150,c,2022-10-26,2022-11-22,Winter,November,2022,2.313415333,NA,Ramped,South.facing,M5,"Tran
-(Months 4-6)",Upland
+(Months 4-6)",Bay,2.014,1.125257985,Upland
 SanPablo,B,150,a,2022-10-26,2022-11-22,Winter,November,2022,1.617231038,NA,Ramped,South.facing,M5,"Tran
-(Months 4-6)",Upland
+(Months 4-6)",Bay,2.014,1.125257985,Upland
 SanPablo,A,0.5,b,2022-11-22,2022-12-20,Winter,December,2022,102.6789713,NA,Ramped,South.facing,M6,"Tran
-(Months 4-6)",Intertidal
+(Months 4-6)",Bay,0.735,-0.344512321,Intertidal
 SanPablo,A,0.5,c,2022-11-22,2022-12-20,Winter,December,2022,55.85007389,NA,Ramped,South.facing,M6,"Tran
-(Months 4-6)",Intertidal
+(Months 4-6)",Bay,0.735,-0.344512321,Intertidal
 SanPablo,A,0.5,a,2022-11-22,2022-12-20,Winter,December,2022,22.27547008,NA,Ramped,South.facing,M6,"Tran
-(Months 4-6)",Intertidal
+(Months 4-6)",Bay,0.735,-0.344512321,Intertidal
 SanPablo,A,2,b,2022-11-22,2022-12-20,Winter,December,2022,52.83954414,NA,Ramped,South.facing,M6,"Tran
-(Months 4-6)",Intertidal
+(Months 4-6)",Bay,0.751,-0.326125828,Intertidal
 SanPablo,A,2,c,2022-11-22,2022-12-20,Winter,December,2022,30.36133035,NA,Ramped,South.facing,M6,"Tran
-(Months 4-6)",Intertidal
+(Months 4-6)",Bay,0.751,-0.326125828,Intertidal
 SanPablo,A,2,a,2022-11-22,2022-12-20,Winter,December,2022,73.98001694,NA,Ramped,South.facing,M6,"Tran
-(Months 4-6)",Intertidal
+(Months 4-6)",Bay,0.751,-0.326125828,Intertidal
 SanPablo,A,6,b,2022-11-22,2022-12-20,Winter,December,2022,4.275381009,NA,Ramped,South.facing,M6,"Tran
-(Months 4-6)",Intertidal
+(Months 4-6)",Bay,0.889,-0.167542323,Intertidal
 SanPablo,A,6,c,2022-11-22,2022-12-20,Winter,December,2022,0.102903153,NA,Ramped,South.facing,M6,"Tran
-(Months 4-6)",Intertidal
+(Months 4-6)",Bay,0.889,-0.167542323,Intertidal
 SanPablo,A,6,a,2022-11-22,2022-12-20,Winter,December,2022,NA,NA,Ramped,South.facing,M6,"Tran
-(Months 4-6)",Intertidal
+(Months 4-6)",Bay,0.889,-0.167542323,Intertidal
 SanPablo,A,12,b,2022-11-22,2022-12-20,Winter,December,2022,0.278083521,NA,Ramped,South.facing,M6,"Tran
-(Months 4-6)",Intertidal
+(Months 4-6)",Bay,1.069,0.039305726,Intertidal
 SanPablo,A,12,c,2022-11-22,2022-12-20,Winter,December,2022,0.320959835,NA,Ramped,South.facing,M6,"Tran
-(Months 4-6)",Intertidal
+(Months 4-6)",Bay,1.069,0.039305726,Intertidal
 SanPablo,A,12,a,2022-11-22,2022-12-20,Winter,December,2022,0.336272804,NA,Ramped,South.facing,M6,"Tran
-(Months 4-6)",Intertidal
+(Months 4-6)",Bay,1.069,0.039305726,Intertidal
 SanPablo,A,24,b,2022-11-22,2022-12-20,Winter,December,2022,0.954304242,NA,Ramped,South.facing,M6,"Tran
-(Months 4-6)",Edge
+(Months 4-6)",Bay,1.713,0.779362081,Edge
 SanPablo,A,24,c,2022-11-22,2022-12-20,Winter,December,2022,0.624769145,NA,Ramped,South.facing,M6,"Tran
-(Months 4-6)",Edge
+(Months 4-6)",Bay,1.713,0.779362081,Edge
 SanPablo,A,24,a,2022-11-22,2022-12-20,Winter,December,2022,0.820775151,NA,Ramped,South.facing,M6,"Tran
-(Months 4-6)",Edge
+(Months 4-6)",Bay,1.713,0.779362081,Edge
 SanPablo,A,48,b,2022-11-22,2022-12-20,Winter,December,2022,2.75694698,NA,Ramped,South.facing,M6,"Tran
-(Months 4-6)",Platform
+(Months 4-6)",Bay,2.01,1.120661362,Platform
 SanPablo,A,48,c,2022-11-22,2022-12-20,Winter,December,2022,5.251735927,NA,Ramped,South.facing,M6,"Tran
-(Months 4-6)",Platform
+(Months 4-6)",Bay,2.01,1.120661362,Platform
 SanPablo,A,48,a,2022-11-22,2022-12-20,Winter,December,2022,3.773115618,NA,Ramped,South.facing,M6,"Tran
-(Months 4-6)",Platform
+(Months 4-6)",Bay,2.01,1.120661362,Platform
 SanPablo,A,72,b,2022-11-22,2022-12-20,Winter,December,2022,2.066638327,NA,Ramped,South.facing,M6,"Tran
-(Months 4-6)",Upland
+(Months 4-6)",Bay,2.04,1.155136037,Upland
 SanPablo,A,72,c,2022-11-22,2022-12-20,Winter,December,2022,1.228712651,NA,Ramped,South.facing,M6,"Tran
-(Months 4-6)",Upland
+(Months 4-6)",Bay,2.04,1.155136037,Upland
 SanPablo,A,72,a,2022-11-22,2022-12-20,Winter,December,2022,1.272814002,NA,Ramped,South.facing,M6,"Tran
-(Months 4-6)",Upland
+(Months 4-6)",Bay,2.04,1.155136037,Upland
 SanPablo,A,150,b,2022-11-22,2022-12-20,Winter,December,2022,0.954304242,NA,Ramped,South.facing,M6,"Tran
-(Months 4-6)",Upland
+(Months 4-6)",Bay,1.974,1.079291752,Upland
 SanPablo,A,150,c,2022-11-22,2022-12-20,Winter,December,2022,1.326715654,NA,Ramped,South.facing,M6,"Tran
-(Months 4-6)",Upland
+(Months 4-6)",Bay,1.974,1.079291752,Upland
 SanPablo,A,150,a,2022-11-22,2022-12-20,Winter,December,2022,1.550897523,NA,Ramped,South.facing,M6,"Tran
-(Months 4-6)",Upland
+(Months 4-6)",Bay,1.974,1.079291752,Upland
 SanPablo,B,0.5,b,2022-11-22,2022-12-20,Winter,December,2022,38.95313112,NA,Ramped,South.facing,M6,"Tran
-(Months 4-6)",Intertidal
+(Months 4-6)",Bay,0.774,-0.299695244,Intertidal
 SanPablo,B,0.5,c,2022-11-22,2022-12-20,Winter,December,2022,29.47562821,NA,Ramped,South.facing,M6,"Tran
-(Months 4-6)",Intertidal
+(Months 4-6)",Bay,0.774,-0.299695244,Intertidal
 SanPablo,B,0.5,a,2022-11-22,2022-12-20,Winter,December,2022,1.210949607,NA,Ramped,South.facing,M6,"Tran
-(Months 4-6)",Intertidal
+(Months 4-6)",Bay,0.774,-0.299695244,Intertidal
 SanPablo,B,2,b,2022-11-22,2022-12-20,Winter,December,2022,NA,NA,Ramped,South.facing,M6,"Tran
-(Months 4-6)",Intertidal
+(Months 4-6)",Bay,0.805,-0.264071413,Intertidal
 SanPablo,B,2,c,2022-11-22,2022-12-20,Winter,December,2022,11.83570018,NA,Ramped,South.facing,M6,"Tran
-(Months 4-6)",Intertidal
+(Months 4-6)",Bay,0.805,-0.264071413,Intertidal
 SanPablo,B,2,a,2022-11-22,2022-12-20,Winter,December,2022,30.52548538,NA,Ramped,South.facing,M6,"Tran
-(Months 4-6)",Intertidal
+(Months 4-6)",Bay,0.805,-0.264071413,Intertidal
 SanPablo,B,6,b,2022-11-22,2022-12-20,Winter,December,2022,0.365061186,NA,Ramped,South.facing,M6,"Tran
-(Months 4-6)",Intertidal
+(Months 4-6)",Bay,0.837,-0.227298427,Intertidal
 SanPablo,B,6,c,2022-11-22,2022-12-20,Winter,December,2022,2.016411788,NA,Ramped,South.facing,M6,"Tran
-(Months 4-6)",Intertidal
+(Months 4-6)",Bay,0.837,-0.227298427,Intertidal
 SanPablo,B,6,a,2022-11-22,2022-12-20,Winter,December,2022,1.038831832,NA,Ramped,South.facing,M6,"Tran
-(Months 4-6)",Intertidal
+(Months 4-6)",Bay,0.837,-0.227298427,Intertidal
 SanPablo,B,12,b,2022-11-22,2022-12-20,Winter,December,2022,0,NA,Ramped,South.facing,M6,"Tran
-(Months 4-6)",Intertidal
+(Months 4-6)",Bay,1.042,0.008278519,Intertidal
 SanPablo,B,12,c,2022-11-22,2022-12-20,Winter,December,2022,0,NA,Ramped,South.facing,M6,"Tran
-(Months 4-6)",Intertidal
+(Months 4-6)",Bay,1.042,0.008278519,Intertidal
 SanPablo,B,12,a,2022-11-22,2022-12-20,Winter,December,2022,0,NA,Ramped,South.facing,M6,"Tran
-(Months 4-6)",Intertidal
+(Months 4-6)",Bay,1.042,0.008278519,Intertidal
 SanPablo,B,24,b,2022-11-22,2022-12-20,Winter,December,2022,1.827756007,NA,Ramped,South.facing,M6,"Tran
-(Months 4-6)",Edge
+(Months 4-6)",Bay,1.563,0.606988706,Edge
 SanPablo,B,24,c,2022-11-22,2022-12-20,Winter,December,2022,1.370204487,NA,Ramped,South.facing,M6,"Tran
-(Months 4-6)",Edge
+(Months 4-6)",Bay,1.563,0.606988706,Edge
 SanPablo,B,24,a,2022-11-22,2022-12-20,Winter,December,2022,1.644612895,11.44554455,Ramped,South.facing,M6,"Tran
-(Months 4-6)",Edge
+(Months 4-6)",Bay,1.563,0.606988706,Edge
 SanPablo,B,48,b,2022-11-22,2022-12-20,Winter,December,2022,6.101911978,NA,Ramped,South.facing,M6,"Tran
-(Months 4-6)",Platform
+(Months 4-6)",Bay,1.978,1.083888376,Platform
 SanPablo,B,48,c,2022-11-22,2022-12-20,Winter,December,2022,15.9518263,NA,Ramped,South.facing,M6,"Tran
-(Months 4-6)",Platform
+(Months 4-6)",Bay,1.978,1.083888376,Platform
 SanPablo,B,48,a,2022-11-22,2022-12-20,Winter,December,2022,6.70340541,NA,Ramped,South.facing,M6,"Tran
-(Months 4-6)",Platform
+(Months 4-6)",Bay,1.978,1.083888376,Platform
 SanPablo,B,72,b,2022-11-22,2022-12-20,Winter,December,2022,1.422881101,7.263540186,Ramped,South.facing,M6,"Tran
-(Months 4-6)",Upland
+(Months 4-6)",Bay,2.012,1.122959674,Upland
 SanPablo,B,72,c,2022-11-22,2022-12-20,Winter,December,2022,1.389192568,4.774428485,Ramped,South.facing,M6,"Tran
-(Months 4-6)",Upland
+(Months 4-6)",Bay,2.012,1.122959674,Upland
 SanPablo,B,72,a,2022-11-22,2022-12-20,Winter,December,2022,5.119431873,NA,Ramped,South.facing,M6,"Tran
-(Months 4-6)",Upland
+(Months 4-6)",Bay,2.012,1.122959674,Upland
 SanPablo,B,150,b,2022-11-22,2022-12-20,Winter,December,2022,1.099471191,NA,Ramped,South.facing,M6,"Tran
-(Months 4-6)",Upland
+(Months 4-6)",Bay,2.014,1.125257985,Upland
 SanPablo,B,150,c,2022-11-22,2022-12-20,Winter,December,2022,0,NA,Ramped,South.facing,M6,"Tran
-(Months 4-6)",Upland
+(Months 4-6)",Bay,2.014,1.125257985,Upland
 SanPablo,B,150,a,2022-11-22,2022-12-20,Winter,December,2022,0.804849663,NA,Ramped,South.facing,M6,"Tran
-(Months 4-6)",Upland
+(Months 4-6)",Bay,2.014,1.125257985,Upland
 CorteMadera,A,0.5,a,2022-11-30,2022-12-21,Winter,December,2022,0.032671731,NA,Scarped,East.facing,M6,"Tran
-(Months 4-6)",Edge
+(Months 4-6)",Bay,1.598,0.69919351,Edge
 CorteMadera,A,0.5,b,2022-11-30,2022-12-21,Winter,December,2022,0.148656375,NA,Scarped,East.facing,M6,"Tran
-(Months 4-6)",Edge
+(Months 4-6)",Bay,1.598,0.69919351,Edge
 CorteMadera,A,0.5,c,2022-11-30,2022-12-21,Winter,December,2022,NA,NA,Scarped,East.facing,M6,"Tran
-(Months 4-6)",Edge
+(Months 4-6)",Bay,1.598,0.69919351,Edge
 CorteMadera,A,2,a,2022-11-30,2022-12-21,Winter,December,2022,3.825859675,NA,Scarped,East.facing,M6,"Tran
-(Months 4-6)",Edge
+(Months 4-6)",Bay,1.684,0.801794321,Edge
 CorteMadera,A,2,b,2022-11-30,2022-12-21,Winter,December,2022,1.357510414,NA,Scarped,East.facing,M6,"Tran
-(Months 4-6)",Edge
+(Months 4-6)",Bay,1.684,0.801794321,Edge
 CorteMadera,A,2,c,2022-11-30,2022-12-21,Winter,December,2022,2.39320428,5.921625544,Scarped,East.facing,M6,"Tran
-(Months 4-6)",Edge
+(Months 4-6)",Bay,1.684,0.801794321,Edge
 CorteMadera,A,6,a,2022-11-30,2022-12-21,Winter,December,2022,2.273952463,NA,Scarped,East.facing,M6,"Tran
-(Months 4-6)",Edge
+(Months 4-6)",Bay,1.691,0.81014555,Edge
 CorteMadera,A,6,b,2022-11-30,2022-12-21,Winter,December,2022,1.769174222,4.859813084,Scarped,East.facing,M6,"Tran
-(Months 4-6)",Edge
+(Months 4-6)",Bay,1.691,0.81014555,Edge
 CorteMadera,A,6,c,2022-11-30,2022-12-21,Winter,December,2022,2.875929102,NA,Scarped,East.facing,M6,"Tran
-(Months 4-6)",Edge
+(Months 4-6)",Bay,1.691,0.81014555,Edge
 CorteMadera,A,12,a,2022-11-30,2022-12-21,Winter,December,2022,1.662174304,NA,Scarped,East.facing,M6,"Tran
-(Months 4-6)",Platform
+(Months 4-6)",Bay,1.705,0.826848008,Platform
 CorteMadera,A,12,b,2022-11-30,2022-12-21,Winter,December,2022,2.318059299,6.976744186,Scarped,East.facing,M6,"Tran
-(Months 4-6)",Platform
+(Months 4-6)",Bay,1.705,0.826848008,Platform
 CorteMadera,A,12,c,2022-11-30,2022-12-21,Winter,December,2022,2.247815078,NA,Scarped,East.facing,M6,"Tran
-(Months 4-6)",Platform
+(Months 4-6)",Bay,1.705,0.826848008,Platform
 CorteMadera,A,24,a,2022-11-30,2022-12-21,Winter,December,2022,7.586375888,8.494561156,Scarped,East.facing,M6,"Tran
-(Months 4-6)",Platform
+(Months 4-6)",Bay,1.664,0.777933667,Platform
 CorteMadera,A,24,b,2022-11-30,2022-12-21,Winter,December,2022,4.761087969,NA,Scarped,East.facing,M6,"Tran
-(Months 4-6)",Platform
+(Months 4-6)",Bay,1.664,0.777933667,Platform
 CorteMadera,A,24,c,2022-11-30,2022-12-21,Winter,December,2022,3.814424569,NA,Scarped,East.facing,M6,"Tran
-(Months 4-6)",Platform
+(Months 4-6)",Bay,1.664,0.777933667,Platform
 CorteMadera,A,48,a,2022-11-30,2022-12-21,Winter,December,2022,3.37498979,NA,Scarped,East.facing,M6,"Tran
-(Months 4-6)",Upland
+(Months 4-6)",Bay,1.724,0.849515629,Upland
 CorteMadera,A,48,b,2022-11-30,2022-12-21,Winter,December,2022,1.814097852,NA,Scarped,East.facing,M6,"Tran
-(Months 4-6)",Upland
+(Months 4-6)",Bay,1.724,0.849515629,Upland
 CorteMadera,A,48,c,2022-11-30,2022-12-21,Winter,December,2022,2.983745814,7.025547445,Scarped,East.facing,M6,"Tran
-(Months 4-6)",Upland
+(Months 4-6)",Bay,1.724,0.849515629,Upland
 CorteMadera,B,0.5,a,2022-11-30,2022-12-21,Winter,December,2022,0.103732745,NA,Scarped,East.facing,M6,"Tran
-(Months 4-6)",Edge
+(Months 4-6)",Bay,1.576,0.672946791,Edge
 CorteMadera,B,0.5,b,2022-11-30,2022-12-21,Winter,December,2022,0.149473168,NA,Scarped,East.facing,M6,"Tran
-(Months 4-6)",Edge
+(Months 4-6)",Bay,1.576,0.672946791,Edge
 CorteMadera,B,0.5,c,2022-11-30,2022-12-21,Winter,December,2022,0.023687005,NA,Scarped,East.facing,M6,"Tran
-(Months 4-6)",Edge
+(Months 4-6)",Bay,1.576,0.672946791,Edge
 CorteMadera,B,2,a,2022-11-30,2022-12-21,Winter,December,2022,1.599462732,NA,Scarped,East.facing,M6,"Tran
-(Months 4-6)",Edge
+(Months 4-6)",Bay,1.605,0.707544739,Edge
 CorteMadera,B,2,b,2022-11-30,2022-12-21,Winter,December,2022,3.074137602,NA,Scarped,East.facing,M6,"Tran
-(Months 4-6)",Edge
+(Months 4-6)",Bay,1.605,0.707544739,Edge
 CorteMadera,B,2,c,2022-11-30,2022-12-21,Winter,December,2022,6.819407008,NA,Scarped,East.facing,M6,"Tran
-(Months 4-6)",Edge
+(Months 4-6)",Bay,1.605,0.707544739,Edge
 CorteMadera,B,6,a,2022-11-30,2022-12-21,Winter,December,2022,1.70873152,NA,Scarped,East.facing,M6,"Tran
-(Months 4-6)",Edge
+(Months 4-6)",Bay,1.672,0.787477929,Edge
 CorteMadera,B,6,b,2022-11-30,2022-12-21,Winter,December,2022,2.365433309,NA,Scarped,East.facing,M6,"Tran
-(Months 4-6)",Edge
+(Months 4-6)",Bay,1.672,0.787477929,Edge
 CorteMadera,B,6,c,2022-11-30,2022-12-21,Winter,December,2022,1.561708732,NA,Scarped,East.facing,M6,"Tran
-(Months 4-6)",Edge
+(Months 4-6)",Bay,1.672,0.787477929,Edge
 CorteMadera,B,12,a,2022-11-30,2022-12-21,Winter,December,2022,2.012578616,NA,Scarped,East.facing,M6,"Tran
-(Months 4-6)",Platform
+(Months 4-6)",Bay,1.664,0.777933667,Platform
 CorteMadera,B,12,b,2022-11-30,2022-12-21,Winter,December,2022,3.181538753,NA,Scarped,East.facing,M6,"Tran
-(Months 4-6)",Platform
+(Months 4-6)",Bay,1.664,0.777933667,Platform
 CorteMadera,B,12,c,2022-11-30,2022-12-21,Winter,December,2022,1.662174304,6.00865246,Scarped,East.facing,M6,"Tran
-(Months 4-6)",Platform
+(Months 4-6)",Bay,1.664,0.777933667,Platform
 CorteMadera,B,24,a,2022-11-30,2022-12-21,Winter,December,2022,13.77766887,10.08837666,Scarped,East.facing,M6,"Tran
-(Months 4-6)",Platform
+(Months 4-6)",Bay,1.642,0.751686948,Platform
 CorteMadera,B,24,b,2022-11-30,2022-12-21,Winter,December,2022,3.54978355,NA,Scarped,East.facing,M6,"Tran
-(Months 4-6)",Platform
+(Months 4-6)",Bay,1.642,0.751686948,Platform
 CorteMadera,B,24,c,2022-11-30,2022-12-21,Winter,December,2022,18.17038308,NA,Scarped,East.facing,M6,"Tran
-(Months 4-6)",Platform
+(Months 4-6)",Bay,1.642,0.751686948,Platform
 CorteMadera,B,48,a,2022-11-30,2022-12-21,Winter,December,2022,1.40651801,6.763122476,Scarped,East.facing,M6,"Tran
-(Months 4-6)",Upland
+(Months 4-6)",Bay,1.692,0.811338583,Upland
 CorteMadera,B,48,b,2022-11-30,2022-12-21,Winter,December,2022,4.487462223,NA,Scarped,East.facing,M6,"Tran
-(Months 4-6)",Upland
+(Months 4-6)",Bay,1.692,0.811338583,Upland
 CorteMadera,B,48,c,2022-11-30,2022-12-21,Winter,December,2022,1.58621253,NA,Scarped,East.facing,M6,"Tran
-(Months 4-6)",Upland
+(Months 4-6)",Bay,1.692,0.811338583,Upland
 SanPablo,A,0.5,b,2022-12-20,2023-01-17,Winter,January,2023,13.34923405,NA,Ramped,South.facing,M7,"Wet
-(Months 7-9)",Intertidal
+(Months 7-9)",Bay,0.735,-0.344512321,Intertidal
 SanPablo,A,0.5,c,2022-12-20,2023-01-17,Winter,January,2023,12.25221294,NA,Ramped,South.facing,M7,"Wet
-(Months 7-9)",Intertidal
+(Months 7-9)",Bay,0.735,-0.344512321,Intertidal
 SanPablo,A,0.5,a,2022-12-20,2023-01-17,Winter,January,2023,8.806794863,NA,Ramped,South.facing,M7,"Wet
-(Months 7-9)",Intertidal
+(Months 7-9)",Bay,0.735,-0.344512321,Intertidal
 SanPablo,A,2,b,2022-12-20,2023-01-17,Winter,January,2023,11.10986543,NA,Ramped,South.facing,M7,"Wet
-(Months 7-9)",Intertidal
+(Months 7-9)",Bay,0.751,-0.326125828,Intertidal
 SanPablo,A,2,c,2022-12-20,2023-01-17,Winter,January,2023,8.583838031,NA,Ramped,South.facing,M7,"Wet
-(Months 7-9)",Intertidal
+(Months 7-9)",Bay,0.751,-0.326125828,Intertidal
 SanPablo,A,2,a,2022-12-20,2023-01-17,Winter,January,2023,9.916678872,NA,Ramped,South.facing,M7,"Wet
-(Months 7-9)",Intertidal
+(Months 7-9)",Bay,0.751,-0.326125828,Intertidal
 SanPablo,A,6,b,2022-12-20,2023-01-17,Winter,January,2023,2.985416481,NA,Ramped,South.facing,M7,"Wet
-(Months 7-9)",Intertidal
+(Months 7-9)",Bay,0.889,-0.167542323,Intertidal
 SanPablo,A,6,c,2022-12-20,2023-01-17,Winter,January,2023,3.346802555,NA,Ramped,South.facing,M7,"Wet
-(Months 7-9)",Intertidal
+(Months 7-9)",Bay,0.889,-0.167542323,Intertidal
 SanPablo,A,6,a,2022-12-20,2023-01-17,Winter,January,2023,0.186818225,NA,Ramped,South.facing,M7,"Wet
-(Months 7-9)",Intertidal
+(Months 7-9)",Bay,0.889,-0.167542323,Intertidal
 SanPablo,A,9,b,2022-12-20,2023-01-17,Winter,January,2023,0.482052271,NA,Ramped,South.facing,M7,"Wet
-(Months 7-9)",Intertidal
+(Months 7-9)",NA,NA,NA,Intertidal
 SanPablo,A,9,c,2022-12-20,2023-01-17,Winter,January,2023,0.139654279,NA,Ramped,South.facing,M7,"Wet
-(Months 7-9)",Intertidal
+(Months 7-9)",NA,NA,NA,Intertidal
 SanPablo,A,9,a,2022-12-20,2023-01-17,Winter,January,2023,0.042263795,NA,Ramped,South.facing,M7,"Wet
-(Months 7-9)",Intertidal
+(Months 7-9)",NA,NA,NA,Intertidal
 SanPablo,A,12,b,2022-12-20,2023-01-17,Winter,January,2023,1.602961619,NA,Ramped,South.facing,M7,"Wet
-(Months 7-9)",Intertidal
+(Months 7-9)",Bay,1.069,0.039305726,Intertidal
 SanPablo,A,12,c,2022-12-20,2023-01-17,Winter,January,2023,0,NA,Ramped,South.facing,M7,"Wet
-(Months 7-9)",Intertidal
+(Months 7-9)",Bay,1.069,0.039305726,Intertidal
 SanPablo,A,12,a,2022-12-20,2023-01-17,Winter,January,2023,0.884477103,NA,Ramped,South.facing,M7,"Wet
-(Months 7-9)",Intertidal
+(Months 7-9)",Bay,1.069,0.039305726,Intertidal
 SanPablo,A,18,b,2022-12-20,2023-01-17,Winter,January,2023,0,NA,Ramped,South.facing,M7,"Wet
-(Months 7-9)",Intertidal
+(Months 7-9)",NA,NA,NA,Intertidal
 SanPablo,A,18,c,2022-12-20,2023-01-17,Winter,January,2023,0,NA,Ramped,South.facing,M7,"Wet
-(Months 7-9)",Intertidal
+(Months 7-9)",NA,NA,NA,Intertidal
 SanPablo,A,18,a,2022-12-20,2023-01-17,Winter,January,2023,0,NA,Ramped,South.facing,M7,"Wet
-(Months 7-9)",Intertidal
+(Months 7-9)",NA,NA,NA,Intertidal
 SanPablo,A,24,b,2022-12-20,2023-01-17,Winter,January,2023,1.087833334,NA,Ramped,South.facing,M7,"Wet
-(Months 7-9)",Edge
+(Months 7-9)",Bay,1.713,0.779362081,Edge
 SanPablo,A,24,c,2022-12-20,2023-01-17,Winter,January,2023,0,NA,Ramped,South.facing,M7,"Wet
-(Months 7-9)",Edge
+(Months 7-9)",Bay,1.713,0.779362081,Edge
 SanPablo,A,24,a,2022-12-20,2023-01-17,Winter,January,2023,0.252357733,5.396911406,Ramped,South.facing,M7,"Wet
-(Months 7-9)",Edge
+(Months 7-9)",Bay,1.713,0.779362081,Edge
 SanPablo,A,48,b,2022-12-20,2023-01-17,Winter,January,2023,15.28479337,NA,Ramped,South.facing,M7,"Wet
-(Months 7-9)",Platform
+(Months 7-9)",Bay,2.01,1.120661362,Platform
 SanPablo,A,48,c,2022-12-20,2023-01-17,Winter,January,2023,8.99238805,NA,Ramped,South.facing,M7,"Wet
-(Months 7-9)",Platform
+(Months 7-9)",Bay,2.01,1.120661362,Platform
 SanPablo,A,48,a,2022-12-20,2023-01-17,Winter,January,2023,12.02190588,6.976744186,Ramped,South.facing,M7,"Wet
-(Months 7-9)",Platform
+(Months 7-9)",Bay,2.01,1.120661362,Platform
 SanPablo,A,72,b,2022-12-20,2023-01-17,Winter,January,2023,6.12205704,NA,Ramped,South.facing,M7,"Wet
-(Months 7-9)",Upland
+(Months 7-9)",Bay,2.04,1.155136037,Upland
 SanPablo,A,72,c,2022-12-20,2023-01-17,Winter,January,2023,2.425574326,NA,Ramped,South.facing,M7,"Wet
-(Months 7-9)",Upland
+(Months 7-9)",Bay,2.04,1.155136037,Upland
 SanPablo,A,72,a,2022-12-20,2023-01-17,Winter,January,2023,4.019154736,NA,Ramped,South.facing,M7,"Wet
-(Months 7-9)",Upland
+(Months 7-9)",Bay,2.04,1.155136037,Upland
 SanPablo,A,150,b,2022-12-20,2023-01-17,Winter,January,2023,2.975139777,63.74438623,Ramped,South.facing,M7,"Wet
-(Months 7-9)",Upland
+(Months 7-9)",Bay,1.974,1.079291752,Upland
 SanPablo,A,150,c,2022-12-20,2023-01-17,Winter,January,2023,0.904690222,NA,Ramped,South.facing,M7,"Wet
-(Months 7-9)",Upland
+(Months 7-9)",Bay,1.974,1.079291752,Upland
 SanPablo,A,150,a,2022-12-20,2023-01-17,Winter,January,2023,2.899663853,NA,Ramped,South.facing,M7,"Wet
-(Months 7-9)",Upland
+(Months 7-9)",Bay,1.974,1.079291752,Upland
 SanPablo,B,0.5,b,2022-12-20,2023-01-17,Winter,January,2023,5.690911884,NA,Ramped,South.facing,M7,"Wet
-(Months 7-9)",Intertidal
+(Months 7-9)",Bay,0.774,-0.299695244,Intertidal
 SanPablo,B,0.5,c,2022-12-20,2023-01-17,Winter,January,2023,8.014808094,NA,Ramped,South.facing,M7,"Wet
-(Months 7-9)",Intertidal
+(Months 7-9)",Bay,0.774,-0.299695244,Intertidal
 SanPablo,B,0.5,a,2022-12-20,2023-01-17,Winter,January,2023,5.889980484,NA,Ramped,South.facing,M7,"Wet
-(Months 7-9)",Intertidal
+(Months 7-9)",Bay,0.774,-0.299695244,Intertidal
 SanPablo,B,2,b,2022-12-20,2023-01-17,Winter,January,2023,0.865489021,NA,Ramped,South.facing,M7,"Wet
-(Months 7-9)",Intertidal
+(Months 7-9)",Bay,0.805,-0.264071413,Intertidal
 SanPablo,B,2,c,2022-12-20,2023-01-17,Winter,January,2023,7.461703646,NA,Ramped,South.facing,M7,"Wet
-(Months 7-9)",Intertidal
+(Months 7-9)",Bay,0.805,-0.264071413,Intertidal
 SanPablo,B,2,a,2022-12-20,2023-01-17,Winter,January,2023,8.687966222,NA,Ramped,South.facing,M7,"Wet
-(Months 7-9)",Intertidal
+(Months 7-9)",Bay,0.805,-0.264071413,Intertidal
 SanPablo,B,6,b,2022-12-20,2023-01-17,Winter,January,2023,0,NA,Ramped,South.facing,M7,"Wet
-(Months 7-9)",Intertidal
+(Months 7-9)",Bay,0.837,-0.227298427,Intertidal
 SanPablo,B,6,c,2022-12-20,2023-01-17,Winter,January,2023,0,NA,Ramped,South.facing,M7,"Wet
-(Months 7-9)",Intertidal
+(Months 7-9)",Bay,0.837,-0.227298427,Intertidal
 SanPablo,B,6,a,2022-12-20,2023-01-17,Winter,January,2023,0,NA,Ramped,South.facing,M7,"Wet
-(Months 7-9)",Intertidal
+(Months 7-9)",Bay,0.837,-0.227298427,Intertidal
 SanPablo,B,9,b,2022-12-20,2023-01-17,Winter,January,2023,0.83608812,NA,Ramped,South.facing,M7,"Wet
-(Months 7-9)",Intertidal
+(Months 7-9)",NA,NA,NA,Intertidal
 SanPablo,B,9,c,2022-12-20,2023-01-17,Winter,January,2023,0.143329392,NA,Ramped,South.facing,M7,"Wet
-(Months 7-9)",Intertidal
+(Months 7-9)",NA,NA,NA,Intertidal
 SanPablo,B,9,a,2022-12-20,2023-01-17,Winter,January,2023,0.045326389,NA,Ramped,South.facing,M7,"Wet
-(Months 7-9)",Intertidal
+(Months 7-9)",NA,NA,NA,Intertidal
 SanPablo,B,12,b,2022-12-20,2023-01-17,Winter,January,2023,0.019600601,NA,Ramped,South.facing,M7,"Wet
-(Months 7-9)",Intertidal
+(Months 7-9)",Bay,1.042,0.008278519,Intertidal
 SanPablo,B,12,c,2022-12-20,2023-01-17,Winter,January,2023,0.083915071,NA,Ramped,South.facing,M7,"Wet
-(Months 7-9)",Intertidal
+(Months 7-9)",Bay,1.042,0.008278519,Intertidal
 SanPablo,B,12,a,2022-12-20,2023-01-17,Winter,January,2023,0.246232545,NA,Ramped,South.facing,M7,"Wet
-(Months 7-9)",Intertidal
+(Months 7-9)",Bay,1.042,0.008278519,Intertidal
 SanPablo,B,18,b,2022-12-20,2023-01-17,Winter,January,2023,11.96739171,NA,Ramped,South.facing,M7,"Wet
-(Months 7-9)",Intertidal
+(Months 7-9)",NA,NA,NA,Intertidal
 SanPablo,B,18,c,2022-12-20,2023-01-17,Winter,January,2023,7.982344599,NA,Ramped,South.facing,M7,"Wet
-(Months 7-9)",Intertidal
+(Months 7-9)",NA,NA,NA,Intertidal
 SanPablo,B,18,a,2022-12-20,2023-01-17,Winter,January,2023,4.981615149,NA,Ramped,South.facing,M7,"Wet
-(Months 7-9)",Intertidal
+(Months 7-9)",NA,NA,NA,Intertidal
 SanPablo,B,24,b,2022-12-20,2023-01-17,Winter,January,2023,1.781817099,NA,Ramped,South.facing,M7,"Wet
-(Months 7-9)",Edge
+(Months 7-9)",Bay,1.563,0.606988706,Edge
 SanPablo,B,24,c,2022-12-20,2023-01-17,Winter,January,2023,0.409775057,NA,Ramped,South.facing,M7,"Wet
-(Months 7-9)",Edge
+(Months 7-9)",Bay,1.563,0.606988706,Edge
 SanPablo,B,24,a,2022-12-20,2023-01-17,Winter,January,2023,0,NA,Ramped,South.facing,M7,"Wet
-(Months 7-9)",Edge
+(Months 7-9)",Bay,1.563,0.606988706,Edge
 SanPablo,B,48,b,2022-12-20,2023-01-17,Winter,January,2023,22.39001109,NA,Ramped,South.facing,M7,"Wet
-(Months 7-9)",Platform
+(Months 7-9)",Bay,1.978,1.083888376,Platform
 SanPablo,B,48,c,2022-12-20,2023-01-17,Winter,January,2023,19.27106551,NA,Ramped,South.facing,M7,"Wet
-(Months 7-9)",Platform
+(Months 7-9)",Bay,1.978,1.083888376,Platform
 SanPablo,B,48,a,2022-12-20,2023-01-17,Winter,January,2023,23.87659414,NA,Ramped,South.facing,M7,"Wet
-(Months 7-9)",Platform
+(Months 7-9)",Bay,1.978,1.083888376,Platform
 SanPablo,B,72,b,2022-12-20,2023-01-17,Winter,January,2023,1.819793263,NA,Ramped,South.facing,M7,"Wet
-(Months 7-9)",Upland
+(Months 7-9)",Bay,2.012,1.122959674,Upland
 SanPablo,B,72,c,2022-12-20,2023-01-17,Winter,January,2023,1.220749907,NA,Ramped,South.facing,M7,"Wet
-(Months 7-9)",Upland
+(Months 7-9)",Bay,2.012,1.122959674,Upland
 SanPablo,B,72,a,2022-12-20,2023-01-17,Winter,January,2023,1.380004787,NA,Ramped,South.facing,M7,"Wet
-(Months 7-9)",Upland
+(Months 7-9)",Bay,2.012,1.122959674,Upland
 SanPablo,B,150,b,2022-12-20,2023-01-17,Winter,January,2023,2.153003474,NA,Ramped,South.facing,M7,"Wet
-(Months 7-9)",Upland
+(Months 7-9)",Bay,2.014,1.125257985,Upland
 SanPablo,B,150,c,2022-12-20,2023-01-17,Winter,January,2023,0.02307154,NA,Ramped,South.facing,M7,"Wet
-(Months 7-9)",Upland
+(Months 7-9)",Bay,2.014,1.125257985,Upland
 SanPablo,B,150,a,2022-12-20,2023-01-17,Winter,January,2023,4.04568647,NA,Ramped,South.facing,M7,"Wet
-(Months 7-9)",Upland
+(Months 7-9)",Bay,2.014,1.125257985,Upland
 CorteMadera,A,0.5,a,2022-12-21,2023-01-18,Winter,January,2023,0.301396716,NA,Scarped,East.facing,M7,"Wet
-(Months 7-9)",Edge
+(Months 7-9)",Bay,1.598,0.69919351,Edge
 CorteMadera,A,0.5,b,2022-12-21,2023-01-18,Winter,January,2023,0.402474884,NA,Scarped,East.facing,M7,"Wet
-(Months 7-9)",Edge
+(Months 7-9)",Bay,1.598,0.69919351,Edge
 CorteMadera,A,0.5,c,2022-12-21,2023-01-18,Winter,January,2023,0.298946337,NA,Scarped,East.facing,M7,"Wet
-(Months 7-9)",Edge
+(Months 7-9)",Bay,1.598,0.69919351,Edge
 CorteMadera,A,2,a,2022-12-21,2023-01-18,Winter,January,2023,29.86767949,NA,Scarped,East.facing,M7,"Wet
-(Months 7-9)",Edge
+(Months 7-9)",Bay,1.684,0.801794321,Edge
 CorteMadera,A,2,b,2022-12-21,2023-01-18,Winter,January,2023,36.49656947,4.776579353,Scarped,East.facing,M7,"Wet
-(Months 7-9)",Edge
+(Months 7-9)",Bay,1.684,0.801794321,Edge
 CorteMadera,A,2,c,2022-12-21,2023-01-18,Winter,January,2023,24.35371233,NA,Scarped,East.facing,M7,"Wet
-(Months 7-9)",Edge
+(Months 7-9)",Bay,1.684,0.801794321,Edge
 CorteMadera,A,6,a,2022-12-21,2023-01-18,Winter,January,2023,3.023768684,NA,Scarped,East.facing,M7,"Wet
-(Months 7-9)",Edge
+(Months 7-9)",Bay,1.691,0.81014555,Edge
 CorteMadera,A,6,b,2022-12-21,2023-01-18,Winter,January,2023,36.98542024,7.961992136,Scarped,East.facing,M7,"Wet
-(Months 7-9)",Edge
+(Months 7-9)",Bay,1.691,0.81014555,Edge
 CorteMadera,A,6,c,2022-12-21,2023-01-18,Winter,January,2023,4.10071061,NA,Scarped,East.facing,M7,"Wet
-(Months 7-9)",Edge
+(Months 7-9)",Bay,1.691,0.81014555,Edge
 CorteMadera,A,12,a,2022-12-21,2023-01-18,Winter,January,2023,3.572381497,NA,Scarped,East.facing,M7,"Wet
-(Months 7-9)",Platform
+(Months 7-9)",Bay,1.705,0.826848008,Platform
 CorteMadera,A,12,b,2022-12-21,2023-01-18,Winter,January,2023,4.114800294,NA,Scarped,East.facing,M7,"Wet
-(Months 7-9)",Platform
+(Months 7-9)",Bay,1.705,0.826848008,Platform
 CorteMadera,A,12,c,2022-12-21,2023-01-18,Winter,January,2023,2.534917912,5.7785672,Scarped,East.facing,M7,"Wet
-(Months 7-9)",Platform
+(Months 7-9)",Bay,1.705,0.826848008,Platform
 CorteMadera,A,18,a,2022-12-21,2023-01-18,Winter,January,2023,2.650085763,NA,Scarped,East.facing,M7,"Wet
-(Months 7-9)",Platform
+(Months 7-9)",NA,NA,NA,Platform
 CorteMadera,A,18,b,2022-12-21,2023-01-18,Winter,January,2023,3.440945847,NA,Scarped,East.facing,M7,"Wet
-(Months 7-9)",Platform
+(Months 7-9)",NA,NA,NA,Platform
 CorteMadera,A,18,c,2022-12-21,2023-01-18,Winter,January,2023,2.153271257,6.153235411,Scarped,East.facing,M7,"Wet
-(Months 7-9)",Platform
+(Months 7-9)",NA,NA,NA,Platform
 CorteMadera,A,24,a,2022-12-21,2023-01-18,Winter,January,2023,5.568488116,NA,Scarped,East.facing,M7,"Wet
-(Months 7-9)",Platform
+(Months 7-9)",Bay,1.664,0.777933667,Platform
 CorteMadera,A,24,b,2022-12-21,2023-01-18,Winter,January,2023,4.592111777,5.928609295,Scarped,East.facing,M7,"Wet
-(Months 7-9)",Platform
+(Months 7-9)",Bay,1.664,0.777933667,Platform
 CorteMadera,A,24,c,2022-12-21,2023-01-18,Winter,January,2023,1.174344523,NA,Scarped,East.facing,M7,"Wet
-(Months 7-9)",Platform
+(Months 7-9)",Bay,1.664,0.777933667,Platform
 CorteMadera,A,30,a,2022-12-21,2023-01-18,Winter,January,2023,2.681634403,NA,Scarped,East.facing,M7,"Wet
-(Months 7-9)",Upland
+(Months 7-9)",NA,NA,NA,Upland
 CorteMadera,A,30,b,2022-12-21,2023-01-18,Winter,January,2023,10.9342073,6.223588167,Scarped,East.facing,M7,"Wet
-(Months 7-9)",Upland
+(Months 7-9)",NA,NA,NA,Upland
 CorteMadera,A,30,c,2022-12-21,2023-01-18,Winter,January,2023,5.614432737,NA,Scarped,East.facing,M7,"Wet
-(Months 7-9)",Upland
+(Months 7-9)",NA,NA,NA,Upland
 CorteMadera,A,48,a,2022-12-21,2023-01-18,Winter,January,2023,1.899044352,6.920462271,Scarped,East.facing,M7,"Wet
-(Months 7-9)",Upland
+(Months 7-9)",Bay,1.724,0.849515629,Upland
 CorteMadera,A,48,b,2022-12-21,2023-01-18,Winter,January,2023,116.2552071,NA,Scarped,East.facing,M7,"Wet
-(Months 7-9)",Upland
+(Months 7-9)",Bay,1.724,0.849515629,Upland
 CorteMadera,A,48,c,2022-12-21,2023-01-18,Winter,January,2023,4.659805603,NA,Scarped,East.facing,M7,"Wet
-(Months 7-9)",Upland
+(Months 7-9)",Bay,1.724,0.849515629,Upland
 CorteMadera,B,0.5,a,2022-12-21,2023-01-18,Winter,January,2023,NA,NA,Scarped,East.facing,M7,"Wet
-(Months 7-9)",Edge
+(Months 7-9)",Bay,1.576,0.672946791,Edge
 CorteMadera,B,0.5,b,2022-12-21,2023-01-18,Winter,January,2023,NA,NA,Scarped,East.facing,M7,"Wet
-(Months 7-9)",Edge
+(Months 7-9)",Bay,1.576,0.672946791,Edge
 CorteMadera,B,0.5,c,2022-12-21,2023-01-18,Winter,January,2023,NA,NA,Scarped,East.facing,M7,"Wet
-(Months 7-9)",Edge
+(Months 7-9)",Bay,1.576,0.672946791,Edge
 CorteMadera,B,2,a,2022-12-21,2023-01-18,Winter,January,2023,0,NA,Scarped,East.facing,M7,"Wet
-(Months 7-9)",Edge
+(Months 7-9)",Bay,1.605,0.707544739,Edge
 CorteMadera,B,2,b,2022-12-21,2023-01-18,Winter,January,2023,0.472310708,NA,Scarped,East.facing,M7,"Wet
-(Months 7-9)",Edge
+(Months 7-9)",Bay,1.605,0.707544739,Edge
 CorteMadera,B,2,c,2022-12-21,2023-01-18,Winter,January,2023,0.374908111,NA,Scarped,East.facing,M7,"Wet
-(Months 7-9)",Edge
+(Months 7-9)",Bay,1.605,0.707544739,Edge
 CorteMadera,B,6,a,2022-12-21,2023-01-18,Winter,January,2023,98.49669199,NA,Scarped,East.facing,M7,"Wet
-(Months 7-9)",Edge
+(Months 7-9)",Bay,1.672,0.787477929,Edge
 CorteMadera,B,6,b,2022-12-21,2023-01-18,Winter,January,2023,1.715674263,NA,Scarped,East.facing,M7,"Wet
-(Months 7-9)",Edge
+(Months 7-9)",Bay,1.672,0.787477929,Edge
 CorteMadera,B,6,c,2022-12-21,2023-01-18,Winter,January,2023,5.65477649,5.593740087,Scarped,East.facing,M7,"Wet
-(Months 7-9)",Edge
+(Months 7-9)",Bay,1.672,0.787477929,Edge
 CorteMadera,B,12,a,2022-12-21,2023-01-18,Winter,January,2023,59.587111,NA,Scarped,East.facing,M7,"Wet
-(Months 7-9)",Platform
+(Months 7-9)",Bay,1.664,0.777933667,Platform
 CorteMadera,B,12,b,2022-12-21,2023-01-18,Winter,January,2023,2.749938741,5.87164315,Scarped,East.facing,M7,"Wet
-(Months 7-9)",Platform
+(Months 7-9)",Bay,1.664,0.777933667,Platform
 CorteMadera,B,12,c,2022-12-21,2023-01-18,Winter,January,2023,73.66638079,NA,Scarped,East.facing,M7,"Wet
-(Months 7-9)",Platform
+(Months 7-9)",Bay,1.664,0.777933667,Platform
 CorteMadera,B,18,a,2022-12-21,2023-01-18,Winter,January,2023,4.010917087,7.061918252,Scarped,East.facing,M7,"Wet
-(Months 7-9)",Platform
+(Months 7-9)",NA,NA,NA,Platform
 CorteMadera,B,18,b,2022-12-21,2023-01-18,Winter,January,2023,3.754594462,NA,Scarped,East.facing,M7,"Wet
-(Months 7-9)",Platform
+(Months 7-9)",NA,NA,NA,Platform
 CorteMadera,B,18,c,2022-12-21,2023-01-18,Winter,January,2023,28.567753,NA,Scarped,East.facing,M7,"Wet
-(Months 7-9)",Platform
+(Months 7-9)",NA,NA,NA,Platform
 CorteMadera,B,24,a,2022-12-21,2023-01-18,Winter,January,2023,3.855060034,NA,Scarped,East.facing,M7,"Wet
-(Months 7-9)",Platform
+(Months 7-9)",Bay,1.642,0.751686948,Platform
 CorteMadera,B,24,b,2022-12-21,2023-01-18,Winter,January,2023,57.6819407,NA,Scarped,East.facing,M7,"Wet
-(Months 7-9)",Platform
+(Months 7-9)",Bay,1.642,0.751686948,Platform
 CorteMadera,B,24,c,2022-12-21,2023-01-18,Winter,January,2023,6.840148607,8.321784465,Scarped,East.facing,M7,"Wet
-(Months 7-9)",Platform
+(Months 7-9)",Bay,1.642,0.751686948,Platform
 CorteMadera,B,30,a,2022-12-21,2023-01-18,Winter,January,2023,36.47880421,NA,Scarped,East.facing,M7,"Wet
-(Months 7-9)",Upland
+(Months 7-9)",NA,NA,NA,Upland
 CorteMadera,B,30,b,2022-12-21,2023-01-18,Winter,January,2023,17.50245038,NA,Scarped,East.facing,M7,"Wet
-(Months 7-9)",Upland
+(Months 7-9)",NA,NA,NA,Upland
 CorteMadera,B,30,c,2022-12-21,2023-01-18,Winter,January,2023,28.89365352,5.28,Scarped,East.facing,M7,"Wet
-(Months 7-9)",Upland
+(Months 7-9)",NA,NA,NA,Upland
 CorteMadera,B,48,a,2022-12-21,2023-01-18,Winter,January,2023,28.34354325,NA,Scarped,East.facing,M7,"Wet
-(Months 7-9)",Upland
+(Months 7-9)",Bay,1.692,0.811338583,Upland
 CorteMadera,B,48,b,2022-12-21,2023-01-18,Winter,January,2023,88.07461407,7.236388697,Scarped,East.facing,M7,"Wet
-(Months 7-9)",Upland
+(Months 7-9)",Bay,1.692,0.811338583,Upland
 CorteMadera,B,48,c,2022-12-21,2023-01-18,Winter,January,2023,1.557216369,NA,Scarped,East.facing,M7,"Wet
-(Months 7-9)",Upland
+(Months 7-9)",Bay,1.692,0.811338583,Upland
 SanPablo,A,0.5,b,2023-01-17,2023-02-15,Winter,February,2023,254.4824549,NA,Ramped,South.facing,M8,"Wet
-(Months 7-9)",Intertidal
+(Months 7-9)",Bay,0.735,-0.344512321,Intertidal
 SanPablo,A,0.5,c,2023-01-17,2023-02-15,Winter,February,2023,220.5693605,NA,Ramped,South.facing,M8,"Wet
-(Months 7-9)",Intertidal
+(Months 7-9)",Bay,0.735,-0.344512321,Intertidal
 SanPablo,A,0.5,a,2023-01-17,2023-02-15,Winter,February,2023,200.3648587,NA,Ramped,South.facing,M8,"Wet
-(Months 7-9)",Intertidal
+(Months 7-9)",Bay,0.735,-0.344512321,Intertidal
 SanPablo,A,2,b,2023-01-17,2023-02-15,Winter,February,2023,240.8584322,NA,Ramped,South.facing,M8,"Wet
-(Months 7-9)",Intertidal
+(Months 7-9)",Bay,0.751,-0.326125828,Intertidal
 SanPablo,A,2,c,2023-01-17,2023-02-15,Winter,February,2023,252.7585314,NA,Ramped,South.facing,M8,"Wet
-(Months 7-9)",Intertidal
+(Months 7-9)",Bay,0.751,-0.326125828,Intertidal
 SanPablo,A,2,a,2023-01-17,2023-02-15,Winter,February,2023,292.7642021,NA,Ramped,South.facing,M8,"Wet
-(Months 7-9)",Intertidal
+(Months 7-9)",Bay,0.751,-0.326125828,Intertidal
 SanPablo,A,6,b,2023-01-17,2023-02-15,Winter,February,2023,35.25911491,NA,Ramped,South.facing,M8,"Wet
-(Months 7-9)",Intertidal
+(Months 7-9)",Bay,0.889,-0.167542323,Intertidal
 SanPablo,A,6,c,2023-01-17,2023-02-15,Winter,February,2023,137.5383438,NA,Ramped,South.facing,M8,"Wet
-(Months 7-9)",Intertidal
+(Months 7-9)",Bay,0.889,-0.167542323,Intertidal
 SanPablo,A,6,a,2023-01-17,2023-02-15,Winter,February,2023,1.96698786,NA,Ramped,South.facing,M8,"Wet
-(Months 7-9)",Intertidal
+(Months 7-9)",Bay,0.889,-0.167542323,Intertidal
 SanPablo,A,9,b,2023-01-17,2023-02-15,Winter,February,2023,2.683761548,NA,Ramped,South.facing,M8,"Wet
-(Months 7-9)",Intertidal
+(Months 7-9)",NA,NA,NA,Intertidal
 SanPablo,A,9,c,2023-01-17,2023-02-15,Winter,February,2023,1.300482954,NA,Ramped,South.facing,M8,"Wet
-(Months 7-9)",Intertidal
+(Months 7-9)",NA,NA,NA,Intertidal
 SanPablo,A,9,a,2023-01-17,2023-02-15,Winter,February,2023,1.242526005,NA,Ramped,South.facing,M8,"Wet
-(Months 7-9)",Intertidal
+(Months 7-9)",NA,NA,NA,Intertidal
 SanPablo,A,12,b,2023-01-17,2023-02-15,Winter,February,2023,1.622794554,NA,Ramped,South.facing,M8,"Wet
-(Months 7-9)",Intertidal
+(Months 7-9)",Bay,1.069,0.039305726,Intertidal
 SanPablo,A,12,c,2023-01-17,2023-02-15,Winter,February,2023,1.666557964,NA,Ramped,South.facing,M8,"Wet
-(Months 7-9)",Intertidal
+(Months 7-9)",Bay,1.069,0.039305726,Intertidal
 SanPablo,A,12,a,2023-01-17,2023-02-15,Winter,February,2023,2.002471706,NA,Ramped,South.facing,M8,"Wet
-(Months 7-9)",Intertidal
+(Months 7-9)",Bay,1.069,0.039305726,Intertidal
 SanPablo,A,18,b,2023-01-17,2023-02-15,Winter,February,2023,0.39387069,NA,Ramped,South.facing,M8,"Wet
-(Months 7-9)",Intertidal
+(Months 7-9)",NA,NA,NA,Intertidal
 SanPablo,A,18,c,2023-01-17,2023-02-15,Winter,February,2023,0.120053679,NA,Ramped,South.facing,M8,"Wet
-(Months 7-9)",Intertidal
+(Months 7-9)",NA,NA,NA,Intertidal
 SanPablo,A,18,a,2023-01-17,2023-02-15,Winter,February,2023,0.241290152,NA,Ramped,South.facing,M8,"Wet
-(Months 7-9)",Intertidal
+(Months 7-9)",NA,NA,NA,Intertidal
 SanPablo,A,24,b,2023-01-17,2023-02-15,Winter,February,2023,0.794838149,NA,Ramped,South.facing,M8,"Wet
-(Months 7-9)",Edge
+(Months 7-9)",Bay,1.713,0.779362081,Edge
 SanPablo,A,24,c,2023-01-17,2023-02-15,Winter,February,2023,0.925536982,NA,Ramped,South.facing,M8,"Wet
-(Months 7-9)",Edge
+(Months 7-9)",Bay,1.713,0.779362081,Edge
 SanPablo,A,24,a,2023-01-17,2023-02-15,Winter,February,2023,0.745160765,NA,Ramped,South.facing,M8,"Wet
-(Months 7-9)",Edge
+(Months 7-9)",Bay,1.713,0.779362081,Edge
 SanPablo,A,48,b,2023-01-17,2023-02-15,Winter,February,2023,2.108923244,NA,Ramped,South.facing,M8,"Wet
-(Months 7-9)",Platform
+(Months 7-9)",Bay,2.01,1.120661362,Platform
 SanPablo,A,48,c,2023-01-17,2023-02-15,Winter,February,2023,1.322364659,NA,Ramped,South.facing,M8,"Wet
-(Months 7-9)",Platform
+(Months 7-9)",Bay,2.01,1.120661362,Platform
 SanPablo,A,48,a,2023-01-17,2023-02-15,Winter,February,2023,2.127847961,NA,Ramped,South.facing,M8,"Wet
-(Months 7-9)",Platform
+(Months 7-9)",Bay,2.01,1.120661362,Platform
 SanPablo,A,72,b,2023-01-17,2023-02-15,Winter,February,2023,0.441773882,NA,Ramped,South.facing,M8,"Wet
-(Months 7-9)",Upland
+(Months 7-9)",Bay,2.04,1.155136037,Upland
 SanPablo,A,72,c,2023-01-17,2023-02-15,Winter,February,2023,NA,NA,Ramped,South.facing,M8,"Wet
-(Months 7-9)",Upland
+(Months 7-9)",Bay,2.04,1.155136037,Upland
 SanPablo,A,72,a,2023-01-17,2023-02-15,Winter,February,2023,0.615644727,NA,Ramped,South.facing,M8,"Wet
-(Months 7-9)",Upland
+(Months 7-9)",Bay,2.04,1.155136037,Upland
 SanPablo,A,150,b,2023-01-17,2023-02-15,Winter,February,2023,1.496066533,NA,Ramped,South.facing,M8,"Wet
-(Months 7-9)",Upland
+(Months 7-9)",Bay,1.974,1.079291752,Upland
 SanPablo,A,150,c,2023-01-17,2023-02-15,Winter,February,2023,3.570266299,NA,Ramped,South.facing,M8,"Wet
-(Months 7-9)",Upland
+(Months 7-9)",Bay,1.974,1.079291752,Upland
 SanPablo,A,150,a,2023-01-17,2023-02-15,Winter,February,2023,4.197147577,NA,Ramped,South.facing,M8,"Wet
-(Months 7-9)",Upland
+(Months 7-9)",Bay,1.974,1.079291752,Upland
 SanPablo,B,0.5,b,2023-01-17,2023-02-15,Winter,February,2023,109.7757828,NA,Ramped,South.facing,M8,"Wet
-(Months 7-9)",Intertidal
+(Months 7-9)",Bay,0.774,-0.299695244,Intertidal
 SanPablo,B,0.5,c,2023-01-17,2023-02-15,Winter,February,2023,92.28461232,NA,Ramped,South.facing,M8,"Wet
-(Months 7-9)",Intertidal
+(Months 7-9)",Bay,0.774,-0.299695244,Intertidal
 SanPablo,B,0.5,a,2023-01-17,2023-02-15,Winter,February,2023,70.92156287,NA,Ramped,South.facing,M8,"Wet
-(Months 7-9)",Intertidal
+(Months 7-9)",Bay,0.774,-0.299695244,Intertidal
 SanPablo,B,2,b,2023-01-17,2023-02-15,Winter,February,2023,1.812041732,NA,Ramped,South.facing,M8,"Wet
-(Months 7-9)",Intertidal
+(Months 7-9)",Bay,0.805,-0.264071413,Intertidal
 SanPablo,B,2,c,2023-01-17,2023-02-15,Winter,February,2023,1.286880813,NA,Ramped,South.facing,M8,"Wet
-(Months 7-9)",Intertidal
+(Months 7-9)",Bay,0.805,-0.264071413,Intertidal
 SanPablo,B,2,a,2023-01-17,2023-02-15,Winter,February,2023,81.89612502,NA,Ramped,South.facing,M8,"Wet
-(Months 7-9)",Intertidal
+(Months 7-9)",Bay,0.805,-0.264071413,Intertidal
 SanPablo,B,6,b,2023-01-17,2023-02-15,Winter,February,2023,1.963439475,NA,Ramped,South.facing,M8,"Wet
-(Months 7-9)",Intertidal
+(Months 7-9)",Bay,0.837,-0.227298427,Intertidal
 SanPablo,B,6,c,2023-01-17,2023-02-15,Winter,February,2023,1.154407788,NA,Ramped,South.facing,M8,"Wet
-(Months 7-9)",Intertidal
+(Months 7-9)",Bay,0.837,-0.227298427,Intertidal
 SanPablo,B,6,a,2023-01-17,2023-02-15,Winter,February,2023,31.77578404,NA,Ramped,South.facing,M8,"Wet
-(Months 7-9)",Intertidal
+(Months 7-9)",Bay,0.837,-0.227298427,Intertidal
 SanPablo,B,9,b,2023-01-17,2023-02-15,Winter,February,2023,1.89542877,NA,Ramped,South.facing,M8,"Wet
-(Months 7-9)",Intertidal
+(Months 7-9)",NA,NA,NA,Intertidal
 SanPablo,B,9,c,2023-01-17,2023-02-15,Winter,February,2023,1.610375208,NA,Ramped,South.facing,M8,"Wet
-(Months 7-9)",Intertidal
+(Months 7-9)",NA,NA,NA,Intertidal
 SanPablo,B,9,a,2023-01-17,2023-02-15,Winter,February,2023,1.165052942,NA,Ramped,South.facing,M8,"Wet
-(Months 7-9)",Intertidal
+(Months 7-9)",NA,NA,NA,Intertidal
 SanPablo,B,12,b,2023-01-17,2023-02-15,Winter,February,2023,2.042686731,NA,Ramped,South.facing,M8,"Wet
-(Months 7-9)",Intertidal
+(Months 7-9)",Bay,1.042,0.008278519,Intertidal
 SanPablo,B,12,c,2023-01-17,2023-02-15,Winter,February,2023,1.510429042,NA,Ramped,South.facing,M8,"Wet
-(Months 7-9)",Intertidal
+(Months 7-9)",Bay,1.042,0.008278519,Intertidal
 SanPablo,B,12,a,2023-01-17,2023-02-15,Winter,February,2023,0.761719893,NA,Ramped,South.facing,M8,"Wet
-(Months 7-9)",Intertidal
+(Months 7-9)",Bay,1.042,0.008278519,Intertidal
 SanPablo,B,18,b,2023-01-17,2023-02-15,Winter,February,2023,0.580160881,NA,Ramped,South.facing,M8,"Wet
-(Months 7-9)",Intertidal
+(Months 7-9)",NA,NA,NA,Intertidal
 SanPablo,B,18,c,2023-01-17,2023-02-15,Winter,February,2023,1.372042043,NA,Ramped,South.facing,M8,"Wet
-(Months 7-9)",Intertidal
+(Months 7-9)",NA,NA,NA,Intertidal
 SanPablo,B,18,a,2023-01-17,2023-02-15,Winter,February,2023,1.96462227,NA,Ramped,South.facing,M8,"Wet
-(Months 7-9)",Intertidal
+(Months 7-9)",NA,NA,NA,Intertidal
 SanPablo,B,24,b,2023-01-17,2023-02-15,Winter,February,2023,2.100643679,NA,Ramped,South.facing,M8,"Wet
-(Months 7-9)",Edge
+(Months 7-9)",Bay,1.563,0.606988706,Edge
 SanPablo,B,24,c,2023-01-17,2023-02-15,Winter,February,2023,0.780644611,NA,Ramped,South.facing,M8,"Wet
-(Months 7-9)",Edge
+(Months 7-9)",Bay,1.563,0.606988706,Edge
 SanPablo,B,24,a,2023-01-17,2023-02-15,Winter,February,2023,1.639353682,NA,Ramped,South.facing,M8,"Wet
-(Months 7-9)",Edge
+(Months 7-9)",Bay,1.563,0.606988706,Edge
 SanPablo,B,48,b,2023-01-17,2023-02-15,Winter,February,2023,3.138546173,NA,Ramped,South.facing,M8,"Wet
-(Months 7-9)",Platform
+(Months 7-9)",Bay,1.978,1.083888376,Platform
 SanPablo,B,48,c,2023-01-17,2023-02-15,Winter,February,2023,4.902093316,NA,Ramped,South.facing,M8,"Wet
-(Months 7-9)",Platform
+(Months 7-9)",Bay,1.978,1.083888376,Platform
 SanPablo,B,48,a,2023-01-17,2023-02-15,Winter,February,2023,1.995181827,NA,Ramped,South.facing,M8,"Wet
-(Months 7-9)",Platform
+(Months 7-9)",Bay,1.978,1.083888376,Platform
 SanPablo,B,72,b,2023-01-17,2023-02-15,Winter,February,2023,1.617471977,NA,Ramped,South.facing,M8,"Wet
-(Months 7-9)",Upland
+(Months 7-9)",Bay,2.012,1.122959674,Upland
 SanPablo,B,72,c,2023-01-17,2023-02-15,Winter,February,2023,0.543153739,NA,Ramped,South.facing,M8,"Wet
-(Months 7-9)",Upland
+(Months 7-9)",Bay,2.012,1.122959674,Upland
 SanPablo,B,72,a,2023-01-17,2023-02-15,Winter,February,2023,1.718009541,NA,Ramped,South.facing,M8,"Wet
-(Months 7-9)",Upland
+(Months 7-9)",Bay,2.012,1.122959674,Upland
 SanPablo,B,150,b,2023-01-17,2023-02-15,Winter,February,2023,0.648171586,NA,Ramped,South.facing,M8,"Wet
-(Months 7-9)",Upland
+(Months 7-9)",Bay,2.014,1.125257985,Upland
 SanPablo,B,150,c,2023-01-17,2023-02-15,Winter,February,2023,0,NA,Ramped,South.facing,M8,"Wet
-(Months 7-9)",Upland
+(Months 7-9)",Bay,2.014,1.125257985,Upland
 SanPablo,B,150,a,2023-01-17,2023-02-15,Winter,February,2023,0.095214987,NA,Ramped,South.facing,M8,"Wet
-(Months 7-9)",Upland
+(Months 7-9)",Bay,2.014,1.125257985,Upland
 CorteMadera,A,0.5,a,2023-01-18,2023-02-17,Winter,February,2023,NA,NA,Scarped,East.facing,M8,"Wet
-(Months 7-9)",Edge
+(Months 7-9)",Bay,1.598,0.69919351,Edge
 CorteMadera,A,0.5,b,2023-01-18,2023-02-17,Winter,February,2023,NA,NA,Scarped,East.facing,M8,"Wet
-(Months 7-9)",Edge
+(Months 7-9)",Bay,1.598,0.69919351,Edge
 CorteMadera,A,0.5,c,2023-01-18,2023-02-17,Winter,February,2023,NA,NA,Scarped,East.facing,M8,"Wet
-(Months 7-9)",Edge
+(Months 7-9)",Bay,1.598,0.69919351,Edge
 CorteMadera,A,2,a,2023-01-18,2023-02-17,Winter,February,2023,0.045740423,NA,Scarped,East.facing,M8,"Wet
-(Months 7-9)",Edge
+(Months 7-9)",Bay,1.684,0.801794321,Edge
 CorteMadera,A,2,b,2023-01-18,2023-02-17,Winter,February,2023,2.128073185,NA,Scarped,East.facing,M8,"Wet
-(Months 7-9)",Edge
+(Months 7-9)",Bay,1.684,0.801794321,Edge
 CorteMadera,A,2,c,2023-01-18,2023-02-17,Winter,February,2023,NA,3.735632184,Scarped,East.facing,M8,"Wet
-(Months 7-9)",Edge
+(Months 7-9)",Bay,1.684,0.801794321,Edge
 CorteMadera,A,6,a,2023-01-18,2023-02-17,Winter,February,2023,0.961692396,4.931367565,Scarped,East.facing,M8,"Wet
-(Months 7-9)",Edge
+(Months 7-9)",Bay,1.691,0.81014555,Edge
 CorteMadera,A,6,b,2023-01-18,2023-02-17,Winter,February,2023,2.380217267,NA,Scarped,East.facing,M8,"Wet
-(Months 7-9)",Edge
+(Months 7-9)",Bay,1.691,0.81014555,Edge
 CorteMadera,A,6,c,2023-01-18,2023-02-17,Winter,February,2023,2.218982276,NA,Scarped,East.facing,M8,"Wet
-(Months 7-9)",Edge
+(Months 7-9)",Bay,1.691,0.81014555,Edge
 CorteMadera,A,12,a,2023-01-18,2023-02-17,Winter,February,2023,1.699256718,NA,Scarped,East.facing,M8,"Wet
-(Months 7-9)",Platform
+(Months 7-9)",Bay,1.705,0.826848008,Platform
 CorteMadera,A,12,b,2023-01-18,2023-02-17,Winter,February,2023,1.922241281,7.760235483,Scarped,East.facing,M8,"Wet
-(Months 7-9)",Platform
+(Months 7-9)",Bay,1.705,0.826848008,Platform
 CorteMadera,A,12,c,2023-01-18,2023-02-17,Winter,February,2023,1.243567753,NA,Scarped,East.facing,M8,"Wet
-(Months 7-9)",Platform
+(Months 7-9)",Bay,1.705,0.826848008,Platform
 CorteMadera,A,18,a,2023-01-18,2023-02-17,Winter,February,2023,2.144082333,NA,Scarped,East.facing,M8,"Wet
-(Months 7-9)",Platform
+(Months 7-9)",NA,NA,NA,Platform
 CorteMadera,A,18,b,2023-01-18,2023-02-17,Winter,February,2023,1.688393368,NA,Scarped,East.facing,M8,"Wet
-(Months 7-9)",Platform
+(Months 7-9)",NA,NA,NA,Platform
 CorteMadera,A,18,c,2023-01-18,2023-02-17,Winter,February,2023,1.84219554,7.059974836,Scarped,East.facing,M8,"Wet
-(Months 7-9)",Platform
+(Months 7-9)",NA,NA,NA,Platform
 CorteMadera,A,24,a,2023-01-18,2023-02-17,Winter,February,2023,1.388793596,NA,Scarped,East.facing,M8,"Wet
-(Months 7-9)",Platform
+(Months 7-9)",Bay,1.664,0.777933667,Platform
 CorteMadera,A,24,b,2023-01-18,2023-02-17,Winter,February,2023,1.203544883,6.497131338,Scarped,East.facing,M8,"Wet
-(Months 7-9)",Platform
+(Months 7-9)",Bay,1.664,0.777933667,Platform
 CorteMadera,A,24,c,2023-01-18,2023-02-17,Winter,February,2023,1.818181818,NA,Scarped,East.facing,M8,"Wet
-(Months 7-9)",Platform
+(Months 7-9)",Bay,1.664,0.777933667,Platform
 CorteMadera,A,30,a,2023-01-18,2023-02-17,Winter,February,2023,1.468839337,NA,Scarped,East.facing,M8,"Wet
-(Months 7-9)",Upland
+(Months 7-9)",NA,NA,NA,Upland
 CorteMadera,A,30,b,2023-01-18,2023-02-17,Winter,February,2023,1.616923957,NA,Scarped,East.facing,M8,"Wet
-(Months 7-9)",Upland
+(Months 7-9)",NA,NA,NA,Upland
 CorteMadera,A,30,c,2023-01-18,2023-02-17,Winter,February,2023,1.476843911,7.923416789,Scarped,East.facing,M8,"Wet
-(Months 7-9)",Upland
+(Months 7-9)",NA,NA,NA,Upland
 CorteMadera,A,48,a,2023-01-18,2023-02-17,Winter,February,2023,1.555174385,NA,Scarped,East.facing,M8,"Wet
-(Months 7-9)",Upland
+(Months 7-9)",Bay,1.724,0.849515629,Upland
 CorteMadera,A,48,b,2023-01-18,2023-02-17,Winter,February,2023,0.9514008,6.452156334,Scarped,East.facing,M8,"Wet
-(Months 7-9)",Upland
+(Months 7-9)",Bay,1.724,0.849515629,Upland
 CorteMadera,A,48,c,2023-01-18,2023-02-17,Winter,February,2023,1.53516295,NA,Scarped,East.facing,M8,"Wet
-(Months 7-9)",Upland
+(Months 7-9)",Bay,1.724,0.849515629,Upland
 CorteMadera,B,0.5,a,2023-01-18,2023-02-17,Winter,February,2023,NA,NA,Scarped,East.facing,M8,"Wet
-(Months 7-9)",Edge
+(Months 7-9)",Bay,1.576,0.672946791,Edge
 CorteMadera,B,0.5,b,2023-01-18,2023-02-17,Winter,February,2023,0,NA,Scarped,East.facing,M8,"Wet
-(Months 7-9)",Edge
+(Months 7-9)",Bay,1.576,0.672946791,Edge
 CorteMadera,B,0.5,c,2023-01-18,2023-02-17,Winter,February,2023,NA,NA,Scarped,East.facing,M8,"Wet
-(Months 7-9)",Edge
+(Months 7-9)",Bay,1.576,0.672946791,Edge
 CorteMadera,B,2,a,2023-01-18,2023-02-17,Winter,February,2023,NA,NA,Scarped,East.facing,M8,"Wet
-(Months 7-9)",Edge
+(Months 7-9)",Bay,1.605,0.707544739,Edge
 CorteMadera,B,2,b,2023-01-18,2023-02-17,Winter,February,2023,4.417762531,NA,Scarped,East.facing,M8,"Wet
-(Months 7-9)",Edge
+(Months 7-9)",Bay,1.605,0.707544739,Edge
 CorteMadera,B,2,c,2023-01-18,2023-02-17,Winter,February,2023,0.12864494,5.583756345,Scarped,East.facing,M8,"Wet
-(Months 7-9)",Edge
+(Months 7-9)",Bay,1.605,0.707544739,Edge
 CorteMadera,B,6,a,2023-01-18,2023-02-17,Winter,February,2023,1.191538022,5.50747443,Scarped,East.facing,M8,"Wet
-(Months 7-9)",Edge
+(Months 7-9)",Bay,1.672,0.787477929,Edge
 CorteMadera,B,6,b,2023-01-18,2023-02-17,Winter,February,2023,1.335048599,NA,Scarped,East.facing,M8,"Wet
-(Months 7-9)",Edge
+(Months 7-9)",Bay,1.672,0.787477929,Edge
 CorteMadera,B,6,c,2023-01-18,2023-02-17,Winter,February,2023,1.720411664,NA,Scarped,East.facing,M8,"Wet
-(Months 7-9)",Edge
+(Months 7-9)",Bay,1.672,0.787477929,Edge
 CorteMadera,B,12,a,2023-01-18,2023-02-17,Winter,February,2023,1.344768439,NA,Scarped,East.facing,M8,"Wet
-(Months 7-9)",Platform
+(Months 7-9)",Bay,1.664,0.777933667,Platform
 CorteMadera,B,12,b,2023-01-18,2023-02-17,Winter,February,2023,2.076043453,NA,Scarped,East.facing,M8,"Wet
-(Months 7-9)",Platform
+(Months 7-9)",Bay,1.664,0.777933667,Platform
 CorteMadera,B,12,c,2023-01-18,2023-02-17,Winter,February,2023,1.696397942,6.405744052,Scarped,East.facing,M8,"Wet
-(Months 7-9)",Platform
+(Months 7-9)",Bay,1.664,0.777933667,Platform
 CorteMadera,B,18,a,2023-01-18,2023-02-17,Winter,February,2023,2.768439108,9.229197412,Scarped,East.facing,M8,"Wet
-(Months 7-9)",Platform
+(Months 7-9)",NA,NA,NA,Platform
 CorteMadera,B,18,b,2023-01-18,2023-02-17,Winter,February,2023,1.648370497,NA,Scarped,East.facing,M8,"Wet
-(Months 7-9)",Platform
+(Months 7-9)",NA,NA,NA,Platform
 CorteMadera,B,18,c,2023-01-18,2023-02-17,Winter,February,2023,1.945111492,NA,Scarped,East.facing,M8,"Wet
-(Months 7-9)",Platform
+(Months 7-9)",NA,NA,NA,Platform
 CorteMadera,B,24,a,2023-01-18,2023-02-17,Winter,February,2023,6.1189251,NA,Scarped,East.facing,M8,"Wet
-(Months 7-9)",Platform
+(Months 7-9)",Bay,1.642,0.751686948,Platform
 CorteMadera,B,24,b,2023-01-18,2023-02-17,Winter,February,2023,6.219554031,NA,Scarped,East.facing,M8,"Wet
-(Months 7-9)",Platform
+(Months 7-9)",Bay,1.642,0.751686948,Platform
 CorteMadera,B,24,c,2023-01-18,2023-02-17,Winter,February,2023,3.259576901,9.780720799,Scarped,East.facing,M8,"Wet
-(Months 7-9)",Platform
+(Months 7-9)",Bay,1.642,0.751686948,Platform
 CorteMadera,B,30,a,2023-01-18,2023-02-17,Winter,February,2023,1.205831904,NA,Scarped,East.facing,M8,"Wet
-(Months 7-9)",Upland
+(Months 7-9)",NA,NA,NA,Upland
 CorteMadera,B,30,b,2023-01-18,2023-02-17,Winter,February,2023,2.576329331,NA,Scarped,East.facing,M8,"Wet
-(Months 7-9)",Upland
+(Months 7-9)",NA,NA,NA,Upland
 CorteMadera,B,30,c,2023-01-18,2023-02-17,Winter,February,2023,1.096054889,6.021505376,Scarped,East.facing,M8,"Wet
-(Months 7-9)",Upland
+(Months 7-9)",NA,NA,NA,Upland
 CorteMadera,B,48,a,2023-01-18,2023-02-17,Winter,February,2023,1.024013722,6.315968676,Scarped,East.facing,M8,"Wet
-(Months 7-9)",Upland
+(Months 7-9)",Bay,1.692,0.811338583,Upland
 CorteMadera,B,48,b,2023-01-18,2023-02-17,Winter,February,2023,0.954831332,NA,Scarped,East.facing,M8,"Wet
-(Months 7-9)",Upland
+(Months 7-9)",Bay,1.692,0.811338583,Upland
 CorteMadera,B,48,c,2023-01-18,2023-02-17,Winter,February,2023,1.035448828,NA,Scarped,East.facing,M8,"Wet
-(Months 7-9)",Upland
+(Months 7-9)",Bay,1.692,0.811338583,Upland
 SanPablo,A,0.5,b,2023-02-15,2023-03-23,Spring,March,2023,289.5156396,NA,Ramped,South.facing,M9,"Wet
-(Months 7-9)",Intertidal
+(Months 7-9)",Bay,0.735,-0.344512321,Intertidal
 SanPablo,A,0.5,c,2023-02-15,2023-03-23,Spring,March,2023,334.6825014,NA,Ramped,South.facing,M9,"Wet
-(Months 7-9)",Intertidal
+(Months 7-9)",Bay,0.735,-0.344512321,Intertidal
 SanPablo,A,0.5,a,2023-02-15,2023-03-23,Spring,March,2023,306.8800703,NA,Ramped,South.facing,M9,"Wet
-(Months 7-9)",Intertidal
+(Months 7-9)",Bay,0.735,-0.344512321,Intertidal
 SanPablo,A,2,b,2023-02-15,2023-03-23,Spring,March,2023,292.9352638,NA,Ramped,South.facing,M9,"Wet
-(Months 7-9)",Intertidal
+(Months 7-9)",Bay,0.751,-0.326125828,Intertidal
 SanPablo,A,2,c,2023-02-15,2023-03-23,Spring,March,2023,117.0237526,NA,Ramped,South.facing,M9,"Wet
-(Months 7-9)",Intertidal
+(Months 7-9)",Bay,0.751,-0.326125828,Intertidal
 SanPablo,A,2,a,2023-02-15,2023-03-23,Spring,March,2023,308.6160846,NA,Ramped,South.facing,M9,"Wet
-(Months 7-9)",Intertidal
+(Months 7-9)",Bay,0.751,-0.326125828,Intertidal
 SanPablo,A,6,b,2023-02-15,2023-03-23,Spring,March,2023,15.64604332,NA,Ramped,South.facing,M9,"Wet
-(Months 7-9)",Intertidal
+(Months 7-9)",Bay,0.889,-0.167542323,Intertidal
 SanPablo,A,6,c,2023-02-15,2023-03-23,Spring,March,2023,19.9732162,NA,Ramped,South.facing,M9,"Wet
-(Months 7-9)",Intertidal
+(Months 7-9)",Bay,0.889,-0.167542323,Intertidal
 SanPablo,A,6,a,2023-02-15,2023-03-23,Spring,March,2023,2.97418697,NA,Ramped,South.facing,M9,"Wet
-(Months 7-9)",Intertidal
+(Months 7-9)",Bay,0.889,-0.167542323,Intertidal
 SanPablo,A,9,b,2023-02-15,2023-03-23,Spring,March,2023,1.813668075,NA,Ramped,South.facing,M9,"Wet
-(Months 7-9)",Intertidal
+(Months 7-9)",NA,NA,NA,Intertidal
 SanPablo,A,9,c,2023-02-15,2023-03-23,Spring,March,2023,1.674081854,NA,Ramped,South.facing,M9,"Wet
-(Months 7-9)",Intertidal
+(Months 7-9)",NA,NA,NA,Intertidal
 SanPablo,A,9,a,2023-02-15,2023-03-23,Spring,March,2023,NA,NA,Ramped,South.facing,M9,"Wet
-(Months 7-9)",Intertidal
+(Months 7-9)",NA,NA,NA,Intertidal
 SanPablo,A,12,b,2023-02-15,2023-03-23,Spring,March,2023,1.944202631,NA,Ramped,South.facing,M9,"Wet
-(Months 7-9)",Intertidal
+(Months 7-9)",Bay,1.069,0.039305726,Intertidal
 SanPablo,A,12,c,2023-02-15,2023-03-23,Spring,March,2023,1.978503682,NA,Ramped,South.facing,M9,"Wet
-(Months 7-9)",Intertidal
+(Months 7-9)",Bay,1.069,0.039305726,Intertidal
 SanPablo,A,12,a,2023-02-15,2023-03-23,Spring,March,2023,NA,NA,Ramped,South.facing,M9,"Wet
-(Months 7-9)",Intertidal
+(Months 7-9)",Bay,1.069,0.039305726,Intertidal
 SanPablo,A,18,b,2023-02-15,2023-03-23,Spring,March,2023,NA,NA,Ramped,South.facing,M9,"Wet
-(Months 7-9)",Intertidal
+(Months 7-9)",NA,NA,NA,Intertidal
 SanPablo,A,18,c,2023-02-15,2023-03-23,Spring,March,2023,NA,NA,Ramped,South.facing,M9,"Wet
-(Months 7-9)",Intertidal
+(Months 7-9)",NA,NA,NA,Intertidal
 SanPablo,A,18,a,2023-02-15,2023-03-23,Spring,March,2023,NA,NA,Ramped,South.facing,M9,"Wet
-(Months 7-9)",Intertidal
+(Months 7-9)",NA,NA,NA,Intertidal
 SanPablo,A,24,b,2023-02-15,2023-03-23,Spring,March,2023,2.285783931,NA,Ramped,South.facing,M9,"Wet
-(Months 7-9)",Edge
+(Months 7-9)",Bay,1.713,0.779362081,Edge
 SanPablo,A,24,c,2023-02-15,2023-03-23,Spring,March,2023,1.098110038,NA,Ramped,South.facing,M9,"Wet
-(Months 7-9)",Edge
+(Months 7-9)",Bay,1.713,0.779362081,Edge
 SanPablo,A,24,a,2023-02-15,2023-03-23,Spring,March,2023,2.782672768,NA,Ramped,South.facing,M9,"Wet
-(Months 7-9)",Edge
+(Months 7-9)",Bay,1.713,0.779362081,Edge
 SanPablo,A,48,b,2023-02-15,2023-03-23,Spring,March,2023,1.715528957,NA,Ramped,South.facing,M9,"Wet
-(Months 7-9)",Platform
+(Months 7-9)",Bay,2.01,1.120661362,Platform
 SanPablo,A,48,c,2023-02-15,2023-03-23,Spring,March,2023,1.806998427,NA,Ramped,South.facing,M9,"Wet
-(Months 7-9)",Platform
+(Months 7-9)",Bay,2.01,1.120661362,Platform
 SanPablo,A,48,a,2023-02-15,2023-03-23,Spring,March,2023,1.244842312,NA,Ramped,South.facing,M9,"Wet
-(Months 7-9)",Platform
+(Months 7-9)",Bay,2.01,1.120661362,Platform
 SanPablo,A,72,b,2023-02-15,2023-03-23,Spring,March,2023,24.31706319,NA,Ramped,South.facing,M9,"Wet
-(Months 7-9)",Upland
+(Months 7-9)",Bay,2.04,1.155136037,Upland
 SanPablo,A,72,c,2023-02-15,2023-03-23,Spring,March,2023,31.35882203,NA,Ramped,South.facing,M9,"Wet
-(Months 7-9)",Upland
+(Months 7-9)",Bay,2.04,1.155136037,Upland
 SanPablo,A,72,a,2023-02-15,2023-03-23,Spring,March,2023,33.38254515,NA,Ramped,South.facing,M9,"Wet
-(Months 7-9)",Upland
+(Months 7-9)",Bay,2.04,1.155136037,Upland
 SanPablo,A,150,b,2023-02-15,2023-03-23,Spring,March,2023,5.69016325,NA,Ramped,South.facing,M9,"Wet
-(Months 7-9)",Upland
+(Months 7-9)",Bay,1.974,1.079291752,Upland
 SanPablo,A,150,c,2023-02-15,2023-03-23,Spring,March,2023,4.477239972,NA,Ramped,South.facing,M9,"Wet
-(Months 7-9)",Upland
+(Months 7-9)",Bay,1.974,1.079291752,Upland
 SanPablo,A,150,a,2023-02-15,2023-03-23,Spring,March,2023,3.252440292,NA,Ramped,South.facing,M9,"Wet
-(Months 7-9)",Upland
+(Months 7-9)",Bay,1.974,1.079291752,Upland
 SanPablo,B,0.5,b,2023-02-15,2023-03-23,Spring,March,2023,53.01799127,NA,Ramped,South.facing,M9,"Wet
-(Months 7-9)",Intertidal
+(Months 7-9)",Bay,0.774,-0.299695244,Intertidal
 SanPablo,B,0.5,c,2023-02-15,2023-03-23,Spring,March,2023,37.2423662,NA,Ramped,South.facing,M9,"Wet
-(Months 7-9)",Intertidal
+(Months 7-9)",Bay,0.774,-0.299695244,Intertidal
 SanPablo,B,0.5,a,2023-02-15,2023-03-23,Spring,March,2023,38.88738744,NA,Ramped,South.facing,M9,"Wet
-(Months 7-9)",Intertidal
+(Months 7-9)",Bay,0.774,-0.299695244,Intertidal
 SanPablo,B,2,b,2023-02-15,2023-03-23,Spring,March,2023,35.41535883,NA,Ramped,South.facing,M9,"Wet
-(Months 7-9)",Intertidal
+(Months 7-9)",Bay,0.805,-0.264071413,Intertidal
 SanPablo,B,2,c,2023-02-15,2023-03-23,Spring,March,2023,30.3569066,NA,Ramped,South.facing,M9,"Wet
-(Months 7-9)",Intertidal
+(Months 7-9)",Bay,0.805,-0.264071413,Intertidal
 SanPablo,B,2,a,2023-02-15,2023-03-23,Spring,March,2023,28.48321169,NA,Ramped,South.facing,M9,"Wet
-(Months 7-9)",Intertidal
+(Months 7-9)",Bay,0.805,-0.264071413,Intertidal
 SanPablo,B,6,b,2023-02-15,2023-03-23,Spring,March,2023,4.217123668,NA,Ramped,South.facing,M9,"Wet
-(Months 7-9)",Intertidal
+(Months 7-9)",Bay,0.837,-0.227298427,Intertidal
 SanPablo,B,6,c,2023-02-15,2023-03-23,Spring,March,2023,25.98161698,NA,Ramped,South.facing,M9,"Wet
-(Months 7-9)",Intertidal
+(Months 7-9)",Bay,0.837,-0.227298427,Intertidal
 SanPablo,B,6,a,2023-02-15,2023-03-23,Spring,March,2023,19.36723096,NA,Ramped,South.facing,M9,"Wet
-(Months 7-9)",Intertidal
+(Months 7-9)",Bay,0.837,-0.227298427,Intertidal
 SanPablo,B,9,b,2023-02-15,2023-03-23,Spring,March,2023,2.46729366,NA,Ramped,South.facing,M9,"Wet
-(Months 7-9)",Intertidal
+(Months 7-9)",NA,NA,NA,Intertidal
 SanPablo,B,9,c,2023-02-15,2023-03-23,Spring,March,2023,2.286736738,NA,Ramped,South.facing,M9,"Wet
-(Months 7-9)",Intertidal
+(Months 7-9)",NA,NA,NA,Intertidal
 SanPablo,B,9,a,2023-02-15,2023-03-23,Spring,March,2023,NA,NA,Ramped,South.facing,M9,"Wet
-(Months 7-9)",Intertidal
+(Months 7-9)",NA,NA,NA,Intertidal
 SanPablo,B,12,b,2023-02-15,2023-03-23,Spring,March,2023,3.819326756,NA,Ramped,South.facing,M9,"Wet
-(Months 7-9)",Intertidal
+(Months 7-9)",Bay,1.042,0.008278519,Intertidal
 SanPablo,B,12,c,2023-02-15,2023-03-23,Spring,March,2023,2.017092364,NA,Ramped,South.facing,M9,"Wet
-(Months 7-9)",Intertidal
+(Months 7-9)",Bay,1.042,0.008278519,Intertidal
 SanPablo,B,12,a,2023-02-15,2023-03-23,Spring,March,2023,1.070955039,NA,Ramped,South.facing,M9,"Wet
-(Months 7-9)",Intertidal
+(Months 7-9)",Bay,1.042,0.008278519,Intertidal
 SanPablo,B,18,b,2023-02-15,2023-03-23,Spring,March,2023,8.199380417,NA,Ramped,South.facing,M9,"Wet
-(Months 7-9)",Intertidal
+(Months 7-9)",NA,NA,NA,Intertidal
 SanPablo,B,18,c,2023-02-15,2023-03-23,Spring,March,2023,NA,NA,Ramped,South.facing,M9,"Wet
-(Months 7-9)",Intertidal
+(Months 7-9)",NA,NA,NA,Intertidal
 SanPablo,B,18,a,2023-02-15,2023-03-23,Spring,March,2023,31.82375294,NA,Ramped,South.facing,M9,"Wet
-(Months 7-9)",Intertidal
+(Months 7-9)",NA,NA,NA,Intertidal
 SanPablo,B,24,b,2023-02-15,2023-03-23,Spring,March,2023,4.758318029,NA,Ramped,South.facing,M9,"Wet
-(Months 7-9)",Edge
+(Months 7-9)",Bay,1.563,0.606988706,Edge
 SanPablo,B,24,c,2023-02-15,2023-03-23,Spring,March,2023,4.210454019,NA,Ramped,South.facing,M9,"Wet
-(Months 7-9)",Edge
+(Months 7-9)",Bay,1.563,0.606988706,Edge
 SanPablo,B,24,a,2023-02-15,2023-03-23,Spring,March,2023,2.378206208,NA,Ramped,South.facing,M9,"Wet
-(Months 7-9)",Edge
+(Months 7-9)",Bay,1.563,0.606988706,Edge
 SanPablo,B,48,b,2023-02-15,2023-03-23,Spring,March,2023,1.829389391,4.691550026,Ramped,South.facing,M9,"Wet
-(Months 7-9)",Platform
+(Months 7-9)",Bay,1.978,1.083888376,Platform
 SanPablo,B,48,c,2023-02-15,2023-03-23,Spring,March,2023,1.747924394,NA,Ramped,South.facing,M9,"Wet
-(Months 7-9)",Platform
+(Months 7-9)",Bay,1.978,1.083888376,Platform
 SanPablo,B,48,a,2023-02-15,2023-03-23,Spring,March,2023,1.301057923,NA,Ramped,South.facing,M9,"Wet
-(Months 7-9)",Platform
+(Months 7-9)",Bay,1.978,1.083888376,Platform
 SanPablo,B,72,b,2023-02-15,2023-03-23,Spring,March,2023,26.45087441,9.530313478,Ramped,South.facing,M9,"Wet
-(Months 7-9)",Upland
+(Months 7-9)",Bay,2.012,1.122959674,Upland
 SanPablo,B,72,c,2023-02-15,2023-03-23,Spring,March,2023,31.97572565,NA,Ramped,South.facing,M9,"Wet
-(Months 7-9)",Upland
+(Months 7-9)",Bay,2.012,1.122959674,Upland
 SanPablo,B,72,a,2023-02-15,2023-03-23,Spring,March,2023,37.01419454,9.561689603,Ramped,South.facing,M9,"Wet
-(Months 7-9)",Upland
+(Months 7-9)",Bay,2.012,1.122959674,Upland
 SanPablo,B,150,b,2023-02-15,2023-03-23,Spring,March,2023,4.514875847,NA,Ramped,South.facing,M9,"Wet
-(Months 7-9)",Upland
+(Months 7-9)",Bay,2.014,1.125257985,Upland
 SanPablo,B,150,c,2023-02-15,2023-03-23,Spring,March,2023,4.053555196,NA,Ramped,South.facing,M9,"Wet
-(Months 7-9)",Upland
+(Months 7-9)",Bay,2.014,1.125257985,Upland
 SanPablo,B,150,a,2023-02-15,2023-03-23,Spring,March,2023,3.198096609,NA,Ramped,South.facing,M9,"Wet
-(Months 7-9)",Upland
+(Months 7-9)",Bay,2.014,1.125257985,Upland
 CorteMadera,A,0.5,a,2023-02-17,2023-03-23,Spring,March,2023,NA,NA,Scarped,East.facing,M9,"Wet
-(Months 7-9)",Edge
+(Months 7-9)",Bay,1.598,0.69919351,Edge
 CorteMadera,A,0.5,b,2023-02-17,2023-03-23,Spring,March,2023,NA,NA,Scarped,East.facing,M9,"Wet
-(Months 7-9)",Edge
+(Months 7-9)",Bay,1.598,0.69919351,Edge
 CorteMadera,A,0.5,c,2023-02-17,2023-03-23,Spring,March,2023,NA,NA,Scarped,East.facing,M9,"Wet
-(Months 7-9)",Edge
+(Months 7-9)",Bay,1.598,0.69919351,Edge
 CorteMadera,A,2,a,2023-02-17,2023-03-23,Spring,March,2023,NA,NA,Scarped,East.facing,M9,"Wet
-(Months 7-9)",Edge
+(Months 7-9)",Bay,1.684,0.801794321,Edge
 CorteMadera,A,2,b,2023-02-17,2023-03-23,Spring,March,2023,NA,NA,Scarped,East.facing,M9,"Wet
-(Months 7-9)",Edge
+(Months 7-9)",Bay,1.684,0.801794321,Edge
 CorteMadera,A,2,c,2023-02-17,2023-03-23,Spring,March,2023,NA,NA,Scarped,East.facing,M9,"Wet
-(Months 7-9)",Edge
+(Months 7-9)",Bay,1.684,0.801794321,Edge
 CorteMadera,A,6,a,2023-02-17,2023-03-23,Spring,March,2023,1.549288669,6.934993485,Scarped,East.facing,M9,"Wet
-(Months 7-9)",Edge
+(Months 7-9)",Bay,1.691,0.81014555,Edge
 CorteMadera,A,6,b,2023-02-17,2023-03-23,Spring,March,2023,3.629300777,NA,Scarped,East.facing,M9,"Wet
-(Months 7-9)",Edge
+(Months 7-9)",Bay,1.691,0.81014555,Edge
 CorteMadera,A,6,c,2023-02-17,2023-03-23,Spring,March,2023,2.582988599,NA,Scarped,East.facing,M9,"Wet
-(Months 7-9)",Edge
+(Months 7-9)",Bay,1.691,0.81014555,Edge
 CorteMadera,A,12,a,2023-02-17,2023-03-23,Spring,March,2023,4.342649581,NA,Scarped,East.facing,M9,"Wet
-(Months 7-9)",Platform
+(Months 7-9)",Bay,1.705,0.826848008,Platform
 CorteMadera,A,12,b,2023-02-17,2023-03-23,Spring,March,2023,3.750882857,6.502042992,Scarped,East.facing,M9,"Wet
-(Months 7-9)",Platform
+(Months 7-9)",Bay,1.705,0.826848008,Platform
 CorteMadera,A,12,c,2023-02-17,2023-03-23,Spring,March,2023,0.663908788,NA,Scarped,East.facing,M9,"Wet
-(Months 7-9)",Platform
+(Months 7-9)",Bay,1.705,0.826848008,Platform
 CorteMadera,A,18,a,2023-02-17,2023-03-23,Spring,March,2023,4.466249622,5.989500477,Scarped,East.facing,M9,"Wet
-(Months 7-9)",Platform
+(Months 7-9)",NA,NA,NA,Platform
 CorteMadera,A,18,b,2023-02-17,2023-03-23,Spring,March,2023,3.271617395,NA,Scarped,East.facing,M9,"Wet
-(Months 7-9)",Platform
+(Months 7-9)",NA,NA,NA,Platform
 CorteMadera,A,18,c,2023-02-17,2023-03-23,Spring,March,2023,3.640904046,NA,Scarped,East.facing,M9,"Wet
-(Months 7-9)",Platform
+(Months 7-9)",NA,NA,NA,Platform
 CorteMadera,A,24,a,2023-02-17,2023-03-23,Spring,March,2023,2.382706084,NA,Scarped,East.facing,M9,"Wet
-(Months 7-9)",Platform
+(Months 7-9)",Bay,1.664,0.777933667,Platform
 CorteMadera,A,24,b,2023-02-17,2023-03-23,Spring,March,2023,2.763596004,4.411925303,Scarped,East.facing,M9,"Wet
-(Months 7-9)",Platform
+(Months 7-9)",Bay,1.664,0.777933667,Platform
 CorteMadera,A,24,c,2023-02-17,2023-03-23,Spring,March,2023,7.111290485,NA,Scarped,East.facing,M9,"Wet
-(Months 7-9)",Platform
+(Months 7-9)",Bay,1.664,0.777933667,Platform
 CorteMadera,A,30,a,2023-02-17,2023-03-23,Spring,March,2023,21.91504389,NA,Scarped,East.facing,M9,"Wet
-(Months 7-9)",Upland
+(Months 7-9)",NA,NA,NA,Upland
 CorteMadera,A,30,b,2023-02-17,2023-03-23,Spring,March,2023,2.033094541,NA,Scarped,East.facing,M9,"Wet
-(Months 7-9)",Upland
+(Months 7-9)",NA,NA,NA,Upland
 CorteMadera,A,30,c,2023-02-17,2023-03-23,Spring,March,2023,9.761880739,7.382246377,Scarped,East.facing,M9,"Wet
-(Months 7-9)",Upland
+(Months 7-9)",NA,NA,NA,Upland
 CorteMadera,A,48,a,2023-02-17,2023-03-23,Spring,March,2023,4.935593448,NA,Scarped,East.facing,M9,"Wet
-(Months 7-9)",Upland
+(Months 7-9)",Bay,1.724,0.849515629,Upland
 CorteMadera,A,48,b,2023-02-17,2023-03-23,Spring,March,2023,3.314499041,NA,Scarped,East.facing,M9,"Wet
-(Months 7-9)",Upland
+(Months 7-9)",Bay,1.724,0.849515629,Upland
 CorteMadera,A,48,c,2023-02-17,2023-03-23,Spring,March,2023,4.783573807,5.606285836,Scarped,East.facing,M9,"Wet
-(Months 7-9)",Upland
+(Months 7-9)",Bay,1.724,0.849515629,Upland
 CorteMadera,B,0.5,a,2023-02-17,2023-03-23,Spring,March,2023,NA,NA,Scarped,East.facing,M9,"Wet
-(Months 7-9)",Edge
+(Months 7-9)",Bay,1.576,0.672946791,Edge
 CorteMadera,B,0.5,b,2023-02-17,2023-03-23,Spring,March,2023,NA,NA,Scarped,East.facing,M9,"Wet
-(Months 7-9)",Edge
+(Months 7-9)",Bay,1.576,0.672946791,Edge
 CorteMadera,B,0.5,c,2023-02-17,2023-03-23,Spring,March,2023,NA,NA,Scarped,East.facing,M9,"Wet
-(Months 7-9)",Edge
+(Months 7-9)",Bay,1.576,0.672946791,Edge
 CorteMadera,B,2,a,2023-02-17,2023-03-23,Spring,March,2023,NA,NA,Scarped,East.facing,M9,"Wet
-(Months 7-9)",Edge
+(Months 7-9)",Bay,1.605,0.707544739,Edge
 CorteMadera,B,2,b,2023-02-17,2023-03-23,Spring,March,2023,NA,NA,Scarped,East.facing,M9,"Wet
-(Months 7-9)",Edge
+(Months 7-9)",Bay,1.605,0.707544739,Edge
 CorteMadera,B,2,c,2023-02-17,2023-03-23,Spring,March,2023,NA,NA,Scarped,East.facing,M9,"Wet
-(Months 7-9)",Edge
+(Months 7-9)",Bay,1.605,0.707544739,Edge
 CorteMadera,B,6,a,2023-02-17,2023-03-23,Spring,March,2023,23.56977096,NA,Scarped,East.facing,M9,"Wet
-(Months 7-9)",Edge
+(Months 7-9)",Bay,1.672,0.787477929,Edge
 CorteMadera,B,6,b,2023-02-17,2023-03-23,Spring,March,2023,21.10785995,NA,Scarped,East.facing,M9,"Wet
-(Months 7-9)",Edge
+(Months 7-9)",Bay,1.672,0.787477929,Edge
 CorteMadera,B,6,c,2023-02-17,2023-03-23,Spring,March,2023,0.966378547,5.880447108,Scarped,East.facing,M9,"Wet
-(Months 7-9)",Edge
+(Months 7-9)",Bay,1.672,0.787477929,Edge
 CorteMadera,B,12,a,2023-02-17,2023-03-23,Spring,March,2023,3.241708347,NA,Scarped,East.facing,M9,"Wet
-(Months 7-9)",Platform
+(Months 7-9)",Bay,1.664,0.777933667,Platform
 CorteMadera,B,12,b,2023-02-17,2023-03-23,Spring,March,2023,14.86731914,NA,Scarped,East.facing,M9,"Wet
-(Months 7-9)",Platform
+(Months 7-9)",Bay,1.664,0.777933667,Platform
 CorteMadera,B,12,c,2023-02-17,2023-03-23,Spring,March,2023,23.61013016,4.561970125,Scarped,East.facing,M9,"Wet
-(Months 7-9)",Platform
+(Months 7-9)",Bay,1.664,0.777933667,Platform
 CorteMadera,B,18,a,2023-02-17,2023-03-23,Spring,March,2023,115.1700131,NA,Scarped,East.facing,M9,"Wet
-(Months 7-9)",Platform
+(Months 7-9)",NA,NA,NA,Platform
 CorteMadera,B,18,b,2023-02-17,2023-03-23,Spring,March,2023,4.382504288,5.975367501,Scarped,East.facing,M9,"Wet
-(Months 7-9)",Platform
+(Months 7-9)",NA,NA,NA,Platform
 CorteMadera,B,18,c,2023-02-17,2023-03-23,Spring,March,2023,2.703057209,NA,Scarped,East.facing,M9,"Wet
-(Months 7-9)",Platform
+(Months 7-9)",NA,NA,NA,Platform
 CorteMadera,B,24,a,2023-02-17,2023-03-23,Spring,March,2023,6.097265664,NA,Scarped,East.facing,M9,"Wet
-(Months 7-9)",Platform
+(Months 7-9)",Bay,1.642,0.751686948,Platform
 CorteMadera,B,24,b,2023-02-17,2023-03-23,Spring,March,2023,13.869438,6.359865692,Scarped,East.facing,M9,"Wet
-(Months 7-9)",Platform
+(Months 7-9)",Bay,1.642,0.751686948,Platform
 CorteMadera,B,24,c,2023-02-17,2023-03-23,Spring,March,2023,17.81959439,NA,Scarped,East.facing,M9,"Wet
-(Months 7-9)",Platform
+(Months 7-9)",Bay,1.642,0.751686948,Platform
 CorteMadera,B,30,a,2023-02-17,2023-03-23,Spring,March,2023,4.152456866,NA,Scarped,East.facing,M9,"Wet
-(Months 7-9)",Upland
+(Months 7-9)",NA,NA,NA,Upland
 CorteMadera,B,30,b,2023-02-17,2023-03-23,Spring,March,2023,3.739279588,5.39031836,Scarped,East.facing,M9,"Wet
-(Months 7-9)",Upland
+(Months 7-9)",NA,NA,NA,Upland
 CorteMadera,B,30,c,2023-02-17,2023-03-23,Spring,March,2023,5.782085561,NA,Scarped,East.facing,M9,"Wet
-(Months 7-9)",Upland
+(Months 7-9)",NA,NA,NA,Upland
 CorteMadera,B,48,a,2023-02-17,2023-03-23,Spring,March,2023,5.38795278,NA,Scarped,East.facing,M9,"Wet
-(Months 7-9)",Upland
+(Months 7-9)",Bay,1.692,0.811338583,Upland
 CorteMadera,B,48,b,2023-02-17,2023-03-23,Spring,March,2023,5.718754054,7.360091524,Scarped,East.facing,M9,"Wet
-(Months 7-9)",Upland
+(Months 7-9)",Bay,1.692,0.811338583,Upland
 CorteMadera,B,48,c,2023-02-17,2023-03-23,Spring,March,2023,3.07789325,NA,Scarped,East.facing,M9,"Wet
-(Months 7-9)",Upland
+(Months 7-9)",Bay,1.692,0.811338583,Upland
 CorteMadera,A,0.5,a,2023-03-23,2023-04-20,Spring,April,2023,NA,NA,Scarped,East.facing,M10,"Growth
-(Months 10-12)",Edge
+(Months 10-12)",Bay,1.598,0.69919351,Edge
 CorteMadera,A,0.5,b,2023-03-23,2023-04-20,Spring,April,2023,NA,NA,Scarped,East.facing,M10,"Growth
-(Months 10-12)",Edge
+(Months 10-12)",Bay,1.598,0.69919351,Edge
 CorteMadera,A,0.5,c,2023-03-23,2023-04-20,Spring,April,2023,NA,NA,Scarped,East.facing,M10,"Growth
-(Months 10-12)",Edge
+(Months 10-12)",Bay,1.598,0.69919351,Edge
 CorteMadera,A,2,a,2023-03-23,2023-04-20,Spring,April,2023,1.886792453,NA,Scarped,East.facing,M10,"Growth
-(Months 10-12)",Edge
+(Months 10-12)",Bay,1.684,0.801794321,Edge
 CorteMadera,A,2,b,2023-03-23,2023-04-20,Spring,April,2023,NA,NA,Scarped,East.facing,M10,"Growth
-(Months 10-12)",Edge
+(Months 10-12)",Bay,1.684,0.801794321,Edge
 CorteMadera,A,2,c,2023-03-23,2023-04-20,Spring,April,2023,3.519358,5.004721435,Scarped,East.facing,M10,"Growth
-(Months 10-12)",Edge
+(Months 10-12)",Bay,1.684,0.801794321,Edge
 CorteMadera,A,6,a,2023-03-23,2023-04-20,Spring,April,2023,0.799436413,4.850746269,Scarped,East.facing,M10,"Growth
-(Months 10-12)",Edge
+(Months 10-12)",Bay,1.691,0.81014555,Edge
 CorteMadera,A,6,b,2023-03-23,2023-04-20,Spring,April,2023,0.728375398,NA,Scarped,East.facing,M10,"Growth
-(Months 10-12)",Edge
+(Months 10-12)",Bay,1.691,0.81014555,Edge
 CorteMadera,A,6,c,2023-03-23,2023-04-20,Spring,April,2023,0.846606224,NA,Scarped,East.facing,M10,"Growth
-(Months 10-12)",Edge
+(Months 10-12)",Bay,1.691,0.81014555,Edge
 CorteMadera,A,12,a,2023-03-23,2023-04-20,Spring,April,2023,1.100220534,5.201443175,Scarped,East.facing,M10,"Growth
-(Months 10-12)",Platform
+(Months 10-12)",Bay,1.705,0.826848008,Platform
 CorteMadera,A,12,b,2023-03-23,2023-04-20,Spring,April,2023,1.587233521,NA,Scarped,East.facing,M10,"Growth
-(Months 10-12)",Platform
+(Months 10-12)",Bay,1.705,0.826848008,Platform
 CorteMadera,A,12,c,2023-03-23,2023-04-20,Spring,April,2023,0.754716981,NA,Scarped,East.facing,M10,"Growth
-(Months 10-12)",Platform
+(Months 10-12)",Bay,1.705,0.826848008,Platform
 CorteMadera,A,18,a,2023-03-23,2023-04-20,Spring,April,2023,0.750428816,NA,Scarped,East.facing,M10,"Growth
-(Months 10-12)",Platform
+(Months 10-12)",NA,NA,NA,Platform
 CorteMadera,A,18,b,2023-03-23,2023-04-20,Spring,April,2023,0.847831414,7.664999193,Scarped,East.facing,M10,"Growth
-(Months 10-12)",Platform
+(Months 10-12)",NA,NA,NA,Platform
 CorteMadera,A,18,c,2023-03-23,2023-04-20,Spring,April,2023,0.805562362,NA,Scarped,East.facing,M10,"Growth
-(Months 10-12)",Platform
+(Months 10-12)",NA,NA,NA,Platform
 CorteMadera,A,24,a,2023-03-23,2023-04-20,Spring,April,2023,3.328228375,8.387346425,Scarped,East.facing,M10,"Growth
-(Months 10-12)",Platform
+(Months 10-12)",Bay,1.664,0.777933667,Platform
 CorteMadera,A,24,b,2023-03-23,2023-04-20,Spring,April,2023,2.642734624,NA,Scarped,East.facing,M10,"Growth
-(Months 10-12)",Platform
+(Months 10-12)",Bay,1.664,0.777933667,Platform
 CorteMadera,A,24,c,2023-03-23,2023-04-20,Spring,April,2023,1.021195785,NA,Scarped,East.facing,M10,"Growth
-(Months 10-12)",Platform
+(Months 10-12)",Bay,1.664,0.777933667,Platform
 CorteMadera,A,30,a,2023-03-23,2023-04-20,Spring,April,2023,0.79798553,NA,Scarped,East.facing,M10,"Growth
-(Months 10-12)",Upland
+(Months 10-12)",NA,NA,NA,Upland
 CorteMadera,A,30,b,2023-03-23,2023-04-20,Spring,April,2023,1.051825533,NA,Scarped,East.facing,M10,"Growth
-(Months 10-12)",Upland
+(Months 10-12)",NA,NA,NA,Upland
 CorteMadera,A,30,c,2023-03-23,2023-04-20,Spring,April,2023,2.064767407,8.506922789,Scarped,East.facing,M10,"Growth
-(Months 10-12)",Upland
+(Months 10-12)",NA,NA,NA,Upland
 CorteMadera,A,48,a,2023-03-23,2023-04-20,Spring,April,2023,1.079392306,NA,Scarped,East.facing,M10,"Growth
-(Months 10-12)",Upland
+(Months 10-12)",Bay,1.724,0.849515629,Upland
 CorteMadera,A,48,b,2023-03-23,2023-04-20,Spring,April,2023,0.96606224,4.915992533,Scarped,East.facing,M10,"Growth
-(Months 10-12)",Upland
+(Months 10-12)",Bay,1.724,0.849515629,Upland
 CorteMadera,A,48,c,2023-03-23,2023-04-20,Spring,April,2023,16.44511149,NA,Scarped,East.facing,M10,"Growth
-(Months 10-12)",Upland
+(Months 10-12)",Bay,1.724,0.849515629,Upland
 CorteMadera,B,0.5,a,2023-03-23,2023-04-20,Spring,April,2023,NA,NA,Scarped,East.facing,M10,"Growth
-(Months 10-12)",Edge
+(Months 10-12)",Bay,1.576,0.672946791,Edge
 CorteMadera,B,0.5,b,2023-03-23,2023-04-20,Spring,April,2023,NA,NA,Scarped,East.facing,M10,"Growth
-(Months 10-12)",Edge
+(Months 10-12)",Bay,1.576,0.672946791,Edge
 CorteMadera,B,0.5,c,2023-03-23,2023-04-20,Spring,April,2023,NA,NA,Scarped,East.facing,M10,"Growth
-(Months 10-12)",Edge
+(Months 10-12)",Bay,1.576,0.672946791,Edge
 CorteMadera,B,2,a,2023-03-23,2023-04-20,Spring,April,2023,NA,NA,Scarped,East.facing,M10,"Growth
-(Months 10-12)",Edge
+(Months 10-12)",Bay,1.605,0.707544739,Edge
 CorteMadera,B,2,b,2023-03-23,2023-04-20,Spring,April,2023,NA,NA,Scarped,East.facing,M10,"Growth
-(Months 10-12)",Edge
+(Months 10-12)",Bay,1.605,0.707544739,Edge
 CorteMadera,B,2,c,2023-03-23,2023-04-20,Spring,April,2023,NA,NA,Scarped,East.facing,M10,"Growth
-(Months 10-12)",Edge
+(Months 10-12)",Bay,1.605,0.707544739,Edge
 CorteMadera,B,6,a,2023-03-23,2023-04-20,Spring,April,2023,0.63954913,4.840032814,Scarped,East.facing,M10,"Growth
-(Months 10-12)",Edge
+(Months 10-12)",Bay,1.672,0.787477929,Edge
 CorteMadera,B,6,b,2023-03-23,2023-04-20,Spring,April,2023,0.763577951,NA,Scarped,East.facing,M10,"Growth
-(Months 10-12)",Edge
+(Months 10-12)",Bay,1.672,0.787477929,Edge
 CorteMadera,B,6,c,2023-03-23,2023-04-20,Spring,April,2023,0.944008821,NA,Scarped,East.facing,M10,"Growth
-(Months 10-12)",Edge
+(Months 10-12)",Bay,1.672,0.787477929,Edge
 CorteMadera,B,12,a,2023-03-23,2023-04-20,Spring,April,2023,0.668341093,NA,Scarped,East.facing,M10,"Growth
-(Months 10-12)",Platform
+(Months 10-12)",Bay,1.664,0.777933667,Platform
 CorteMadera,B,12,b,2023-03-23,2023-04-20,Spring,April,2023,1.153935439,NA,Scarped,East.facing,M10,"Growth
-(Months 10-12)",Platform
+(Months 10-12)",Bay,1.664,0.777933667,Platform
 CorteMadera,B,12,c,2023-03-23,2023-04-20,Spring,April,2023,0.924405783,4.679186228,Scarped,East.facing,M10,"Growth
-(Months 10-12)",Platform
+(Months 10-12)",Bay,1.664,0.777933667,Platform
 CorteMadera,B,18,a,2023-03-23,2023-04-20,Spring,April,2023,2.530661989,12.13428138,Scarped,East.facing,M10,"Growth
-(Months 10-12)",Platform
+(Months 10-12)",NA,NA,NA,Platform
 CorteMadera,B,18,b,2023-03-23,2023-04-20,Spring,April,2023,0.995466797,NA,Scarped,East.facing,M10,"Growth
-(Months 10-12)",Platform
+(Months 10-12)",NA,NA,NA,Platform
 CorteMadera,B,18,c,2023-03-23,2023-04-20,Spring,April,2023,0.884859375,NA,Scarped,East.facing,M10,"Growth
-(Months 10-12)",Platform
+(Months 10-12)",NA,NA,NA,Platform
 CorteMadera,B,24,a,2023-03-23,2023-04-20,Spring,April,2023,3.980029405,NA,Scarped,East.facing,M10,"Growth
-(Months 10-12)",Platform
+(Months 10-12)",Bay,1.642,0.751686948,Platform
 CorteMadera,B,24,b,2023-03-23,2023-04-20,Spring,April,2023,4.960793923,11.7058115,Scarped,East.facing,M10,"Growth
-(Months 10-12)",Platform
+(Months 10-12)",Bay,1.642,0.751686948,Platform
 CorteMadera,B,24,c,2023-03-23,2023-04-20,Spring,April,2023,9.697990689,NA,Scarped,East.facing,M10,"Growth
-(Months 10-12)",Platform
+(Months 10-12)",Bay,1.642,0.751686948,Platform
 CorteMadera,B,30,a,2023-03-23,2023-04-20,Spring,April,2023,0.614529463,4.870466321,Scarped,East.facing,M10,"Growth
-(Months 10-12)",Upland
+(Months 10-12)",NA,NA,NA,Upland
 CorteMadera,B,30,b,2023-03-23,2023-04-20,Spring,April,2023,0.718097416,NA,Scarped,East.facing,M10,"Growth
-(Months 10-12)",Upland
+(Months 10-12)",NA,NA,NA,Upland
 CorteMadera,B,30,c,2023-03-23,2023-04-20,Spring,April,2023,0.391340069,NA,Scarped,East.facing,M10,"Growth
-(Months 10-12)",Upland
+(Months 10-12)",NA,NA,NA,Upland
 CorteMadera,B,48,a,2023-03-23,2023-04-20,Spring,April,2023,0.282406273,5.963912631,Scarped,East.facing,M10,"Growth
-(Months 10-12)",Upland
+(Months 10-12)",Bay,1.692,0.811338583,Upland
 CorteMadera,B,48,b,2023-03-23,2023-04-20,Spring,April,2023,0.813526097,NA,Scarped,East.facing,M10,"Growth
-(Months 10-12)",Upland
+(Months 10-12)",Bay,1.692,0.811338583,Upland
 CorteMadera,B,48,c,2023-03-23,2023-04-20,Spring,April,2023,0.536020583,NA,Scarped,East.facing,M10,"Growth
-(Months 10-12)",Upland
+(Months 10-12)",Bay,1.692,0.811338583,Upland
 SanPablo,A,0.5,b,2023-03-23,2023-04-21,Spring,April,2023,NA,NA,Ramped,South.facing,M10,"Growth
-(Months 10-12)",Intertidal
+(Months 10-12)",Bay,0.735,-0.344512321,Intertidal
 SanPablo,A,0.5,c,2023-03-23,2023-04-21,Spring,April,2023,NA,NA,Ramped,South.facing,M10,"Growth
-(Months 10-12)",Intertidal
+(Months 10-12)",Bay,0.735,-0.344512321,Intertidal
 SanPablo,A,0.5,a,2023-03-23,2023-04-21,Spring,April,2023,231.4144066,NA,Ramped,South.facing,M10,"Growth
-(Months 10-12)",Intertidal
+(Months 10-12)",Bay,0.735,-0.344512321,Intertidal
 SanPablo,A,2,b,2023-03-23,2023-04-21,Spring,April,2023,269.4631432,NA,Ramped,South.facing,M10,"Growth
-(Months 10-12)",Intertidal
+(Months 10-12)",Bay,0.751,-0.326125828,Intertidal
 SanPablo,A,2,c,2023-03-23,2023-04-21,Spring,April,2023,259.8322361,NA,Ramped,South.facing,M10,"Growth
-(Months 10-12)",Intertidal
+(Months 10-12)",Bay,0.751,-0.326125828,Intertidal
 SanPablo,A,2,a,2023-03-23,2023-04-21,Spring,April,2023,NA,NA,Ramped,South.facing,M10,"Growth
-(Months 10-12)",Intertidal
+(Months 10-12)",Bay,0.751,-0.326125828,Intertidal
 SanPablo,A,6,b,2023-03-23,2023-04-21,Spring,April,2023,7.51074739,NA,Ramped,South.facing,M10,"Growth
-(Months 10-12)",Intertidal
+(Months 10-12)",Bay,0.889,-0.167542323,Intertidal
 SanPablo,A,6,c,2023-03-23,2023-04-21,Spring,April,2023,11.61267998,NA,Ramped,South.facing,M10,"Growth
-(Months 10-12)",Intertidal
+(Months 10-12)",Bay,0.889,-0.167542323,Intertidal
 SanPablo,A,6,a,2023-03-23,2023-04-21,Spring,April,2023,4.486932319,NA,Ramped,South.facing,M10,"Growth
-(Months 10-12)",Intertidal
+(Months 10-12)",Bay,0.889,-0.167542323,Intertidal
 SanPablo,A,9,b,2023-03-23,2023-04-21,Spring,April,2023,5.308383352,NA,Ramped,South.facing,M10,"Growth
-(Months 10-12)",Intertidal
+(Months 10-12)",NA,NA,NA,Intertidal
 SanPablo,A,9,c,2023-03-23,2023-04-21,Spring,April,2023,3.159836481,NA,Ramped,South.facing,M10,"Growth
-(Months 10-12)",Intertidal
+(Months 10-12)",NA,NA,NA,Intertidal
 SanPablo,A,9,a,2023-03-23,2023-04-21,Spring,April,2023,NA,NA,Ramped,South.facing,M10,"Growth
-(Months 10-12)",Intertidal
+(Months 10-12)",NA,NA,NA,Intertidal
 SanPablo,A,12,b,2023-03-23,2023-04-21,Spring,April,2023,5.155211417,NA,Ramped,South.facing,M10,"Growth
-(Months 10-12)",Intertidal
+(Months 10-12)",Bay,1.069,0.039305726,Intertidal
 SanPablo,A,12,c,2023-03-23,2023-04-21,Spring,April,2023,NA,NA,Ramped,South.facing,M10,"Growth
-(Months 10-12)",Intertidal
+(Months 10-12)",Bay,1.069,0.039305726,Intertidal
 SanPablo,A,12,a,2023-03-23,2023-04-21,Spring,April,2023,NA,NA,Ramped,South.facing,M10,"Growth
-(Months 10-12)",Intertidal
+(Months 10-12)",Bay,1.069,0.039305726,Intertidal
 SanPablo,A,18,b,2023-03-23,2023-04-21,Spring,April,2023,NA,NA,Ramped,South.facing,M10,"Growth
-(Months 10-12)",Intertidal
+(Months 10-12)",NA,NA,NA,Intertidal
 SanPablo,A,18,c,2023-03-23,2023-04-21,Spring,April,2023,NA,NA,Ramped,South.facing,M10,"Growth
-(Months 10-12)",Intertidal
+(Months 10-12)",NA,NA,NA,Intertidal
 SanPablo,A,18,a,2023-03-23,2023-04-21,Spring,April,2023,NA,NA,Ramped,South.facing,M10,"Growth
-(Months 10-12)",Intertidal
+(Months 10-12)",NA,NA,NA,Intertidal
 SanPablo,A,24,b,2023-03-23,2023-04-21,Spring,April,2023,0.486189152,NA,Ramped,South.facing,M10,"Growth
-(Months 10-12)",Edge
+(Months 10-12)",Bay,1.713,0.779362081,Edge
 SanPablo,A,24,c,2023-03-23,2023-04-21,Spring,April,2023,NA,NA,Ramped,South.facing,M10,"Growth
-(Months 10-12)",Edge
+(Months 10-12)",Bay,1.713,0.779362081,Edge
 SanPablo,A,24,a,2023-03-23,2023-04-21,Spring,April,2023,NA,NA,Ramped,South.facing,M10,"Growth
-(Months 10-12)",Edge
+(Months 10-12)",Bay,1.713,0.779362081,Edge
 SanPablo,A,48,b,2023-03-23,2023-04-21,Spring,April,2023,0.338279331,1.670356208,Ramped,South.facing,M10,"Growth
-(Months 10-12)",Platform
+(Months 10-12)",Bay,2.01,1.120661362,Platform
 SanPablo,A,48,c,2023-03-23,2023-04-21,Spring,April,2023,0.202849319,3.279532967,Ramped,South.facing,M10,"Growth
-(Months 10-12)",Platform
+(Months 10-12)",Bay,2.01,1.120661362,Platform
 SanPablo,A,48,a,2023-03-23,2023-04-21,Spring,April,2023,0.19811814,NA,Ramped,South.facing,M10,"Growth
-(Months 10-12)",Platform
+(Months 10-12)",Bay,2.01,1.120661362,Platform
 SanPablo,A,72,b,2023-03-23,2023-04-21,Spring,April,2023,0.555913586,NA,Ramped,South.facing,M10,"Growth
-(Months 10-12)",Upland
+(Months 10-12)",Bay,2.04,1.155136037,Upland
 SanPablo,A,72,c,2023-03-23,2023-04-21,Spring,April,2023,0.420483574,NA,Ramped,South.facing,M10,"Growth
-(Months 10-12)",Upland
+(Months 10-12)",Bay,2.04,1.155136037,Upland
 SanPablo,A,72,a,2023-03-23,2023-04-21,Spring,April,2023,2.096503897,15.82826292,Ramped,South.facing,M10,"Growth
-(Months 10-12)",Upland
+(Months 10-12)",Bay,2.04,1.155136037,Upland
 SanPablo,A,150,b,2023-03-23,2023-04-21,Spring,April,2023,0.494408253,NA,Ramped,South.facing,M10,"Growth
-(Months 10-12)",Upland
+(Months 10-12)",Bay,1.974,1.079291752,Upland
 SanPablo,A,150,c,2023-03-23,2023-04-21,Spring,April,2023,3.784943567,NA,Ramped,South.facing,M10,"Growth
-(Months 10-12)",Upland
+(Months 10-12)",Bay,1.974,1.079291752,Upland
 SanPablo,A,150,a,2023-03-23,2023-04-21,Spring,April,2023,3.770750028,NA,Ramped,South.facing,M10,"Growth
-(Months 10-12)",Upland
+(Months 10-12)",Bay,1.974,1.079291752,Upland
 SanPablo,B,0.5,b,2023-03-23,2023-04-21,Spring,April,2023,83.8583817,NA,Ramped,South.facing,M10,"Growth
-(Months 10-12)",Intertidal
+(Months 10-12)",Bay,0.774,-0.299695244,Intertidal
 SanPablo,B,0.5,c,2023-03-23,2023-04-21,Spring,April,2023,NA,NA,Ramped,South.facing,M10,"Growth
-(Months 10-12)",Intertidal
+(Months 10-12)",Bay,0.774,-0.299695244,Intertidal
 SanPablo,B,0.5,a,2023-03-23,2023-04-21,Spring,April,2023,85.68165999,NA,Ramped,South.facing,M10,"Growth
-(Months 10-12)",Intertidal
+(Months 10-12)",Bay,0.774,-0.299695244,Intertidal
 SanPablo,B,2,b,2023-03-23,2023-04-21,Spring,April,2023,NA,NA,Ramped,South.facing,M10,"Growth
-(Months 10-12)",Intertidal
+(Months 10-12)",Bay,0.805,-0.264071413,Intertidal
 SanPablo,B,2,c,2023-03-23,2023-04-21,Spring,April,2023,NA,NA,Ramped,South.facing,M10,"Growth
-(Months 10-12)",Intertidal
+(Months 10-12)",Bay,0.805,-0.264071413,Intertidal
 SanPablo,B,2,a,2023-03-23,2023-04-21,Spring,April,2023,94.20665397,NA,Ramped,South.facing,M10,"Growth
-(Months 10-12)",Intertidal
+(Months 10-12)",Bay,0.805,-0.264071413,Intertidal
 SanPablo,B,6,b,2023-03-23,2023-04-21,Spring,April,2023,NA,NA,Ramped,South.facing,M10,"Growth
-(Months 10-12)",Intertidal
+(Months 10-12)",Bay,0.837,-0.227298427,Intertidal
 SanPablo,B,6,c,2023-03-23,2023-04-21,Spring,April,2023,49.36985765,NA,Ramped,South.facing,M10,"Growth
-(Months 10-12)",Intertidal
+(Months 10-12)",Bay,0.837,-0.227298427,Intertidal
 SanPablo,B,6,a,2023-03-23,2023-04-21,Spring,April,2023,30.31739797,NA,Ramped,South.facing,M10,"Growth
-(Months 10-12)",Intertidal
+(Months 10-12)",Bay,0.837,-0.227298427,Intertidal
 SanPablo,B,9,b,2023-03-23,2023-04-21,Spring,April,2023,3.781395182,NA,Ramped,South.facing,M10,"Growth
-(Months 10-12)",Intertidal
+(Months 10-12)",NA,NA,NA,Intertidal
 SanPablo,B,9,c,2023-03-23,2023-04-21,Spring,April,2023,5.109673815,NA,Ramped,South.facing,M10,"Growth
-(Months 10-12)",Intertidal
+(Months 10-12)",NA,NA,NA,Intertidal
 SanPablo,B,9,a,2023-03-23,2023-04-21,Spring,April,2023,4.006717604,NA,Ramped,South.facing,M10,"Growth
-(Months 10-12)",Intertidal
+(Months 10-12)",NA,NA,NA,Intertidal
 SanPablo,B,12,b,2023-03-23,2023-04-21,Spring,April,2023,5.125641546,NA,Ramped,South.facing,M10,"Growth
-(Months 10-12)",Intertidal
+(Months 10-12)",Bay,1.042,0.008278519,Intertidal
 SanPablo,B,12,c,2023-03-23,2023-04-21,Spring,April,2023,2.361449947,NA,Ramped,South.facing,M10,"Growth
-(Months 10-12)",Intertidal
+(Months 10-12)",Bay,1.042,0.008278519,Intertidal
 SanPablo,B,12,a,2023-03-23,2023-04-21,Spring,April,2023,4.23558841,NA,Ramped,South.facing,M10,"Growth
-(Months 10-12)",Intertidal
+(Months 10-12)",Bay,1.042,0.008278519,Intertidal
 SanPablo,B,18,b,2023-03-23,2023-04-21,Spring,April,2023,7.256446494,NA,Ramped,South.facing,M10,"Growth
-(Months 10-12)",Intertidal
+(Months 10-12)",NA,NA,NA,Intertidal
 SanPablo,B,18,c,2023-03-23,2023-04-21,Spring,April,2023,3.224298801,NA,Ramped,South.facing,M10,"Growth
-(Months 10-12)",Intertidal
+(Months 10-12)",NA,NA,NA,Intertidal
 SanPablo,B,18,a,2023-03-23,2023-04-21,Spring,April,2023,NA,NA,Ramped,South.facing,M10,"Growth
-(Months 10-12)",Intertidal
+(Months 10-12)",NA,NA,NA,Intertidal
 SanPablo,B,24,b,2023-03-23,2023-04-21,Spring,April,2023,6.014511886,NA,Ramped,South.facing,M10,"Growth
-(Months 10-12)",Edge
+(Months 10-12)",Bay,1.563,0.606988706,Edge
 SanPablo,B,24,c,2023-03-23,2023-04-21,Spring,April,2023,2.313546755,3.775563713,Ramped,South.facing,M10,"Growth
-(Months 10-12)",Edge
+(Months 10-12)",Bay,1.563,0.606988706,Edge
 SanPablo,B,24,a,2023-03-23,2023-04-21,Spring,April,2023,NA,NA,Ramped,South.facing,M10,"Growth
-(Months 10-12)",Edge
+(Months 10-12)",Bay,1.563,0.606988706,Edge
 SanPablo,B,48,b,2023-03-23,2023-04-21,Spring,April,2023,0.473117946,NA,Ramped,South.facing,M10,"Growth
-(Months 10-12)",Platform
+(Months 10-12)",Bay,1.978,1.083888376,Platform
 SanPablo,B,48,c,2023-03-23,2023-04-21,Spring,April,2023,0.603816778,12.44722175,Ramped,South.facing,M10,"Growth
-(Months 10-12)",Platform
+(Months 10-12)",Bay,1.978,1.083888376,Platform
 SanPablo,B,48,a,2023-03-23,2023-04-21,Spring,April,2023,0.868171431,NA,Ramped,South.facing,M10,"Growth
-(Months 10-12)",Platform
+(Months 10-12)",Bay,1.978,1.083888376,Platform
 SanPablo,B,72,b,2023-03-23,2023-04-21,Spring,April,2023,3.878975758,NA,Ramped,South.facing,M10,"Growth
-(Months 10-12)",Upland
+(Months 10-12)",Bay,2.012,1.122959674,Upland
 SanPablo,B,72,c,2023-03-23,2023-04-21,Spring,April,2023,2.527041228,3.16275764,Ramped,South.facing,M10,"Growth
-(Months 10-12)",Upland
+(Months 10-12)",Bay,2.012,1.122959674,Upland
 SanPablo,B,72,a,2023-03-23,2023-04-21,Spring,April,2023,5.372254275,NA,Ramped,South.facing,M10,"Growth
-(Months 10-12)",Upland
+(Months 10-12)",Bay,2.012,1.122959674,Upland
 SanPablo,B,150,b,2023-03-23,2023-04-21,Spring,April,2023,0.354838459,NA,Ramped,South.facing,M10,"Growth
-(Months 10-12)",Upland
+(Months 10-12)",Bay,2.014,1.125257985,Upland
 SanPablo,B,150,c,2023-03-23,2023-04-21,Spring,April,2023,0.802526316,NA,Ramped,South.facing,M10,"Growth
-(Months 10-12)",Upland
+(Months 10-12)",Bay,2.014,1.125257985,Upland
 SanPablo,B,150,a,2023-03-23,2023-04-21,Spring,April,2023,0.311666447,NA,Ramped,South.facing,M10,"Growth
-(Months 10-12)",Upland
+(Months 10-12)",Bay,2.014,1.125257985,Upland
 CorteMadera,A,0.5,a,2023-04-20,2023-05-18,Spring,May,2023,NA,NA,Scarped,East.facing,M11,"Growth
-(Months 10-12)",Edge
+(Months 10-12)",Bay,1.598,0.69919351,Edge
 CorteMadera,A,0.5,b,2023-04-20,2023-05-18,Spring,May,2023,NA,NA,Scarped,East.facing,M11,"Growth
-(Months 10-12)",Edge
+(Months 10-12)",Bay,1.598,0.69919351,Edge
 CorteMadera,A,0.5,c,2023-04-20,2023-05-18,Spring,May,2023,NA,NA,Scarped,East.facing,M11,"Growth
-(Months 10-12)",Edge
+(Months 10-12)",Bay,1.598,0.69919351,Edge
 CorteMadera,A,2,a,2023-04-20,2023-05-18,Spring,May,2023,0.553785837,NA,Scarped,East.facing,M11,"Growth
-(Months 10-12)",Edge
+(Months 10-12)",Bay,1.684,0.801794321,Edge
 CorteMadera,A,2,b,2023-04-20,2023-05-18,Spring,May,2023,0.282406273,NA,Scarped,East.facing,M11,"Growth
-(Months 10-12)",Edge
+(Months 10-12)",Bay,1.684,0.801794321,Edge
 CorteMadera,A,2,c,2023-04-20,2023-05-18,Spring,May,2023,NA,5.850487541,Scarped,East.facing,M11,"Growth
-(Months 10-12)",Edge
+(Months 10-12)",Bay,1.684,0.801794321,Edge
 CorteMadera,A,6,a,2023-04-20,2023-05-18,Spring,May,2023,1.393040921,6.953734671,Scarped,East.facing,M11,"Growth
-(Months 10-12)",Edge
+(Months 10-12)",Bay,1.691,0.81014555,Edge
 CorteMadera,A,6,b,2023-04-20,2023-05-18,Spring,May,2023,1.310340603,NA,Scarped,East.facing,M11,"Growth
-(Months 10-12)",Edge
+(Months 10-12)",Bay,1.691,0.81014555,Edge
 CorteMadera,A,6,c,2023-04-20,2023-05-18,Spring,May,2023,2.642122029,NA,Scarped,East.facing,M11,"Growth
-(Months 10-12)",Edge
+(Months 10-12)",Bay,1.691,0.81014555,Edge
 CorteMadera,A,12,a,2023-04-20,2023-05-18,Spring,May,2023,1.793065425,NA,Scarped,East.facing,M11,"Growth
-(Months 10-12)",Platform
+(Months 10-12)",Bay,1.705,0.826848008,Platform
 CorteMadera,A,12,b,2023-04-20,2023-05-18,Spring,May,2023,2.386669934,NA,Scarped,East.facing,M11,"Growth
-(Months 10-12)",Platform
+(Months 10-12)",Bay,1.705,0.826848008,Platform
 CorteMadera,A,12,c,2023-04-20,2023-05-18,Spring,May,2023,1.905782896,8.551992225,Scarped,East.facing,M11,"Growth
-(Months 10-12)",Platform
+(Months 10-12)",Bay,1.705,0.826848008,Platform
 CorteMadera,A,18,a,2023-04-20,2023-05-18,Spring,May,2023,1.513722127,9.105581708,Scarped,East.facing,M11,"Growth
-(Months 10-12)",Platform
+(Months 10-12)",NA,NA,NA,Platform
 CorteMadera,A,18,b,2023-04-20,2023-05-18,Spring,May,2023,1.426733644,NA,Scarped,East.facing,M11,"Growth
-(Months 10-12)",Platform
+(Months 10-12)",NA,NA,NA,Platform
 CorteMadera,A,18,c,2023-04-20,2023-05-18,Spring,May,2023,1.312178388,NA,Scarped,East.facing,M11,"Growth
-(Months 10-12)",Platform
+(Months 10-12)",NA,NA,NA,Platform
 CorteMadera,A,24,a,2023-04-20,2023-05-18,Spring,May,2023,3.303724577,NA,Scarped,East.facing,M11,"Growth
-(Months 10-12)",Platform
+(Months 10-12)",Bay,1.664,0.777933667,Platform
 CorteMadera,A,24,b,2023-04-20,2023-05-18,Spring,May,2023,2.504288165,NA,Scarped,East.facing,M11,"Growth
-(Months 10-12)",Platform
+(Months 10-12)",Bay,1.664,0.777933667,Platform
 CorteMadera,A,24,c,2023-04-20,2023-05-18,Spring,May,2023,2.041778976,7.416879795,Scarped,East.facing,M11,"Growth
-(Months 10-12)",Platform
+(Months 10-12)",Bay,1.664,0.777933667,Platform
 CorteMadera,A,30,a,2023-04-20,2023-05-18,Spring,May,2023,0.839867679,7.01754386,Scarped,East.facing,M11,"Growth
-(Months 10-12)",Upland
+(Months 10-12)",NA,NA,NA,Upland
 CorteMadera,A,30,b,2023-04-20,2023-05-18,Spring,May,2023,2.085273217,NA,Scarped,East.facing,M11,"Growth
-(Months 10-12)",Upland
+(Months 10-12)",NA,NA,NA,Upland
 CorteMadera,A,30,c,2023-04-20,2023-05-18,Spring,May,2023,2.278853222,NA,Scarped,East.facing,M11,"Growth
-(Months 10-12)",Upland
+(Months 10-12)",NA,NA,NA,Upland
 CorteMadera,A,48,a,2023-04-20,2023-05-18,Spring,May,2023,2.397696643,NA,Scarped,East.facing,M11,"Growth
-(Months 10-12)",Upland
+(Months 10-12)",Bay,1.724,0.849515629,Upland
 CorteMadera,A,48,b,2023-04-20,2023-05-18,Spring,May,2023,1.22212693,6.954022989,Scarped,East.facing,M11,"Growth
-(Months 10-12)",Upland
+(Months 10-12)",Bay,1.724,0.849515629,Upland
 CorteMadera,A,48,c,2023-04-20,2023-05-18,Spring,May,2023,1.7354815,NA,Scarped,East.facing,M11,"Growth
-(Months 10-12)",Upland
+(Months 10-12)",Bay,1.724,0.849515629,Upland
 CorteMadera,B,0.5,a,2023-04-20,2023-05-18,Spring,May,2023,NA,NA,Scarped,East.facing,M11,"Growth
-(Months 10-12)",Edge
+(Months 10-12)",Bay,1.576,0.672946791,Edge
 CorteMadera,B,0.5,b,2023-04-20,2023-05-18,Spring,May,2023,NA,NA,Scarped,East.facing,M11,"Growth
-(Months 10-12)",Edge
+(Months 10-12)",Bay,1.576,0.672946791,Edge
 CorteMadera,B,0.5,c,2023-04-20,2023-05-18,Spring,May,2023,NA,NA,Scarped,East.facing,M11,"Growth
-(Months 10-12)",Edge
+(Months 10-12)",Bay,1.576,0.672946791,Edge
 CorteMadera,B,2,a,2023-04-20,2023-05-18,Spring,May,2023,NA,NA,Scarped,East.facing,M11,"Growth
-(Months 10-12)",Edge
+(Months 10-12)",Bay,1.605,0.707544739,Edge
 CorteMadera,B,2,b,2023-04-20,2023-05-18,Spring,May,2023,NA,NA,Scarped,East.facing,M11,"Growth
-(Months 10-12)",Edge
+(Months 10-12)",Bay,1.605,0.707544739,Edge
 CorteMadera,B,2,c,2023-04-20,2023-05-18,Spring,May,2023,NA,NA,Scarped,East.facing,M11,"Growth
-(Months 10-12)",Edge
+(Months 10-12)",Bay,1.605,0.707544739,Edge
 CorteMadera,B,6,a,2023-04-20,2023-05-18,Spring,May,2023,2.041166381,6.733841239,Scarped,East.facing,M11,"Growth
-(Months 10-12)",Edge
+(Months 10-12)",Bay,1.672,0.787477929,Edge
 CorteMadera,B,6,b,2023-04-20,2023-05-18,Spring,May,2023,1.890468023,NA,Scarped,East.facing,M11,"Growth
-(Months 10-12)",Edge
+(Months 10-12)",Bay,1.672,0.787477929,Edge
 CorteMadera,B,6,c,2023-04-20,2023-05-18,Spring,May,2023,2.362778731,NA,Scarped,East.facing,M11,"Growth
-(Months 10-12)",Edge
+(Months 10-12)",Bay,1.672,0.787477929,Edge
 CorteMadera,B,12,a,2023-04-20,2023-05-18,Spring,May,2023,1.204974271,NA,Scarped,East.facing,M11,"Growth
-(Months 10-12)",Platform
+(Months 10-12)",Bay,1.664,0.777933667,Platform
 CorteMadera,B,12,b,2023-04-20,2023-05-18,Spring,May,2023,1.529037001,6.61234304,Scarped,East.facing,M11,"Growth
-(Months 10-12)",Platform
+(Months 10-12)",Bay,1.664,0.777933667,Platform
 CorteMadera,B,12,c,2023-04-20,2023-05-18,Spring,May,2023,1.569468268,NA,Scarped,East.facing,M11,"Growth
-(Months 10-12)",Platform
+(Months 10-12)",Bay,1.664,0.777933667,Platform
 CorteMadera,B,18,a,2023-04-20,2023-05-18,Spring,May,2023,4.984072531,NA,Scarped,East.facing,M11,"Growth
-(Months 10-12)",Platform
+(Months 10-12)",NA,NA,NA,Platform
 CorteMadera,B,18,b,2023-04-20,2023-05-18,Spring,May,2023,2.866331781,10.31362468,Scarped,East.facing,M11,"Growth
-(Months 10-12)",Platform
+(Months 10-12)",NA,NA,NA,Platform
 CorteMadera,B,18,c,2023-04-20,2023-05-18,Spring,May,2023,1.054275913,NA,Scarped,East.facing,M11,"Growth
-(Months 10-12)",Platform
+(Months 10-12)",NA,NA,NA,Platform
 CorteMadera,B,24,a,2023-04-20,2023-05-18,Spring,May,2023,4.479294291,7.165940705,Scarped,East.facing,M11,"Growth
-(Months 10-12)",Platform
+(Months 10-12)",Bay,1.642,0.751686948,Platform
 CorteMadera,B,24,b,2023-04-20,2023-05-18,Spring,May,2023,5.76819407,11.53637718,Scarped,East.facing,M11,"Growth
-(Months 10-12)",Platform
+(Months 10-12)",Bay,1.642,0.751686948,Platform
 CorteMadera,B,24,c,2023-04-20,2023-05-18,Spring,May,2023,5.944008821,NA,Scarped,East.facing,M11,"Growth
-(Months 10-12)",Platform
+(Months 10-12)",Bay,1.642,0.751686948,Platform
 CorteMadera,B,30,a,2023-04-20,2023-05-18,Spring,May,2023,0.953810341,NA,Scarped,East.facing,M11,"Growth
-(Months 10-12)",Upland
+(Months 10-12)",NA,NA,NA,Upland
 CorteMadera,B,30,b,2023-04-20,2023-05-18,Spring,May,2023,0.95993629,8.261199696,Scarped,East.facing,M11,"Growth
-(Months 10-12)",Upland
+(Months 10-12)",NA,NA,NA,Upland
 CorteMadera,B,30,c,2023-04-20,2023-05-18,Spring,May,2023,0.738176917,NA,Scarped,East.facing,M11,"Growth
-(Months 10-12)",Upland
+(Months 10-12)",NA,NA,NA,Upland
 CorteMadera,B,48,a,2023-04-20,2023-05-18,Spring,May,2023,0.655476599,NA,Scarped,East.facing,M11,"Growth
-(Months 10-12)",Upland
+(Months 10-12)",Bay,1.692,0.811338583,Upland
 CorteMadera,B,48,b,2023-04-20,2023-05-18,Spring,May,2023,1.008943886,NA,Scarped,East.facing,M11,"Growth
-(Months 10-12)",Upland
+(Months 10-12)",Bay,1.692,0.811338583,Upland
 CorteMadera,B,48,c,2023-04-20,2023-05-18,Spring,May,2023,0.782283754,4.843799306,Scarped,East.facing,M11,"Growth
-(Months 10-12)",Upland
+(Months 10-12)",Bay,1.692,0.811338583,Upland
 SanPablo,A,0.5,b,2023-04-21,2023-05-19,Spring,May,2023,111.787738,NA,Ramped,South.facing,M11,"Growth
-(Months 10-12)",Intertidal
+(Months 10-12)",Bay,0.735,-0.344512321,Intertidal
 SanPablo,A,0.5,c,2023-04-21,2023-05-19,Spring,May,2023,97.68143071,NA,Ramped,South.facing,M11,"Growth
-(Months 10-12)",Intertidal
+(Months 10-12)",Bay,0.735,-0.344512321,Intertidal
 SanPablo,A,0.5,a,2023-04-21,2023-05-19,Spring,May,2023,115.9779789,NA,Ramped,South.facing,M11,"Growth
-(Months 10-12)",Intertidal
+(Months 10-12)",Bay,0.735,-0.344512321,Intertidal
 SanPablo,A,2,b,2023-04-21,2023-05-19,Spring,May,2023,17.37286985,NA,Ramped,South.facing,M11,"Growth
-(Months 10-12)",Intertidal
+(Months 10-12)",Bay,0.751,-0.326125828,Intertidal
 SanPablo,A,2,c,2023-04-21,2023-05-19,Spring,May,2023,23.92069549,NA,Ramped,South.facing,M11,"Growth
-(Months 10-12)",Intertidal
+(Months 10-12)",Bay,0.751,-0.326125828,Intertidal
 SanPablo,A,2,a,2023-04-21,2023-05-19,Spring,May,2023,9.289459653,NA,Ramped,South.facing,M11,"Growth
-(Months 10-12)",Intertidal
+(Months 10-12)",Bay,0.751,-0.326125828,Intertidal
 SanPablo,A,6,b,2023-04-21,2023-05-19,Spring,May,2023,2.72203341,NA,Ramped,South.facing,M11,"Growth
-(Months 10-12)",Intertidal
+(Months 10-12)",Bay,0.889,-0.167542323,Intertidal
 SanPablo,A,6,c,2023-04-21,2023-05-19,Spring,May,2023,3.615698294,NA,Ramped,South.facing,M11,"Growth
-(Months 10-12)",Intertidal
+(Months 10-12)",Bay,0.889,-0.167542323,Intertidal
 SanPablo,A,6,a,2023-04-21,2023-05-19,Spring,May,2023,9.157155599,NA,Ramped,South.facing,M11,"Growth
-(Months 10-12)",Intertidal
+(Months 10-12)",Bay,0.889,-0.167542323,Intertidal
 SanPablo,A,9,b,2023-04-21,2023-05-19,Spring,May,2023,NA,NA,Ramped,South.facing,M11,"Growth
-(Months 10-12)",Intertidal
+(Months 10-12)",NA,NA,NA,Intertidal
 SanPablo,A,9,c,2023-04-21,2023-05-19,Spring,May,2023,NA,NA,Ramped,South.facing,M11,"Growth
-(Months 10-12)",Intertidal
+(Months 10-12)",NA,NA,NA,Intertidal
 SanPablo,A,9,a,2023-04-21,2023-05-19,Spring,May,2023,5.479592909,NA,Ramped,South.facing,M11,"Growth
-(Months 10-12)",Intertidal
+(Months 10-12)",NA,NA,NA,Intertidal
 SanPablo,A,12,b,2023-04-21,2023-05-19,Spring,May,2023,NA,NA,Ramped,South.facing,M11,"Growth
-(Months 10-12)",Intertidal
+(Months 10-12)",Bay,1.069,0.039305726,Intertidal
 SanPablo,A,12,c,2023-04-21,2023-05-19,Spring,May,2023,NA,NA,Ramped,South.facing,M11,"Growth
-(Months 10-12)",Intertidal
+(Months 10-12)",Bay,1.069,0.039305726,Intertidal
 SanPablo,A,12,a,2023-04-21,2023-05-19,Spring,May,2023,3.480944165,NA,Ramped,South.facing,M11,"Growth
-(Months 10-12)",Intertidal
+(Months 10-12)",Bay,1.069,0.039305726,Intertidal
 SanPablo,A,18,b,2023-04-21,2023-05-19,Spring,May,2023,NA,NA,Ramped,South.facing,M11,"Growth
-(Months 10-12)",Intertidal
+(Months 10-12)",NA,NA,NA,Intertidal
 SanPablo,A,18,c,2023-04-21,2023-05-19,Spring,May,2023,NA,NA,Ramped,South.facing,M11,"Growth
-(Months 10-12)",Intertidal
+(Months 10-12)",NA,NA,NA,Intertidal
 SanPablo,A,18,a,2023-04-21,2023-05-19,Spring,May,2023,NA,NA,Ramped,South.facing,M11,"Growth
-(Months 10-12)",Intertidal
+(Months 10-12)",NA,NA,NA,Intertidal
 SanPablo,A,24,b,2023-04-21,2023-05-19,Spring,May,2023,NA,NA,Ramped,South.facing,M11,"Growth
-(Months 10-12)",Edge
+(Months 10-12)",Bay,1.713,0.779362081,Edge
 SanPablo,A,24,c,2023-04-21,2023-05-19,Spring,May,2023,NA,NA,Ramped,South.facing,M11,"Growth
-(Months 10-12)",Edge
+(Months 10-12)",Bay,1.713,0.779362081,Edge
 SanPablo,A,24,a,2023-04-21,2023-05-19,Spring,May,2023,NA,NA,Ramped,South.facing,M11,"Growth
-(Months 10-12)",Edge
+(Months 10-12)",Bay,1.713,0.779362081,Edge
 SanPablo,A,48,b,2023-04-21,2023-05-19,Spring,May,2023,2.482538571,5.819683047,Ramped,South.facing,M11,"Growth
-(Months 10-12)",Platform
+(Months 10-12)",Bay,2.01,1.120661362,Platform
 SanPablo,A,48,c,2023-04-21,2023-05-19,Spring,May,2023,2.571353793,NA,Ramped,South.facing,M11,"Growth
-(Months 10-12)",Platform
+(Months 10-12)",Bay,2.01,1.120661362,Platform
 SanPablo,A,48,a,2023-04-21,2023-05-19,Spring,May,2023,1.805705331,7.333579427,Ramped,South.facing,M11,"Growth
-(Months 10-12)",Platform
+(Months 10-12)",Bay,2.01,1.120661362,Platform
 SanPablo,A,72,b,2023-04-21,2023-05-19,Spring,May,2023,2.300007978,NA,Ramped,South.facing,M11,"Growth
-(Months 10-12)",Upland
+(Months 10-12)",Bay,2.04,1.155136037,Upland
 SanPablo,A,72,c,2023-04-21,2023-05-19,Spring,May,2023,2.104614491,NA,Ramped,South.facing,M11,"Growth
-(Months 10-12)",Upland
+(Months 10-12)",Bay,2.04,1.155136037,Upland
 SanPablo,A,72,a,2023-04-21,2023-05-19,Spring,May,2023,2.049487802,8.715666718,Ramped,South.facing,M11,"Growth
-(Months 10-12)",Upland
+(Months 10-12)",Bay,2.04,1.155136037,Upland
 SanPablo,A,150,b,2023-04-21,2023-05-19,Spring,May,2023,1.163785661,NA,Ramped,South.facing,M11,"Growth
-(Months 10-12)",Upland
+(Months 10-12)",Bay,1.974,1.079291752,Upland
 SanPablo,A,150,c,2023-04-21,2023-05-19,Spring,May,2023,1.227487613,NA,Ramped,South.facing,M11,"Growth
-(Months 10-12)",Upland
+(Months 10-12)",Bay,1.974,1.079291752,Upland
 SanPablo,A,150,a,2023-04-21,2023-05-19,Spring,May,2023,1.380004787,NA,Ramped,South.facing,M11,"Growth
-(Months 10-12)",Upland
+(Months 10-12)",Bay,1.974,1.079291752,Upland
 SanPablo,B,0.5,b,2023-04-21,2023-05-19,Spring,May,2023,77.62205354,NA,Ramped,South.facing,M11,"Growth
-(Months 10-12)",Intertidal
+(Months 10-12)",Bay,0.774,-0.299695244,Intertidal
 SanPablo,B,0.5,c,2023-04-21,2023-05-19,Spring,May,2023,129.2782114,NA,Ramped,South.facing,M11,"Growth
-(Months 10-12)",Intertidal
+(Months 10-12)",Bay,0.774,-0.299695244,Intertidal
 SanPablo,B,0.5,a,2023-04-21,2023-05-19,Spring,May,2023,3.263500002,NA,Ramped,South.facing,M11,"Growth
-(Months 10-12)",Intertidal
+(Months 10-12)",Bay,0.774,-0.299695244,Intertidal
 SanPablo,B,2,b,2023-04-21,2023-05-19,Spring,May,2023,7.127880917,NA,Ramped,South.facing,M11,"Growth
-(Months 10-12)",Intertidal
+(Months 10-12)",Bay,0.805,-0.264071413,Intertidal
 SanPablo,B,2,c,2023-04-21,2023-05-19,Spring,May,2023,NA,NA,Ramped,South.facing,M11,"Growth
-(Months 10-12)",Intertidal
+(Months 10-12)",Bay,0.805,-0.264071413,Intertidal
 SanPablo,B,2,a,2023-04-21,2023-05-19,Spring,May,2023,3.766377911,NA,Ramped,South.facing,M11,"Growth
-(Months 10-12)",Intertidal
+(Months 10-12)",Bay,0.805,-0.264071413,Intertidal
 SanPablo,B,6,b,2023-04-21,2023-05-19,Spring,May,2023,NA,NA,Ramped,South.facing,M11,"Growth
-(Months 10-12)",Intertidal
+(Months 10-12)",Bay,0.837,-0.227298427,Intertidal
 SanPablo,B,6,c,2023-04-21,2023-05-19,Spring,May,2023,NA,NA,Ramped,South.facing,M11,"Growth
-(Months 10-12)",Intertidal
+(Months 10-12)",Bay,0.837,-0.227298427,Intertidal
 SanPablo,B,6,a,2023-04-21,2023-05-19,Spring,May,2023,5.24499822,NA,Ramped,South.facing,M11,"Growth
-(Months 10-12)",Intertidal
+(Months 10-12)",Bay,0.837,-0.227298427,Intertidal
 SanPablo,B,9,b,2023-04-21,2023-05-19,Spring,May,2023,3.802516519,NA,Ramped,South.facing,M11,"Growth
-(Months 10-12)",Intertidal
+(Months 10-12)",NA,NA,NA,Intertidal
 SanPablo,B,9,c,2023-04-21,2023-05-19,Spring,May,2023,NA,NA,Ramped,South.facing,M11,"Growth
-(Months 10-12)",Intertidal
+(Months 10-12)",NA,NA,NA,Intertidal
 SanPablo,B,9,a,2023-04-21,2023-05-19,Spring,May,2023,NA,NA,Ramped,South.facing,M11,"Growth
-(Months 10-12)",Intertidal
+(Months 10-12)",NA,NA,NA,Intertidal
 SanPablo,B,12,b,2023-04-21,2023-05-19,Spring,May,2023,NA,NA,Ramped,South.facing,M11,"Growth
-(Months 10-12)",Intertidal
+(Months 10-12)",Bay,1.042,0.008278519,Intertidal
 SanPablo,B,12,c,2023-04-21,2023-05-19,Spring,May,2023,NA,NA,Ramped,South.facing,M11,"Growth
-(Months 10-12)",Intertidal
+(Months 10-12)",Bay,1.042,0.008278519,Intertidal
 SanPablo,B,12,a,2023-04-21,2023-05-19,Spring,May,2023,4.702306591,NA,Ramped,South.facing,M11,"Growth
-(Months 10-12)",Intertidal
+(Months 10-12)",Bay,1.042,0.008278519,Intertidal
 SanPablo,B,18,b,2023-04-21,2023-05-19,Spring,May,2023,NA,NA,Ramped,South.facing,M11,"Growth
-(Months 10-12)",Intertidal
+(Months 10-12)",NA,NA,NA,Intertidal
 SanPablo,B,18,c,2023-04-21,2023-05-19,Spring,May,2023,NA,NA,Ramped,South.facing,M11,"Growth
-(Months 10-12)",Intertidal
+(Months 10-12)",NA,NA,NA,Intertidal
 SanPablo,B,18,a,2023-04-21,2023-05-19,Spring,May,2023,NA,NA,Ramped,South.facing,M11,"Growth
-(Months 10-12)",Intertidal
+(Months 10-12)",NA,NA,NA,Intertidal
 SanPablo,B,24,b,2023-04-21,2023-05-19,Spring,May,2023,NA,NA,Ramped,South.facing,M11,"Growth
-(Months 10-12)",Edge
+(Months 10-12)",Bay,1.563,0.606988706,Edge
 SanPablo,B,24,c,2023-04-21,2023-05-19,Spring,May,2023,3.637136451,NA,Ramped,South.facing,M11,"Growth
-(Months 10-12)",Edge
+(Months 10-12)",Bay,1.563,0.606988706,Edge
 SanPablo,B,24,a,2023-04-21,2023-05-19,Spring,May,2023,NA,NA,Ramped,South.facing,M11,"Growth
-(Months 10-12)",Edge
+(Months 10-12)",Bay,1.563,0.606988706,Edge
 SanPablo,B,48,b,2023-04-21,2023-05-19,Spring,May,2023,NA,6.628014231,Ramped,South.facing,M11,"Growth
-(Months 10-12)",Platform
+(Months 10-12)",Bay,1.978,1.083888376,Platform
 SanPablo,B,48,c,2023-04-21,2023-05-19,Spring,May,2023,NA,NA,Ramped,South.facing,M11,"Growth
-(Months 10-12)",Platform
+(Months 10-12)",Bay,1.978,1.083888376,Platform
 SanPablo,B,48,a,2023-04-21,2023-05-19,Spring,May,2023,1.770791762,NA,Ramped,South.facing,M11,"Growth
-(Months 10-12)",Platform
+(Months 10-12)",Bay,1.978,1.083888376,Platform
 SanPablo,B,72,b,2023-04-21,2023-05-19,Spring,May,2023,3.582622281,8.465505498,Ramped,South.facing,M11,"Growth
-(Months 10-12)",Upland
+(Months 10-12)",Bay,2.012,1.122959674,Upland
 SanPablo,B,72,c,2023-04-21,2023-05-19,Spring,May,2023,2.958465655,7.370892019,Ramped,South.facing,M11,"Growth
-(Months 10-12)",Upland
+(Months 10-12)",Bay,2.012,1.122959674,Upland
 SanPablo,B,72,a,2023-04-21,2023-05-19,Spring,May,2023,3.472368902,NA,Ramped,South.facing,M11,"Growth
-(Months 10-12)",Upland
+(Months 10-12)",Bay,2.012,1.122959674,Upland
 SanPablo,B,150,b,2023-04-21,2023-05-19,Spring,May,2023,1.02535642,NA,Ramped,South.facing,M11,"Growth
-(Months 10-12)",Upland
+(Months 10-12)",Bay,2.014,1.125257985,Upland
 SanPablo,B,150,c,2023-04-21,2023-05-19,Spring,May,2023,0.998405594,NA,Ramped,South.facing,M11,"Growth
-(Months 10-12)",Upland
+(Months 10-12)",Bay,2.014,1.125257985,Upland
 SanPablo,B,150,a,2023-04-21,2023-05-19,Spring,May,2023,0.704396585,NA,Ramped,South.facing,M11,"Growth
-(Months 10-12)",Upland
+(Months 10-12)",Bay,2.014,1.125257985,Upland
 CorteMadera,A,0.5,a,2023-05-18,2023-06-20,Spring,June,2023,NA,NA,Scarped,East.facing,M12,"Growth
-(Months 10-12)",Edge
+(Months 10-12)",Bay,1.598,0.69919351,Edge
 CorteMadera,A,0.5,b,2023-05-18,2023-06-20,Spring,June,2023,NA,NA,Scarped,East.facing,M12,"Growth
-(Months 10-12)",Edge
+(Months 10-12)",Bay,1.598,0.69919351,Edge
 CorteMadera,A,0.5,c,2023-05-18,2023-06-20,Spring,June,2023,NA,NA,Scarped,East.facing,M12,"Growth
-(Months 10-12)",Edge
+(Months 10-12)",Bay,1.598,0.69919351,Edge
 CorteMadera,A,2,a,2023-05-18,2023-06-20,Spring,June,2023,2.696086075,NA,Scarped,East.facing,M12,"Growth
-(Months 10-12)",Edge
+(Months 10-12)",Bay,1.684,0.801794321,Edge
 CorteMadera,A,2,b,2023-05-18,2023-06-20,Spring,June,2023,3.532927907,5.204460967,Scarped,East.facing,M12,"Growth
-(Months 10-12)",Edge
+(Months 10-12)",Bay,1.684,0.801794321,Edge
 CorteMadera,A,2,c,2023-05-18,2023-06-20,Spring,June,2023,NA,NA,Scarped,East.facing,M12,"Growth
-(Months 10-12)",Edge
+(Months 10-12)",Bay,1.684,0.801794321,Edge
 CorteMadera,A,6,a,2023-05-18,2023-06-20,Spring,June,2023,3.294350018,5.616729897,Scarped,East.facing,M12,"Growth
-(Months 10-12)",Edge
+(Months 10-12)",Bay,1.691,0.81014555,Edge
 CorteMadera,A,6,b,2023-05-18,2023-06-20,Spring,June,2023,NA,NA,Scarped,East.facing,M12,"Growth
-(Months 10-12)",Edge
+(Months 10-12)",Bay,1.691,0.81014555,Edge
 CorteMadera,A,6,c,2023-05-18,2023-06-20,Spring,June,2023,7.579396019,NA,Scarped,East.facing,M12,"Growth
-(Months 10-12)",Edge
+(Months 10-12)",Bay,1.691,0.81014555,Edge
 CorteMadera,A,12,a,2023-05-18,2023-06-20,Spring,June,2023,12.40033266,10.69843412,Scarped,East.facing,M12,"Growth
-(Months 10-12)",Platform
+(Months 10-12)",Bay,1.705,0.826848008,Platform
 CorteMadera,A,12,b,2023-05-18,2023-06-20,Spring,June,2023,13.09319611,NA,Scarped,East.facing,M12,"Growth
-(Months 10-12)",Platform
+(Months 10-12)",Bay,1.705,0.826848008,Platform
 CorteMadera,A,12,c,2023-05-18,2023-06-20,Spring,June,2023,12.9221893,NA,Scarped,East.facing,M12,"Growth
-(Months 10-12)",Platform
+(Months 10-12)",Bay,1.705,0.826848008,Platform
 CorteMadera,A,18,a,2023-05-18,2023-06-20,Spring,June,2023,13.22418005,NA,Scarped,East.facing,M12,"Growth
-(Months 10-12)",Platform
+(Months 10-12)",NA,NA,NA,Platform
 CorteMadera,A,18,b,2023-05-18,2023-06-20,Spring,June,2023,14.5626072,10.03492289,Scarped,East.facing,M12,"Growth
-(Months 10-12)",Platform
+(Months 10-12)",NA,NA,NA,Platform
 CorteMadera,A,18,c,2023-05-18,2023-06-20,Spring,June,2023,11.08009772,NA,Scarped,East.facing,M12,"Growth
-(Months 10-12)",Platform
+(Months 10-12)",NA,NA,NA,Platform
 CorteMadera,A,24,a,2023-05-18,2023-06-20,Spring,June,2023,13.01418993,10.43716945,Scarped,East.facing,M12,"Growth
-(Months 10-12)",Platform
+(Months 10-12)",Bay,1.664,0.777933667,Platform
 CorteMadera,A,24,b,2023-05-18,2023-06-20,Spring,June,2023,NA,NA,Scarped,East.facing,M12,"Growth
-(Months 10-12)",Platform
+(Months 10-12)",Bay,1.664,0.777933667,Platform
 CorteMadera,A,24,c,2023-05-18,2023-06-20,Spring,June,2023,14.12963252,NA,Scarped,East.facing,M12,"Growth
-(Months 10-12)",Platform
+(Months 10-12)",Bay,1.664,0.777933667,Platform
 CorteMadera,A,30,a,2023-05-18,2023-06-20,Spring,June,2023,NA,NA,Scarped,East.facing,M12,"Growth
-(Months 10-12)",Upland
+(Months 10-12)",NA,NA,NA,Upland
 CorteMadera,A,30,b,2023-05-18,2023-06-20,Spring,June,2023,NA,NA,Scarped,East.facing,M12,"Growth
-(Months 10-12)",Upland
+(Months 10-12)",NA,NA,NA,Upland
 CorteMadera,A,30,c,2023-05-18,2023-06-20,Spring,June,2023,NA,NA,Scarped,East.facing,M12,"Growth
-(Months 10-12)",Upland
+(Months 10-12)",NA,NA,NA,Upland
 CorteMadera,A,48,a,2023-05-18,2023-06-20,Spring,June,2023,6.519569624,NA,Scarped,East.facing,M12,"Growth
-(Months 10-12)",Upland
+(Months 10-12)",Bay,1.724,0.849515629,Upland
 CorteMadera,A,48,b,2023-05-18,2023-06-20,Spring,June,2023,4.50647123,NA,Scarped,East.facing,M12,"Growth
-(Months 10-12)",Upland
+(Months 10-12)",Bay,1.724,0.849515629,Upland
 CorteMadera,A,48,c,2023-05-18,2023-06-20,Spring,June,2023,14.29907999,12.90998998,Scarped,East.facing,M12,"Growth
-(Months 10-12)",Upland
+(Months 10-12)",Bay,1.724,0.849515629,Upland
 CorteMadera,B,0.5,a,2023-05-18,2023-06-20,Spring,June,2023,NA,NA,Scarped,East.facing,M12,"Growth
-(Months 10-12)",Edge
+(Months 10-12)",Bay,1.576,0.672946791,Edge
 CorteMadera,B,0.5,b,2023-05-18,2023-06-20,Spring,June,2023,NA,NA,Scarped,East.facing,M12,"Growth
-(Months 10-12)",Edge
+(Months 10-12)",Bay,1.576,0.672946791,Edge
 CorteMadera,B,0.5,c,2023-05-18,2023-06-20,Spring,June,2023,NA,NA,Scarped,East.facing,M12,"Growth
-(Months 10-12)",Edge
+(Months 10-12)",Bay,1.576,0.672946791,Edge
 CorteMadera,B,2,a,2023-05-18,2023-06-20,Spring,June,2023,NA,NA,Scarped,East.facing,M12,"Growth
-(Months 10-12)",Edge
+(Months 10-12)",Bay,1.605,0.707544739,Edge
 CorteMadera,B,2,b,2023-05-18,2023-06-20,Spring,June,2023,NA,NA,Scarped,East.facing,M12,"Growth
-(Months 10-12)",Edge
+(Months 10-12)",Bay,1.605,0.707544739,Edge
 CorteMadera,B,2,c,2023-05-18,2023-06-20,Spring,June,2023,NA,NA,Scarped,East.facing,M12,"Growth
-(Months 10-12)",Edge
+(Months 10-12)",Bay,1.605,0.707544739,Edge
 CorteMadera,B,6,a,2023-05-18,2023-06-20,Spring,June,2023,0.188159468,NA,Scarped,East.facing,M12,"Growth
-(Months 10-12)",Edge
+(Months 10-12)",Bay,1.672,0.787477929,Edge
 CorteMadera,B,6,b,2023-05-18,2023-06-20,Spring,June,2023,NA,NA,Scarped,East.facing,M12,"Growth
-(Months 10-12)",Edge
+(Months 10-12)",Bay,1.672,0.787477929,Edge
 CorteMadera,B,6,c,2023-05-18,2023-06-20,Spring,June,2023,5.592806279,7.667963341,Scarped,East.facing,M12,"Growth
-(Months 10-12)",Edge
+(Months 10-12)",Bay,1.672,0.787477929,Edge
 CorteMadera,B,12,a,2023-05-18,2023-06-20,Spring,June,2023,6.444721659,8.695652174,Scarped,East.facing,M12,"Growth
-(Months 10-12)",Platform
+(Months 10-12)",Bay,1.664,0.777933667,Platform
 CorteMadera,B,12,b,2023-05-18,2023-06-20,Spring,June,2023,4.65408805,NA,Scarped,East.facing,M12,"Growth
-(Months 10-12)",Platform
+(Months 10-12)",Bay,1.664,0.777933667,Platform
 CorteMadera,B,12,c,2023-05-18,2023-06-20,Spring,June,2023,NA,NA,Scarped,East.facing,M12,"Growth
-(Months 10-12)",Platform
+(Months 10-12)",Bay,1.664,0.777933667,Platform
 CorteMadera,B,18,a,2023-05-18,2023-06-20,Spring,June,2023,10.54784552,9.812091831,Scarped,East.facing,M12,"Growth
-(Months 10-12)",Platform
+(Months 10-12)",NA,NA,NA,Platform
 CorteMadera,B,18,b,2023-05-18,2023-06-20,Spring,June,2023,7.339778575,NA,Scarped,East.facing,M12,"Growth
-(Months 10-12)",Platform
+(Months 10-12)",NA,NA,NA,Platform
 CorteMadera,B,18,c,2023-05-18,2023-06-20,Spring,June,2023,5.150475596,NA,Scarped,East.facing,M12,"Growth
-(Months 10-12)",Platform
+(Months 10-12)",NA,NA,NA,Platform
 CorteMadera,B,24,a,2023-05-18,2023-06-20,Spring,June,2023,10.77083008,NA,Scarped,East.facing,M12,"Growth
-(Months 10-12)",Platform
+(Months 10-12)",Bay,1.642,0.751686948,Platform
 CorteMadera,B,24,b,2023-05-18,2023-06-20,Spring,June,2023,9.600810853,NA,Scarped,East.facing,M12,"Growth
-(Months 10-12)",Platform
+(Months 10-12)",Bay,1.642,0.751686948,Platform
 CorteMadera,B,24,c,2023-05-18,2023-06-20,Spring,June,2023,11.69551432,10.06012174,Scarped,East.facing,M12,"Growth
-(Months 10-12)",Platform
+(Months 10-12)",Bay,1.642,0.751686948,Platform
 CorteMadera,B,30,a,2023-05-18,2023-06-20,Spring,June,2023,4.440459483,NA,Scarped,East.facing,M12,"Growth
-(Months 10-12)",Upland
+(Months 10-12)",NA,NA,NA,Upland
 CorteMadera,B,30,b,2023-05-18,2023-06-20,Spring,June,2023,8.251988149,9.748427673,Scarped,East.facing,M12,"Growth
-(Months 10-12)",Upland
+(Months 10-12)",NA,NA,NA,Upland
 CorteMadera,B,30,c,2023-05-18,2023-06-20,Spring,June,2023,5.39425126,NA,Scarped,East.facing,M12,"Growth
-(Months 10-12)",Upland
+(Months 10-12)",NA,NA,NA,Upland
 CorteMadera,B,48,a,2023-05-18,2023-06-20,Spring,June,2023,4.179011383,7.934885184,Scarped,East.facing,M12,"Growth
-(Months 10-12)",Upland
+(Months 10-12)",Bay,1.692,0.811338583,Upland
 CorteMadera,B,48,b,2023-05-18,2023-06-20,Spring,June,2023,5.302250637,NA,Scarped,East.facing,M12,"Growth
-(Months 10-12)",Upland
+(Months 10-12)",Bay,1.692,0.811338583,Upland
 CorteMadera,B,48,c,2023-05-18,2023-06-20,Spring,June,2023,4.699828473,NA,Scarped,East.facing,M12,"Growth
-(Months 10-12)",Upland
+(Months 10-12)",Bay,1.692,0.811338583,Upland
 SanPablo,A,0.5,b,2023-05-19,2023-06-21,Spring,June,2023,52.63288402,NA,Ramped,South.facing,M12,"Growth
-(Months 10-12)",Intertidal
+(Months 10-12)",Bay,0.735,-0.344512321,Intertidal
 SanPablo,A,0.5,c,2023-05-19,2023-06-21,Spring,June,2023,50.97915759,NA,Ramped,South.facing,M12,"Growth
-(Months 10-12)",Intertidal
+(Months 10-12)",Bay,0.735,-0.344512321,Intertidal
 SanPablo,A,0.5,a,2023-05-19,2023-06-21,Spring,June,2023,20.92675943,NA,Ramped,South.facing,M12,"Growth
-(Months 10-12)",Intertidal
+(Months 10-12)",Bay,0.735,-0.344512321,Intertidal
 SanPablo,A,2,b,2023-05-19,2023-06-21,Spring,June,2023,8.632950899,NA,Ramped,South.facing,M12,"Growth
-(Months 10-12)",Intertidal
+(Months 10-12)",Bay,0.751,-0.326125828,Intertidal
 SanPablo,A,2,c,2023-05-19,2023-06-21,Spring,June,2023,26.52510674,NA,Ramped,South.facing,M12,"Growth
-(Months 10-12)",Intertidal
+(Months 10-12)",Bay,0.751,-0.326125828,Intertidal
 SanPablo,A,2,a,2023-05-19,2023-06-21,Spring,June,2023,10.50599617,NA,Ramped,South.facing,M12,"Growth
-(Months 10-12)",Intertidal
+(Months 10-12)",Bay,0.751,-0.326125828,Intertidal
 SanPablo,A,6,b,2023-05-19,2023-06-21,Spring,June,2023,37.17662252,NA,Ramped,South.facing,M12,"Growth
-(Months 10-12)",Intertidal
+(Months 10-12)",Bay,0.889,-0.167542323,Intertidal
 SanPablo,A,6,c,2023-05-19,2023-06-21,Spring,June,2023,6.641411086,NA,Ramped,South.facing,M12,"Growth
-(Months 10-12)",Intertidal
+(Months 10-12)",Bay,0.889,-0.167542323,Intertidal
 SanPablo,A,6,a,2023-05-19,2023-06-21,Spring,June,2023,4.436788985,NA,Ramped,South.facing,M12,"Growth
-(Months 10-12)",Intertidal
+(Months 10-12)",Bay,0.889,-0.167542323,Intertidal
 SanPablo,A,9,b,2023-05-19,2023-06-21,Spring,June,2023,0.895985031,NA,Ramped,South.facing,M12,"Growth
-(Months 10-12)",Intertidal
+(Months 10-12)",NA,NA,NA,Intertidal
 SanPablo,A,9,c,2023-05-19,2023-06-21,Spring,June,2023,NA,NA,Ramped,South.facing,M12,"Growth
-(Months 10-12)",Intertidal
+(Months 10-12)",NA,NA,NA,Intertidal
 SanPablo,A,9,a,2023-05-19,2023-06-21,Spring,June,2023,NA,NA,Ramped,South.facing,M12,"Growth
-(Months 10-12)",Intertidal
+(Months 10-12)",NA,NA,NA,Intertidal
 SanPablo,A,12,b,2023-05-19,2023-06-21,Spring,June,2023,NA,NA,Ramped,South.facing,M12,"Growth
-(Months 10-12)",Intertidal
+(Months 10-12)",Bay,1.069,0.039305726,Intertidal
 SanPablo,A,12,c,2023-05-19,2023-06-21,Spring,June,2023,7.233364073,NA,Ramped,South.facing,M12,"Growth
-(Months 10-12)",Intertidal
+(Months 10-12)",Bay,1.069,0.039305726,Intertidal
 SanPablo,A,12,a,2023-05-19,2023-06-21,Spring,June,2023,5.360318799,NA,Ramped,South.facing,M12,"Growth
-(Months 10-12)",Intertidal
+(Months 10-12)",Bay,1.069,0.039305726,Intertidal
 SanPablo,A,18,b,2023-05-19,2023-06-21,Spring,June,2023,NA,NA,Ramped,South.facing,M12,"Growth
-(Months 10-12)",Intertidal
+(Months 10-12)",NA,NA,NA,Intertidal
 SanPablo,A,18,c,2023-05-19,2023-06-21,Spring,June,2023,NA,NA,Ramped,South.facing,M12,"Growth
-(Months 10-12)",Intertidal
+(Months 10-12)",NA,NA,NA,Intertidal
 SanPablo,A,18,a,2023-05-19,2023-06-21,Spring,June,2023,NA,NA,Ramped,South.facing,M12,"Growth
-(Months 10-12)",Intertidal
+(Months 10-12)",NA,NA,NA,Intertidal
 SanPablo,A,24,b,2023-05-19,2023-06-21,Spring,June,2023,3.559513618,NA,Ramped,South.facing,M12,"Growth
-(Months 10-12)",Edge
+(Months 10-12)",Bay,1.713,0.779362081,Edge
 SanPablo,A,24,c,2023-05-19,2023-06-21,Spring,June,2023,2.513851273,NA,Ramped,South.facing,M12,"Growth
-(Months 10-12)",Edge
+(Months 10-12)",Bay,1.713,0.779362081,Edge
 SanPablo,A,24,a,2023-05-19,2023-06-21,Spring,June,2023,2.558546582,NA,Ramped,South.facing,M12,"Growth
-(Months 10-12)",Edge
+(Months 10-12)",Bay,1.713,0.779362081,Edge
 SanPablo,A,48,b,2023-05-19,2023-06-21,Spring,June,2023,15.7748455,8.835452879,Ramped,South.facing,M12,"Growth
-(Months 10-12)",Platform
+(Months 10-12)",Bay,2.01,1.120661362,Platform
 SanPablo,A,48,c,2023-05-19,2023-06-21,Spring,June,2023,13.72613727,12.93029685,Ramped,South.facing,M12,"Growth
-(Months 10-12)",Platform
+(Months 10-12)",Bay,2.01,1.120661362,Platform
 SanPablo,A,48,a,2023-05-19,2023-06-21,Spring,June,2023,7.104994988,NA,Ramped,South.facing,M12,"Growth
-(Months 10-12)",Platform
+(Months 10-12)",Bay,2.01,1.120661362,Platform
 SanPablo,A,72,b,2023-05-19,2023-06-21,Spring,June,2023,13.67988282,NA,Ramped,South.facing,M12,"Growth
-(Months 10-12)",Upland
+(Months 10-12)",Bay,2.04,1.155136037,Upland
 SanPablo,A,72,c,2023-05-19,2023-06-21,Spring,June,2023,13.81968559,NA,Ramped,South.facing,M12,"Growth
-(Months 10-12)",Upland
+(Months 10-12)",Bay,2.04,1.155136037,Upland
 SanPablo,A,72,a,2023-05-19,2023-06-21,Spring,June,2023,12.85613788,10.93800365,Ramped,South.facing,M12,"Growth
-(Months 10-12)",Upland
+(Months 10-12)",Bay,2.04,1.155136037,Upland
 SanPablo,A,150,b,2023-05-19,2023-06-21,Spring,June,2023,4.290749661,NA,Ramped,South.facing,M12,"Growth
-(Months 10-12)",Upland
+(Months 10-12)",Bay,1.974,1.079291752,Upland
 SanPablo,A,150,c,2023-05-19,2023-06-21,Spring,June,2023,2.828797288,NA,Ramped,South.facing,M12,"Growth
-(Months 10-12)",Upland
+(Months 10-12)",Bay,1.974,1.079291752,Upland
 SanPablo,A,150,a,2023-05-19,2023-06-21,Spring,June,2023,3.566789599,NA,Ramped,South.facing,M12,"Growth
-(Months 10-12)",Upland
+(Months 10-12)",Bay,1.974,1.079291752,Upland
 SanPablo,B,0.5,b,2023-05-19,2023-06-21,Spring,June,2023,NA,NA,Ramped,South.facing,M12,"Growth
-(Months 10-12)",Intertidal
+(Months 10-12)",Bay,0.774,-0.299695244,Intertidal
 SanPablo,B,0.5,c,2023-05-19,2023-06-21,Spring,June,2023,8.52537033,NA,Ramped,South.facing,M12,"Growth
-(Months 10-12)",Intertidal
+(Months 10-12)",Bay,0.774,-0.299695244,Intertidal
 SanPablo,B,0.5,a,2023-05-19,2023-06-21,Spring,June,2023,6.731841129,NA,Ramped,South.facing,M12,"Growth
-(Months 10-12)",Intertidal
+(Months 10-12)",Bay,0.774,-0.299695244,Intertidal
 SanPablo,B,2,b,2023-05-19,2023-06-21,Spring,June,2023,9.386534597,NA,Ramped,South.facing,M12,"Growth
-(Months 10-12)",Intertidal
+(Months 10-12)",Bay,0.805,-0.264071413,Intertidal
 SanPablo,B,2,c,2023-05-19,2023-06-21,Spring,June,2023,NA,NA,Ramped,South.facing,M12,"Growth
-(Months 10-12)",Intertidal
+(Months 10-12)",Bay,0.805,-0.264071413,Intertidal
 SanPablo,B,2,a,2023-05-19,2023-06-21,Spring,June,2023,7.813363664,NA,Ramped,South.facing,M12,"Growth
-(Months 10-12)",Intertidal
+(Months 10-12)",Bay,0.805,-0.264071413,Intertidal
 SanPablo,B,6,b,2023-05-19,2023-06-21,Spring,June,2023,4.655068401,NA,Ramped,South.facing,M12,"Growth
-(Months 10-12)",Intertidal
+(Months 10-12)",Bay,0.837,-0.227298427,Intertidal
 SanPablo,B,6,c,2023-05-19,2023-06-21,Spring,June,2023,4.695086294,NA,Ramped,South.facing,M12,"Growth
-(Months 10-12)",Intertidal
+(Months 10-12)",Bay,0.837,-0.227298427,Intertidal
 SanPablo,B,6,a,2023-05-19,2023-06-21,Spring,June,2023,3.876018771,NA,Ramped,South.facing,M12,"Growth
-(Months 10-12)",Intertidal
+(Months 10-12)",Bay,0.837,-0.227298427,Intertidal
 SanPablo,B,9,b,2023-05-19,2023-06-21,Spring,June,2023,3.68736299,NA,Ramped,South.facing,M12,"Growth
-(Months 10-12)",Intertidal
+(Months 10-12)",NA,NA,NA,Intertidal
 SanPablo,B,9,c,2023-05-19,2023-06-21,Spring,June,2023,4.313097316,NA,Ramped,South.facing,M12,"Growth
-(Months 10-12)",Intertidal
+(Months 10-12)",NA,NA,NA,Intertidal
 SanPablo,B,9,a,2023-05-19,2023-06-21,Spring,June,2023,NA,NA,Ramped,South.facing,M12,"Growth
-(Months 10-12)",Intertidal
+(Months 10-12)",NA,NA,NA,Intertidal
 SanPablo,B,12,b,2023-05-19,2023-06-21,Spring,June,2023,2.331432047,NA,Ramped,South.facing,M12,"Growth
-(Months 10-12)",Intertidal
+(Months 10-12)",Bay,1.042,0.008278519,Intertidal
 SanPablo,B,12,c,2023-05-19,2023-06-21,Spring,June,2023,2.616754426,NA,Ramped,South.facing,M12,"Growth
-(Months 10-12)",Intertidal
+(Months 10-12)",Bay,1.042,0.008278519,Intertidal
 SanPablo,B,12,a,2023-05-19,2023-06-21,Spring,June,2023,2.261270806,NA,Ramped,South.facing,M12,"Growth
-(Months 10-12)",Intertidal
+(Months 10-12)",Bay,1.042,0.008278519,Intertidal
 SanPablo,B,18,b,2023-05-19,2023-06-21,Spring,June,2023,NA,NA,Ramped,South.facing,M12,"Growth
-(Months 10-12)",Intertidal
+(Months 10-12)",NA,NA,NA,Intertidal
 SanPablo,B,18,c,2023-05-19,2023-06-21,Spring,June,2023,7.506213343,NA,Ramped,South.facing,M12,"Growth
-(Months 10-12)",Intertidal
+(Months 10-12)",NA,NA,NA,Intertidal
 SanPablo,B,18,a,2023-05-19,2023-06-21,Spring,June,2023,3.104245122,NA,Ramped,South.facing,M12,"Growth
-(Months 10-12)",Intertidal
+(Months 10-12)",NA,NA,NA,Intertidal
 SanPablo,B,24,b,2023-05-19,2023-06-21,Spring,June,2023,2.647417487,NA,Ramped,South.facing,M12,"Growth
-(Months 10-12)",Edge
+(Months 10-12)",Bay,1.563,0.606988706,Edge
 SanPablo,B,24,c,2023-05-19,2023-06-21,Spring,June,2023,4.179011389,6.541195051,Ramped,South.facing,M12,"Growth
-(Months 10-12)",Edge
+(Months 10-12)",Bay,1.563,0.606988706,Edge
 SanPablo,B,24,a,2023-05-19,2023-06-21,Spring,June,2023,37.25665831,NA,Ramped,South.facing,M12,"Growth
-(Months 10-12)",Edge
+(Months 10-12)",Bay,1.563,0.606988706,Edge
 SanPablo,B,48,b,2023-05-19,2023-06-21,Spring,June,2023,1.649185782,NA,Ramped,South.facing,M12,"Growth
-(Months 10-12)",Platform
+(Months 10-12)",Bay,1.978,1.083888376,Platform
 SanPablo,B,48,c,2023-05-19,2023-06-21,Spring,June,2023,NA,12.81419292,Ramped,South.facing,M12,"Growth
-(Months 10-12)",Platform
+(Months 10-12)",Bay,1.978,1.083888376,Platform
 SanPablo,B,48,a,2023-05-19,2023-06-21,Spring,June,2023,2.183833585,NA,Ramped,South.facing,M12,"Growth
-(Months 10-12)",Platform
+(Months 10-12)",Bay,1.978,1.083888376,Platform
 SanPablo,B,72,b,2023-05-19,2023-06-21,Spring,June,2023,17.82979029,NA,Ramped,South.facing,M12,"Growth
-(Months 10-12)",Upland
+(Months 10-12)",Bay,2.012,1.122959674,Upland
 SanPablo,B,72,c,2023-05-19,2023-06-21,Spring,June,2023,14.94590344,NA,Ramped,South.facing,M12,"Growth
-(Months 10-12)",Upland
+(Months 10-12)",Bay,2.012,1.122959674,Upland
 SanPablo,B,72,a,2023-05-19,2023-06-21,Spring,June,2023,15.67869862,13.27806122,Ramped,South.facing,M12,"Growth
-(Months 10-12)",Upland
+(Months 10-12)",Bay,2.012,1.122959674,Upland
 SanPablo,B,150,b,2023-05-19,2023-06-21,Spring,June,2023,4.507469939,NA,Ramped,South.facing,M12,"Growth
-(Months 10-12)",Upland
+(Months 10-12)",Bay,2.014,1.125257985,Upland
 SanPablo,B,150,c,2023-05-19,2023-06-21,Spring,June,2023,5.583795344,NA,Ramped,South.facing,M12,"Growth
-(Months 10-12)",Upland
+(Months 10-12)",Bay,2.014,1.125257985,Upland
 SanPablo,B,150,a,2023-05-19,2023-06-21,Spring,June,2023,4.314136742,NA,Ramped,South.facing,M12,"Growth
-(Months 10-12)",Upland
+(Months 10-12)",Bay,2.014,1.125257985,Upland

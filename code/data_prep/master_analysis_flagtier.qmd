@@ -10,7 +10,7 @@ source("C:\\Users\\savan\\OneDrive - San Francisco State University\\ProjectData
 source("C:\\Users\\savan\\OneDrive - San Francisco State University\\ProjectData\\GitHub\\DepositionSFB\\code\\R\\plotting.R")
 
 
-elev_z_flux <- readr::read_csv("C:\\Users\\savan\\OneDrive - San Francisco State University\\ProjectData\\GitHub\\DepositionSFB\\data\\elev_z_flux.csv")
+elev_z_wind_slope_flux <- readr::read_csv("C:\\Users\\savan\\OneDrive - San Francisco State University\\ProjectData\\GitHub\\DepositionSFB\\data\\elev_z_wind_slope_flux.csv")
 
 ```
 
@@ -25,12 +25,12 @@ source("C:\\Users\\savan\\OneDrive - San Francisco State University\\ProjectData
 #   tier5 <- all,  full
 #   tier6 <- noG,  full
 
-master_tier1 <- filter_flux(elev_z_flux, "noG",  "review_only")
-master_tier2 <- filter_flux(elev_z_flux, "noG2", "review_only")
-master_tier3 <- filter_flux(elev_z_flux, "all",  "review_only")
-master_tier4 <- filter_flux(elev_z_flux, "noG2", "full")
-master_tier5 <- filter_flux(elev_z_flux, "all",  "full")
-master_tier6 <- filter_flux(elev_z_flux, "noG",  "full")
+master_tier1 <- filter_flux(elev_z_wind_slope_flux, "noG",  "review_only")
+master_tier2 <- filter_flux(elev_z_wind_slope_flux, "noG2", "review_only")
+master_tier3 <- filter_flux(elev_z_wind_slope_flux, "all",  "review_only")
+master_tier4 <- filter_flux(elev_z_wind_slope_flux, "noG2", "full")
+master_tier5 <- filter_flux(elev_z_wind_slope_flux, "all",  "full")
+master_tier6 <- filter_flux(elev_z_wind_slope_flux, "noG",  "full")
 
 save_tier(master_tier1, "master_tier1.csv")
 save_tier(master_tier2, "master_tier2.csv")

@@ -1,0 +1,27 @@
+---
+title: "RQ3-Variables"
+format: docx
+editor: visual
+---
+
+## Quarto
+
+Quarto enables you to weave together content and executable code into a finished document. To learn more about Quarto see <https://quarto.org>.
+
+## Running Code
+
+When you click the **Render** button a document will be generated that includes both content and the output of embedded code. You can embed code like this:
+
+```{r}
+rq3_model <- lmer(log(Flux) ~ Cover + AvgHt + z_star + local_slope + marsh_edge_type +
+                    (1 | Site) + (1 | Study.Dataset), data = veg_thesis_usgs)
+```
+
+You can add options to executable code like this
+
+```{r}
+#| echo: false
+2 * 2
+```
+
+The `echo: false` option disables the printing of code (only output is displayed).

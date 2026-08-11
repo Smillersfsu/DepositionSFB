@@ -4,6 +4,7 @@ format: html
 editor: visual
 ---
 
+```{=html}
 <!--
 Chains onto usgs_elevation_and_z_star.qmd's output -- reads
 usgs_elev_z_flux.csv (elevation already joined) and adds veg on top,
@@ -38,6 +39,7 @@ long-form table will double- or triple-count Flux at multi-species
 plots. Fine for species-level visualization; not fine for anything
 summarizing or modeling Flux without filtering to one species first.
 -->
+```
 
 ```{r, load packages}
 source("C:\\Users\\savan\\OneDrive - San Francisco State University\\ProjectData\\GitHub\\DepositionSFB\\code\\R\\setup.R")
@@ -52,52 +54,76 @@ usgs_veg_raw <- read.csv("C:\\Users\\savan\\OneDrive - San Francisco State Unive
 ```
 
 ```{r, clean usgs veg -- same pattern as veg.Rmd's usgs_veg chunk}
+
+# CHANGED: Date is now parsed with lubridate::mdy() (raw format is
+# M/D/YYYY text, e.g. "8/24/2022") and used as the join key below,
+# replacing the old Month+Year approximate match -- same reasoning as
+# the thesis-side change.
 usgs_veg <- usgs_veg_raw |>
-  rename(Month = `Month.`) |>   # trailing space in the raw column name
   mutate(
+    Date    = lubridate::mdy(Date),
     AvgHt   = ifelse(is.na(AvgHt), 0, AvgHt),
     MaxHt   = ifelse(is.na(MaxHt), 0, MaxHt),
     Cover   = as.numeric(Cover),
     Season  = str_squish(Season),
-    Site    = str_remove_all(Site, " "),                 # "Corte Madera" -> "CorteMadera", matches master_usgs.csv
-    Year    = str_squish(as.character(Year)),
-    Month   = str_to_title(str_squish(Month)),            # "AUGUST" -> "August", matches master_usgs.csv's Month
+    Site    = str_remove_all(Site, " "),
+    Year    = str_squish(as.character(Year)),   # kept for reference, redundant with Date now
+    Month   = str_to_title(str_squish(Month)),  # kept for grouping/plots, no longer used in the join
     Tran    = str_extract(`Plot.ID`, "^[A-Za-z]+"),
     Dist    = as.numeric(str_extract(`Plot.ID`, "[0-9.]+$"))
   )
 
 str(usgs_veg)
 
-# Confirms the fan-out risk flagged above, before it hits the join --
-# any Site+Tran+Dist+Month+Year with n > 1 has multiple species logged.
 usgs_veg |>
-  count(Site, Tran, Dist, Month, Year) |>
+  count(Site, Tran, Dist, Date) |>
   filter(n > 1) |>
   nrow()
 ```
 
 ```{r, key the flux data to match}
+
+# CHANGED: Date.removed.from.field is now parsed with lubridate::ymd()
+# so it can be matched exactly against usgs_veg's Date -- previously
+# this chunk only cleaned Site/Tran/Dist/Month/Year for the old
+# approximate join.
 usgs_flux_keyed <- usgs_elev_z_flux |>
   mutate(
     Site  = str_squish(as.character(Site)),
     Tran  = str_squish(as.character(Tran)),
     Dist  = as.numeric(as.character(Dist)),
-    Month = str_squish(as.character(Month)),
-    Year  = str_squish(as.character(Year))
+    Date.removed.from.field = lubridate::ymd(Date.removed.from.field)
   )
 ```
 
 ```{r, join -- long form, species not collapsed}
-# 5-key join (Site, Tran, Dist, Month, Year -- no Replicate, same
-# broadcast logic as elevation, but now also time-matched since veg
-# was only sampled 3 times rather than being a static survey).
+
+# CHANGED: exact-date join, replacing the old 5-key Month+Year match --
+# same reasoning as the thesis side.
 usgs_elev_veg_flux_long <- usgs_flux_keyed |>
   left_join(
-    usgs_veg |> select(Site, Tran, Dist, Month, Year, Species, AvgHt, MaxHt, Cover),
-    by = c("Site", "Tran", "Dist", "Month", "Year")
+    usgs_veg |> select(Site, Tran, Dist, Date, Species, AvgHt, MaxHt, Cover),
+    by = c("Site", "Tran", "Dist", "Date.removed.from.field" = "Date")
   )
 
 readr::write_csv(usgs_elev_veg_flux_long, "C:\\Users\\savan\\OneDrive - San Francisco State University\\ProjectData\\GitHub\\DepositionSFB\\data\\usgs_elev_veg_flux_long.csv")
+```
+
+```{r, filter to veg-sampled rows only}
+
+# Restricts to flux rows with a matching vegetation record. Keeps all
+# three visits (Aug 2022, Feb 2023, Jul 2023) including the Jul 2023
+# batch, which has Study.Phase = NA and therefore also Phen_Period = NA
+# -- decided to keep rather than drop, since it's real data just
+# missing an upstream label, not invalid data.
+usgs_elev_veg_flux_sampled <- usgs_elev_veg_flux_long |>
+  filter(!is.na(Species))
+
+nrow(usgs_elev_veg_flux_sampled)
+
+readr::write_csv(usgs_elev_veg_flux_sampled, "C:\\Users\\savan\\OneDrive - San Francisco State University\\ProjectData\\GitHub\\DepositionSFB\\data\\usgs_elev_veg_flux_sampled.csv")
+
+
 ```
 
 ```{r, diagnostics -- shows the fan-out and the temporal sparsity, fixes nothing}
@@ -113,8 +139,8 @@ nrow(usgs_elev_veg_flux_long) - nrow(usgs_flux_keyed)   # rows added by species 
 # sampled in 3 of the 16 Month/Year windows the flux data spans.
 usgs_flux_keyed |>
   left_join(
-    usgs_veg |> distinct(Site, Tran, Dist, Month, Year) |> mutate(has_veg = TRUE),
-    by = c("Site", "Tran", "Dist", "Month", "Year")
+    usgs_veg |> distinct(Site, Tran, Dist, Date) |> mutate(has_veg = TRUE),
+    by = c("Site", "Tran", "Dist", "Date.removed.from.field" = "Date")
   ) |>
   count(has_veg)
 ```

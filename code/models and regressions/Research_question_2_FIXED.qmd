@@ -29,7 +29,6 @@ library(ggplot2)
 library(tidyverse)
 library(rstatix)
 library(tidyr)
-library(data.table)
 library(dplyr)
 library(lme4)
 library(stringr)
@@ -93,7 +92,7 @@ qqline(thesis_rq2$Flux)
 
 ```{r, model 1 - Month variant}
 usgsthesis_model_month <- lmer(
-  Flux ~ Study.Dataset + Month + Study.Dataset * Month + Site,
+  Flux ~ Study.Dataset + Month + Study.Dataset * Month + (1|Site),
   data = thesis_rq2
 )
 summary(usgsthesis_model_month)
@@ -261,27 +260,11 @@ ggplot(marsh_area_phenperiod, aes(x = Phen_Period, y = mean_flux, color = Study.
 
 ## Bay vs Channel comparison (USGS only)
 
-New section, different question from the rest of this file. Everything
-above is USGS-vs-Thesis; this is USGS-internal -- thesis has no
-channel-adjacent transects to compare against, so the only place this
-comparison can happen is within USGS's own Corte Madera and San Pablo
-data, holding Site and Study.Phase window fixed and varying only
-Location (bay-facing Tran A/B vs channel-facing Tran C/D).
+New section, different question from the rest of this file. Everything above is USGS-vs-Thesis; this is USGS-internal -- thesis has no channel-adjacent transects to compare against, so the only place this comparison can happen is within USGS's own Corte Madera and San Pablo data, holding Site and Study.Phase window fixed and varying only Location (bay-facing Tran A/B vs channel-facing Tran C/D).
 
-Reads usgs_bay.csv and usgs_river.csv directly, not usgs_thesis.rds --
-that merge only ever included Bay rows (see usgs_thesis_merge.qmd),
-so Channel data was never part of it and isn't reachable through
-thesis_rq2. Both source files already carry Marsh_Area, Study.Phase,
-and (as of the elevation-join pipeline update) Elevation_m/z_star from
-master_analysis_usgs.Rmd -- none of that is re-derived here, only
-Month (same derivation as usgs_thesis_merge.qmd, since these are the
-pre-merge files and don't have it yet) and the new Location label.
+Reads usgs_bay.csv and usgs_river.csv directly, not usgs_thesis.rds -- that merge only ever included Bay rows (see usgs_thesis_merge.qmd), so Channel data was never part of it and isn't reachable through thesis_rq2. Both source files already carry Marsh_Area, Study.Phase, and (as of the elevation-join pipeline update) Elevation_m/z_star from master_analysis_usgs.Rmd -- none of that is re-derived here, only Month (same derivation as usgs_thesis_merge.qmd, since these are the pre-merge files and don't have it yet) and the new Location label.
 
-CAUTION: same shape as this file's existing (1|Site) singular-fit issue
-above -- only 2 sites, so Site x Location is a de facto 2x2 design.
-Site is kept as a FIXED effect in the Month-variant model below
-(matching Model 1's own Month-variant convention earlier in this file),
-not random, for the same reason.
+CAUTION: same shape as this file's existing (1\|Site) singular-fit issue above -- only 2 sites, so Site x Location is a de facto 2x2 design. Site is kept as a FIXED effect in the Month-variant model below (matching Model 1's own Month-variant convention earlier in this file), not random, for the same reason.
 
 ```{r, build bay_channel}
 study_month_levels <- c("July", "August", "September", "October",
@@ -318,7 +301,7 @@ nrow(sed_usgs_bay_rq2) + nrow(sed_usgs_river_rq2) == nrow(bay_channel)
 ```
 
 ```{r, bay channel model - Month variant}
-bay_channel_model_month <- lmer(
+bay_channel_model_month <- lm(
   Flux ~ Location + Month + Location * Month + Site,
   data = bay_channel
 )
@@ -384,19 +367,9 @@ ggplot(emm_bay_channel_phenperiod_df, aes(x = Phen_Period, y = emmean, color = L
 
 ### Observational comparison to thesis (Edge/Platform only)
 
-A separate, restricted object -- not used in any model above, and not
-itself a statistical comparison. thesis_rq2 above is restricted to
-Marsh_Area %in% c("Edge", "Platform") to stay comparable to what thesis
-actually measured; this applies that same restriction to bay_channel
-so the resulting plots can be eyeballed side by side against the
-"Marsh Area comparison (USGS vs Thesis)" plots earlier in this file --
-same Site x Marsh_Area facet layout, same restriction, different
-grouping variable (Location instead of Study.Dataset). This is a visual
-reference only: Bay vs Channel and USGS vs Thesis are different
-questions on different samples, and this doesn't claim otherwise.
+A separate, restricted object -- not used in any model above, and not itself a statistical comparison. thesis_rq2 above is restricted to Marsh_Area %in% c("Edge", "Platform") to stay comparable to what thesis actually measured; this applies that same restriction to bay_channel so the resulting plots can be eyeballed side by side against the "Marsh Area comparison (USGS vs Thesis)" plots earlier in this file -- same Site x Marsh_Area facet layout, same restriction, different grouping variable (Location instead of Study.Dataset). This is a visual reference only: Bay vs Channel and USGS vs Thesis are different questions on different samples, and this doesn't claim otherwise.
 
-The full bay_channel object (all four Marsh_Area levels) from above is
-untouched and still available for the modeling already done.
+The full bay_channel object (all four Marsh_Area levels) from above is untouched and still available for the modeling already done.
 
 ```{r, bay_channel restricted to Edge/Platform}
 bay_channel_edge_platform <- bay_channel %>%

@@ -4,6 +4,7 @@ format: html
 editor: visual
 ---
 
+```{=html}
 <!--
 Combines the three "merge into core pipeline" covariates -- elevation,
 wind, and slope -- into one file, matching the categorization decided
@@ -37,6 +38,7 @@ noise both carry through unchanged, not re-decided here. Wind only
 covers the July 2025-June 2026 campaign -- July 2022-June 2023 rows
 will have NA wind metrics, inherited from elev_z_wind_flux.csv.
 -->
+```
 
 ```{r, load packages}
 source("C:\\Users\\savan\\OneDrive - San Francisco State University\\ProjectData\\GitHub\\DepositionSFB\\code\\R\\setup.R")
@@ -101,6 +103,7 @@ elev_z_wind_slope_flux |>
   )
 ```
 
+```{=html}
 <!--
 NOT DONE HERE: pointing master_analysis_flagtier.qmd at
 elev_z_wind_slope_flux.csv instead of elev_z_flux.csv. That's the
@@ -112,3 +115,4 @@ side effect of this file existing on disk.
 NOT DONE HERE: tidal. Next session, per your own plan -- this file
 only combines the three covariates that were actually ready today.
 -->
+```

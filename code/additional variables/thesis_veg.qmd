@@ -4,6 +4,7 @@ format: html
 editor: visual
 ---
 
+```{=html}
 <!--
 Mirrors usgs_veg.qmd's structure, adapted for veg_final.xlsx's own
 column shapes. Chains onto elev_z_flux.csv (elevation_and_z_star.qmd's
@@ -40,6 +41,7 @@ the duplication). Keep both use cases in mind: this table is for
 species-level visualization, not a drop-in replacement for
 elev_z_flux.csv in a model.
 -->
+```
 
 ```{r, load packages}
 source("C:\\Users\\savan\\OneDrive - San Francisco State University\\ProjectData\\GitHub\\DepositionSFB\\code\\R\\setup.R")
@@ -54,11 +56,12 @@ thesis_veg_raw <- read_excel("C:\\Users\\savan\\OneDrive - San Francisco State U
 
 ```{r, clean thesis veg}
 # Site letter codes -> full names, same mapping as
-# master_analysis_cleanup.Rmd's own case_when (kept identical on
-# purpose so this matches whatever Site values elev_z_flux.csv has,
-# rather than inventing a second mapping that could drift from the
-# original). str_squish first -- "S " has a trailing space in the raw
-# file that would otherwise fail every San Pablo match silently.
+# master_analysis_cleanup.Rmd's own case_when. str_squish first --
+# "S " has a trailing space in the raw file.
+# CHANGED: Date is now parsed and kept as the join key (replaces the
+# old Month+Year approximate match) -- confirmed every veg survey Date
+# exactly matches a Date.removed.from.field value in the flux data, so
+# this is a real same-day match, not a same-month approximation.
 thesis_veg <- thesis_veg_raw |>
   mutate(
     Site = str_squish(as.character(Site)),
@@ -69,28 +72,26 @@ thesis_veg <- thesis_veg_raw |>
       Site == "S" ~ "SanPablo",
       TRUE ~ "Other"
     ),
+    Date  = as.Date(Date),
     AvgHt = ifelse(is.na(AvgHt), 0, AvgHt),
     MaxHt = ifelse(is.na(MaxHt), 0, MaxHt),
     Cover = as.numeric(Cover),
-    Month = str_to_title(str_squish(Month)),   # "FEBRUARY" -> "February"
-    Year  = str_squish(as.character(Year))
+    Month = str_to_title(str_squish(Month)),   # kept for grouping/plots, no longer used in the join
+    Year  = str_squish(as.character(Year))     # kept for reference, redundant with Date now
   ) |>
-  # PlotID is already "T1-0.5" -- Tran and Dist separated by a hyphen,
-  # same recipe already used for thesis_veg in veg.Rmd, just PlotID
-  # instead of Plot_ID as the source column name.
   separate(PlotID, into = c("Tran", "Dist"), sep = "-", remove = FALSE) |>
   mutate(Dist = as.numeric(Dist))
 
 str(thesis_veg)
 
 # Confirms the (intentional) multi-species fan-out before it hits the
-# join -- same check as usgs_veg.qmd, kept for visibility, not because
-# it changes what happens next.
+# join -- now keyed by exact Date instead of Month/Year.
 thesis_veg |>
-  count(Site, Tran, Dist, Month, Year) |>
+  count(Site, Tran, Dist, Date) |>
   filter(n > 1) |>
   nrow()
 ```
+
 
 ```{r, key the flux data to match}
 # Month is derived fresh here from Date.removed.from.field rather than
@@ -115,19 +116,42 @@ elev_z_flux_keyed <- elev_z_flux |>
   )
 ```
 
+
+
 ```{r, join -- long form, species kept by design}
-# 5-key join (Site, Tran, Dist, Month, Year -- no Replicate), same
-# broadcast + time-match logic as usgs_veg.qmd: veg was surveyed once
-# per point per visit, not per individual sediment-trap replicate, so
-# every replicate (a/b/c) at a matching point+month gets the same
-# species rows.
+
+# CHANGED: join key is now Site + Tran + Dist + exact Date (matching
+# thesis_veg's Date against Date.removed.from.field), replacing the
+# old 5-key Site+Tran+Dist+Month+Year approximate match. This is a
+# real same-visit match now, not a same-calendar-month one -- verified
+# every veg Date exists among the flux data's removal dates before
+# making this change.
 elev_z_veg_flux_long <- elev_z_flux_keyed |>
   left_join(
-    thesis_veg |> select(Site, Tran, Dist, Month, Year, Species, Cover, AvgHt, MaxHt),
-    by = c("Site", "Tran", "Dist", "Month", "Year")
+    thesis_veg |> select(Site, Tran, Dist, Date, Species, Cover, AvgHt, MaxHt),
+    by = c("Site", "Tran", "Dist", "Date.removed.from.field" = "Date")
   )
 
 readr::write_csv(elev_z_veg_flux_long, "C:\\Users\\savan\\OneDrive - San Francisco State University\\ProjectData\\GitHub\\DepositionSFB\\data\\elev_z_veg_flux_long.csv")
+```
+
+
+```{r, filter to veg-sampled rows only}
+  
+  # Restricts the long-form join down to only the flux rows that actually
+  # have a matching vegetation record, rather than every flux row across
+  # the full campaign (elev_z_veg_flux_long.csv intentionally keeps all
+  # of those -- see file header). This filtered version is for RQ3,
+  # where we only want rows collected at points/months veg was actually
+  # sampled, not NA-padded rows from months it wasn't.
+  elev_z_veg_flux_sampled <- elev_z_veg_flux_long |>
+    filter(!is.na(Species))
+  
+  nrow(elev_z_veg_flux_sampled)   # should match the has_veg = TRUE count below
+  
+  readr::write_csv(elev_z_veg_flux_sampled, "C:\\Users\\savan\\OneDrive - San Francisco State University\\ProjectData\\GitHub\\DepositionSFB\\data\\elev_z_veg_flux_sampled.csv")
+
+  
 ```
 
 ```{r, diagnostics}
@@ -142,8 +166,8 @@ nrow(elev_z_veg_flux_long) - nrow(elev_z_flux_keyed)   # rows added by species f
 # still-in-progress collection rather than a fixed 3-visit design.
 elev_z_flux_keyed |>
   left_join(
-    thesis_veg |> distinct(Site, Tran, Dist, Month, Year) |> mutate(has_veg = TRUE),
-    by = c("Site", "Tran", "Dist", "Month", "Year")
+    thesis_veg |> distinct(Site, Tran, Dist, Date) |> mutate(has_veg = TRUE),
+    by = c("Site", "Tran", "Dist", "Date.removed.from.field" = "Date")
   ) |>
   count(has_veg)
 ```

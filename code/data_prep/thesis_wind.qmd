@@ -4,6 +4,7 @@ format: html
 editor: visual
 ---
 
+```{=html}
 <!--
 Chains onto elev_z_flux.csv (elevation_and_z_star.qmd's output), same
 "join before tier" position as veg and (eventually) slope. Computes
@@ -39,6 +40,7 @@ MISSING READINGS: San Pablo's station has 44 missing Speed values
 (gaps in the hourly record) -- handled with na.rm = TRUE in the
 averaging, not imputed.
 -->
+```
 
 ```{r, load packages}
 source("C:\\Users\\savan\\OneDrive - San Francisco State University\\ProjectData\\GitHub\\DepositionSFB\\code\\R\\setup.R")
@@ -76,11 +78,11 @@ load_wind_station <- function(path, station_id) {
 }
 
 wind_9414863 <- load_wind_station(
-  "C:\\Users\\savan\\OneDrive - San Francisco State University\\ProjectData\\GitHub\\DepositionSFB\\data\\CO-OPS__9414863_Corte-Madera-Marsh_and_Giant-Marsh_and_Bucks.csv",
+  "C:\\Users\\savan\\OneDrive - San Francisco State University\\ProjectData\\GitHub\\DepositionSFB\\data\\Wind\\CO-OPS__9414863_Corte-Madera-Marsh_and_Giant-Marsh_and_Bucks.csv",
   "9414863"
 )
 wind_9415141 <- load_wind_station(
-  "C:\\Users\\savan\\OneDrive - San Francisco State University\\ProjectData\\GitHub\\DepositionSFB\\data\\CO-OPS__9415141_San-Pablo-NWR.csv",
+  "C:\\Users\\savan\\OneDrive - San Francisco State University\\ProjectData\\GitHub\\DepositionSFB\\data\\Wind\\CO-OPS__9415141_San-Pablo-NWR.csv",
   "9415141"
 )
 
@@ -178,6 +180,7 @@ readr::write_csv(elev_z_wind_flux, "C:\\Users\\savan\\OneDrive - San Francisco S
 nrow(elev_z_wind_flux) == nrow(elev_z_flux)   # confirms the join didn't fan out or drop rows
 ```
 
+```{=html}
 <!--
 NOT DONE HERE: combining this with veg (elev_z_veg_flux_long.csv,
 kept separate on purpose -- see that file) or slope (not yet actually
@@ -192,3 +195,4 @@ separate integration step, not done yet.
 ALSO NOT DONE: correcting the three-sites-one-buoy mapping. Flagged in
 the header, not addressed -- per your own note, for later.
 -->
+```

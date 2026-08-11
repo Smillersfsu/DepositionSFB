@@ -155,4 +155,6 @@ if (!is.null(crosswalk_check)) {
 
 ```{r, save merged dataset}
 saveRDS(usgs_thesis, "C:\\Users\\savan\\OneDrive - San Francisco State University\\ProjectData\\GitHub\\DepositionSFB\\data\\usgs_thesis.rds")
+
+writexl::write_xlsx(usgs_thesis, "C:\\Users\\savan\\OneDrive - San Francisco State University\\ProjectData\\GitHub\\DepositionSFB\\data\\usgs_thesis.xlsx")
 ```

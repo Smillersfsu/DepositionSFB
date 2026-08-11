@@ -4,6 +4,7 @@ format: html
 editor: visual
 ---
 
+```{=html}
 <!--
 Uses local_slope_at() / add_local_slope() from
 transect_slope_crosswalk_FIXED.R (source it, don't redefine here) and
@@ -51,6 +52,7 @@ replicate at one point (B2-0.5d, alongside the usual a/b/c) in
 All_Sites_Calculated. Worth confirming whether that's a genuine extra
 reading or a labeling slip -- not something this file resolves.
 -->
+```
 
 ```{r, load packages and the crosswalk + functions}
 source("C:\\Users\\savan\\OneDrive - San Francisco State University\\ProjectData\\GitHub\\DepositionSFB\\code\\R\\setup.R")
@@ -82,10 +84,14 @@ load_topo <- function(path) {
     filter(Transect_ID %in% c("xsa", "xsb"))   # drops xsc/xsd where present
 }
 
-giant_marsh_topo   <- load_topo("C:\\Users\\savan\\OneDrive - San Francisco State University\\ProjectData\\GitHub\\DepositionSFB\\data\\GiantMarsh_06022025_LinRef.csv")
-corte_madera_topo  <- load_topo("C:\\Users\\savan\\OneDrive - San Francisco State University\\ProjectData\\GitHub\\DepositionSFB\\data\\CorteMadera_06162025_LinRef.csv")
-san_pablo_topo      <- load_topo("C:\\Users\\savan\\OneDrive - San Francisco State University\\ProjectData\\GitHub\\DepositionSFB\\data\\SonomaBaylands_06032025_LinRef.csv")
-bucks_landing_topo <- load_topo("C:\\Users\\savan\\OneDrive - San Francisco State University\\ProjectData\\GitHub\\DepositionSFB\\data\\GallinasCreek_06172025_LinRef.csv")
+giant_marsh_topo   <- load_topo("C:\\Users\\savan\\OneDrive - San Francisco State University\\ProjectData\\GitHub\\DepositionSFB\\data\\Savannah Thesis_BeccaFolder\\Linear Referencing\\GiantMarsh_06022025_LinRef.csv")
+
+
+corte_madera_topo  <- load_topo("C:\\Users\\savan\\OneDrive - San Francisco State University\\ProjectData\\GitHub\\DepositionSFB\\data\\Savannah Thesis_BeccaFolder\\Linear Referencing\\CorteMadera_06162025_LinRef.csv")
+
+san_pablo_topo      <- load_topo("C:\\Users\\savan\\OneDrive - San Francisco State University\\ProjectData\\GitHub\\DepositionSFB\\data\\Savannah Thesis_BeccaFolder\\Linear Referencing\\SonomaBaylands_06032025_LinRef.csv")
+
+bucks_landing_topo <- load_topo("C:\\Users\\savan\\OneDrive - San Francisco State University\\ProjectData\\GitHub\\DepositionSFB\\data\\Savannah Thesis_BeccaFolder\\Linear Referencing\\GallinasCreek_06172025_LinRef.csv")
 
 # Rebase EACH transect separately -- each has its own pin at its own
 # position, confirmed different for every transect across all 4 sites.
@@ -172,11 +178,11 @@ site_tran_code <- tribble(
   "Buck'sLanding", "T2",  "B2"
 )
 
-# Dist extraction uses a regex that stops at the first non-numeric
-# character after the hyphen -- correctly handles any replicate letter
-# (a/b/c, or the unexpected "d" at Buck'sLanding B2-0.5d) without
-# needing to special-case it.
 recorded_elev <- all_sites_z |>
+  select(-any_of("Site")) |>  # drop the raw file's own Site column if present --
+  # avoids a Site.x/Site.y collision after the join below. site_tran_code's
+  # Site is the canonical spelling used everywhere else in the pipeline
+  # (GiantMarsh/CorteMadera/SanPablo/Buck'sLanding), so it's the one kept.
   inner_join(site_tran_code, by = "Transect_ID") |>
   mutate(Dist = as.numeric(str_extract(Point_ID, "(?<=-)\\d+\\.?\\d*"))) |>
   group_by(Site, Tran, Dist) |>
@@ -203,6 +209,7 @@ slope_check |>
 # above via diff_m, just not treated as a bug requiring another fix.
 ```
 
+```{=html}
 <!--
 NOT DONE HERE: joining local_slope onto elev_z_flux.csv itself. That
 needs elev_z_flux.csv to actually exist on disk (output of
@@ -219,3 +226,4 @@ Carry the extrapolated flag through into that join too, not just this
 diagnostic file -- the flag-and-keep decision above only holds if the
 column survives past this point.
 -->
+```

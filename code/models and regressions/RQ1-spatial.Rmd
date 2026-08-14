@@ -29,7 +29,7 @@ source("C:\\Users\\savan\\OneDrive - San Francisco State University\\ProjectData
 knitr::opts_chunk$set(echo = TRUE)
 knitr::opts_knit$set(root.dir = 'C:/Users/savan/OneDrive - San Francisco State University/ProjectData/GitHub/DepositionSFB/data')
 
-master_tier5 <- readr::read_csv("C:\\Users\\savan\\OneDrive - San Francisco State University\\ProjectData\\GitHub\\DepositionSFB\\data\\master_tier5.csv")
+elev_z_wind_slope_flux <- readr::read_csv("C:\\Users\\savan\\OneDrive - San Francisco State University\\ProjectData\\GitHub\\DepositionSFB\\data\\elev_z_wind_slope_flux.csv")
 
 elev_z_wind_slope_flux <- readr::read_csv("C:\\Users\\savan\\OneDrive - San Francisco State University\\ProjectData\\GitHub\\DepositionSFB\\data\\elev_z_wind_slope_flux.csv")
 
@@ -41,15 +41,15 @@ elev_z_wind_slope_flux <- readr::read_csv("C:\\Users\\savan\\OneDrive - San Fran
 
 library(tidytext)
 
-site_order <- master_tier5 %>%
+site_order <- elev_z_wind_slope_flux %>%
   distinct(Site, marsh_edge_type) %>%
   arrange(marsh_edge_type, Site) %>%
   pull(Site)
 
-master_tier5 <- master_tier5 %>%
+elev_z_wind_slope_flux_clean <- elev_z_wind_slope_flux_clean %>%
   mutate(Site = factor(Site, levels = site_order))
 
-rq1_site = ggplot(master_tier5, aes(x =Site , y = log(Flux),
+rq1_site = ggplot(elev_z_wind_slope_flux_clean, aes(x =Site , y = log(Flux),
                                                   fill = marsh_edge_type,
                                                   color = marsh_edge_type)) +
   geom_boxplot(width = 0.4, outlier.shape = NA,
@@ -74,14 +74,14 @@ ggsave("C:\\Users\\savan\\OneDrive - San Francisco State University\\ProjectData
        dpi = 300,
        limitsize = FALSE)
 
-tran_order <- master_tier5 %>%
+tran_order <- elev_z_wind_slope_flux_clean %>%
   distinct(Tran, marsh_edge_type) %>%
   arrange(marsh_edge_type, Tran) %>%
   pull(Tran)
 
 
 
-rq1_tran = ggplot(master_tier5, aes(x =Site , y = log(Flux),
+rq1_tran = ggplot(elev_z_wind_slope_flux_clean, aes(x =Site , y = log(Flux),
                                     fill = Tran,
                                     color = Tran)) +
   geom_boxplot(width = 0.4, outlier.shape = NA,
@@ -113,7 +113,7 @@ ggsave("C:\\Users\\savan\\OneDrive - San Francisco State University\\ProjectData
 
 ```{r, rq1 distance}
 
-rq1_dist = ggplot(master_tier5, aes(x = factor(Dist), y = Flux, color = Tran, fill = Tran)) +
+rq1_dist = ggplot(elev_z_wind_slope_flux_clean, aes(x = factor(Dist), y = Flux, color = Tran, fill = Tran)) +
   geom_violin(alpha = 0.3, position = position_dodge(0.8)) +
   geom_jitter(position = position_jitterdodge(jitter.width = 0.15, dodge.width = 0.8),
               size = 1.2, alpha = 0.4) +
@@ -139,7 +139,7 @@ ggsave("C:\\Users\\savan\\OneDrive - San Francisco State University\\ProjectData
        dpi = 300,
        limitsize = FALSE)
 
-rq1_dist_noG = ggplot(filter(master_tier5, Site != "GiantMarsh"), 
+rq1_dist_noG = ggplot(filter(elev_z_wind_slope_flux_clean, Site != "GiantMarsh"), 
                       aes(x = factor(Dist), y = Flux, color = Tran, fill = Tran)) +
   geom_violin(alpha = 0.3, position = position_dodge(0.8)) +
   geom_jitter(position = position_jitterdodge(jitter.width = 0.15, dodge.width = 0.8),
@@ -168,10 +168,10 @@ ggsave("C:\\Users\\savan\\OneDrive - San Francisco State University\\ProjectData
 
 ```{r}
 
-master_tier5 <- master_tier5 %>%
+elev_z_wind_slope_flux_clean <- elev_z_wind_slope_flux_clean %>%
   mutate(Site_Tran = paste(Site, Tran, sep = " - "))
 
-rq1_ramped = ggplot(filter(master_tier5, marsh_edge_type == "Ramped"), 
+rq1_ramped = ggplot(filter(elev_z_wind_slope_flux_clean, marsh_edge_type == "Ramped"), 
                     aes(x = factor(Dist), y = Flux, color = Site_Tran, fill = Site_Tran)) +
   geom_violin(alpha = 0.3, position = position_dodge(0.8)) +
   geom_jitter(position = position_jitterdodge(jitter.width = 0.15, dodge.width = 1.2),
@@ -183,7 +183,7 @@ rq1_ramped = ggplot(filter(master_tier5, marsh_edge_type == "Ramped"),
   theme(legend.position = "bottom")
 rq1_ramped
 
-rq1_scarped = ggplot(filter(master_tier5, marsh_edge_type == "Scarped"), 
+rq1_scarped = ggplot(filter(elev_z_wind_slope_flux_clean, marsh_edge_type == "Scarped"), 
                      aes(x = factor(Dist), y = Flux, color = Site_Tran, fill = Site_Tran)) +
   geom_violin(alpha = 0.3, position = position_dodge(0.8)) +
   geom_jitter(position = position_jitterdodge(jitter.width = 0.15, dodge.width = 1.2),
@@ -201,7 +201,7 @@ rq1_scarped
 
 ```{r}
 
-rq1_z = ggplot(master_tier5, aes(x = z_star, y = Flux, color = Tran)) +
+rq1_z = ggplot(elev_z_wind_slope_flux_clean, aes(x = z_star, y = Flux, color = Tran)) +
   geom_point(alpha = 0.4, size = 1.5) +
   geom_rug(sides = "b", alpha = 0.3, length = unit(0.03, "npc")) +
   facet_wrap(~Site, scales = "free") +
@@ -226,22 +226,22 @@ ggsave("C:\\Users\\savan\\OneDrive - San Francisco State University\\ProjectData
 
 ```{r}
 
-elev_z_flux_clean <- elev_z_flux |> 
+elev_z_wind_slope_flux_clean <- elev_z_wind_slope_flux |> 
   filter(Flux > 0)  # removes negatives and zeros
 
-sum(elev_z_flux_clean$Flux <= 0, na.rm = TRUE)  # should return 0
-summary(elev_z_flux_clean$Flux)
+sum(elev_z_wind_slope_flux_clean$Flux <= 0, na.rm = TRUE)  # should return 0
+summary(elev_z_wind_slope_flux_clean$Flux)
 
 
 library(lme4)
 model <- lmer(log(Flux) ~ z_star * marsh_edge_type + (1|Site) + (1|Study.Phase), 
-              data = elev_z_flux_clean)
+              data = elev_z_wind_slope_flux_clean)
 summary(model)
 
 library(lmerTest)
 model_full <- lmer(log(Flux) ~ z_star * marsh_edge_type + 
                      (1 | Site) + (1 | Study.Phase),  
-                   data = elev_z_flux_clean,
+                   data = elev_z_wind_slope_flux_clean,
                    REML = FALSE)
 summary(model_full)
 
@@ -257,7 +257,7 @@ pred <- ggpredict(model_full, terms = c("z_star [all]", "marsh_edge_type"))
 ggplot(pred, aes(x = x, y = predicted, color = group, fill = group)) +
   geom_line(linewidth = 1.2) +
   geom_ribbon(aes(ymin = conf.low, ymax = conf.high), alpha = 0.2, color = NA) +
-  geom_point(data = elev_z_flux_clean, 
+  geom_point(data = elev_z_wind_slope_flux_clean, 
              aes(x = z_star, y = log(Flux), color = marsh_edge_type),
              alpha = 0.3, size = 1.5, inherit.aes = FALSE) +
   scale_color_manual(values = c("Ramped" = "#E69F00", "Scarped" = "#0072B2")) +
@@ -275,7 +275,7 @@ ggplot(pred, aes(x = x, y = predicted, color = group, fill = group)) +
 
 ```{r, distance model prep}
 
-avgdist <- aggregate(Flux ~ Dist + Site + Tran, data = master_tier5, FUN = mean)
+avgdist <- aggregate(Flux ~ Dist + Site + Tran, data = elev_z_wind_slope_flux_clean, FUN = mean)
 avgdist$Dist <- factor(avgdist$Dist, levels = c(0.5, 2, 6, 12, 18, 24, 48))
 
 shapiro.test(avgdist$Flux)
@@ -386,25 +386,25 @@ library(ggforce)  # for geom_sina() in the reference-additions plots
 # moved to RQ1-temporal.qmd, since those show patterns across time, not
 # across site/space.
 
-master_tier5_clean <- master_tier5[master_tier5$Flux > 0 &
-                                     !is.na(master_tier5$Flux) &
-                                     is.finite(log(master_tier5$Flux)), ]
+elev_z_wind_slope_flux_clean_clean <- elev_z_wind_slope_flux_clean[elev_z_wind_slope_flux_clean$Flux > 0 &
+                                     !is.na(elev_z_wind_slope_flux_clean$Flux) &
+                                     is.finite(log(elev_z_wind_slope_flux_clean$Flux)), ]
 
-sum(is.na(master_tier5_clean$Flux))
-sum(master_tier5_clean$Flux <= 0)
-nrow(master_tier5_clean)
+sum(is.na(elev_z_wind_slope_flux_clean_clean$Flux))
+sum(elev_z_wind_slope_flux_clean_clean$Flux <= 0)
+nrow(elev_z_wind_slope_flux_clean_clean)
 
-master_tier5_clean$Tran <- as.factor(master_tier5_clean$Tran)
-master_tier5_clean$Site <- as.factor(master_tier5_clean$Site)
-master_tier5_clean$Replicate <- as.factor(master_tier5_clean$Replicate)
-master_tier5_clean$Study.Phase <- factor(master_tier5_clean$Study.Phase,  levels = paste0("M", 1:12))
+elev_z_wind_slope_flux_clean_clean$Tran <- as.factor(elev_z_wind_slope_flux_clean_clean$Tran)
+elev_z_wind_slope_flux_clean_clean$Site <- as.factor(elev_z_wind_slope_flux_clean_clean$Site)
+elev_z_wind_slope_flux_clean_clean$Replicate <- as.factor(elev_z_wind_slope_flux_clean_clean$Replicate)
+elev_z_wind_slope_flux_clean_clean$Study.Phase <- factor(elev_z_wind_slope_flux_clean_clean$Study.Phase,  levels = paste0("M", 1:12))
 
 transite1 <- lmer(log(Flux) ~ Tran + Site + Tran*Site +
                     (1|Dist) + (1|Replicate) + (1|Study.Phase),
-                  data = master_tier5_clean)
+                  data = elev_z_wind_slope_flux_clean_clean)
 summary(transite1)
 
-ggplot(master_tier5_clean, aes(x = as.factor(Tran), y = log(Flux), fill = Site, colour = Site)) +
+ggplot(elev_z_wind_slope_flux_clean_clean, aes(x = as.factor(Tran), y = log(Flux), fill = Site, colour = Site)) +
   geom_boxplot(alpha = 0.4, outlier.shape = NA) +
   geom_sina(alpha = 0.6, size = 2) +
   facet_wrap(~Site, scales = "free_x") +
@@ -421,7 +421,7 @@ ggplot(master_tier5_clean, aes(x = as.factor(Tran), y = log(Flux), fill = Site, 
 
   avgtotal <- aggregate(Flux ~ Site + Dist + Replicate + Study.Phase +
                           marsh_orientation + marsh_edge_type,
-                        data = master_tier5, FUN = mean)
+                        data = elev_z_wind_slope_flux_clean, FUN = mean)
   str(avgtotal)
   
   shapiro.test(avgtotal$Flux)
@@ -438,14 +438,81 @@ ggplot(master_tier5_clean, aes(x = as.factor(Tran), y = log(Flux), fill = Site, 
 ```
 
 ```{r, marsh edge type and orientation models}
-marsh_edge_model_edge <- lmer(Flux ~ marsh_edge_type + (1|Dist), data = avgtotal)
+marsh_edge_model_edge <- lmer(Flux ~ marsh_edge_type + (1|Dist), data = elev_z_wind_slope_flux_clean)
 summary(marsh_edge_model_edge)
 
+marsh_edge_model_sitetran <- lmer(Flux ~ marsh_edge_type + (1|Site/Tran), data = elev_z_wind_slope_flux_clean)
+summary(marsh_edge_model_sitetran)
 
-marsh_edge_model_orient <- lmer(Flux ~ marsh_orientation + (1|Dist), data = avgtotal)
+
+marsh_edge_model_orient <- lmer(Flux ~ marsh_orientation + (1|Dist), data = elev_z_wind_slope_flux_clean)
 summary(marsh_edge_model_orient)
 
+marsh_edge_model_orient <- lmer(Flux ~ marsh_orientation + (1|Site/Tran), data = elev_z_wind_slope_flux_clean)
+summary(marsh_edge_model_orient)
+
+library(emmeans)
+emmeans(marsh_edge_model_edge, pairwise ~ marsh_edge_type, adjust = "tukey")
+
 ```
+
+```{r}
+
+marsh_group_flux <- elev_z_wind_slope_flux_clean %>% 
+  mutate(Marsh_Group = case_when(
+    Site %in% c("SanPablo", "GiantMarsh") ~ "OpenBay", 
+    Site %in% c("CorteMadera", "Buck'sLanding") ~ "Protected", 
+    TRUE ~ NA_character_
+  ))
+
+marsh_group_model <- lmer(Flux ~ Marsh_Group + (1 | Site) + (1 | Tran), data = marsh_group_flux)
+summary(marsh_group_model)
+anova(marsh_group_model)
+```
+
+
+```{r, slope as covariate (RQ3 question)}
+
+deposition_model_slope <- lmer(Flux ~ z_star + local_slope + (1 | Site), data = elev_z_wind_slope_flux_clean)
+summary(deposition_model_slope)
+
+deposition_model_base <- lmer(Flux ~ z_star + (1 | Site), data = elev_z_wind_slope_flux_clean)
+anova(deposition_model_base, deposition_model_slope)
+```
+
+```{r, testing model without 48-maybe should be data prep let's see}
+
+
+model_with_48 <- lmer(Flux ~ Dist + (1 | Site), data = elev_z_wind_slope_flux_clean)
+model_without_48 <- lmer(Flux ~ Dist + (1 | Site), data = filter(elev_z_wind_slope_flux_clean, Dist != 48))
+
+summary(model_with_48)
+summary(model_without_48)
+
+elev_z_wind_slope_flux_clean %>%
+  filter(Dist == 48) %>%
+  summarise(n = n(), mean_flux = mean(Flux, na.rm = TRUE), sd_flux = sd(Flux, na.rm = TRUE))
+
+elev_z_wind_slope_flux_clean %>%
+  summarise(n = n(), mean_flux = mean(Flux, na.rm = TRUE), sd_flux = sd(Flux, na.rm = TRUE))
+```
+
+```{r}
+library(moments)
+library(car)
+
+elev_z_wind_slope_flux_clean %>%
+  group_by(Site) %>%
+  summarise(
+    skew = skewness(Flux, na.rm = TRUE),
+    sd = sd(Flux, na.rm = TRUE),
+    iqr = IQR(Flux, na.rm = TRUE)
+  )
+
+leveneTest(Flux ~ Site, data = elev_z_wind_slope_flux_clean)
+```
+
+
 
 ```{r, marsh edge type and orientation plots}
 ggplot(avgtotal, aes(x = marsh_edge_type, y = log(Flux), fill = marsh_orientation)) +
@@ -456,7 +523,7 @@ ggplot(avgtotal, aes(x = marsh_edge_type, y = log(Flux), fill = marsh_orientatio
   theme_classic(base_size = 18) +
   theme(axis.text.x = element_text(angle = 45, hjust = 1, size = 18))
 
-ggplot(master_tier5, aes(x = marsh_edge_type, y = log(Flux), fill = marsh_orientation)) +
+ggplot(elev_z_wind_slope_flux_clean, aes(x = marsh_edge_type, y = log(Flux), fill = marsh_orientation)) +
   geom_violin(alpha = 0.6) +
   geom_boxplot(width = 0.2, position = position_dodge(0.9)) +
   scale_fill_manual(values = c("East.facing" = "#E07070",
@@ -488,3 +555,86 @@ ggplot(avgtotal, aes(x = marsh_orientation, y = Flux, fill = marsh_orientation))
         axis.title = element_text(size = 13),
         plot.title = element_text(hjust = 0.5))
 ```
+
+```{r}
+library(ggplot2)
+library(dplyr)
+
+# Raw data only, WITH 48m point — no trend line
+p_with_48 <- ggplot(elev_z_wind_slope_flux_clean, aes(x = Dist, y = Flux)) +
+  geom_point(alpha = 0.3, color = "steelblue") +
+  labs(title = "Flux vs. Distance — With 48m Point", x = "Distance (m)", y = "Flux") +
+  theme_bw()
+
+# Raw data only, WITHOUT 48m point — no trend line
+p_without_48 <- ggplot(filter(elev_z_wind_slope_flux_clean, Dist != 48), aes(x = Dist, y = Flux)) +
+  geom_point(alpha = 0.3, color = "darkred") +
+  labs(title = "Flux vs. Distance — Without 48m Point", x = "Distance (m)", y = "Flux") +
+  theme_bw()
+
+p_with_48
+p_without_48
+```
+
+
+```{r}
+
+library(ggeffects)
+library(ggplot2)
+
+# effect of z_star, holding local_slope constant
+plot_zstar <- ggpredict(deposition_model_slope, terms = "z_star") %>%
+  plot() +
+  labs(title = "Predicted Flux by Z-star", x = "Z-star", y = "Predicted Flux") +
+  theme_bw()
+
+# effect of local_slope, holding z_star constant
+plot_slope <- ggpredict(deposition_model_slope, terms = "local_slope") %>%
+  plot() +
+  labs(title = "Predicted Flux by Local Slope", x = "Local Slope", y = "Predicted Flux") +
+  theme_bw()
+
+plot_zstar
+plot_slope
+```
+
+
+```{r}
+
+library(emmeans)
+library(ggplot2)
+
+marsh_group_model <- lmer(Flux ~ Marsh_Group + (1 | Site) + (1 | Tran), data = marsh_group_flux)
+
+summary(marsh_group_model)
+
+emm_marsh_group <- emmeans(marsh_group_model, ~ Marsh_Group)
+emm_marsh_group_df <- as.data.frame(emm_marsh_group)
+
+ggplot(emm_marsh_group_df, aes(x = Marsh_Group, y = emmean)) +
+  geom_col(fill = "steelblue", width = 0.5) +
+  geom_errorbar(aes(ymin = lower.CL, ymax = upper.CL), width = 0.15) +
+  labs(
+    title = "Estimated Marginal Means of Flux by Geomorphic Grouping",
+    y = "Estimated Flux", x = "Marsh Group"
+  ) +
+  theme_bw()
+```
+
+
+```{r, variance across scarped vs. ramped sites}
+
+master_tier5 %>%
+  group_by(Site, marsh_edge_type, Study.Phase) %>%
+  summarise(monthly_mean = mean(Flux, na.rm = TRUE), .groups = "drop") %>%
+  group_by(Site, marsh_edge_type) %>%
+  summarise(temporal_var = var(monthly_mean, na.rm = TRUE), .groups = "drop")
+```
+```{r}
+master_tier5 %>%
+  group_by(Site, marsh_edge_type, Dist) %>%
+  summarise(monthly_mean = mean(Flux, na.rm = TRUE), .groups = "drop") %>%
+  group_by(Site, marsh_edge_type) %>%
+  summarise(spatial_var = var(monthly_mean, na.rm = TRUE), .groups = "drop")
+```
+

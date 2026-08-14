@@ -122,46 +122,104 @@ ggsave(("C:\\Users\\savan\\OneDrive - San Francisco State University\\ProjectDat
 )
 ```
 
+```{r}
+# Reusable NOAA GHCND daily precip puller
+# (was called as get_noaa_precip() but never defined in the .Rmd —
+#  adding it here so the file is self-contained and knits cleanly)
+# ============================================================
+get_noaa_precip <- function(start_date, end_date, station_id, token) {
+  api_endpoint <- "https://www.ncdc.noaa.gov/cdo-web/api/v2/data"
+ 
+  # NOAA CDO API caps each request at 1 year AND 1000 records, so for
+  # long windows we chunk by month and stack — safer than one big call
+  month_starts <- seq(as.Date(start_date), as.Date(end_date), by = "month")
+ 
+  purrr::map_dfr(month_starts, function(m_start) {
+    m_end <- min(lubridate::ceiling_date(m_start, "month") - 1, as.Date(end_date))
+ 
+    resp <- httr::GET(api_endpoint,
+      httr::add_headers(token = token),
+      query = list(
+        datasetid  = "GHCND",
+        stationid  = station_id,
+        startdate  = format(m_start, "%Y-%m-%d"),
+        enddate    = format(m_end, "%Y-%m-%d"),
+        datatypeid = "PRCP",
+        units      = "standard",
+        limit      = 1000
+      ))
+ 
+    if (httr::status_code(resp) != 200) {
+      warning(paste("NOAA API returned", httr::status_code(resp), "for", m_start))
+      return(tibble::tibble())
+    }
+ 
+    parsed <- jsonlite::fromJSON(httr::content(resp, "text", encoding = "UTF-8"))
+    if (is.null(parsed$results)) return(tibble::tibble())
+ 
+    parsed$results %>%
+      dplyr::mutate(date = as.Date(date), value = as.numeric(value)) %>%
+      dplyr::select(date, value)
+  })
+}
+```
+
+
+
 ```{r, 2022 NOAA monthly summary pull}
 
-station_gsom_check <- GET("https://www.ncdc.noaa.gov/cdo-web/api/v2/stations/GHCND:USW00023272",
-  add_headers(token = cdo_token),
-  query = list(datasetid = "GSOM"))
-status_code(station_gsom_check)
-content(station_gsom_check, "text", encoding = "UTF-8")
-
-# Pull a full year of daily data (we know this works)
-precip_full2022 <- get_noaa_precip("2022-07-01", "2023-06-30", "GHCND:USW00023272", cdo_token)
-
-# Aggregate to monthly totals yourself
+# ============================================================
+# Pull both years
+# ============================================================
 library(lubridate)
+library(dplyr)
+library(ggplot2)
+ 
+today <- Sys.Date()
+end_date_2026 <- min(as.Date("2026-06-30"), today)
+ 
+precip_full2022 <- get_noaa_precip("2022-07-01", "2023-06-30", "GHCND:USW00023272", cdo_token)
+precip_full2026 <- get_noaa_precip("2025-07-01", as.character(end_date_2026), "GHCND:USW00023272", cdo_token)
+ 
+# sanity check before plotting — confirm you actually have ~12 months each
+precip_full2022 %>% mutate(month = floor_date(date, "month")) %>% count(month) %>% print(n = 20)
+precip_full2026 %>% mutate(month = floor_date(date, "month")) %>% count(month) %>% print(n = 20)
+ 
+# ============================================================
+# Aggregate to monthly totals — CONSISTENT NAMING, both years
+# ============================================================
 monthly_data2022 <- precip_full2022 %>%
   mutate(month = floor_date(date, "month")) %>%
   group_by(month) %>%
-  summarise(monthly_total_in = sum(value, na.rm = TRUE), .groups = "drop")
-monthly_data2022
-
-monthly_precip_2022_2023 <- ggplot(monthly_data2022, aes(x = month, y = monthly_total_in)) +
-  geom_col(fill = "steelblue") +
-  scale_x_date(
-    date_labels = "%b %Y",
-    date_breaks = "1 month",
-    limits = as.Date(c("2022-07-01", "2023-06-30"))
-  ) +
-  scale_y_continuous(limits = c(0, 12)) +
+  summarise(monthly_total_in = sum(value, na.rm = TRUE), .groups = "drop") %>%
+  mutate(complete = "Complete")  # full window already closed, nothing partial
+ 
+monthly_data2026 <- precip_full2026 %>%
+  mutate(month = floor_date(date, "month")) %>%
+  group_by(month) %>%
+  summarise(monthly_total_in = sum(value, na.rm = TRUE), .groups = "drop") %>%
+  mutate(complete = ifelse(month == floor_date(today, "month"), "Partial month", "Complete"))
+ 
+# ============================================================
+# Shared axis limits so both plots are directly comparable
+# ============================================================
+shared_y_limits <- c(0, max(monthly_data2022$monthly_total_in,
+                             monthly_data2026$monthly_total_in, na.rm = TRUE) * 1.05)
+ 
+plot_2022 <- ggplot(monthly_data2022, aes(x = month, y = monthly_total_in, fill = complete)) +
+  geom_col() +
+  scale_fill_manual(values = c("Complete" = "steelblue", "Partial month" = "gray70"), drop = FALSE) +
+  scale_x_date(date_labels = "%b %Y", date_breaks = "1 month",
+               limits = as.Date(c("2022-07-01", "2023-06-30"))) +
+  scale_y_continuous(limits = shared_y_limits) +
   labs(
     title = "Monthly Precipitation: July 2022 – June 2023",
     subtitle = stringr::str_wrap("Source: NOAA NCEI, San Francisco Downtown Station GHCND:USW00023272 | https://www.weather.gov/wrh/climate?wfo=mtr", width = 60),
-    x = "Month",
-    y = "Total Precipitation (inches)"
+    x = "Month", y = "Total Precipitation (inches)", fill = "complete"
   ) +
   theme_minimal(base_size = 14) +
-  theme(
-    axis.text.x = element_text(angle = 45, hjust = 1),
-    plot.subtitle = element_text(size = 10, color = "gray40")
-  )
-
-monthly_precip_2022_2023
+  theme(axis.text.x = element_text(angle = 45, hjust = 1),
+        plot.subtitle = element_text(size = 10, color = "gray40"))
 
 ggsave("monthly_precip_2022_2023.png", plot = plot_2022, width = 8, height = 5, dpi = 300)
 ```
@@ -169,52 +227,81 @@ ggsave("monthly_precip_2022_2023.png", plot = plot_2022, width = 8, height = 5, 
 
 ```{r}
 
-today <- Sys.Date()
-end_date <- min(as.Date("2026-06-30"), today)
-
-precip_full2026 <- get_noaa_precip("2025-07-01", as.character(end_date), "GHCND:USW00023272", cdo_token)
-
-# Sanity check on the RIGHT object
-precip_full2026 %>%
-  mutate(month = floor_date(date, "month")) %>%
-  count(month)
-
-# Actually build monthly_data2026 from precip_full2026 — this step was missing
-monthly_precip_2025_2026 <- precip_full2026 %>%
-  mutate(month = floor_date(date, "month")) %>%
-  group_by(month) %>%
-  summarise(monthly_total_in = sum(value, na.rm = TRUE), .groups = "drop") %>%
-  mutate(complete = ifelse(month == floor_date(today, "month"), "Partial month", "Complete"))
-
-monthly_data2026   # print and visually confirm before plotting
-
 plot_2026 <- ggplot(monthly_data2026, aes(x = month, y = monthly_total_in, fill = complete)) +
   geom_col() +
-  scale_fill_manual(values = c("Complete" = "steelblue", "Partial month" = "gray70")) +
-  scale_x_date(date_labels = "%b %Y", date_breaks = "1 month") +
-  scale_y_continuous(limits = c(0, 12)) +
+  scale_fill_manual(values = c("Complete" = "steelblue", "Partial month" = "gray70"), drop = FALSE) +
+  scale_x_date(date_labels = "%b %Y", date_breaks = "1 month",
+               limits = as.Date(c("2025-07-01", "2026-06-30"))) +
+  scale_y_continuous(limits = shared_y_limits) +
   labs(
-    title = "Monthly Precipitation: July 2022 – June 2023",
+    title = "Monthly Precipitation: July 2025 – June 2026",
     subtitle = stringr::str_wrap("Source: NOAA NCEI, San Francisco Downtown Station GHCND:USW00023272 | https://www.weather.gov/wrh/climate?wfo=mtr", width = 60),
-    x = "Month",
-    y = "Total Precipitation (inches)"
+    x = "Month", y = "Total Precipitation (inches)", fill = "complete"
+  ) +
+  theme_minimal(base_size = 14) +
+  theme(axis.text.x = element_text(angle = 45, hjust = 1),
+        plot.subtitle = element_text(size = 10, color = "gray40"))
+ 
+plot_2022
+plot_2026
+ 
+ggsave("monthly_precip_2022_2023.png", plot = plot_2022, width = 8, height = 5, dpi = 300, bg = "white")
+ggsave("monthly_precip_2025_2026.png", plot = plot_2026, width = 8, height = 5, dpi = 300, bg = "white")
+ 
+```
+
+
+
+```{r}
+# ============================================================
+# Overlaid comparison plot — aligned by month-of-water-year (Jul=1...Jun=12)
+# so the two years sit side by side regardless of calendar year
+# ============================================================
+water_year_month <- function(d) {
+  m <- month(d)
+  # July -> 1, ... Dec -> 6, Jan -> 7, ... Jun -> 12
+  ((m - 7) %% 12) + 1
+}
+ 
+combined_monthly <- bind_rows(
+  monthly_data2022 %>% mutate(water_year = "2022–2023"),
+  monthly_data2026 %>% mutate(water_year = "2025–2026")
+) %>%
+  mutate(
+    wy_month_num = water_year_month(month),
+    wy_month_label = factor(month.abb[((wy_month_num - 1 + 6) %% 12) + 1],
+                             levels = month.abb[c(7:12, 1:6)])  # Jul...Jun order
   )
+ 
+overlay_plot <- ggplot(combined_monthly, aes(x = wy_month_label, y = monthly_total_in,
+                                              fill = water_year, alpha = complete)) +
+  geom_col(position = "dodge") +
+  scale_alpha_manual(values = c("Complete" = 1, "Partial month" = 0.5), guide = "none") +
+  scale_y_continuous(limits = shared_y_limits) +
+  labs(
+    title = "Monthly Precipitation, Overlaid by Water Year",
+    subtitle = "Water year = Jul–Jun | Source: NOAA NCEI, San Francisco Downtown Station GHCND:USW00023272",
+    x = "Month of Water Year", y = "Total Precipitation (inches)", fill = "Water Year"
+  ) +
   theme_minimal(base_size = 14) +
   theme(axis.text.x = element_text(angle = 45, hjust = 1))
-monthly_precip_2025_2026
-
-ggsave("monthly_precip_2025_2026.png", plot = plot_2026, width = 8, height = 5, dpi = 300)
+ 
+overlay_plot
+ 
+ggsave("monthly_precip_overlay_2022_vs_2026.png", plot = overlay_plot,
+       width = 10, height = 6, dpi = 300, bg = "white")
 ```
 
 
 ```{r}
-
-# Save as CSV (most portable, easy to reopen in R or Excel)
-write.csv(precip_full2022, "precip_daily_2022_2023.csv", row.names = FALSE)
-write.csv(precip_full2026, "precip_daily_2025_2026.csv", row.names = FALSE)
+# ============================================================
+# CSV exports — daily and monthly, both years
+# ============================================================
+write.csv(precip_full2022,  "precip_daily_2022_2023.csv",   row.names = FALSE)
+write.csv(precip_full2026,  "precip_daily_2025_2026.csv",   row.names = FALSE)
 write.csv(monthly_data2022, "precip_monthly_2022_2023.csv", row.names = FALSE)
 write.csv(monthly_data2026, "precip_monthly_2025_2026.csv", row.names = FALSE)
-
+write.csv(combined_monthly, "precip_monthly_combined_overlay.csv", row.names = FALSE)
 ```
 
 
@@ -223,22 +310,29 @@ write.csv(monthly_data2026, "precip_monthly_2025_2026.csv", row.names = FALSE)
 # You need a date range or representative date for each Study.Phase
 # Example structure - adjust to your actual phase-to-date mapping
 
-phase_dates <- cm_data %>%
-  group_by(Study.Phase) %>%
-  summarise(Study.Phase = min("M1"), end_date = max("M10"), .groups = "drop")
+phase_dates <- c_data %>%
+    group_by(Study.Phase) %>%
+  summarise(
+    start_date = min(Date.removed.from.field, na.rm = TRUE),
+    end_date   = max(Date.removed.from.field, na.rm = TRUE),
+    .groups = "drop"
+  )
 
- Sum precipitation within each phase's date window
+# Sum precipitation within each phase's date window
 precip_by_phase <- phase_dates %>%
   rowwise() %>%
   mutate(
-    total_precip = sum(precip_full2022$value[precip_full2022$date >= M1 & 
-  #                                              precip_full2022$date <= end_date], na.rm = TRUE)
- # ) %>%
-#  ungroup()
+    total_precip = sum(
+      precip_full2022$value[precip_full2022$date >= start_date &
+                             precip_full2022$date <= end_date],
+      na.rm = TRUE
+    )
+  ) %>%
+  ungroup()
 
 # Join precip onto your flux summary
 time_dist_summary <- time_dist_summary %>%
-  left_join(precip_by_phase %>% select(Study.Phase, total_precip), by = "Study.Phase")
+   left_join(precip_by_phase %>% select(Study.Phase, total_precip), by = "Study.Phase")
 
 
 
@@ -257,6 +351,7 @@ ggplot(time_dist_summary, aes(x = Study.Phase)) +
     strip.text = element_text(face = "bold")
   ) +
   labs(title = paste("Flux & Precipitation Through Time by Distance at", "Corte Madera"), x = "Study Phase")
+)
 
 ```
 
@@ -379,6 +474,6 @@ tide_sf_2026 = ggplot(monthly_tide2026, aes(x = month, y = monthly_max_ft)) +
   theme(axis.text.x = element_text(angle = 45, hjust = 1))
 
 
-ggsave("tide_sf_2026.png", plot = plot_2026, width = 8, height = 5, dpi = 300)
+ggsave("tide_sf_2026.png", plot = tide_sf_2026, width = 8, height = 5, dpi = 300)
 ```
 

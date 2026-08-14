@@ -91,19 +91,27 @@ qqline(thesis_rq2$Flux)
 ## Model 1: Study.Dataset x temporal grouping, random intercept for Site
 
 ```{r, model 1 - Month variant}
-usgsthesis_model_month <- lmer(
-  Flux ~ Study.Dataset + Month + Study.Dataset * Month + (1|Site),
+
+thesis_rq2$Month <- factor(thesis_rq2$Month, ordered = FALSE)
+
+usgsthesis_model_month <- lm(
+  Flux ~ Study.Dataset *Site + Month,
   data = thesis_rq2
 )
 summary(usgsthesis_model_month)
+
+library(emmeans)
+emmeans(usgsthesis_model_month, pairwise ~ Study.Dataset | Site)
 ```
 
 ```{r, model 1 - Phen_Period variant}
-usgsthesis_model_phenperiod <- lmer(
-  Flux ~ Study.Dataset + Phen_Period + Study.Dataset * Phen_Period + (1 | Site),
+usgsthesis_model_phenperiod <- lm(
+  Flux ~ Study.Dataset + Phen_Period + Study.Dataset * Phen_Period + Site,
   data = thesis_rq2
 )
 summary(usgsthesis_model_phenperiod)
+
+
 ```
 
 ## Model 2: Site effect, random intercepts for Study.Dataset + temporal grouping
@@ -127,16 +135,16 @@ summary(usgsthesis_model2_phenperiod)
 ## Estimated marginal means -- Month variant
 
 ```{r, emmeans and plots - Month variant}
-emm_month <- emmeans(usgsthesis_model_month, ~ Month * Study.Dataset)
+emm_month <- emmeans(usgsthesis_model_month, ~ Month * Study.Dataset* Site)
 emm_month_df <- as.data.frame(emm_month)
 
 ggplot(emm_month_df, aes(x = Month, y = emmean, color = Study.Dataset, group = Study.Dataset)) +
   geom_point(size = 3, position = position_dodge(0.3)) +
   geom_errorbar(aes(ymin = lower.CL, ymax = upper.CL),
                 width = 0.2, position = position_dodge(0.3)) +
-  geom_line(position = position_dodge(0.3)) +
+  facet_wrap(~ Site) +
   labs(title = "Estimated Marginal Means by Month and Study Dataset",
-       y = "log(Flux)", x = "Month", color = "Study Dataset") +
+       y = "Flux (g/m^2/day)", x = "Month", color = "Study Dataset") +
   theme_bw() +
   theme(axis.text.x = element_text(angle = 45, hjust = 1))
 
@@ -145,7 +153,7 @@ ggplot(thesis_rq2, aes(x = Site, y = Flux, fill = Study.Dataset)) +
   geom_jitter(aes(color = Study.Dataset),
               alpha = 0.4, size = 0.8, width = 0.2) +
   labs(title = str_wrap("Research Question 2: Is Sediment Deposition Consistent Between USGS and Thesis Study Periods at Corte Madera Marsh and San Pablo NWR?", width = 40),
-       y = "Log of Average Flux (g/m^3/day)",
+       y = "Flux (g/m^2/day)",
        x = "Site",
        fill = "Study Dataset", color = "Study Dataset") +
   scale_y_log10() +
@@ -189,6 +197,14 @@ New this session -- the boxplot above (in the Month-variant chunk) shows Flux by
 # sites, build a separate object without those filters rather than
 # reusing thesis_rq2 here.
 
+marsh_area_model <- lm(
+  Flux ~ Study.Dataset * Month * Marsh_Area + Site,
+  data = thesis_rq2
+)
+summary(marsh_area_model)
+anova(marsh_area_model)
+
+
 marsh_area_month <- thesis_rq2 %>%
   group_by(Site, Marsh_Area, Study.Dataset, Month) %>%
   summarise(
@@ -196,6 +212,7 @@ marsh_area_month <- thesis_rq2 %>%
     se_flux = sd(Flux, na.rm = TRUE) / sqrt(n()),
     .groups = "drop"
   )
+
 
 ggplot(thesis_rq2, aes(x = Marsh_Area, y = Flux, fill = Study.Dataset)) +
   geom_boxplot(alpha = 0.5, outlier.shape = NA) +
@@ -214,6 +231,13 @@ ggplot(thesis_rq2, aes(x = Marsh_Area, y = Flux, fill = Study.Dataset)) +
     strip.text = element_text(face = "bold"),
     legend.position = "bottom"
   )
+
+marsh_area_dataset_model <- lm(
+  log(Flux) ~ Marsh_Area * Study.Dataset + Site,
+  data = thesis_rq2 %>% filter(Flux > 0)
+)
+summary(marsh_area_dataset_model)
+anova(marsh_area_dataset_model)
 
 ggplot(marsh_area_month, aes(x = Month, y = mean_flux, color = Study.Dataset, group = Study.Dataset)) +
   geom_line() +
@@ -309,15 +333,15 @@ summary(bay_channel_model_month)
 ```
 
 ```{r, bay channel model - Phen_Period variant}
-bay_channel_model_phenperiod <- lmer(
-  Flux ~ Location + Phen_Period + Location * Phen_Period + (1 | Site),
+bay_channel_model_phenperiod <- lm(
+  Flux ~ Location + Phen_Period + Location * Phen_Period,
   data = bay_channel
 )
 summary(bay_channel_model_phenperiod)
 ```
 
 ```{r, bay channel emmeans and plots - Month variant}
-emm_bay_channel_month <- emmeans(bay_channel_model_month, ~ Month * Location)
+emm_bay_channel_month <- emmeans(bay_channel_model_month, ~ Month * Location*Site)
 emm_bay_channel_month_df <- as.data.frame(emm_bay_channel_month)
 
 ggplot(emm_bay_channel_month_df, aes(x = Month, y = emmean, color = Location, group = Location)) +
@@ -351,7 +375,7 @@ ggplot(bay_channel, aes(x = Marsh_Area, y = Flux, fill = Location)) +
 ```
 
 ```{r, bay channel emmeans and plots - Phen_Period variant}
-emm_bay_channel_phenperiod <- emmeans(bay_channel_model_phenperiod, ~ Phen_Period * Location)
+emm_bay_channel_phenperiod <- emmeans(bay_channel_model_phenperiod, ~ Phen_Period * Location* Site)
 emm_bay_channel_phenperiod_df <- as.data.frame(emm_bay_channel_phenperiod)
 
 ggplot(emm_bay_channel_phenperiod_df, aes(x = Phen_Period, y = emmean, color = Location, group = Location)) +
@@ -461,7 +485,7 @@ ggplot(bay_channel_ep_phenperiod, aes(x = Phen_Period, y = mean_flux, color = Lo
 # if usgsthesiscomp was meant to be something more specific (e.g. a
 # transect-level aggregate) and I'll rebuild that instead.
 
-ggplot(thesis_rq2, aes(x = Site, y = log(Flux), fill = as.factor(Tran), colour = as.factor(Tran))) +
+ggplot(bay_channel, aes(x = Site, y = log(Flux), fill = as.factor(Tran), colour = as.factor(Tran))) +
   geom_boxplot(alpha = 0.4, outlier.shape = NA) +
   geom_sina(alpha = 0.6, size = 2) +
   labs(

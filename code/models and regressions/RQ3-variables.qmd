@@ -13,15 +13,104 @@ Quarto enables you to weave together content and executable code into a finished
 When you click the **Render** button a document will be generated that includes both content and the output of embedded code. You can embed code like this:
 
 ```{r}
-rq3_model <- lmer(log(Flux) ~ Cover + AvgHt + z_star + local_slope + marsh_edge_type +
-                    (1 | Site) + (1 | Study.Dataset), data = veg_thesis_usgs)
+
+
+knitr::opts_chunk$set(echo = TRUE)
+knitr::opts_knit$set(root.dir = 'C:/Users/savan/OneDrive - San Francisco State University/ProjectData/GitHub/DepositionSFB/data')
+
+elev_z_wind_slope_flux <- readr::read_csv(
+  file.path(knitr::opts_knit$get("root.dir"), "elev_z_wind_slope_flux.csv")
+)
+
+rq3_model <- lmer(log(Flux) ~  z_star + local_slope + marsh_edge_type +
+                    (1 | Site) , data = elev_z_wind_slope_flux)
 ```
 
 You can add options to executable code like this
 
-```{r}
-#| echo: false
-2 * 2
+```{r, lasso regression}
+
+#install.packages("glmnet")
+library(glmnet)
+
+lasso_data <- usgs_thesis %>%
+  filter(Study.Dataset == "Thesis") %>%   
+  select(Flux, z_star, local_slope, mean_wind_speed_kt, 
+         max_gust_kt, Dist) %>%
+  mutate(Dist = as.numeric(Dist)) %>%
+  drop_na() %>%
+  mutate(across(where(is.character), as.factor))
+  
+
+# standardize all numeric predictors (mean 0, SD 1) so coefficients are comparable
+lasso_data_scaled <- lasso_data %>%
+  mutate(across(where(is.numeric) & !all_of("Flux"), ~ as.numeric(scale(.))))
+
+x_scaled <- model.matrix(Flux ~ . - 1, data = lasso_data_scaled)
+y <- lasso_data_scaled$Flux
+
+set.seed(42)
+cv_lasso_scaled <- cv.glmnet(x_scaled, y, alpha = 1)
+plot(cv_lasso_scaled)
+
+best_lambda_scaled <- cv_lasso_scaled$lambda.min
+lasso_final_scaled <- glmnet(x_scaled, y, alpha = 1, lambda = best_lambda_scaled)
+coef(lasso_final_scaled)
 ```
 
-The `echo: false` option disables the printing of code (only output is displayed).
+```{r}
+
+library(ggplot2)
+
+ggplot(elev_z_wind_slope_flux_clean, aes(x = mean_wind_speed_kt, y = Flux, color = Tran)) +
+  geom_point(alpha = 0.4) +
+  facet_wrap(~ Site) +
+  labs(
+    title = "Flux vs. Mean Wind Speed by Site and Transect",
+    x = "Mean Wind Speed (kt)", y = "Flux", color = "Transect"
+  ) +
+  theme_bw()
+```
+
+```{r}
+
+library(ggplot2)
+library(dplyr)
+
+# Flux vs. Wind, excluding Giant Marsh
+ggplot(elev_z_wind_slope_flux_clean %>% filter(Site != "GiantMarsh"), 
+       aes(x = mean_wind_speed_kt, y = Flux, color = Tran)) +
+  geom_point(alpha = 0.4) +
+  facet_wrap(~ Site) +
+  labs(
+    title = "Flux vs. Mean Wind Speed by Site and Transect (Excluding Giant Marsh)",
+    x = "Mean Wind Speed (kt)", y = "Flux", color = "Transect"
+  ) +
+  theme_bw()
+
+# Flux vs. Slope, excluding Giant Marsh
+ggplot(elev_z_wind_slope_flux_clean %>% filter(Site != "GiantMarsh"), 
+       aes(x = local_slope, y = Flux, color = Tran)) +
+  geom_point(alpha = 0.4) +
+  facet_wrap(~ Site) +
+  labs(
+    title = "Flux vs. Local Slope by Site and Transect (Excluding Giant Marsh)",
+    x = "Local Slope", y = "Flux", color = "Transect"
+  ) +
+  theme_bw()
+```
+
+```{r}
+library(ggplot2)
+library(dplyr)
+
+ggplot(elev_z_wind_slope_flux_clean, 
+       aes(x = local_slope, y = Flux, color = Tran)) +
+  geom_point(alpha = 0.4) +
+  facet_wrap(~ Site) +
+  labs(
+    title = "Flux vs. Local Slope by Site and Transect",
+    x = "Local Slope", y = "Flux", color = "Transect"
+  ) +
+  theme_bw()
+```

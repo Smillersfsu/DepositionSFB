@@ -57,7 +57,7 @@ ggplot(grainsize_long, aes(x = Dist, y = percent, fill = grain_size)) +
   labs(
     title = "Percent Composition of Grain Size Per Site",
     x = "Site",
-    y = "Percent (%)"
+    y = "Percent Composition of Grain Size (%)"
   ) +
   theme_minimal() +
   theme(
@@ -116,7 +116,7 @@ for (i in seq_len(nrow(site_tran_combos))) {
     ) +
     labs(
       title = paste("Percent Composition —", this_site, "Transect", this_tran),
-      x = "Distance", y = "Percent (%)"
+      x = "Distance (m)", y = "Percent Composition Grain Size (%)"
     ) +
     theme_minimal()
   

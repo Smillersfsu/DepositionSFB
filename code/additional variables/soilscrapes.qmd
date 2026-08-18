@@ -1,0 +1,128 @@
+---
+title: "surface_scrape"
+format: html
+editor: visual
+---
+
+## Quarto
+
+Quarto enables you to weave together content and executable code into a finished document. To learn more about Quarto see <https://quarto.org>.
+
+## Running Code
+
+When you click the **Render** button a document will be generated that includes both content and the output of embedded code. You can embed code like this:
+
+```{r}
+1 + 1
+```
+
+You can add options to executable code like this
+
+```{r}
+
+library(tidyverse)
+
+# Assume your data looks like this (one row per site):
+# site, sand, silt, clay
+# "0.5", 12, 51, 37
+# "2", 8, 50, 42
+# ...
+
+grainsize <- read_csv("C:\\Users\\savan\\OneDrive - San Francisco State University\\ProjectData\\GitHub\\DepositionSFB\\data\\soil_scrape.csv")  
+
+grainsize <- grainsize %>%
+  mutate(across(c(Sand, Silt, Clay), ~ as.numeric(str_replace(., "<1", "0"))))
+
+# Reshape to long format for ggplot
+grainsize_long <- grainsize %>%
+  pivot_longer(
+    cols = c("Sand", "Silt", "Clay"),
+    names_to = "grain_size",
+    values_to = "percent"
+  ) %>%
+  mutate(
+    grain_size = factor(grain_size, levels = c("Clay", "Silt", "Sand"))
+    # order controls stacking order (bottom to top reversed in ggplot legend)
+  )
+
+
+
+ggplot(grainsize_long, aes(x = Dist, y = percent, fill = grain_size)) +
+  geom_col(position = "stack", width = 0.9) +
+  facet_wrap(vars(Tran, Site)) +
+  scale_fill_manual(
+    values = c(Sand = "#5B9BD5", Silt = "#ED7D31", Clay = "#A5A5A5"),
+    name = "Grain size"
+  ) +
+  labs(
+    title = "Percent Composition of Grain Size Per Site",
+    x = "Site",
+    y = "Percent (%)"
+  ) +
+  theme_minimal() +
+  theme(
+    axis.text.x = element_text(angle = 90, vjust = 0.5, hjust = 1, size = 6),
+    panel.grid.major.x = element_blank()
+  )
+
+
+```
+
+```{r, mean percentages per site}
+
+grainsize_siteavg <- grainsize_long %>% group_by(Site, grain_size) %>% summarise(percent = mean(percent, na.rm = TRUE), .groups = "drop")
+
+p_siteavg = ggplot(grainsize_siteavg, aes(x = Site, y = percent, fill = grain_size)) + geom_col(position = "stack", width = 0.9) + scale_fill_manual( values = c(Sand = "#5B9BD5", Silt = "#ED7D31", Clay = "#A5A5A5"), name = "Grain size" ) + labs( title = "Average Percent Composition of Grain Size Per Site", x = "Site", y = "Average Percent (%)" ) + theme_minimal() + theme( axis.text.x = element_text(angle = 90, vjust = 0.5, hjust = 1, size = 6), panel.grid.major.x = element_blank() )
+
+ggsave(
+  filename = file.path(out_dir, "grainsize_site_averages.png"),
+  plot = p_siteavg, width = 10, height = 6, dpi = 300
+)
+
+
+grainsize_tranavg <- grainsize_long %>% group_by(Site, Tran, grain_size) %>% summarise(percent = mean(percent, na.rm = TRUE), .groups = "drop")
+
+p_tranavg = ggplot(grainsize_tranavg, aes(x = factor(Tran), y = percent, fill = grain_size)) + 
+  facet_wrap(~Site) +
+  geom_col(position = "stack", width = 0.9) + scale_fill_manual( values = c(Sand = "#5B9BD5", Silt = "#ED7D31", Clay = "#A5A5A5"), name = "Grain size" ) + labs( title = "Average Percent Composition of Grain Size Per Site", x = "Site", y = "Average Percent (%)" ) + theme_minimal() + theme( axis.text.x = element_text(angle = 90, vjust = 0.5, hjust = 1, size = 6), panel.grid.major.x = element_blank() )
+
+
+ggsave(
+  filename = file.path(out_dir, "grainsize_transect_averages_by_site.png"),
+  plot = p_tranavg, width = 10, height = 6, dpi = 300
+)
+
+```
+
+```{r, saving each of the grain size graphs}
+
+out_dir <- "C:/Users/savan/OneDrive - San Francisco State University/ProjectData/GitHub/DepositionSFB/images/soilcores"
+
+dir.create(out_dir, showWarnings = FALSE, recursive = TRUE)
+
+site_tran_combos <- grainsize_long %>% distinct(Tran, Site)
+
+for (i in seq_len(nrow(site_tran_combos))) {
+  this_tran <- site_tran_combos$Tran[i]
+  this_site <- site_tran_combos$Site[i]
+  
+  p <- grainsize_long %>%
+    filter(Tran == this_tran, Site == this_site) %>%
+    ggplot(aes(x = Dist, y = percent, fill = grain_size)) +
+    geom_col(position = "stack", width = 0.9) +
+    scale_fill_manual(
+      values = c(Sand = "#5B9BD5", Silt = "#ED7D31", Clay = "#A5A5A5"),
+      name = "Grain size"
+    ) +
+    labs(
+      title = paste("Percent Composition —", this_site, "Transect", this_tran),
+      x = "Distance", y = "Percent (%)"
+    ) +
+    theme_minimal()
+  
+  ggsave(
+    filename = file.path(out_dir, paste0("grainsize_", this_site, "_T", this_tran, ".png")),
+    plot = p, width = 10, height = 6, dpi = 300
+  )
+}
+```

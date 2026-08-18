@@ -66,13 +66,26 @@ local_slope_keyed <- local_slope_thesis |>
   ) |>
   select(Site, Tran, Dist, local_slope, fitted_elevation_m, extrapolated) |>
   rename(slope_fitted_elevation_m = fitted_elevation_m)   # avoid colliding with the base table's own Elevation_m
+
+#transect level slope
+
+edge_slope_thesis <- readr::read_csv("C:\\Users\\savan\\OneDrive - San Francisco State University\\ProjectData\\GitHub\\DepositionSFB\\data\\edge_slope_thesis.csv")
+
+edge_slope_keyed <- edge_slope_thesis |>
+  mutate(
+    Site = str_squish(as.character(Site)),
+    Tran = str_squish(as.character(Tran))
+  )
 ```
 
 ```{r, join -- broadcast slope across replicates, same pattern as USGS elevation/veg}
 elev_z_wind_slope_flux <- elev_z_wind_flux_keyed |>
   left_join(local_slope_keyed, by = c("Site", "Tran", "Dist"))
 
-readr::write_csv(elev_z_wind_slope_flux, "C:\\Users\\savan\\OneDrive - San Francisco State University\\ProjectData\\GitHub\\DepositionSFB\\data\\elev_z_wind_slope_flux.csv")
+elev_z_wind_slope_flux <- elev_z_wind_slope_flux |>
+  left_join(edge_slope_keyed, by = c("Site", "Tran"))
+
+readr::write_csv(elev_z_wind_slope_flux, "C:\\Users\\savan\\OneDrive - San Francisco State University\\ProjectData\\GitHub\\DepositionSFB\\data\\elev_z_wind_slope_edge_flux.csv")
 
 nrow(elev_z_wind_slope_flux) == nrow(elev_z_wind_flux)   # confirms no fan-out or row loss from this join
 ```

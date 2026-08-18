@@ -227,3 +227,30 @@ diagnostic file -- the flag-and-keep decision above only holds if the
 column survives past this point.
 -->
 ```
+
+```{r, transect level slope via Farris and Hogan paper comparison}
+
+translope_raw = readr::read_csv("C:\\Users\\savan\\OneDrive - San Francisco State University\\ProjectData\\GitHub\\DepositionSFB\\data\\thesis_2025_translopefull.csv")
+
+translope <- translope_raw |>
+
+  mutate(
+    Site = case_when(
+      str_starts(Transect_ID, "B")  ~ "Buck'sLanding",
+      str_starts(Transect_ID, "C")  ~ "CorteMadera",
+      str_starts(Transect_ID, "S")  ~ "SanPablo",
+      str_starts(Transect_ID, "G") ~ "GiantMarsh",
+      TRUE ~ NA_character_
+    )
+  )
+
+edge_slope_thesis <- translope |>
+  inner_join(site_tran_code, by = c("Site", "Transect_ID")) |>
+  transmute(
+    Site, Tran,
+    edge_slope_max_deg = atan(Max_Slope / 100) * 180 / pi,
+    edge_slope_avg_deg = atan(Avg_Slope / 100) * 180 / pi
+  )
+
+readr::write_csv(edge_slope_thesis, "C:\\Users\\savan\\OneDrive - San Francisco State University\\ProjectData\\GitHub\\DepositionSFB\\data\\edge_slope_thesis.csv")
+```

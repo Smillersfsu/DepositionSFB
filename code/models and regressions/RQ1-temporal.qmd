@@ -36,7 +36,7 @@ the old Hydro_Period (confirmed).
 
 library(tidyverse)
 library(lubridate)
-library(
+
 ```
 
 ```{r}
@@ -59,7 +59,7 @@ master_tier5 <- readr::read_csv(
   file.path(knitr::opts_knit$get("root.dir"), "master_tier5.csv")
 )
 
-master_tier5 <- master_tier5 %>%
+master_tier5_clean <- master_tier5 %>%
   mutate(
     Study.Phase = factor(Study.Phase, levels = paste0("M", 1:12)),
     Site = factor(Site, levels = c("GiantMarsh", "SanPablo", "Buck'sLanding", "CorteMadera")),
@@ -72,7 +72,7 @@ master_tier5 <- master_tier5 %>%
 # session, per Session_Status -- no reconstruction needed here, just
 # re-factor after the CSV round-trip like the other factor columns above).
 # Confirmed same levels/order as the old Hydro_Period.
-master_tier5 <- master_tier5 %>%
+master_tier5_clean <- master_tier5_clean %>%
   mutate(
     Phen_Period = factor(
       Phen_Period,
@@ -81,6 +81,9 @@ master_tier5 <- master_tier5 %>%
     )
   )
 
+master_tier5_clean <- master_tier5_clean|> 
+  filter(Flux > 0, 
+         Dist != 48)
 
 ```
 
@@ -88,7 +91,7 @@ master_tier5 <- master_tier5 %>%
 
 ```{r, rq1 time}
 
-summary_df <- master_tier5 %>%
+summary_df <- master_tier5_clean %>%
   group_by(Site, Tran, Date.removed.from.field) %>%
   summarise(median_flux = median(Flux, na.rm = TRUE),
             q25 = quantile(Flux, 0.25, na.rm = TRUE),
@@ -116,7 +119,7 @@ ggsave(file.path(knitr::opts_knit$get("root.dir"), "rq1_time_trend.png"),
        dpi = 300,
        limitsize = FALSE)
 
-rq1_time = ggplot(master_tier5, aes(x = Date.removed.from.field, y = Flux, color = Tran, fill = Tran)) +
+rq1_time = ggplot(master_tier5_clean, aes(x = Date.removed.from.field, y = Flux, color = Tran, fill = Tran)) +
   geom_boxplot(aes(group = interaction(Date.removed.from.field, Tran)), 
                alpha = 0.3, outlier.shape = NA, 
                position = position_dodge(width = 6)) +
@@ -148,19 +151,19 @@ ggsave(file.path(knitr::opts_knit$get("root.dir"), "rq1_time.png"),
 # Moved from RQ1-spatial.Rmd's transite1 chunk -- shows the raw Flux
 # distribution across phase, complementing the summary-line versions below.
 
-ggplot(master_tier5, aes(x = as.factor(Study.Phase), y = log(Flux), color = Site)) +
+ggplot(master_tier5_clean, aes(x = as.factor(Study.Phase), y = log(Flux), color = Site)) +
   geom_point(alpha = 0.4) +
   geom_sina(alpha = 0.6, size = 2) +
-  labs(x = "Month of Study", y = "Log of Average Flux (g/cm^3/month)",
+  labs(x = "Month of Study", y = "Log of Average Flux (g/cm^2/day)",
        colour = "Site") +
   theme_classic(base_size = 18) +
   theme(axis.text.x = element_text(angle = 45, hjust = 1, size = 18))
 
-ggplot(master_tier5, aes(x = Dist, y = log(Flux), color = Site)) +
+ggplot(master_tier5_clean, aes(x = Dist, y = log(Flux), color = Site)) +
   facet_wrap("Study.Phase") +
   geom_point(alpha = 0.4) +
   geom_sina(alpha = 0.6, size = 2) +
-  labs(x = "Distance", y = "Log of Average Flux (g/cm^3/month)",
+  labs(x = "Distance", y = "Log of Average Flux (g/cm^2/day)",
        colour = "Site") +
   theme_classic(base_size = 18) +
   theme(axis.text.x = element_text(angle = 45, hjust = 1, size = 18))
@@ -168,7 +171,7 @@ ggplot(master_tier5, aes(x = Dist, y = log(Flux), color = Site)) +
 
 ```{r, aggregate per Study.Phase-Site}
 
-total_summary <- master_tier5 %>%
+total_summary <- master_tier5_clean %>%
   group_by(Site, Study.Phase) %>%
   summarise(
     mean_flux = mean(Flux, na.rm = TRUE),
@@ -182,12 +185,12 @@ ggplot(total_summary, aes(x = Study.Phase, y = mean_flux, color = Site, group = 
   geom_errorbar(aes(ymin = mean_flux - se_flux, ymax = mean_flux + se_flux), width = 0.2) +
   facet_wrap(~ Site, scales = "free_y") +
   theme_minimal() +
-  labs(x = "Study Phase", y = expression(Mean~Flux~(g/m^3)))
+  labs(x = "Study Phase", y = expression(Mean~Flux~(g/m^2/day)))
 ```
 
 ```{r, Study Phase by marsh group and transect}
 
-phase_compare <- master_tier5 %>%
+phase_compare <- master_tier5_clean %>%
   mutate(
     Marsh_Group = case_when(
       Site %in% c("SanPablo", "CorteMadera") ~ "San Pablo + Corte Madera",
@@ -217,7 +220,7 @@ ggplot(phase_compare_grouped, aes(x = Study.Phase, y = mean_flux, color = Marsh_
   geom_point(size = 3) +
   geom_errorbar(aes(ymin = mean_flux - se_flux, ymax = mean_flux + se_flux), width = 0.2) +
   theme_minimal() +
-  labs(x = "Study Phase", y = expression(Mean~Flux~(g/m^3)), color = "Marsh Group")
+  labs(x = "Study Phase", y = expression(Mean~Flux~(g/m^2/day)), color = "Marsh Group")
 
 ggplot(phase_compare, aes(x = Study.Phase, y = mean_flux, color = Tran, group = Tran)) +
   geom_line() +
@@ -225,15 +228,15 @@ ggplot(phase_compare, aes(x = Study.Phase, y = mean_flux, color = Tran, group = 
   geom_errorbar(aes(ymin = mean_flux - se_flux, ymax = mean_flux + se_flux), width = 0.2) +
   facet_wrap(~ Site, scales = "free_y") +
   theme_minimal() +
-  labs(x = "Study Phase", y = expression(Mean~Flux~(g/m^3)), color = "Transect")
+  labs(x = "Study Phase", y = expression(Mean~Flux~(g/m^2/day)), color = "Transect")
 ```
 
 ```{r, Study Phase by distance}
 
-transect_summary2 <- master_tier5 %>%
+transect_summary2 <- master_tier5_clean %>%
   mutate(Flux_zeroed = ifelse(Flux < 0, 0, Flux)) %>%
-  filter(Dist %in% c(0.5, 2, 6, 12, 18, 24, 48)) %>%
-  mutate(Dist = factor(Dist, levels = c(0.5, 2, 6, 12, 18, 24, 48))) %>%
+  filter(Dist %in% c(0.5, 2, 6, 12, 18, 24)) %>%
+  mutate(Dist = factor(Dist, levels = c(0.5, 2, 6, 12, 18, 24))) %>%
   group_by(Dist, Site, Study.Phase) %>%
   summarise(
     mean_flux = mean(Flux_zeroed, na.rm = TRUE),
@@ -256,14 +259,14 @@ dist_plot_log <- ggplot(transect_summary2, aes(x = Study.Phase, y = mean_flux, c
   labs(
     title = "Mean Sediment Flux Across Study Phase by Distance from Marsh Edge",
     subtitle = "Negative flux values set to zero; y-axis shown on log scale",
-    x = "Study Phase", y = expression(Mean~Flux~(g/m^3)), color = "Site"
+    x = "Study Phase", y = expression(Mean~Flux~(g/m^2/day)), color = "Site"
   )
 dist_plot_log
 
-transect_summary_no_giant <- master_tier5 %>%
+transect_summary_no_giant <- master_tier5_clean %>%
   mutate(Flux_zeroed = ifelse(Flux < 0, 0, Flux)) %>%
-  filter(Site != "GiantMarsh", Dist %in% c(0.5, 2, 6, 12, 18, 24, 48)) %>%
-  mutate(Dist = factor(Dist, levels = c(0.5, 2, 6, 12, 18, 24, 48))) %>%
+  filter(Site != "GiantMarsh", Dist %in% c(0.5, 2, 6, 12, 18, 24)) %>%
+  mutate(Dist = factor(Dist, levels = c(0.5, 2, 6, 12, 18, 24))) %>%
   group_by(Dist, Site, Study.Phase) %>%
   summarise(
     mean_flux = mean(Flux_zeroed, na.rm = TRUE),
@@ -284,7 +287,7 @@ dist_plot_no_giant <- ggplot(transect_summary_no_giant, aes(x = Study.Phase, y =
   labs(
     title = "Mean Sediment Flux Across Study Phase by Distance from Marsh Edge",
     subtitle = "GiantMarsh removed; negative flux values set to zero",
-    x = "Study Phase", y = expression(Mean~Flux~(g/m^3)), color = "Site"
+    x = "Study Phase", y = expression(Mean~Flux~(g/m^2/day)), color = "Site"
   )
 dist_plot_no_giant
 
@@ -298,7 +301,7 @@ ggsave(
 
 ```{r, phen period plots}
 
-phen_summary <- master_tier5 %>%
+phen_summary <- master_tier5_clean %>%
   mutate(Flux_zeroed = ifelse(Flux < 0, 0.001, Flux)) %>%
   group_by(Phen_Period, Site) %>%
   summarise(
@@ -315,9 +318,9 @@ ggplot(phen_summary, aes(x = Phen_Period, y = mean_flux, color = Site, group = S
   scale_y_log10() +
   theme_minimal(base_size = 14) +
   labs(title = "Mean Flux by Phenological Period", subtitle = "Log-scaled y-axis",
-       x = "Phenological Period", y = expression(Mean~Flux~(g/m^3)), color = "Site")
+       x = "Phenological Period", y = expression(Mean~Flux~(g/m^2/day)), color = "Site")
 
-phen_summary_no_giant <- master_tier5 %>%
+phen_summary_no_giant <- master_tier5_clean %>%
   filter(Site != "GiantMarsh") %>%
   mutate(Flux_zeroed = ifelse(Flux < 0, 0, Flux)) %>%
   group_by(Phen_Period, Site) %>%
@@ -334,7 +337,7 @@ ggplot(phen_summary_no_giant, aes(x = Phen_Period, y = mean_flux, color = Site, 
   geom_errorbar(aes(ymin = mean_flux - se_flux, ymax = mean_flux + se_flux), width = 0.2) +
   theme_minimal(base_size = 14) +
   labs(title = "Mean Flux by Phenological Period", subtitle = "GiantMarsh removed",
-       x = "Phenological Period", y = expression(Mean~Flux~(g/m^3)), color = "Site")
+       x = "Phenological Period", y = expression(Mean~Flux~(g/m^2/day)), color = "Site")
 
 ggplot(phen_summary, aes(x = Phen_Period, y = mean_flux, group = 1)) +
   geom_line(linewidth = 1) +
@@ -342,17 +345,17 @@ ggplot(phen_summary, aes(x = Phen_Period, y = mean_flux, group = 1)) +
   geom_errorbar(aes(ymin = mean_flux - se_flux, ymax = mean_flux + se_flux), width = 0.2) +
   facet_wrap(~ Site, scales = "free_y") +
   theme_minimal(base_size = 14) +
-  labs(title = "Mean Flux by Phenological Period", x = "Phenological Period", y = expression(Mean~Flux~(g/m^3)))
+  labs(title = "Mean Flux by Phenological Period", x = "Phenological Period", y = expression(Mean~Flux~(g/m^2/day)))
 ```
 
 ```{r, temporal marsh models}
 
-elev_z_wind_slope_flux <- elev_z_wind_slope_flux %>%
+master_tier5_clean <- master_tier5_clean %>%
   mutate(Study.Phase = factor(Study.Phase, levels = paste0("M", 1:12)))
 
-edge_time_model <- lm(
-  Flux ~ marsh_edge_type * Study.Phase + Site,
-  data = elev_z_wind_slope_flux
+edge_time_model <- lmer(
+  Flux ~ marsh_edge_type * Study.Phase + (1|Site),
+  data = master_tier5_clean
 )
 summary(edge_time_model)
 anova(edge_time_model)
@@ -381,12 +384,12 @@ ggplot(emm_edge_time_df, aes(x = Study.Phase, y = emmean, color = marsh_edge_typ
 
 ```{r}
 
-elev_z_wind_slope_flux_noGM <- elev_z_wind_slope_flux %>%
+master_tier5_clean_noGM <- master_tier5_clean %>%
   filter(Site != "GiantMarsh")
 
-edge_time_model_noGM <- lm(
-  Flux ~ marsh_edge_type * Study.Phase + Site,
-  data = elev_z_wind_slope_flux_noGM
+edge_time_model_noGM <- lmer(
+  Flux ~ marsh_edge_type * Study.Phase + (1|Site),
+  data = master_tier5_clean_noGM
 )
 
 summary(edge_time_model_noGM)
@@ -405,3 +408,7 @@ ggplot(emm_edge_time_noGM_df, aes(x = Study.Phase, y = emmean, color = marsh_edg
   theme_bw() +
   theme(axis.text.x = element_text(angle = 45, hjust = 1))
 ```
+
+
+
+

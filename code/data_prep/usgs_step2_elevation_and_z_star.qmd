@@ -4,6 +4,7 @@ format: html
 editor: visual
 ---
 
+```{=html}
 <!--
 Mirrors elevation_and_z_star.qmd's role in the thesis pipeline: joins
 elevation/z* onto the flux data BEFORE tiering, so tiering (here, the
@@ -46,6 +47,7 @@ usgs_locations_z.csv:
     explicit-limitation notes, e.g. the single-timepoint causality
     caveat in section 4.2).
 -->
+```
 
 ```{r, load necessary packages}
 source("C:\\Users\\savan\\OneDrive - San Francisco State University\\ProjectData\\GitHub\\DepositionSFB\\code\\R\\setup.R")

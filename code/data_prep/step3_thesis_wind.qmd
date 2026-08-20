@@ -1,0 +1,415 @@
+---
+title: "thesis wind"
+format: html
+editor: visual
+---
+
+```{=html}
+<!--
+Chains onto elev_z_flux.csv (elevation_and_z_star.qmd's output), same
+"join before tier" position as veg and (eventually) slope. Computes
+mean wind speed (and max gust) over each sediment trap's actual
+deployment window -- Date.placed.in.field to Date.removed.from.field
+-- not a calendar-month average. Writes elev_z_wind_flux.csv.
+
+SITE -> STATION MAPPING (as given, not yet corrected):
+  CorteMadera, GiantMarsh, Buck'sLanding -> station 9414863
+  SanPablo                                -> station 9415141
+Known limitation, not fixed here: three sites currently share one
+buoy's readings, which may not reflect real local wind conditions at
+each of those three marshes individually. Flagged for later
+correction, per your own note -- not addressed in this file.
+
+COVERAGE GAP, REAL AND UNAVOIDABLE WITH CURRENT DATA: both station
+files only cover 1/1/2025 through 7/13/2026. That covers the July
+2025-June 2026 main campaign. It does NOT cover the July 2022-June
+2023 repeat-year subset (2 marshes) -- those deployment windows will
+get NA wind metrics, not a fabricated value. This also means USGS
+flux data (entirely 2022-2023) cannot get wind metrics from this data
+at all -- no usgs_wind.qmd built here for that reason; it would be
+100% NA rows, not a useful file.
+
+DUPLICATE COLUMN NAME IN THE RAW FILES: both CSVs have two columns
+literally named "Direction" -- one numeric degrees (e.g. 113), one
+compass abbreviation (e.g. "ESE"). R's read.csv() will auto-rename the
+second to "Direction.1" by default; renamed explicitly below to
+Direction_deg / Direction_compass so this isn't left to an implicit
+default someone has to rediscover later.
+
+MISSING READINGS: San Pablo's station has 44 missing Speed values
+(gaps in the hourly record) -- handled with na.rm = TRUE in the
+averaging, not imputed.
+-->
+```
+
+```{r, load packages}
+source("C:\\Users\\savan\\OneDrive - San Francisco State University\\ProjectData\\GitHub\\DepositionSFB\\code\\R\\setup.R")
+library(lubridate)
+```
+
+```{r, site to station crosswalk}
+site_station_map <- tribble(
+  ~Site,             ~station_id,
+  "CorteMadera",     "9414863",
+  "GiantMarsh",      "9414863",
+  "Buck'sLanding",   "9414863",
+  "SanPablo",        "9415141"
+)
+```
+
+```{r, load and clean both wind station files}
+load_wind_station <- function(path, station_id) {
+  raw <- read.csv(path, check.names = FALSE)
+  # Explicit rename -- do not rely on read.csv's automatic ".1"
+  # suffixing for the duplicate "Direction" columns; name by content
+  # (first is numeric degrees, second is compass abbreviation),
+  # confirmed by inspecting the raw column order directly.
+  names(raw) <- c("datetime_raw", "wind_speed_kt", "direction_deg",
+                   "direction_compass", "gust_kt", "x_flag", "r_flag")
+
+  raw |>
+    mutate(
+      datetime = mdy_hm(datetime_raw),
+      wind_speed_kt = as.numeric(wind_speed_kt),
+      gust_kt = as.numeric(gust_kt),
+      station_id = station_id
+    ) |>
+    select(station_id, datetime, wind_speed_kt, direction_deg, direction_compass, gust_kt)
+}
+
+wind_9414863 <- load_wind_station(
+  "C:\\Users\\savan\\OneDrive - San Francisco State University\\ProjectData\\GitHub\\DepositionSFB\\data\\Wind\\CO-OPS__9414863_Corte-Madera-Marsh_and_Giant-Marsh_and_Bucks.csv",
+  "9414863"
+)
+wind_9415141 <- load_wind_station(
+  "C:\\Users\\savan\\OneDrive - San Francisco State University\\ProjectData\\GitHub\\DepositionSFB\\data\\Wind\\CO-OPS__9415141_San-Pablo-NWR.csv",
+  "9415141"
+)
+
+wind_by_station <- list(`9414863` = wind_9414863, `9415141` = wind_9415141)
+
+# Confirms the coverage window rather than assuming it -- re-run this
+# if the station files are ever refreshed with more data.
+range(wind_9414863$datetime, na.rm = TRUE)
+range(wind_9415141$datetime, na.rm = TRUE)
+sum(is.na(wind_9415141$wind_speed_kt))
+```
+
+```{r, compute mean wind speed over a deployment window}
+# Not a calendar-month average -- averages every hourly reading whose
+# timestamp falls within [deploy_start, deploy_end], inclusive. Returns
+# n_obs alongside the mean so a window with very few matching readings
+# (partial station coverage, or a short deployment) is visible rather
+# than looking identical to a well-covered one.
+# BOUNDARY ASSUMPTION, FLAGGED NOT RESOLVED: deploy_start/deploy_end
+# are Date (calendar day), while station timestamps are full
+# datetimes. R will coerce Date to midnight (00:00) for the
+# comparison, so deploy_end effectively means "through the start of
+# the removal day," not "through the end of it" -- readings from
+# 1am-11pm on the actual removal day get excluded. Over a ~30-day
+# window this is unlikely to move a mean much, but it's a real
+# simplification, not something to assume away silently. If you want
+# the full removal day included, change deploy_end below to
+# `deploy_end + hours(23) + minutes(59)` (or similar) before comparing.
+wind_metrics_for_window <- function(station_id, deploy_start, deploy_end) {
+  station_df <- wind_by_station[[as.character(station_id)]]
+
+  in_window <- station_df |>
+    filter(datetime >= deploy_start, datetime <= deploy_end)
+
+  tibble(
+    mean_wind_speed_kt = mean(in_window$wind_speed_kt, na.rm = TRUE),
+    max_gust_kt = max(in_window$gust_kt, na.rm = TRUE),
+    n_obs = sum(!is.na(in_window$wind_speed_kt))
+  )
+}
+```
+
+```{r, load elevation-joined flux data, get distinct deployment windows}
+elev_z_flux <- readr::read_csv("C:\\Users\\savan\\OneDrive - San Francisco State University\\ProjectData\\GitHub\\DepositionSFB\\data\\elev_z_flux.csv")
+
+# Keyed on the ACTUAL placed/removed dates per Site, not assumed
+# uniform across Tran/Dist/Replicate within a nominal collection round
+# -- avoids redundant computation (many rows share a window) without
+# assuming something about the field logistics that isn't confirmed.
+deployment_windows <- elev_z_flux |>
+  distinct(Site, Date.placed.in.field, Date.removed.from.field) |>
+  left_join(site_station_map, by = "Site")
+
+# Any Site with no station mapping at all would show up here as NA
+# station_id -- confirms the crosswalk covers every Site actually
+# present in the flux data before relying on it.
+deployment_windows |> filter(is.na(station_id)) |> distinct(Site)
+```
+
+```{r, apply wind_metrics_for_window to every distinct deployment}
+wind_by_window <- deployment_windows |>
+  rowwise() |>
+  mutate(
+    wind_metrics_for_window(station_id, Date.placed.in.field, Date.removed.from.field)
+  ) |>
+  ungroup()
+
+wind_by_window
+```
+
+```{r, coverage diagnostics -- documents the 2022-2023 gap, fixes nothing}
+# Deployment windows with n_obs = 0 -- expected for anything in the
+# July 2022-June 2023 repeat-year subset, since the wind stations
+# don't have data that far back. Confirms the size of that gap rather
+# than assuming it.
+wind_by_window |>
+  filter(n_obs == 0) |>
+  count(Site)
+
+wind_by_window |>
+  filter(n_obs > 0) |>
+  count(Site)
+```
+
+```{r, join onto elev_z_flux and write}
+elev_z_wind_flux <- elev_z_flux |>
+  left_join(
+    wind_by_window |> select(Site, Date.placed.in.field, Date.removed.from.field,
+                              mean_wind_speed_kt, max_gust_kt, n_obs),
+    by = c("Site", "Date.placed.in.field", "Date.removed.from.field")
+  )
+
+readr::write_csv(elev_z_wind_flux, "C:\\Users\\savan\\OneDrive - San Francisco State University\\ProjectData\\GitHub\\DepositionSFB\\data\\elev_z_wind_flux.csv")
+
+nrow(elev_z_wind_flux) == nrow(elev_z_flux)   # confirms the join didn't fan out or drop rows
+```
+
+```{=html}
+<!--
+NOT DONE HERE: combining this with veg (elev_z_veg_flux_long.csv,
+kept separate on purpose -- see that file) or slope (not yet actually
+joined onto elev_z_flux.csv at all -- see thesis_slope.qmd) into one
+single pre-tier file. Wind, elevation, and eventually slope and tidal
+are the "merge into core pipeline" covariates per your own
+categorization; veg and storm periods stay separate. This file only
+handles wind's own join -- reconciling all of elevation + slope + wind
++ tidal into one file feeding master_analysis_flagtier.qmd is a
+separate integration step, not done yet.
+
+ALSO NOT DONE: correcting the three-sites-one-buoy mapping. Flagged in
+the header, not addressed -- per your own note, for later.
+-->
+```
+
+```{r}
+
+# ============================================================
+# WIND ROSE FUNCTION
+# Takes a dataframe with a speed column and a direction column,
+# groups readings into compass sectors + speed bands, and plots
+# a polar bar chart. Call this once per rose you want.
+# ============================================================
+plot_wind_rose <- function(df,
+                           speed_col = wind_speed_kt,   # column holding speed values
+                           dir_col = direction_deg,     # column holding direction in degrees (0-360)
+                           facet_var = NULL,             # optional: column to split into a grid (e.g. month)
+                           speed_breaks = c(0, 5, 10, 15, 20, Inf),  # edges of the speed bins
+                           speed_labels = c("0-5", "5-10", "10-15", "15-20", "20+"),  # labels for those bins
+                           dir_bins = 16,                 # number of compass sectors (16 = standard 22.5° wedges)
+                           title = "Wind Rose") {
+  
+  # --- tidy evaluation setup ---
+  # enquo() lets you pass a bare column name (like wind_speed_kt, not "wind_speed_kt")
+  # as a function argument, the same way you'd type it inside mutate() or filter().
+  # The !! later "unquotes" it so R knows to actually use that column.
+  speed_col <- enquo(speed_col)
+  dir_col   <- enquo(dir_col)
+  facet_var <- enquo(facet_var)
+  has_facet <- !rlang::quo_is_null(facet_var)  # TRUE only if you actually passed a facet_var
+  
+  dir_width <- 360 / dir_bins  # width of each compass wedge in degrees (360/16 = 22.5)
+  
+  # --- clean and bin the data ---
+  df_clean <- df |>
+    filter(!is.na(!!speed_col), !is.na(!!dir_col)) |>  # drop rows missing speed or direction
+    mutate(
+      # cut() sorts each speed value into one of the bins defined above
+      speed_bin = cut(!!speed_col, breaks = speed_breaks, labels = speed_labels,
+                      right = FALSE, include.lowest = TRUE),
+      # snaps each exact direction (e.g. 113°) to the nearest compass
+      # sector center (e.g. 112.5° = ESE), then wraps anything past
+      # 360 back around to 0 with %%
+      dir_bin = (round(!!dir_col / dir_width) * dir_width) %% 360
+    )
+  
+  # build the list of columns to group by -- always direction + speed bin,
+  # plus the facet column too if one was given
+  group_cols <- c("dir_bin", "speed_bin")
+  if (has_facet) group_cols <- c(rlang::as_name(facet_var), group_cols)
+  
+  # --- count readings in each bin and convert to a percentage ---
+  df_binned <- df_clean |>
+    count(across(all_of(group_cols))) |>  # tally how many readings fall in each dir/speed combo
+    group_by(across(all_of(if (has_facet) rlang::as_name(facet_var) else character(0)))) |>
+    mutate(pct = n / sum(n) * 100) |>  # convert raw counts to % (so each rose/facet sums to 100%)
+    ungroup()
+  
+  # --- build the plot ---
+  p <- ggplot(df_binned, aes(x = dir_bin, y = pct, fill = speed_bin)) +
+    geom_col(width = dir_width * 0.95, color = "white", linewidth = 0.1) +  # the wedges themselves
+    coord_polar(start = -dir_width / 2 * pi / 180) +  # THIS is what bends the bars into a circle
+    scale_x_continuous(breaks = seq(0, 315, 45),
+                       labels = c("N", "NE", "E", "SE", "S", "SW", "W", "NW"),  # compass labels
+                       limits = c(-dir_width / 2, 360 - dir_width / 2)) +
+    scale_fill_viridis_d(name = "Speed (kt)") +  # colorblind-friendly palette for the speed bins
+    # str_wrap keeps long titles from running off the edge of the image;
+    # a plain "-" (not an en dash –) avoids a font rendering issue
+    labs(title = stringr::str_wrap(title, width = 45), x = NULL, y = "Frequency (%)") +
+    theme_minimal(base_size = 11) +
+    theme(panel.grid.minor = element_blank(),
+          plot.title = element_text(size = 12, face = "bold"),
+          plot.margin = margin(10, 10, 10, 10))
+  
+  # if a facet_var was given, split into a small-multiples grid (one rose per group)
+  if (has_facet) {
+    p <- p + facet_wrap(vars(!!facet_var), ncol = 4) +
+      theme(axis.text.x = element_text(size = 6))  # shrink labels since panels are smaller
+  }
+  p
+}
+```
+
+```{r}
+
+wind_9414863_monthly <- wind_9414863 |>
+  filter(datetime >= as.POSIXct("2025-07-01 00:00:00"),
+         datetime <= as.POSIXct("2026-06-30 23:59:59")) |>
+  mutate(
+    month_label = month(datetime, label = TRUE, abbr = TRUE),
+    month_label = factor(month_label, levels = c("Jul","Aug","Sep","Oct","Nov","Dec",
+                                                 "Jan","Feb","Mar","Apr","May","Jun"))
+  )
+
+rose_9414863_monthly <- plot_wind_rose(
+  wind_9414863_monthly,
+  facet_var = month_label,
+  title = "Wind Rose by Month (Jul 2025-Jun 2026) - Station 9414863 (Corte Madera / Giant Marsh / Buck's Landing)"
+)
+rose_9414863_monthly
+
+ggsave(
+  "C:\\Users\\savan\\OneDrive - San Francisco State University\\ProjectData\\GitHub\\DepositionSFB\\figures\\windrose_9414863_by_month.png",
+  rose_9414863_monthly, width = 10, height = 8, dpi = 300
+)
+```
+
+```{r}
+
+# ---- STATION 9415141: one rose per month, restricted to the main
+# campaign window (July 2025 - June 2026) ----
+#
+# CHANGED FROM BEFORE: previously this pooled every year present in
+# the data for a given calendar month (e.g. all Januaries, whether
+# 2025 or 2026, combined). Now it's filtered to a single 12-month
+# span first, so each month panel reflects ONE occurrence of that
+# month, not a pooled average across years.
+#
+# Also reordered the facets to run Jul -> Jun (matching the campaign
+# window chronologically) instead of R's default Jan -> Dec calendar
+# order -- done by turning month_label into a factor with explicit
+# levels in that order.
+
+wind_9415141_monthly <- wind_9415141 |>
+  # keep only readings inside the July 2025-June 2026 campaign window
+  filter(datetime >= as.POSIXct("2025-07-01 00:00:00"),
+         datetime <= as.POSIXct("2026-06-30 23:59:59")) |>
+  mutate(
+    month_label = month(datetime, label = TRUE, abbr = TRUE),
+    # reorder so facets display Jul first, Jun last (not alphabetical/calendar order)
+    month_label = factor(month_label, levels = c("Jul","Aug","Sep","Oct","Nov","Dec",
+                                                 "Jan","Feb","Mar","Apr","May","Jun"))
+  )
+
+rose_9415141_monthly <- plot_wind_rose(
+  wind_9415141_monthly,
+  facet_var = month_label,
+  title = "Wind Rose by Month (Jul 2025-Jun 2026) - Station 9415141 (San Pablo)"
+)
+rose_9415141_monthly  # prints the plot in the Quarto output
+
+ggsave(
+  "C:\\Users\\savan\\OneDrive - San Francisco State University\\ProjectData\\GitHub\\DepositionSFB\\figures\\windrose_9415141_by_month.png",
+  rose_9415141_monthly, width = 10, height = 8, dpi = 300
+)
+
+```
+
+```{r}
+
+# ---- MAY-JUL 2026: one combined rose per station (no facet) ----
+# Unlike the monthly roses above, this filters to a SPECIFIC year
+# (2026) rather than pooling all years together, and doesn't split
+# into month-by-month panels -- one rose per station for the whole
+# window.
+#
+# NOTE: station data only goes through 2026-07-13, so "July" here
+# is a partial month (13 of 31 days). Also, this is NOT called
+# "May-Aug" because August 2026 doesn't exist in the data at all yet.
+
+wind_9414863_mayjul26 <- wind_9414863 |>
+  filter(year(datetime) == 2026, month(datetime) %in% 5:7)  # keep only May, Jun, Jul of 2026
+wind_9415141_mayjul26 <- wind_9415141 |>
+  filter(year(datetime) == 2026, month(datetime) %in% 5:7)
+
+# Sanity checks -- not part of the plot, just printed to console so
+# you can see how many readings actually landed in this window (and
+# confirm the date range) before trusting the rose built from them.
+nrow(wind_9414863_mayjul26)
+range(wind_9414863_mayjul26$datetime)
+nrow(wind_9415141_mayjul26)
+
+rose_9414863_mayjul26 <- plot_wind_rose(
+  wind_9414863_mayjul26,
+  title = "Wind Rose, May-Jul 2026 - Station 9414863 (Corte Madera / Giant Marsh / Buck's Landing)"
+)
+rose_9414863_mayjul26
+
+rose_9415141_mayjul26 <- plot_wind_rose(
+  wind_9415141_mayjul26,
+  title = "Wind Rose, May-Jul 2026 - Station 9415141 (San Pablo)"
+)
+rose_9415141_mayjul26
+
+ggsave("C:\\Users\\savan\\OneDrive - San Francisco State University\\ProjectData\\GitHub\\DepositionSFB\\figures\\windrose_9414863_may_jul_2026.png",
+       rose_9414863_mayjul26, width = 7, height = 7, dpi = 300)
+ggsave("C:\\Users\\savan\\OneDrive - San Francisco State University\\ProjectData\\GitHub\\DepositionSFB\\figures\\windrose_9415141_may_jul_2026.png",
+       rose_9415141_mayjul26, width = 7, height = 7, dpi = 300)
+```
+
+```{r}
+
+# ---- JUL-OCT 2025: same pattern, different window ----
+# Fully covered by the station data (no partial-month issue, unlike
+# the 2026 window above).
+
+wind_9414863_juloct25 <- wind_9414863 |>
+  filter(year(datetime) == 2025, month(datetime) %in% 7:10)  # Jul, Aug, Sep, Oct of 2025
+wind_9415141_juloct25 <- wind_9415141 |>
+  filter(year(datetime) == 2025, month(datetime) %in% 7:10)
+
+nrow(wind_9414863_juloct25)
+nrow(wind_9415141_juloct25)
+
+rose_9414863_juloct25 <- plot_wind_rose(
+  wind_9414863_juloct25,
+  title = "Wind Rose, Jul-Oct 2025 - Station 9414863 (Corte Madera / Giant Marsh / Buck's Landing)"
+)
+rose_9414863_juloct25
+
+rose_9415141_juloct25 <- plot_wind_rose(
+  wind_9415141_juloct25,
+  title = "Wind Rose, Jul-Oct 2025 - Station 9415141 (San Pablo)"
+)
+rose_9415141_juloct25
+
+ggsave("C:\\Users\\savan\\OneDrive - San Francisco State University\\ProjectData\\GitHub\\DepositionSFB\\figures\\windrose_9414863_jul_oct_2025.png",
+       rose_9414863_juloct25, width = 7, height = 7, dpi = 300)
+ggsave("C:\\Users\\savan\\OneDrive - San Francisco State University\\ProjectData\\GitHub\\DepositionSFB\\figures\\windrose_9415141_jul_oct_2025.png",
+       rose_9415141_juloct25, width = 7, height = 7, dpi = 300)
+```

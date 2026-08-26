@@ -174,7 +174,8 @@ str(usgs_veg)
 #
 # TODO: point this at your actual sediment flux CSV (the file with
 # FluxAvgRep, Site, Season, Distance, Transect, Year, Month columns).
-sed <- read.csv("C:\\Users\\savan\\OneDrive - San Francisco State University\\ProjectData\\GitHub\\DepositionSFB\\data\\sed_thesis.csv")  # TODO: confirm actual filename
+sed <- read_xlsx("C:\\Users\\savan\\OneDrive - San Francisco State University\\ProjectData\\GitHub\\DepositionSFB\\data\\usgs_thesis.xlsx")  
+# TODO: confirm actual filename
 
 # `veg` (singular) is referenced later (sed_DistPlant chunk) as if it's a
 # combined thesis + usgs vegetation table. Building that here from the two
@@ -187,6 +188,8 @@ veg <- bind_rows(
   thesis_veg %>% mutate(Dataset = "thesis"),
   usgs_veg %>% mutate(Dataset = "usgs")
 )
+
+
 ```
 
 ```{r, veg and SAPA combined dataframe}

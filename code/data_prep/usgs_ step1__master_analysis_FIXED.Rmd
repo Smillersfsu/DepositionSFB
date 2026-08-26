@@ -103,6 +103,23 @@ sed_usgs$Replicate<- as.factor(sed_usgs$Replicate)
 sed_usgs$Year<- as.factor(sed_usgs$Year)
 sed_usgs$Flux <- as.numeric(sed_usgs$Flux)
 
+# Adding a Month column, derived from the deployment window
+# (Date.placed.in.field to Date.removed.from.field) -- same approach as
+# the thesis-side master_analysis_cleanup.Rmd, so Month means the same
+# thing and is derived the same way on both sides of the dataset.
+majority_month <- function(start_date, end_date) {
+  if (is.na(start_date) || is.na(end_date)) return(NA_character_)
+  days <- seq(start_date, end_date, by = "day")
+  month_counts <- table(month(days, label = TRUE, abbr = TRUE))
+  names(which.max(month_counts))
+}
+
+sed_usgs <- sed_usgs %>%
+  mutate(
+    Month = purrr::map2_chr(Date.placed.in.field, Date.removed.from.field, majority_month),
+    Month = factor(Month, levels = c("Jul", "Aug", "Sep", "Oct", "Nov", "Dec",
+                                     "Jan", "Feb", "Mar", "Apr", "May", "Jun"))
+  )
 
 # Making a Marsh Edge Type Categorization 
 
@@ -208,4 +225,26 @@ written above, and writes usgs_elev_z_flux.csv), then
 master_analysis_usgs_bayriver_FIXED.Rmd for the Bay/River split,
 plots, and usgs_bay.csv/usgs_river.csv.
 -->
+```
+
+```{r}
+source("C:\\Users\\savan\\OneDrive - San Francisco State University\\ProjectData\\GitHub\\DepositionSFB\\code\\R\\plotting.R")
+
+rq_plots_usgs <- make_rq_plots(master_usgs, "USGS")
+
+# access individual plots, e.g.:
+rq_plots_usgs$interval
+rq_plots_usgs$edge
+rq_plots_usgs$site
+
+# Save the high-res image
+ggsave(("C:\\Users\\savan\\OneDrive - San Francisco State University\\ProjectData\\GitHub\\DepositionSFB\\images\\methods\\rq_plots_usgs.png"),
+       plot = rq_plots_usgs$interval,
+       width = 10,  
+       height = 6,
+       dpi = 300,
+       bg = "white"
+)
+
+
 ```

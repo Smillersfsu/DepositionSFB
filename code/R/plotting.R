@@ -248,26 +248,57 @@ plot_flux_vs_zstar <- function(site_name, data = elev_z_flux) {
 # thesis data at a time, so it can't and doesn't answer that question.
 #############################################################
 
-make_rq_plots <- function(df, tier_label) {
+
   
+    
+    # Site color scale: dark = higher elevation, light = lower elevation
+    # Green = ramped edge, Orange = scarped edge (colorblind-safe, ColorBrewer-based)
+    site_colors <- c(
+      "SanPablo"  = "#0b6623",
+      "Buck'sLanding"   = "#4dd070",
+      "GiantMarsh" = "#a34700",
+      "CorteMadera"  = "#ff9d2f"
+    )
+
+    marsh_edge_colors <- c (
+      "Ramped" = "#1f9e5c", 
+      "Scarped" = "#8b5a2b"
+    )
+    
+    transect_colors <- c (
+      "T1" = "#D85A30", 
+      "T2" = "#378ADD"
+    )
+    
+    year_colors <- c( 
+      "2022–2023" = "#6A3D9A",   # en dash, not hyphen
+      "2025–2026" = "#F781BF"
+    )
+    
+    bay_channel_colors <- c ( 
+      "Bay" = "#7BCCC4", 
+      "Channel" = "#045A8D")
+    
+make_rq_plots <- function(df, tier_label) {
   # ---------------------------------------------------------------
   # Collection Interval Consistency
   # ---------------------------------------------------------------
   data_intervals <- df %>%
     mutate(interval_days = as.numeric(difftime(Date.removed.from.field, Date.placed.in.field, units = "days"))) %>%
-    distinct(Tran, Date.removed.from.field, interval_days)
+    distinct(Site, Date.removed.from.field, interval_days)
   
-  p_interval <- ggplot(data_intervals, aes(x = Date.removed.from.field, y = interval_days, color = Tran)) +
+  p_interval <- ggplot(data_intervals, aes(x = Date.removed.from.field, y = interval_days, color = Site)) +
     geom_point(size = 2, alpha = 0.7) +
-    geom_hline(yintercept = 30, linetype = "dashed", color = "gray40") +
+    geom_hline(yintercept = 28, linetype = "dashed", color = "gray40") +
+    scale_color_manual(values = site_colors) +
     labs(
-      title = paste("Collection Interval Length Over Time —", tier_label),
-      subtitle = "Dashed line = nominal 30-day target",
-      x = "Time", y = "Interval Length (days)", color = "Transect"
+      title = paste("Collection Interval Length Over Time Across Sites"),
+      subtitle = "Dashed line = nominal 28-day target",
+      x = "Time", y = "Interval Length (days)", color = "Site"
     ) +
-    scale_x_date(date_labels = "%b %Y", date_breaks = "3 months") +
+    scale_x_date(date_labels = "%b %Y", date_breaks = "1 month") +
     theme_minimal() +
-    theme(legend.position = "none", axis.text.x = element_text(angle = 45, hjust = 1))
+    theme(legend.position = "bottom", axis.text.x = element_text(angle = 45, hjust = 1))
   
   print(summary(data_intervals$interval_days))
   
@@ -279,6 +310,7 @@ make_rq_plots <- function(df, tier_label) {
   p_edge <- ggplot(df, aes(x = marsh_edge_type, y = Flux, fill = marsh_edge_type)) +
     geom_violin(alpha = 0.4, trim = FALSE) +
     geom_jitter(aes(color = Site), width = 0.15, size = 2, alpha = 0.7) +
+    scale_color_manual(values = site_colors) +
     labs(
       title = paste("Sediment Flux by Marsh Edge Type —", tier_label),
       subtitle = "Points colored by Site — check if the two sites within each type agree",

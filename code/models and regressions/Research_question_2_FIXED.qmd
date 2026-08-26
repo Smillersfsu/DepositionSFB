@@ -25,20 +25,8 @@ no new data-source guessing needed.
 ```
 
 ```{r, load packages}
-library(ggplot2)
-library(tidyverse)
-library(rstatix)
-library(tidyr)
-library(dplyr)
-library(lme4)
-library(stringr)
-library(readxl)
-library(lmerTest)
-library(ggeffects)
-library(ggforce)
-library(emmeans)   # was missing -- needed for the emmeans() calls below
-library(rcartocolor)
-library(scales)
+source("C:\\Users\\savan\\OneDrive - San Francisco State University\\ProjectData\\GitHub\\DepositionSFB\\code\\R\\setup.R")
+source("C:\\Users\\savan\\OneDrive - San Francisco State University\\ProjectData\\GitHub\\DepositionSFB\\code\\R\\plotting.R")
 
 knitr::opts_knit$set(root.dir = 'C:/Users/savan/OneDrive - San Francisco State University/ProjectData/GitHub/DepositionSFB/data')
 ```
@@ -77,11 +65,144 @@ thesis_rq2 <- thesis_rq2 %>%
 
 thesis_rq2$Study.Dataset <- as.factor(thesis_rq2$Study.Dataset)
 
+ month_levels <- c("July", "August", "September", "October", "November", "December",
+                      "January", "February", "March", "April", "May", "June")
+   thesis_rq2 <- thesis_rq2 %>%
+     mutate(Month = factor(Month, levels = month_levels))
+
 unique(thesis_rq2$Site)
 unique(thesis_rq2$Study.Dataset)
 unique(thesis_rq2$Marsh_Area)  # should show only Edge, Platform
 str(thesis_rq2)
 nrow(thesis_rq2)
+
+
+
+basic_stats_usgs <- make_flux_table(
+  thesis_rq2, 
+  group_vars = "Study.Dataset", 
+  title = "Descriptive Statistics of Sediment Flux by Study Dataset",
+  subtitle = "Flux measured in g/m²/day"
+)
+
+site_stats_usgs <- make_flux_table(
+  thesis_rq2, 
+  group_vars = c("Study.Dataset", "Site"), 
+  title = "Descriptive Statistics of Sediment Flux by Study Dataset Across Sites",
+  subtitle = "Flux measured in g/m²/day"
+)
+
+site_dist_usgs <- make_flux_table(
+  thesis_rq2, 
+  group_vars = c("Study.Dataset", "Dist"), 
+  title = "Descriptive Statistics of Sediment Flux by Study Dataset Across Distances (m) ",
+  subtitle = "Flux measured in g/m²/day"
+)
+
+thesis_rq2_2022_2023 <- thesis_rq2 %>% filter(Study.Dataset == "2022–2023")
+
+usgs_202223_month <- make_flux_table(
+  thesis_rq2_2022_2023, 
+  group_vars = c("Month"), 
+  title = "Descriptive Statistics of Sediment Flux by Study Dataset Across Months (2022-2023)",
+  subtitle = "Flux measured in g/m²/day"
+)
+
+thesis_rq2_2025_2026 <- thesis_rq2 %>% filter(Study.Dataset == "2025–2026")
+
+usgs_202526_month <- make_flux_table(
+  thesis_rq2_2025_2026, 
+  group_vars = c("Month"), 
+  title = "Descriptive Statistics of Sediment Flux by Study Dataset Across Months (2025-2026)",
+  subtitle = "Flux measured in g/m²/day"
+)
+
+save_flux_table_image <- function(flux_result, caption, filename) {
+  ft <- flux_result$data %>%
+    select(-Shapiro_p) %>%
+    rename(Shapiro_p = Shapiro_p_display) %>%
+    flextable() %>%
+    set_caption(caption) %>%
+    colformat_double(digits = 3) %>%
+    autofit()
+  
+  save_as_image(
+    ft,
+    path = paste0(
+      "C:\\Users\\savan\\OneDrive - San Francisco State University\\ProjectData\\GitHub\\DepositionSFB\\images\\rq_2\\",
+      filename
+    )
+  )
+  ft
+}
+
+save_flux_table_image(basic_stats_usgs,      "Descriptive Statistics of Sediment Flux by Study Dataset", "basic_stats_usgs.png")
+save_flux_table_image(site_stats_usgs, "Descriptive Statistics of Sediment Flux by Study Dataset Across Sites", "site_stats_usgs.png")
+save_flux_table_image(site_dist_usgs, "Descriptive Statistics of Sediment Flux by Study Dataset Across Distances (m)", "site_dist_usgs.png")
+save_flux_table_image(site_month_usgs,"Descriptive Statistics of Sediment Flux by Study Dataset Across Months", "site_month_usgs.png")
+
+save_flux_table_image(usgs_202223_month, "Sediment Flux Across Sites and Months (2022–2023)", "usgs_202223_month.png")
+save_flux_table_image(usgs_202526_month, "Sediment Flux Across Sites and Months (2025–2026)", "usgs_202526_month6.png")
+
+
+basic_rq2 = ggplot(thesis_rq2, aes(x = Site, y = Flux, fill = Study.Dataset)) +
+  geom_boxplot(alpha = 0.5, outlier.shape = NA) +
+  geom_jitter(aes(color = Study.Dataset),
+              alpha = 0.4, size = 0.8, width = 0.2) +
+  scale_fill_manual(values = year_colors) +
+  scale_color_manual(values = year_colors) + 
+  labs(title = str_wrap("Research Question 2: Is Sediment Deposition Consistent Between USGS and Thesis Study Periods at Corte Madera Marsh and San Pablo NWR?", width = 40),
+       y = "Flux (g/m^2/day)",
+       x = "Site",
+       fill = "Study Dataset", color = "Study Dataset") +
+  scale_y_log10() +
+  theme_bw() +
+  theme(
+    axis.title.y = element_text(size = 13),
+    axis.text.y = element_text(size = 13),
+    axis.text.x = element_text(size = 13),
+    axis.title.x = element_text(size = 13),
+    legend.text = element_text(size = 12),
+    legend.title = element_text(size = 13),
+    plot.title = element_text(hjust = 0.5)
+  )
+basic_rq2
+
+ggsave("C:\\Users\\savan\\OneDrive - San Francisco State University\\ProjectData\\GitHub\\DepositionSFB\\images\\rq_2\\basic_rq2.png", 
+       plot = basic_rq2, 
+       width = 8, 
+       height = 5, 
+       dpi = 300,
+       limitsize = FALSE)
+
+
+box_rq2 = ggplot(thesis_rq2 %>% filter(Flux > 0), aes(x = Marsh_Area, y = Flux, fill = Study.Dataset)) +
+  geom_boxplot(alpha = 0.5, outlier.shape = NA) +
+  geom_jitter(aes(color = Study.Dataset), alpha = 0.4, size = 0.8,
+              position = position_jitterdodge(jitter.width = 0.15, dodge.width = 0.75)) +
+  facet_wrap(~ Site) +
+  scale_y_log10() +
+  scale_fill_manual(values = year_colors) +
+  scale_color_manual(values = year_colors) + 
+  labs(
+    title = "Sediment Flux by Marsh Area, Site, and Study Dataset",
+    y = "Log of Flux (g/m²/day)", x = "Marsh Area",
+    fill = "Study Dataset", color = "Study Dataset"
+  ) +
+  theme_bw() +
+  theme(
+    plot.title = element_text(hjust = 0.5),
+    strip.text = element_text(face = "bold"),
+    legend.position = "bottom"
+  )
+box_rq2 
+
+ggsave("C:\\Users\\savan\\OneDrive - San Francisco State University\\ProjectData\\GitHub\\DepositionSFB\\images\\rq_2\\box_rq2.png", 
+       plot = box_rq2, 
+       width = 8, 
+       height = 5, 
+       dpi = 300,
+       limitsize = FALSE)
 ```
 
 ```{r, statistics}
@@ -105,6 +226,29 @@ summary(usgsthesis_model_month)
 
 library(emmeans)
 emmeans(usgsthesis_model_month, pairwise ~ Study.Dataset | Site)
+
+emm_month <- emmeans(usgsthesis_model_month, ~ Month * Study.Dataset* Site)
+emm_month_df <- as.data.frame(emm_month)
+
+emm_rq2= ggplot(emm_month_df, aes(x = Month, y = emmean, color = Study.Dataset, group = Study.Dataset)) +
+  geom_point(size = 3, position = position_dodge(0.3)) +
+  geom_errorbar(aes(ymin = lower.CL, ymax = upper.CL),
+                width = 0.2, position = position_dodge(0.3)) +
+  facet_wrap(~ Site) +
+  scale_fill_manual(values = year_colors) +
+  scale_color_manual(values = year_colors) + 
+  labs(title = "Estimated Marginal Means by Month and Study Dataset",
+       y = "Flux (g/m^2/day)", x = "Month", color = "Study Dataset") +
+  theme_bw() +
+  theme(axis.text.x = element_text(angle = 45, hjust = 1))
+emm_rq2
+
+ggsave("C:\\Users\\savan\\OneDrive - San Francisco State University\\ProjectData\\GitHub\\DepositionSFB\\images\\rq_2\\emm_rq2.png", 
+       plot = emm_rq2, 
+       width = 8, 
+       height = 5, 
+       dpi = 300,
+       limitsize = FALSE)
 ```
 
 ```{r, model 1 - Phen_Period variant}
@@ -114,6 +258,19 @@ usgsthesis_model_phenperiod <- lmer(
 )
 summary(usgsthesis_model_phenperiod)
 
+emm_phenperiod <- emmeans(usgsthesis_model_phenperiod, ~ Phen_Period * Study.Dataset)
+emm_phenperiod_df <- as.data.frame(emm_phenperiod)
+
+ggplot(emm_phenperiod_df, aes(x = Phen_Period, y = emmean, color = Study.Dataset, group = Study.Dataset)) +
+  geom_point(size = 3, position = position_dodge(0.3)) +
+  geom_errorbar(aes(ymin = lower.CL, ymax = upper.CL),
+                width = 0.2, position = position_dodge(0.3)) +
+  scale_fill_manual(values = year_colors) +
+  scale_color_manual(values = year_colors) + 
+  geom_line(position = position_dodge(0.3)) +
+  labs(title = "Estimated Marginal Means by Phenological Period and Study Dataset",
+       y = "log(Flux (g/m²/day))", x = "Phenological Period", color = "Study Dataset") +
+  theme_bw()
 
 ```
 
@@ -135,58 +292,7 @@ usgsthesis_model2_phenperiod <- lmer(
 summary(usgsthesis_model2_phenperiod)
 ```
 
-## Estimated marginal means -- Month variant
-
-```{r, emmeans and plots - Month variant}
-emm_month <- emmeans(usgsthesis_model_month, ~ Month * Study.Dataset* Site)
-emm_month_df <- as.data.frame(emm_month)
-
-ggplot(emm_month_df, aes(x = Month, y = emmean, color = Study.Dataset, group = Study.Dataset)) +
-  geom_point(size = 3, position = position_dodge(0.3)) +
-  geom_errorbar(aes(ymin = lower.CL, ymax = upper.CL),
-                width = 0.2, position = position_dodge(0.3)) +
-  facet_wrap(~ Site) +
-  labs(title = "Estimated Marginal Means by Month and Study Dataset",
-       y = "Flux (g/m^2/day)", x = "Month", color = "Study Dataset") +
-  theme_bw() +
-  theme(axis.text.x = element_text(angle = 45, hjust = 1))
-
-ggplot(thesis_rq2, aes(x = Site, y = Flux, fill = Study.Dataset)) +
-  geom_boxplot(alpha = 0.5, outlier.shape = NA) +
-  geom_jitter(aes(color = Study.Dataset),
-              alpha = 0.4, size = 0.8, width = 0.2) +
-  labs(title = str_wrap("Research Question 2: Is Sediment Deposition Consistent Between USGS and Thesis Study Periods at Corte Madera Marsh and San Pablo NWR?", width = 40),
-       y = "Flux (g/m^2/day)",
-       x = "Site",
-       fill = "Study Dataset", color = "Study Dataset") +
-  scale_y_log10() +
-  theme_bw() +
-  theme(
-    axis.title.y = element_text(size = 13),
-    axis.text.y = element_text(size = 13),
-    axis.text.x = element_text(size = 13),
-    axis.title.x = element_text(size = 13),
-    legend.text = element_text(size = 12),
-    legend.title = element_text(size = 13),
-    plot.title = element_text(hjust = 0.5)
-  )
-```
-
-## Estimated marginal means -- Phen_Period variant
-
-```{r, emmeans and plots - Phen_Period variant}
-emm_phenperiod <- emmeans(usgsthesis_model_phenperiod, ~ Phen_Period * Study.Dataset)
-emm_phenperiod_df <- as.data.frame(emm_phenperiod)
-
-ggplot(emm_phenperiod_df, aes(x = Phen_Period, y = emmean, color = Study.Dataset, group = Study.Dataset)) +
-  geom_point(size = 3, position = position_dodge(0.3)) +
-  geom_errorbar(aes(ymin = lower.CL, ymax = upper.CL),
-                width = 0.2, position = position_dodge(0.3)) +
-  geom_line(position = position_dodge(0.3)) +
-  labs(title = "Estimated Marginal Means by Phenological Period and Study Dataset",
-       y = "log(Flux (g/m²/day))", x = "Phenological Period", color = "Study Dataset") +
-  theme_bw()
-```
+## 
 
 ## Marsh Area comparison (USGS vs Thesis)
 
@@ -200,30 +306,13 @@ New this session -- the boxplot above (in the Month-variant chunk) shows Flux by
 # sites, build a separate object without those filters rather than
 # reusing thesis_rq2 here.
 
-marsh_area_model <- lmer(
-  log(Flux) ~ Study.Dataset * Month * Marsh_Area + (1|Tran),
+marsh_dist_model <- lmer(
+  log(Flux) ~ Study.Dataset * Month * Dist + (1|Tran),
   data = thesis_rq2 %>% filter(Flux > 0)
 )
-summary(marsh_area_model)
-anova(marsh_area_model)
+summary(marsh_dist_model)
+anova(marsh_dist_model)
 
-ggplot(thesis_rq2 %>% filter(Flux > 0), aes(x = Marsh_Area, y = Flux, fill = Study.Dataset)) +
-  geom_boxplot(alpha = 0.5, outlier.shape = NA) +
-  geom_jitter(aes(color = Study.Dataset), alpha = 0.4, size = 0.8,
-              position = position_jitterdodge(jitter.width = 0.15, dodge.width = 0.75)) +
-  facet_wrap(~ Site) +
-  scale_y_log10() +
-  labs(
-    title = "Sediment Flux by Marsh Area, Site, and Study Dataset",
-    y = "Log of Flux (g/m²/day)", x = "Marsh Area",
-    fill = "Study Dataset", color = "Study Dataset"
-  ) +
-  theme_bw() +
-  theme(
-    plot.title = element_text(hjust = 0.5),
-    strip.text = element_text(face = "bold"),
-    legend.position = "bottom"
-  )
 
 marsh_area_dataset_model <- lmer(
   log(Flux) ~ Marsh_Area * Study.Dataset + Site + (1|Tran),
@@ -241,12 +330,14 @@ marsh_area_month <- thesis_rq2 %>%
     .groups = "drop"
   )
 
-ggplot(marsh_area_month, aes(x = Month, y = mean_log_flux, color = Study.Dataset, group = Study.Dataset)) +
+edge_dist = ggplot(marsh_area_month, aes(x = Month, y = mean_log_flux, color = Study.Dataset, group = Study.Dataset)) +
   geom_point(size = 2) +
   geom_errorbar(aes(ymin = mean_log_flux - se_log_flux, ymax = mean_log_flux + se_log_flux), width = 0.2) +
   facet_grid(Site ~ Marsh_Area) +
+  scale_fill_manual(values = year_colors) +
+  scale_color_manual(values = year_colors) + 
   labs(
-    title = "Mean log(Flux) by Marsh Area Across Months, Comparing 2022/2023 to 2025/2026",
+    title =  stringr::str_wrap("Mean log(Flux) by Marsh Area in Relation to the Edge Across Months in 2022/2023 to 2025/2026", width = 40),
     y = "Mean log(Flux (g/m²/day))", x = "Month", color = "Study Dataset"
   ) +
   theme_bw() +
@@ -255,11 +346,20 @@ ggplot(marsh_area_month, aes(x = Month, y = mean_log_flux, color = Study.Dataset
     strip.text = element_text(face = "bold"),
     legend.position = "bottom"
   )
+
+edge_dist
+
+ggsave("C:\\Users\\savan\\OneDrive - San Francisco State University\\ProjectData\\GitHub\\DepositionSFB\\images\\rq_2\\edge_dist.png", 
+       plot = edge_dist, 
+       width = 8, 
+       height = 5, 
+       dpi = 300,
+       limitsize = FALSE)
 ```
 
 ```{r, marsh area comparison - Phen_Period variant}
 marsh_area_phenperiod <- thesis_rq2 %>%
-  group_by(Site, Marsh_Area, Study.Dataset, Phen_Period) %>%
+  group_by(Site, Study.Dataset, Phen_Period) %>%
   summarise(
     mean_flux = mean(Flux, na.rm = TRUE),
     se_flux = sd(Flux, na.rm = TRUE) / sqrt(n()),
@@ -270,9 +370,10 @@ ggplot(marsh_area_phenperiod, aes(x = Phen_Period, y = mean_flux, color = Study.
   geom_line() +
   geom_point(size = 2) +
   geom_errorbar(aes(ymin = mean_flux - se_flux, ymax = mean_flux + se_flux), width = 0.2) +
-  facet_grid(Site ~ Marsh_Area) +
+  scale_fill_manual(values = year_colors) +
+  scale_color_manual(values = year_colors) + 
   labs(
-    title = "Mean Flux by Marsh Area Across Phenological Periods, 2022/2023 vs. 2025/2026",
+    title = stringr::str_wrap("Mean Flux by Marsh Area Across Phenological Periods, 2022/2023 vs. 2025/2026", width = 40),
     y = expression(Mean~Flux~(g/m^2/day)), x = "Phenological Period", color = "Study Dataset"
   ) +
   theme_bw() +
@@ -323,49 +424,29 @@ unique(bay_channel$Location)
 unique(bay_channel$Site)
 table(bay_channel$Site, bay_channel$Location)
 nrow(sed_usgs_bay_rq2) + nrow(sed_usgs_river_rq2) == nrow(bay_channel)
-```
 
-```{r, bay channel model - Month variant}
-bay_channel_model_month <- lmer(
-  Flux ~ Location + Month + Location * Month + Site + (1|Tran),
-  data = bay_channel
-)
-summary(bay_channel_model_month)
-```
 
-```{r, bay channel model - Phen_Period variant}
-bay_channel_model_phenperiod <- lmer(
-  Flux ~ Phen_Period * Location * Site + (1 | Tran),
-  data = bay_channel
-)
-summary(bay_channel_model_phenperiod)
-```
+bay_channel_dist <- bay_channel %>%
+  group_by(Site, Location, Dist) %>%
+  summarise(
+    mean_flux = mean(Flux, na.rm = TRUE),
+    se_flux = sd(Flux, na.rm = TRUE) / sqrt(n()),
+    .groups = "drop"
+  )
 
-```{r, bay channel emmeans and plots - Month variant}
-emm_bay_channel_month <- emmeans(bay_channel_model_month, ~ Month * Location*Site)
-emm_bay_channel_month_df <- as.data.frame(emm_bay_channel_month)
-
-ggplot(emm_bay_channel_month_df, aes(x = Month, y = emmean, color = Location, group = Location)) +
-  geom_point(size = 3, position = position_dodge(0.3)) +
-  geom_errorbar(aes(ymin = lower.CL, ymax = upper.CL),
-                width = 0.2, position = position_dodge(0.3)) +
-  geom_line(position = position_dodge(0.3)) +
-  facet_wrap(~ Site) +
-  labs(title = "Estimated Marginal Means by Month and Location (Bay vs Channel)",
-       y = "log(Flux (g/m²/day))", x = "Month", color = "Location") +
-  theme_bw() +
-  theme(axis.text.x = element_text(angle = 45, hjust = 1))
-
-ggplot(bay_channel, aes(x = Marsh_Area, y = Flux, fill = Location)) +
-  geom_boxplot(alpha = 0.5, outlier.shape = NA) +
-  geom_jitter(aes(color = Location), alpha = 0.4, size = 0.8,
+ggplot(bay_channel_dist, aes(x = Dist, y = mean_flux, color = Location)) +
+  geom_jitter(alpha = 0.4, size = 0.8,
               position = position_jitterdodge(jitter.width = 0.15, dodge.width = 0.75)) +
-  facet_wrap(~ Site) +
+  geom_errorbar(aes(ymin = mean_flux - se_flux, ymax = mean_flux + se_flux)) +
+  stat_summary(fun = mean, geom = "point", size = 2.5, shape = 21) +
+  facet_wrap(~ Site, scales = "free_x") +
+  scale_fill_manual(values = bay_channel_colors) +
+  scale_color_manual(values = bay_channel_colors) +
   scale_y_log10() +
   labs(
     title = "Sediment Flux by Marsh Area, Site, and Location",
-    y = "Log of Flux (g/m²/day)", x = "Marsh Area",
-    fill = "Location", color = "Location"
+    y = "Mean Flux (g/m²/day)", x = "Distance (m)",
+    color = "Location"
   ) +
   theme_bw() +
   theme(
@@ -373,122 +454,64 @@ ggplot(bay_channel, aes(x = Marsh_Area, y = Flux, fill = Location)) +
     strip.text = element_text(face = "bold"),
     legend.position = "bottom"
   )
-```
 
-```{r, bay channel emmeans and plots - Phen_Period variant}
-emm_bay_channel_phenperiod <- emmeans(bay_channel_model_phenperiod, ~ Phen_Period * Location* Site)
-emm_bay_channel_phenperiod_df <- as.data.frame(emm_bay_channel_phenperiod)
+bay_channel_dist_season <- bay_channel %>%
+  group_by(Site, Location, Season, Dist) %>%
+  summarise(
+    mean_flux = mean(Flux, na.rm = TRUE),
+    se_flux = sd(Flux, na.rm = TRUE) / sqrt(n()),
+    .groups = "drop"
+  )
 
-ggplot(emm_bay_channel_phenperiod_df, aes(x = Phen_Period, y = emmean, color = Location, group = Location)) +
-  geom_point(size = 3, position = position_dodge(0.3)) +
-  geom_errorbar(aes(ymin = lower.CL, ymax = upper.CL),
-                width = 0.2, position = position_dodge(0.3)) +
-  geom_line(position = position_dodge(0.3)) +
-  facet_wrap(~ Site) +
-  labs(title = "Estimated Marginal Means by Phenological Period and Location (Bay vs Channel)",
-       y = "log(Flux (g/m²/day))", x = "Phenological Period", color = "Location") +
-  theme_bw()
-```
-
-### Observational comparison to thesis (Edge/Platform only)
-
-A separate, restricted object -- not used in any model above, and not itself a statistical comparison. thesis_rq2 above is restricted to Marsh_Area %in% c("Edge", "Platform") to stay comparable to what thesis actually measured; this applies that same restriction to bay_channel so the resulting plots can be eyeballed side by side against the "Marsh Area comparison (USGS vs Thesis)" plots earlier in this file -- same Site x Marsh_Area facet layout, same restriction, different grouping variable (Location instead of Study.Dataset). This is a visual reference only: Bay vs Channel and USGS vs Thesis are different questions on different samples, and this doesn't claim otherwise.
-
-The full bay_channel object (all four Marsh_Area levels) from above is untouched and still available for the modeling already done.
-
-```{r, bay_channel restricted to Edge/Platform}
-bay_channel_edge_platform <- bay_channel %>%
-  filter(Marsh_Area %in% c("Edge", "Platform"))
-
-unique(bay_channel_edge_platform$Marsh_Area)
-nrow(bay_channel_edge_platform)
-```
-
-```{r, bay channel plots restricted to Edge/Platform}
-ggplot(bay_channel_edge_platform, aes(x = Marsh_Area, y = Flux, fill = Location)) +
-  geom_boxplot(alpha = 0.5, outlier.shape = NA) +
-  geom_jitter(aes(color = Location), alpha = 0.4, size = 0.8,
+ggplot(bay_channel %>% filter(Site == "SanPablo"), aes(x = Dist, y = Flux, color = Location)) +
+  geom_jitter(alpha = 0.4, size = 0.8,
               position = position_jitterdodge(jitter.width = 0.15, dodge.width = 0.75)) +
-  facet_wrap(~ Site) +
+  # geom_errorbar(aes(ymin = mean_flux - se_flux, ymax = mean_flux + se_flux)) +
+  stat_summary(fun = mean, geom = "point", size = 2.5, shape = 21) +
+  scale_fill_manual(values = bay_channel_colors) +
+  scale_color_manual(values = bay_channel_colors) +
+  facet_wrap(~ Season, scales = "free_x") +
   scale_y_log10() +
   labs(
-    title = stringr::str_wrap("Sediment Flux by Marsh Area (Edge/Platform), Site, and Location"),
-    y = "Log of Flux (g/m²/day)", x = "Marsh Area",
-    fill = "Location", color = "Location"
+    title =  stringr::str_wrap("Mean Sediment Flux at San Pablo Marsh Across Distance from Marsh Edge and Seasons", width = 40),
+    y = "Flux (g/m²/day)", x = "Distance (m)",
+    color = "Location"
   ) +
   theme_bw() +
   theme(
     plot.title = element_text(hjust = 0.5),
-    plot.subtitle = element_text(hjust = 0.5, size = 10, color = "gray40"),
     strip.text = element_text(face = "bold"),
     legend.position = "bottom"
   )
 
-bay_channel_ep_month <- bay_channel_edge_platform %>%
-  group_by(Site, Marsh_Area, Location, Month) %>%
-  summarise(
-    mean_flux = mean(Flux, na.rm = TRUE),
-    se_flux = sd(Flux, na.rm = TRUE) / sqrt(n()),
-    .groups = "drop"
-  )
-
-ggplot(bay_channel_ep_month, aes(x = Month, y = mean_flux, color = Location, group = Location)) +
-  geom_line() +
-  geom_point(size = 2) +
-  geom_errorbar(aes(ymin = mean_flux - se_flux, ymax = mean_flux + se_flux), width = 0.2) +
-  facet_grid(Site ~ Marsh_Area) +
+ggplot(bay_channel %>% filter(Site == "CorteMadera"), aes(x = Dist, y = Flux, color = Location)) +
+  geom_jitter(alpha = 0.4, size = 0.8,
+              position = position_jitterdodge(jitter.width = 0.15, dodge.width = 0.75)) +
+ # geom_errorbar(aes(ymin = mean_flux - se_flux, ymax = mean_flux + se_flux)) +
+  stat_summary(fun = mean, geom = "point", size = 2.5, shape = 21) +
+  facet_wrap(~ Season, scales = "free_x") +
+  scale_fill_manual(values = bay_channel_colors) +
+  scale_color_manual(values = bay_channel_colors) +
+  scale_y_log10() +
   labs(
-    title = stringr::str_wrap("Mean Flux by Marsh Area (Edge/Platform) Across Months, Bay vs Channel"),
-    y = expression(Mean~Flux~(g/m^2/day)), x = "Month", color = "Location"
+    title =  stringr::str_wrap("Mean Sediment Flux at Corte Madera Marsh 
+                               Across Distance from Marsh Edge and Seasons", width = 40),
+    y = "Flux (g/m²/day)", x = "Distance (m)",
+    color = "Location"
   ) +
   theme_bw() +
   theme(
-    axis.text.x = element_text(angle = 45, hjust = 1),
-    plot.subtitle = element_text(hjust = 0.5, size = 10, color = "gray40"),
+    plot.title = element_text(hjust = 0.5),
     strip.text = element_text(face = "bold"),
     legend.position = "bottom"
   )
-
-bay_channel_ep_phenperiod <- bay_channel_edge_platform %>%
-  group_by(Site, Marsh_Area, Location, Phen_Period) %>%
-  summarise(
-    mean_flux = mean(Flux, na.rm = TRUE),
-    se_flux = sd(Flux, na.rm = TRUE) / sqrt(n()),
-    .groups = "drop"
-  )
-
-ggplot(bay_channel_ep_phenperiod, aes(x = Phen_Period, y = mean_flux, color = Location, group = Location)) +
-  geom_line() +
-  geom_point(size = 2) +
-  geom_errorbar(aes(ymin = mean_flux - se_flux, ymax = mean_flux + se_flux), width = 0.2) +
-  facet_grid(Site ~ Marsh_Area) +
-  labs(
-    title = stringr::str_wrap("Mean Flux by Marsh Area (Edge/Platform) Across Phenological Periods, Bay vs Channel", width = 50),
-    y = expression(Mean~Flux~(g/m^2/day)), x = "Phenological Period", color = "Location"
-  ) +
-  theme_bw() +
-  theme(
-    axis.text.x = element_text(angle = 45, hjust = 1),
-    plot.subtitle = element_text(hjust = 0.5, size = 10, color = "gray40"),
-    strip.text = element_text(face = "bold"),
-    legend.position = "bottom"
-  )
-```
-
-```{r, transect comparison by site}
-# NOTE: the original file used an object called usgsthesiscomp here,
-# which is never built anywhere in this document or its predecessor --
-# a fully broken reference, not a session-dependency issue. Using
-# thesis_rq2 instead, which is the closest existing equivalent. Flag
-# if usgsthesiscomp was meant to be something more specific (e.g. a
-# transect-level aggregate) and I'll rebuild that instead.
 
 ggplot(bay_channel, aes(x = Site, y = log(Flux), fill = as.factor(Tran), colour = as.factor(Tran))) +
   geom_boxplot(alpha = 0.4, outlier.shape = NA) +
   geom_sina(alpha = 0.6, size = 2) +
   labs(
     x = "Site",
-    y = "Log of Average Flux (g/m²/day)",
+    y = expression(Mean~Flux~(g/m^2/day)),
     fill = "Transect",
     colour = "Transect"
   ) +
@@ -498,4 +521,82 @@ ggplot(bay_channel, aes(x = Site, y = log(Flux), fill = as.factor(Tran), colour 
     strip.background = element_blank(),
     strip.text = element_text(size = 18, face = "bold")
   )
+
+
+
+
+```
+
+```{r, bay channel model - Month variant}
+bay_channel_model_month <- lmer(
+  Flux ~ Location + Month + Location * Month + Site + (1|Tran),
+  data = bay_channel
+)
+summary(bay_channel_model_month)
+
+emm_bay_channel_month <- emmeans(bay_channel_model_month, ~ Month * Location*Site)
+emm_bay_channel_month_df <- as.data.frame(emm_bay_channel_month)
+
+emm_bay_channel = ggplot(emm_bay_channel_month_df, aes(x = Month, y = emmean, color = Location, group = Location)) +
+  geom_point(size = 3, position = position_dodge(0.3)) +
+  geom_errorbar(aes(ymin = lower.CL, ymax = upper.CL),
+                width = 0.2, position = position_dodge(0.3)) +
+  facet_wrap(~ Site) +
+  scale_fill_manual(values = bay_channel_colors) +
+  scale_color_manual(values = bay_channel_colors) +
+  labs(title = str_wrap("Estimated Marginal Means by Month and Location (Bay vs Channel)", width = 40),
+       y = "log(Flux (g/m²/day))", x = "Month", color = "Location") +
+  theme_bw() +
+  theme(axis.text.x = element_text(angle = 45, hjust = 1))
+emm_bay_channel
+
+ggsave("C:\\Users\\savan\\OneDrive - San Francisco State University\\ProjectData\\GitHub\\DepositionSFB\\images\\rq_2\\emm_bay_channel.png", 
+       plot = emm_bay_channel, 
+       width = 8, 
+       height = 5, 
+       dpi = 300,
+       limitsize = FALSE)
+```
+
+### Observational comparison to thesis (Edge/Platform only)
+
+A separate, restricted object -- not used in any model above, and not itself a statistical comparison. thesis_rq2 above is restricted to Marsh_Area %in% c("Edge", "Platform") to stay comparable to what thesis actually measured; this applies that same restriction to bay_channel so the resulting plots can be eyeballed side by side against the "Marsh Area comparison (USGS vs Thesis)" plots earlier in this file -- same Site x Marsh_Area facet layout, same restriction, different grouping variable (Location instead of Study.Dataset). This is a visual reference only: Bay vs Channel and USGS vs Thesis are different questions on different samples, and this doesn't claim otherwise.
+
+The full bay_channel object (all four Marsh_Area levels) from above is untouched and still available for the modeling already done.
+
+```{r, bay channel plots restricted to Edge/Platform}
+
+marsharea = ggplot(bay_channel, aes(x = Marsh_Area, y = Flux, fill = Location)) +
+  geom_boxplot(alpha = 0.5, outlier.shape = NA) +
+  geom_jitter(aes(color = Location), alpha = 0.4, size = 0.8,
+              position = position_jitterdodge(jitter.width = 0.15, dodge.width = 0.75)) +
+  facet_wrap(~ Site) +
+  scale_y_log10() +
+  labs(
+    title = stringr::str_wrap("Sediment Flux by Marsh Area (Intertidal/Edge/Platform), Site, and Location"),
+    y = "Log of Flux (g/m²/day)", x = "Marsh Area",
+    fill = "Location", color = "Location"
+  ) +
+  theme_bw() +
+  scale_fill_manual(values = bay_channel_colors) +
+  scale_color_manual(values = bay_channel_colors) +
+  theme(
+    plot.title = element_text(hjust = 0.5),
+    plot.subtitle = element_text(hjust = 0.5, size = 10, color = "gray40"),
+    strip.text = element_text(face = "bold"),
+    legend.position = "bottom"
+  )
+marsharea 
+
+ggsave("C:\\Users\\savan\\OneDrive - San Francisco State University\\ProjectData\\GitHub\\DepositionSFB\\images\\rq_2\\marsharea.png", 
+       plot = marsharea, 
+       width = 8, 
+       height = 5, 
+       dpi = 300,
+       limitsize = FALSE)
+```
+
+
+
+
 ```

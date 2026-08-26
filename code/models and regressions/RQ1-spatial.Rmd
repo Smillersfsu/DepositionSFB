@@ -22,6 +22,7 @@ question is the Tran x Site interaction.
 
 source("C:\\Users\\savan\\OneDrive - San Francisco State University\\ProjectData\\GitHub\\DepositionSFB\\code\\R\\setup.R")
 source("C:\\Users\\savan\\OneDrive - San Francisco State University\\ProjectData\\GitHub\\DepositionSFB\\code\\R\\plotting.R")
+source("C:\\Users\\savan\\OneDrive - San Francisco State University\\ProjectData\\GitHub\\DepositionSFB\\code\\R\\flux_summary.R")
 ```
 
 ```{r, working directory and master data file}
@@ -34,6 +35,15 @@ master_tier5 <- readr::read_csv("C:\\Users\\savan\\OneDrive - San Francisco Stat
 master_tier5_clean <- master_tier5 |> 
   filter(Flux > 0, 
          Dist != 48)
+
+month_levels <- c("Jul", "Aug", "Sep", "Oct", "Nov", "Dec",
+                   "Jan", "Feb", "Mar", "Apr", "May", "Jun")
+
+master_tier5 <- master_tier5 %>%
+  mutate(Month = factor(Month, levels = month_levels))
+
+master_tier5_clean <- master_tier5_clean %>%
+  mutate(Month = factor(Month, levels = month_levels))
 
 ```
 
@@ -49,7 +59,11 @@ site_order <- master_tier5 %>%
   pull(Site)
 
 master_tier5_clean <- master_tier5_clean %>%
-  mutate(Site = factor(Site, levels = site_order))
+  mutate(
+    Site = factor(Site, levels = site_order), 
+    slope_fitted_elevation_m = as.numeric(slope_fitted_elevation_m)
+)
+
 
 rq1_site = ggplot(master_tier5_clean, aes(x =Site , y = log(Flux),
                                                   fill = marsh_edge_type,
@@ -60,8 +74,8 @@ rq1_site = ggplot(master_tier5_clean, aes(x =Site , y = log(Flux),
   geom_point(aes(color = marsh_edge_type),
              position = position_jitterdodge(jitter.width = 0.15, dodge.width = 0.5),
              size = 1.5, alpha = 0.3) +
-  scale_fill_manual(values = c("Ramped" = "#378ADD", "Scarped" = "#D85A30")) +
-  scale_color_manual(values = c("Ramped" = "#378ADD", "Scarped" = "#D85A30")) +
+  scale_color_manual(values = marsh_edge_colors) + 
+  scale_fill_manual(values = marsh_edge_colors) +
   ylim(0, 6) +
   labs(y = "Log(Flux (g/m^2/day))", x = "Site",
        fill = "Marsh Edge Type", color = "Marsh Edge Type",
@@ -92,13 +106,13 @@ rq1_tran = ggplot(master_tier5_clean, aes(x =Site , y = log(Flux),
   geom_point(aes(color = marsh_edge_type),
              position = position_jitterdodge(jitter.width = 0.15, dodge.width = 0.5),
              size = 1.5, alpha = 0.3) +
-  scale_fill_manual(values = c("T1" = "#378ADD", "T2" = "#D85A30")) +
-  scale_color_manual(values = c("T1" = "#378ADD", "T2" = "#D85A30")) +
+ scale_color_manual(values = site_colors) + 
+   scale_fill_manual(values = transect_colors) + 
   scale_x_reordered() +
   ylim(0, 6) +
   labs(y = "Log(Flux (g/m^2/day))", x = "Site",
        fill = "Marsh Edge Type", color = "Marsh Edge Type",
-       title = str_wrap("Sediment Deposition Rates Across Transects Between Scarped and Ramped Marsh Edge Sites")) +
+       title = str_wrap("Sediment Deposition Rates Across Transects Between Scarped and Ramped Marsh Edge Sites", width = 40)) +
   theme_bw() +
   theme(legend.position = "bottom")
 rq1_tran
@@ -120,8 +134,7 @@ rq1_dist = ggplot(master_tier5_clean, aes(x = factor(Dist), y = Flux, color = Tr
   geom_jitter(position = position_jitterdodge(jitter.width = 0.15, dodge.width = 0.8),
               size = 1.2, alpha = 0.4) +
   facet_wrap(~Site, scales = "free_y", ncol = 2) +
-  scale_color_manual(values = c("T1" = "#D85A30", "T2" = "#378ADD")) +
-  scale_fill_manual(values = c("T1" = "#D85A30", "T2" = "#378ADD")) +
+ scale_color_manual(values = site_colors) + 
   theme_minimal(base_size = 20) +
   labs(x = "Distance", y = expression(Flux~(g/m^2/day)),
        color = "Transect", fill = "Transect") +
@@ -147,8 +160,7 @@ rq1_dist_noG = ggplot(filter(master_tier5_clean, Site != "GiantMarsh"),
   geom_jitter(position = position_jitterdodge(jitter.width = 0.15, dodge.width = 0.8),
               size = 1.2, alpha = 0.4) +
   facet_wrap(~Site, scales = "free_y") +
-  scale_color_manual(values = c("T1" = "#D85A30", "T2" = "#378ADD")) +
-  scale_fill_manual(values = c("T1" = "#D85A30", "T2" = "#378ADD")) +
+ scale_color_manual(values = site_colors) + 
   theme_minimal(base_size = 20) +
   labs(x = "Distance", y = expression(Flux~(g/m^2/day)),
        color = "Transect", fill = "Transect") +
@@ -160,8 +172,36 @@ rq1_dist_noG = ggplot(filter(master_tier5_clean, Site != "GiantMarsh"),
         legend.title = element_text(size = 16, face = "bold"))
 rq1_dist_noG
 
-ggsave("C:\\Users\\savan\\OneDrive - San Francisco State University\\ProjectData\\GitHub\\DepositionSFB\\images\\rq1_dist_noG.png",
+ggsave("C:\\Users\\savan\\OneDrive - San Francisco State University\\ProjectData\\GitHub\\DepositionSFB\\images\\rq_1\\rq1_dist_noG.png",
        plot = rq1_dist_noG,
+       width = 13.33,
+       height = 7.5,
+       dpi = 300,
+       limitsize = FALSE)
+
+
+
+rq1_slope = ggplot(master_tier5_clean, 
+                      aes(x = factor(slope_fitted_elevation_m), y = Flux, color = Tran, fill = Tran)) +
+  geom_violin(alpha = 0.3, position = position_dodge(0.8)) +
+  geom_jitter(position = position_jitterdodge(jitter.width = 0.15, dodge.width = 0.8),
+              size = 1.2, alpha = 0.4) +
+  facet_wrap(~Site, scales = "free_y") +
+ scale_color_manual(values = site_colors) + 
+  theme_minimal(base_size = 20) +
+  labs(x = "Slope Per Transect (m)", y = expression(Flux~(g/m^2/day)),
+       color = "Transect", fill = "Transect") +
+  theme(legend.position = "bottom",
+        strip.text = element_text(face = "bold", size = 18),
+        axis.text = element_text(size = 14),
+        axis.title = element_text(size = 18, face = "bold"),
+        legend.text = element_text(size = 16),
+        legend.title = element_text(size = 16, face = "bold"))
+rq1_slope
+
+
+ggsave("C:\\Users\\savan\\OneDrive - San Francisco State University\\ProjectData\\GitHub\\DepositionSFB\\images\\rq_1\\rq1_slope.png",
+       plot = rq1_slope,
        width = 13.33,
        height = 7.5,
        dpi = 300,
@@ -178,6 +218,7 @@ rq1_ramped = ggplot(filter(master_tier5_clean, marsh_edge_type == "Ramped"),
   geom_violin(alpha = 0.3, position = position_dodge(0.8)) +
   geom_jitter(position = position_jitterdodge(jitter.width = 0.15, dodge.width = 1.2),
               size = 0.8, alpha = 0.3) +
+  scale_fill_manual(values = site_colors) + 
   theme_minimal(base_size = 13) +
   labs(x = "Distance", y = expression(Flux~(g/m^2)),
        color = "Site - Transect", fill = "Site - Transect",
@@ -190,6 +231,7 @@ rq1_scarped = ggplot(filter(master_tier5_clean, marsh_edge_type == "Scarped"),
   geom_violin(alpha = 0.3, position = position_dodge(0.8)) +
   geom_jitter(position = position_jitterdodge(jitter.width = 0.15, dodge.width = 1.2),
               size = 0.8, alpha = 0.3) +
+  scale_fill_manual(values = site_colors)
   theme_minimal(base_size = 13) +
   labs(x = "Distance", y = expression(Flux~(g/m^2)),
        color = "Site - Transect", fill = "Site - Transect",
@@ -216,7 +258,7 @@ rq1_z = ggplot(master_tier5_clean, aes(x = z_star, y = Flux, color = Tran)) +
         axis.text = element_text(size = 12))
 rq1_z
 
-ggsave("C:\\Users\\savan\\OneDrive - San Francisco State University\\ProjectData\\GitHub\\DepositionSFB\\images\\rq1_z.png",
+ggsave("C:\\Users\\savan\\OneDrive - San Francisco State University\\ProjectData\\GitHub\\DepositionSFB\\images\\rq_1\\rq1_z.png",
        plot = rq1_z,
        width = 13.33,
        height = 7.5,
@@ -262,8 +304,7 @@ ggplot(pred, aes(x = x, y = predicted, color = group, fill = group)) +
   geom_point(data = master_tier5_clean, 
              aes(x = z_star, y = log(Flux), color = marsh_edge_type),
              alpha = 0.3, size = 1.5, inherit.aes = FALSE) +
-  scale_color_manual(values = c("Ramped" = "#E69F00", "Scarped" = "#0072B2")) +
-  scale_fill_manual(values  = c("Ramped" = "#E69F00", "Scarped" = "#0072B2")) +
+  scale_color_manual(values = marsh_edge_colors) + 
   labs(x = "z*", 
        y = "log(Sediment Flux g/m²)",
        color = "Edge Type", 
@@ -325,6 +366,7 @@ ggplot() +
   geom_line(data = preds,
             aes(x = x, y = predicted, colour = group, group = group),
             linewidth = 1) +
+  scale_color_manual(values = site_colors) + 
   geom_ribbon(data = preds,
               aes(x = x, ymin = conf.low, ymax = conf.high, fill = group, group = group),
               alpha = 0.2) +
@@ -355,6 +397,7 @@ ggplot() +
   geom_ribbon(data = pred_grid,
               aes(x = Dist, ymin = lower, ymax = upper, fill = Site, group = Site),
               alpha = 0.2) +
+  scale_color_manual(values = site_colors) + 
   labs(x = "Distance (m)", y = "Log of Average Flux (g/cm^2/day)",
        colour = "Site", fill = "Site", shape = "Site") +
   theme_classic(base_size = 18) +
@@ -371,13 +414,22 @@ library(ggforce)  # for geom_sina() in the reference-additions plots
  transite <- lmer(log(Flux) ~ Tran + Site + Tran*Site + (1|Dist), data = avgdist)
   summary(transite)
   
-  ggplot(avgdist, aes(x = as.factor(Tran), y = log(Flux), fill = Site, colour = Site)) +
+tran_site = ggplot(avgdist, aes(x = as.factor(Tran), y = log(Flux), fill = Site, colour = Site)) +
     geom_boxplot(alpha = 0.4, outlier.shape = NA) +
     geom_sina(alpha = 0.6, size = 2) +
     labs(x = "Transect", y = "Log of Average Flux (g/cm^2/day)",
          fill = "Site", colour = "Site") +
+    scale_color_manual(values = site_colors) + 
+    scale_fill_manual(values = site_colors) +
     theme_classic(base_size = 18) +
     theme(axis.text.x = element_text(angle = 45, hjust = 1, size = 18))
+  
+ggsave("C:\\Users\\savan\\OneDrive - San Francisco State University\\ProjectData\\GitHub\\DepositionSFB\\images\\rq_1\\tran_site.png", 
+       plot = tran_site, 
+       width = 8, 
+       height = 5, 
+       dpi = 300,
+       limitsize = FALSE)
  
 ```
 
@@ -413,6 +465,7 @@ ggplot(master_tier5_clean, aes(x = as.factor(Tran), y = log(Flux), fill = Site, 
   facet_wrap(~Site, scales = "free_x") +
   labs(x = "Transect", y = "Log of Average Flux (g/cm^2/day)",
        fill = "Site", colour = "Site") +
+  scale_color_manual(values = marsh_edge_colors) + 
   theme_classic(base_size = 18) +
   theme(axis.text.x = element_text(angle = 45, hjust = 1, size = 18),
         axis.text.y = element_text(hjust = 1, size = 12))
@@ -534,17 +587,26 @@ ggplot(master_tier5_clean, aes(x = marsh_edge_type, y = log(Flux), fill = marsh_
                                "West.facing" = "#7090D0")) +
   theme_bw()
 
-ggplot(avgtotal, aes(x = marsh_edge_type, y = Flux, fill = marsh_edge_type)) +
+basic_rq1 = ggplot(avgtotal, aes(x = marsh_edge_type, y = Flux, fill = marsh_edge_type)) +
   geom_boxplot(alpha = 0.5, outlier.shape = NA) +
   geom_jitter(alpha = 0.4, width = 0.2, size = 0.8) +
   scale_y_log10() +
   labs(title = str_wrap("Sediment Flux by Marsh Edge Type", width = 40),
        y = "Log of Average Flux (g/m^2/day)", x = "Marsh Edge Type") +
   theme_bw() +
+  scale_fill_manual(values = marsh_edge_colors) + 
   theme(legend.position = "none",
         axis.text.x = element_text(size = 13),
         axis.title = element_text(size = 13),
         plot.title = element_text(hjust = 0.5))
+basic_rq1
+
+ggsave("C:\\Users\\savan\\OneDrive - San Francisco State University\\ProjectData\\GitHub\\DepositionSFB\\images\\rq_1\\basic_rq1.png", 
+       plot = basic_rq1, 
+       width = 8, 
+       height = 5, 
+       dpi = 300,
+       limitsize = FALSE)
 
 ggplot(avgtotal, aes(x = marsh_orientation, y = Flux, fill = marsh_orientation)) +
   geom_boxplot(alpha = 0.5, outlier.shape = NA) +
@@ -553,6 +615,7 @@ ggplot(avgtotal, aes(x = marsh_orientation, y = Flux, fill = marsh_orientation))
   labs(title = str_wrap("Sediment Flux by Marsh Orientation", width = 40),
        y = "Log of Average Flux (g/cm^2/day)", x = "Marsh Orientation") +
   theme_bw() +
+  scale_color_manual(values = marsh_edge_colors) + 
   theme(legend.position = "none",
         axis.text.x = element_text(size = 13),
         axis.title = element_text(size = 13),
@@ -644,25 +707,80 @@ master_tier5_clean %>%
 ```
 
 ```{r}
-
 avgdist_protected <- avgdist %>%
   filter(!Site %in% c("SanPablo", "GiantMarsh"))
+```
 
-BGtransite <- lmer(log(Flux) ~ Tran + Site + Tran*Site + (1|Dist), data = avgdist_protected)
-summary(BGtransite)
 
-BGtransite = ggplot(avgdist_protected, aes(x = as.factor(Tran), y = log(Flux), fill = Site, colour = Site)) +
+```{r}
+BCtransite <- lmer(log(Flux) ~ Tran + Site + Tran*Site + (1|Dist), data = avgdist_protected)
+summary(BCtransite)
+
+BCtransite = ggplot(avgdist_protected, aes(x = as.factor(Tran), y = log(Flux), fill = Site, colour = Site)) +
   geom_boxplot(alpha = 0.4, outlier.shape = NA) +
   geom_sina(alpha = 0.6, size = 2) +
   labs(x = "Transect", y = "Log of Average Flux (g/cm^2/day)",
        fill = "Site", colour = "Site") +
+  scale_color_manual(values = site_colors) +
+  scale_fill_manual(values = site_colors) + 
   theme_classic(base_size = 18) +
   theme(axis.text.x = element_text(angle = 45, hjust = 1, size = 18))
 
-ggsave("C:\\Users\\savan\\OneDrive - San Francisco State University\\ProjectData\\GitHub\\DepositionSFB\\images\\BGtransite.png", 
+ggsave("C:\\Users\\savan\\OneDrive - San Francisco State University\\ProjectData\\GitHub\\DepositionSFB\\images\\rq_1\\BCtransite.png", 
        width = 8, 
        height = 5, 
        dpi = 300,
        limitsize = FALSE)
+```
+
+
+```{r}
+
+p_flux_zstar <- ggplot(master_tier5_clean, aes(x = z_star, y = Flux, color = Site)) +
+  geom_point(size = 2, alpha = 0.7) +
+  scale_color_manual(values = site_colors) +
+   scale_y_log10() +
+  labs(
+    title = str_wrap("Daily Sediment Flux vs. Elevation (z*) Across 2 Ramped and 2 Scarped Marshes, 2025-2026 ", width = 40),
+    x = "z*",
+    y = expression(Flux~(g/m^2/day)),
+    color = "Site"
+  ) +
+  theme_minimal() +
+  theme(legend.position = "bottom")
+p_flux_zstar
+
+
+ggsave("C:\\Users\\savan\\OneDrive - San Francisco State University\\ProjectData\\GitHub\\DepositionSFB\\images\\rq_1\\p_flux_zstar.png", 
+       plot = p_flux_zstar,
+       width = 8, 
+       height = 5, 
+       dpi = 300,
+       limitsize = FALSE)
+```
+
+
+
+
+```{r}
+
+site_stats <- make_flux_table(
+  master_thesis, 
+  group_vars = "Site", 
+  title = "Descriptive Statistics of Sediment Flux by Site",
+  subtitle = "Flux measured in g/m²/day"
+)
+```
+
+```{r}
+ft <- site_stats$data %>%
+  flextable() %>%
+  set_caption("Descriptive Statistics of Sediment Flux by Site") %>%
+  colformat_double(digits = 3) %>%
+  autofit()
+
+save_as_image(ft, path = "C:\\Users\\savan\\OneDrive - San Francisco State University\\ProjectData\\GitHub\\DepositionSFB\\images\\rq_1\\site_flux_stats.png")
+```
+
 ```
 

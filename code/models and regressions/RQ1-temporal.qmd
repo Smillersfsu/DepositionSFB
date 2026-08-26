@@ -13,7 +13,7 @@ rather than across site/edge-type/distance/elevation.
 
 Moved in from master_thesis_regressions.Rmd:
 - "derive Month for reference models" (Month factor derivation)
-- "rq1 time" chunk -> rq1_time_trend, rq1_time (Flux by Date.removed.from.field)
+- "rq1 time" chunk -> rq1_time_trend, rq1_time (Flux by Month)
 - two of the three plots from "transect x site model with replicate and
   phase" -- Study.Phase sina plot and Dist x Study.Phase facet plot.
   (transite1 model itself and its Tran-by-Site plot stayed in
@@ -34,56 +34,40 @@ the old Hydro_Period (confirmed).
 
 ```{r, load packages and working directory}
 
-library(tidyverse)
-library(lubridate)
-
-```
-
-```{r}
-
-```
-
-```{Test)}
-library(lme4)
-library(ggeffects)
-library(patchwork)
-library(rcartocolor)
-library(ggh4x)
-library(scales)
-library(ggforce)
+source("C:\\Users\\savan\\OneDrive - San Francisco State University\\ProjectData\\GitHub\\DepositionSFB\\code\\R\\setup.R")
+source("C:\\Users\\savan\\OneDrive - San Francisco State University\\ProjectData\\GitHub\\DepositionSFB\\code\\R\\plotting.R")
 
 knitr::opts_chunk$set(echo = TRUE)
 knitr::opts_knit$set(root.dir = 'C:/Users/savan/OneDrive - San Francisco State University/ProjectData/GitHub/DepositionSFB/data')
+
+```
+
+```{r, load and prep data}
 
 master_tier5 <- readr::read_csv(
   file.path(knitr::opts_knit$get("root.dir"), "master_tier5.csv")
 )
 
 master_tier5_clean <- master_tier5 %>%
+    filter(Flux > 0, 
+         Dist != 48) %>%
   mutate(
     Study.Phase = factor(Study.Phase, levels = paste0("M", 1:12)),
     Site = factor(Site, levels = c("GiantMarsh", "SanPablo", "Buck'sLanding", "CorteMadera")),
     Tran = factor(Tran),
     marsh_edge_type = as.factor(marsh_edge_type),
-    marsh_orientation = as.factor(marsh_orientation)
-  )
-
-# Phen_Period is a real column on master_tier5 (replaced Season this
-# session, per Session_Status -- no reconstruction needed here, just
-# re-factor after the CSV round-trip like the other factor columns above).
-# Confirmed same levels/order as the old Hydro_Period.
-master_tier5_clean <- master_tier5_clean %>%
-  mutate(
+    marsh_orientation = as.factor(marsh_orientation), 
+    Month = factor(
+      Month, levels = c("Jul", "Aug", "Sep", "Oct", "Nov", "Dec",
+                                       "Jan", "Feb", "Mar", "Apr", "May", "Jun")), 
     Phen_Period = factor(
       Phen_Period,
       levels = c("Late_Dry\n(Months 1-3)", "Tran\n(Months 4-6)",
                  "Wet\n(Months 7-9)", "Growth\n(Months 10-12)")
-    )
   )
+)
 
-master_tier5_clean <- master_tier5_clean|> 
-  filter(Flux > 0, 
-         Dist != 48)
+
 
 ```
 
@@ -92,24 +76,25 @@ master_tier5_clean <- master_tier5_clean|>
 ```{r, rq1 time}
 
 summary_df <- master_tier5_clean %>%
-  group_by(Site, Tran, Date.removed.from.field) %>%
+  group_by(Site, Tran, Month) %>%
   summarise(median_flux = median(Flux, na.rm = TRUE),
             q25 = quantile(Flux, 0.25, na.rm = TRUE),
             q75 = quantile(Flux, 0.75, na.rm = TRUE),
             .groups = "drop")
 
-rq1_time_trend = ggplot(summary_df, aes(x = Date.removed.from.field, y = median_flux, color = Tran, fill = Tran)) +
+rq1_time_trend = ggplot(summary_df, aes(x = Month, y = median_flux, color = Tran, fill = Tran)) +
   geom_ribbon(aes(ymin = q25, ymax = q75), alpha = 0.15, color = NA) +
   geom_line(linewidth = 0.8) +
   geom_point(size = 1.8) +
   facet_wrap(~Site, scales = "free_y") +
-  scale_color_manual(values = c("T1" = "#D85A30", "T2" = "#378ADD")) +
-  scale_fill_manual(values = c("T1" = "#D85A30", "T2" = "#378ADD")) +
+  scale_color_manual(values = transect_colors) +
+  scale_fill_manual(values = transect_colors) +
   theme_minimal(base_size = 15) +
   labs(x = "Date Removed from Field", y = expression(Median~Flux~(g/m^2/day)),
        color = "Transect", fill = "Transect") +
   theme(legend.position = "bottom",
-        strip.text = element_text(face = "bold"))
+        strip.text = element_text(face = "bold"), 
+        axis.text.x = element_text(angle = 45, hjust = 1, size = 18))
 rq1_time_trend
 
 ggsave(file.path(knitr::opts_knit$get("root.dir"), "rq1_time_trend.png"),
@@ -119,16 +104,15 @@ ggsave(file.path(knitr::opts_knit$get("root.dir"), "rq1_time_trend.png"),
        dpi = 300,
        limitsize = FALSE)
 
-rq1_time = ggplot(master_tier5_clean, aes(x = Date.removed.from.field, y = Flux, color = Tran, fill = Tran)) +
-  geom_boxplot(aes(group = interaction(Date.removed.from.field, Tran)), 
+rq1_time = ggplot(master_tier5_clean, aes(x = Month, y = Flux, color = Tran, fill = Tran)) +
+  geom_boxplot(aes(group = interaction(Month, Tran)), 
                alpha = 0.3, outlier.shape = NA, 
                position = position_dodge(width = 6)) +
   geom_jitter(position = position_jitterdodge(jitter.width = 1.5, dodge.width = 6),
               size = 0.8, alpha = 0.3) +
   facet_wrap(~Site, scales = "free_y") +
-  scale_x_date(date_breaks = "1 month", date_labels = "%b %Y") + 
-  scale_color_manual(values = c("T1" = "#D85A30", "T2" = "#378ADD")) +
-  scale_fill_manual(values = c("T1" = "#D85A30", "T2" = "#378ADD")) +
+  scale_color_manual(values = c(values = transect_colors)) +
+  scale_fill_manual(values = c(values = transect_colors)) +
   theme_minimal(base_size = 15) +
   labs(x = "Date Removed from Field", y = expression(Flux~(g/m^2/day)),
        color = "Transect", fill = "Transect") +
@@ -143,6 +127,7 @@ ggsave(file.path(knitr::opts_knit$get("root.dir"), "rq1_time.png"),
        height = 7.5,
        dpi = 300,
        limitsize = FALSE)
+
 ```
 
 ## Flux over Study.Phase
@@ -151,41 +136,68 @@ ggsave(file.path(knitr::opts_knit$get("root.dir"), "rq1_time.png"),
 # Moved from RQ1-spatial.Rmd's transite1 chunk -- shows the raw Flux
 # distribution across phase, complementing the summary-line versions below.
 
-ggplot(master_tier5_clean, aes(x = as.factor(Study.Phase), y = log(Flux), color = Site)) +
+log_month = ggplot(master_tier5_clean, aes(x = as.factor(Month), y = log(Flux), color = Site)) +
   geom_point(alpha = 0.4) +
   geom_sina(alpha = 0.6, size = 2) +
-  labs(x = "Month of Study", y = "Log of Average Flux (g/cm^2/day)",
+  labs(x = "Month of Study", y = "Log Flux (g/cm^2/day)",
        colour = "Site") +
+  scale_color_manual(values = c(site_colors)) + 
   theme_classic(base_size = 18) +
   theme(axis.text.x = element_text(angle = 45, hjust = 1, size = 18))
+log_month 
 
-ggplot(master_tier5_clean, aes(x = Dist, y = log(Flux), color = Site)) +
-  facet_wrap("Study.Phase") +
+ggsave("C:\\Users\\savan\\OneDrive - San Francisco State University\\ProjectData\\GitHub\\DepositionSFB\\images\\rq_1\\log_month .png", 
+       plot = log_month, 
+       width = 8, 
+       height = 5, 
+       dpi = 300,
+       limitsize = FALSE)
+
+wrapmonth_dist = ggplot(master_tier5_clean, aes(x = Dist, y = log(Flux), color = Site)) +
+  facet_wrap("Month") +
   geom_point(alpha = 0.4) +
   geom_sina(alpha = 0.6, size = 2) +
-  labs(x = "Distance", y = "Log of Average Flux (g/cm^2/day)",
+  labs(x = "Distance", y = "Log Flux (g/cm^2/day)",
        colour = "Site") +
+  scale_color_manual(values = c(site_colors)) +
   theme_classic(base_size = 18) +
-  theme(axis.text.x = element_text(angle = 45, hjust = 1, size = 18))
+  theme(axis.text.x = element_text(angle = 45, hjust = 1, size = 18)) 
+wrapmonth_dist
+
+ggsave("C:\\Users\\savan\\OneDrive - San Francisco State University\\ProjectData\\GitHub\\DepositionSFB\\images\\rq_1\\wrapmonth_dist.png", 
+       plot = wrapmonth_dist, 
+       width = 8, 
+       height = 5, 
+       dpi = 300,
+       limitsize = FALSE)
 ```
 
 ```{r, aggregate per Study.Phase-Site}
 
 total_summary <- master_tier5_clean %>%
-  group_by(Site, Study.Phase) %>%
+  group_by(Site, Month) %>%
   summarise(
     mean_flux = mean(Flux, na.rm = TRUE),
     se_flux = sd(Flux, na.rm = TRUE) / sqrt(n()),
     .groups = "drop"
   )
 
-ggplot(total_summary, aes(x = Study.Phase, y = mean_flux, color = Site, group = Site)) +
-  geom_line() +
+mean_month_site = ggplot(total_summary, aes(x = Month, y = mean_flux, group = Site, color = Site)) +
   geom_point(size = 3) +
   geom_errorbar(aes(ymin = mean_flux - se_flux, ymax = mean_flux + se_flux), width = 0.2) +
   facet_wrap(~ Site, scales = "free_y") +
+  scale_color_manual(values = c(site_colors)) + 
   theme_minimal() +
-  labs(x = "Study Phase", y = expression(Mean~Flux~(g/m^2/day)))
+  labs(x = "Majority Month Deployed", y = expression(Mean~Flux~(g/m^2/day))) + 
+  theme(axis.text.x = element_text(angle = 45, hjust = 1))
+mean_month_site
+
+ggsave("C:\\Users\\savan\\OneDrive - San Francisco State University\\ProjectData\\GitHub\\DepositionSFB\\images\\rq_1\\mean_month_site.png", 
+       plot = mean_month_site, 
+       width = 8, 
+       height = 5, 
+       dpi = 300,
+       limitsize = FALSE)
 ```
 
 ```{r, Study Phase by marsh group and transect}
@@ -193,13 +205,13 @@ ggplot(total_summary, aes(x = Study.Phase, y = mean_flux, color = Site, group = 
 phase_compare <- master_tier5_clean %>%
   mutate(
     Marsh_Group = case_when(
-      Site %in% c("SanPablo", "CorteMadera") ~ "San Pablo + Corte Madera",
-      Site %in% c("Buck'sLanding", "GiantMarsh") ~ "Buck's Landing + Giant Marsh",
+      Site %in% c("SanPablo", "GiantMarsh") ~ "San Pablo + Giant Marsh",
+      Site %in% c("Buck'sLanding", "CorteMadera") ~ "Buck's Landing + Corte Madera",
       TRUE ~ NA_character_
     )
   ) %>%
   filter(!is.na(Marsh_Group)) %>%
-  group_by(Marsh_Group, Site, Tran, Study.Phase) %>%
+  group_by(Marsh_Group, Site, Tran, Month) %>%
   summarise(
     mean_flux = mean(Flux, na.rm = TRUE),
     se_flux = sd(Flux, na.rm = TRUE) / sqrt(n()),
@@ -208,27 +220,36 @@ phase_compare <- master_tier5_clean %>%
   )
 
 phase_compare_grouped <- phase_compare %>%
-  group_by(Marsh_Group, Study.Phase) %>%
+  group_by(Marsh_Group, Month) %>%
   summarise(
     mean_flux = weighted.mean(mean_flux, n, na.rm = TRUE),
     se_flux = sqrt(sum(se_flux^2 * n^2, na.rm = TRUE)) / sum(n),
     .groups = "drop"
   )
 
-ggplot(phase_compare_grouped, aes(x = Study.Phase, y = mean_flux, color = Marsh_Group, group = Marsh_Group)) +
-  geom_line() +
+ggplot(phase_compare_grouped, aes(x = Month, y = mean_flux, color = Marsh_Group, group = Marsh_Group)) +
   geom_point(size = 3) +
   geom_errorbar(aes(ymin = mean_flux - se_flux, ymax = mean_flux + se_flux), width = 0.2) +
   theme_minimal() +
-  labs(x = "Study Phase", y = expression(Mean~Flux~(g/m^2/day)), color = "Marsh Group")
+  labs(x = "Majority Month Deployed", y = expression(Mean~Flux~(g/m^2/day)), color = "Marsh Group")
 
-ggplot(phase_compare, aes(x = Study.Phase, y = mean_flux, color = Tran, group = Tran)) +
-  geom_line() +
+mean_month = ggplot(phase_compare, aes(x = Month, y = mean_flux, color = Tran, group = Tran)) +
   geom_point(size = 3) +
+  scale_color_manual(values = c(transect_colors)) +
   geom_errorbar(aes(ymin = mean_flux - se_flux, ymax = mean_flux + se_flux), width = 0.2) +
   facet_wrap(~ Site, scales = "free_y") +
   theme_minimal() +
-  labs(x = "Study Phase", y = expression(Mean~Flux~(g/m^2/day)), color = "Transect")
+  labs(x = "Month Majority Deployment", y = expression(Mean~Flux~(g/m^2/day)), color = "Transect") + 
+  theme(axis.text.x = element_text(angle = 45, hjust = 1))
+mean_month
+
+ggsave("C:\\Users\\savan\\OneDrive - San Francisco State University\\ProjectData\\GitHub\\DepositionSFB\\images\\rq_1\\mean_month.png", 
+       plot = mean_month, 
+       width = 8, 
+       height = 5, 
+       dpi = 300,
+       limitsize = FALSE)
+
 ```
 
 ```{r, Study Phase by distance}
@@ -237,7 +258,7 @@ transect_summary2 <- master_tier5_clean %>%
   mutate(Flux_zeroed = ifelse(Flux < 0, 0, Flux)) %>%
   filter(Dist %in% c(0.5, 2, 6, 12, 18, 24)) %>%
   mutate(Dist = factor(Dist, levels = c(0.5, 2, 6, 12, 18, 24))) %>%
-  group_by(Dist, Site, Study.Phase) %>%
+  group_by(Dist, Site, Month) %>%
   summarise(
     mean_flux = mean(Flux_zeroed, na.rm = TRUE),
     se_flux = sd(Flux_zeroed, na.rm = TRUE) / sqrt(n()),
@@ -245,29 +266,87 @@ transect_summary2 <- master_tier5_clean %>%
     .groups = "drop"
   )
 
-dist_plot_log <- ggplot(transect_summary2, aes(x = Study.Phase, y = mean_flux, color = Site, group = Site)) +
-  geom_line(linewidth = 0.8) +
+dist_month <- ggplot(transect_summary2, aes(x = Month, y = mean_flux, color = Site, group = Site)) +
   geom_point(size = 3) +
   geom_errorbar(aes(ymin = pmax(mean_flux - se_flux, 0.001), ymax = mean_flux + se_flux),
                 width = 0.2, linewidth = 0.5) +
   facet_wrap(~ Dist, scales = "free_y", ncol = 2) +
   scale_y_log10() +
+  scale_color_manual(values = c(site_colors)) + 
   theme_minimal(base_size = 14) +
   theme(axis.text.x = element_text(angle = 45, hjust = 1),
         strip.text = element_text(size = 13, face = "bold"),
         legend.position = "bottom") +
   labs(
-    title = "Mean Sediment Flux Across Study Phase by Distance from Marsh Edge",
-    subtitle = "Negative flux values set to zero; y-axis shown on log scale",
-    x = "Study Phase", y = expression(Mean~Flux~(g/m^2/day)), color = "Site"
+    title = str_wrap("Mean Sediment Flux Across Study Phase by Distance from Marsh Edge", width = 40),
+    subtitle = "Negative flux values set to zero",
+    x = "Majority Month Deployed", y = expression(Mean~Flux~(g/m^2/day)), color = "Site"
   )
-dist_plot_log
+dist_month
+
+ggsave("C:\\Users\\savan\\OneDrive - San Francisco State University\\ProjectData\\GitHub\\DepositionSFB\\images\\rq_1\\dist_month.png",
+       plot = dist_month,
+       width = 16,
+       height = 14,
+       dpi = 300,
+       limitsize = FALSE)
+
+dist_plot_mean <- ggplot(transect_summary2, aes(x = Dist, y = mean_flux, color = Month, group = Site)) +
+  geom_point(size = 3) +
+  geom_errorbar(aes(ymin = pmax(mean_flux - se_flux, 0.001), ymax = mean_flux + se_flux),
+                width = 0.2, linewidth = 0.5) +
+  facet_wrap(~ Site, scales = "free_y", ncol = 2) +
+  scale_y_log10() +
+  scale_color_manual(values = c(site_colors)) + 
+  theme_minimal(base_size = 14) +
+  theme(axis.text.x = element_text(angle = 45, hjust = 1),
+        strip.text = element_text(size = 13, face = "bold"),
+        legend.position = "bottom") +
+  labs(
+    title = str_wrap("Mean Sediment Flux Across Study Phase by Distance from Marsh Edge", width = 40),
+    subtitle = "Negative flux values set to zero",
+    x = "Distance from Marsh Edge (m)", y = expression(Mean~Flux~(g/m^2/day)), color = "Site"
+  )
+dist_plot_mean
+
+ggsave("C:\\Users\\savan\\OneDrive - San Francisco State University\\ProjectData\\GitHub\\DepositionSFB\\images\\rq_1\\dist_plot_mean.png",
+       plot = dist_plot_mean,
+       width = 16,
+       height = 14,
+       dpi = 300,
+       limitsize = FALSE)
+
+
+dist_plot_simple <- ggplot(transect_summary2, aes(x = Dist, y = mean_flux, color = Site)) +
+  geom_point(size = 3) +
+  geom_errorbar(aes(ymin = pmax(mean_flux - se_flux, 0.001), ymax = mean_flux + se_flux),
+                width = 0.2, linewidth = 0.5) +
+  facet_wrap(~ Site, scales = "free_y", ncol = 2) +
+  scale_y_log10() +
+  scale_color_manual(values = c(site_colors)) + 
+  theme_minimal(base_size = 14) +
+  theme(axis.text.x = element_text(angle = 45, hjust = 1),
+        strip.text = element_text(size = 13, face = "bold"),
+        legend.position = "bottom") +
+  labs(
+    title = str_wrap("Mean Sediment Flux Across Study Phase by Distance from Marsh Edge", width = 40),
+    subtitle = "Negative flux values set to zero",
+    x = "Distance from Marsh Edge (m)", y = expression(Mean~Flux~(g/m^2/day)), color = "Site"
+  )
+dist_plot_simple
+
+ggsave("C:\\Users\\savan\\OneDrive - San Francisco State University\\ProjectData\\GitHub\\DepositionSFB\\images\\rq_1\\dist_plot_simple.png",
+       plot = dist_plot_simple,
+       width = 16,
+       height = 14,
+       dpi = 300,
+       limitsize = FALSE)
 
 transect_summary_no_giant <- master_tier5_clean %>%
   mutate(Flux_zeroed = ifelse(Flux < 0, 0, Flux)) %>%
   filter(Site != "GiantMarsh", Dist %in% c(0.5, 2, 6, 12, 18, 24)) %>%
   mutate(Dist = factor(Dist, levels = c(0.5, 2, 6, 12, 18, 24))) %>%
-  group_by(Dist, Site, Study.Phase) %>%
+  group_by(Dist, Site, Month) %>%
   summarise(
     mean_flux = mean(Flux_zeroed, na.rm = TRUE),
     se_flux = sd(Flux_zeroed, na.rm = TRUE) / sqrt(n()),
@@ -275,26 +354,29 @@ transect_summary_no_giant <- master_tier5_clean %>%
     .groups = "drop"
   )
 
-dist_plot_no_giant <- ggplot(transect_summary_no_giant, aes(x = Study.Phase, y = mean_flux, color = Site, group = Site)) +
-  geom_line(linewidth = 0.8) +
+dist_plot_no_giant <- ggplot(transect_summary_no_giant, aes(x = Month, y = mean_flux, color = Site, group = Site)) +
   geom_point(size = 3) +
   geom_errorbar(aes(ymin = mean_flux - se_flux, ymax = mean_flux + se_flux), width = 0.2, linewidth = 0.5) +
   facet_wrap(~ Dist, scales = "free_y", ncol = 2) +
+  scale_color_manual(values = c(site_colors)) + 
   theme_minimal(base_size = 14) +
   theme(axis.text.x = element_text(angle = 45, hjust = 1),
         strip.text = element_text(size = 13, face = "bold"),
         legend.position = "bottom") +
   labs(
-    title = "Mean Sediment Flux Across Study Phase by Distance from Marsh Edge",
+    title = str_wrap("Mean Sediment Flux Across Study Phase by Distance from Marsh Edge", width = 40),
     subtitle = "GiantMarsh removed; negative flux values set to zero",
-    x = "Study Phase", y = expression(Mean~Flux~(g/m^2/day)), color = "Site"
+    x = "Majority Month Deployed", y = expression(Mean~Flux~(g/m^2/day)), color = "Site"
   )
 dist_plot_no_giant
 
-ggsave(
-  file.path(knitr::opts_knit$get("root.dir"), "distance_flux_log_plot.png"),
-  dist_plot_log, width = 12, height = 9, dpi = 300
-)
+ggsave("C:\\Users\\savan\\OneDrive - San Francisco State University\\ProjectData\\GitHub\\DepositionSFB\\images\\rq_1\\dist_plot_no_giant.png",
+       plot = dist_plot_no_giant,
+       width = 16,
+       height = 14,
+       dpi = 300,
+       limitsize = FALSE)
+
 ```
 
 ## Phenological period
@@ -350,11 +432,8 @@ ggplot(phen_summary, aes(x = Phen_Period, y = mean_flux, group = 1)) +
 
 ```{r, temporal marsh models}
 
-master_tier5_clean <- master_tier5_clean %>%
-  mutate(Study.Phase = factor(Study.Phase, levels = paste0("M", 1:12)))
-
 edge_time_model <- lmer(
-  Flux ~ marsh_edge_type * Study.Phase + (1|Site),
+  Flux ~ marsh_edge_type * Month + (1|Site),
   data = master_tier5_clean
 )
 summary(edge_time_model)
@@ -366,18 +445,27 @@ anova(edge_time_model)
 library(emmeans)
 library(ggplot2)
 
-emm_edge_time <- emmeans(edge_time_model, ~ marsh_edge_type * Study.Phase)
+emm_edge_time <- emmeans(edge_time_model, ~ marsh_edge_type * Month)
 emm_edge_time_df <- as.data.frame(emm_edge_time)
 
-ggplot(emm_edge_time_df, aes(x = Study.Phase, y = emmean, color = marsh_edge_type, group = marsh_edge_type)) +
+emm = ggplot(emm_edge_time_df, aes(x = Month, y = emmean, color = marsh_edge_type, group = marsh_edge_type)) +
   geom_point(size = 3, position = position_dodge(0.3)) +
   geom_errorbar(aes(ymin = lower.CL, ymax = upper.CL), width = 0.2, position = position_dodge(0.3)) +
   labs(
-    title = "Estimated Marginal Means of Flux by Marsh Edge Type Across Study Phase",
-    y = "Estimated Flux", x = "Study Phase", color = "Edge Type"
+    title = str_wrap("Estimated Marginal Means of Flux by Marsh Edge Type Across Month within 2025-2026", width = 40),
+    y = "Estimated Flux", x = "Majority Month Deployed", color = "Edge Type"
   ) +
   theme_bw() +
-  theme(axis.text.x = element_text(angle = 45, hjust = 1))
+  scale_color_manual(values = marsh_edge_colors) + 
+ theme(axis.text.x = element_text(angle = 45, hjust = 1))
+emm 
+
+ggsave("C:\\Users\\savan\\OneDrive - San Francisco State University\\ProjectData\\GitHub\\DepositionSFB\\images\\rq_1\\emm.png", 
+       plot = emm,
+       width = 8, 
+       height = 5, 
+       dpi = 300,
+       limitsize = FALSE)
 
 
 ```
@@ -388,27 +476,32 @@ master_tier5_clean_noGM <- master_tier5_clean %>%
   filter(Site != "GiantMarsh")
 
 edge_time_model_noGM <- lmer(
-  Flux ~ marsh_edge_type * Study.Phase + (1|Site),
+  Flux ~ marsh_edge_type * Month + (1|Site),
   data = master_tier5_clean_noGM
 )
 
 summary(edge_time_model_noGM)
 anova(edge_time_model_noGM)
 
-emm_edge_time_noGM <- emmeans(edge_time_model_noGM, ~ marsh_edge_type * Study.Phase)
+emm_edge_time_noGM <- emmeans(edge_time_model_noGM, ~ marsh_edge_type * Month)
 emm_edge_time_noGM_df <- as.data.frame(emm_edge_time_noGM)
 
-ggplot(emm_edge_time_noGM_df, aes(x = Study.Phase, y = emmean, color = marsh_edge_type, group = marsh_edge_type)) +
+emm_noGM = ggplot(emm_edge_time_noGM_df, aes(x = Month, y = emmean, color = marsh_edge_type, group = marsh_edge_type)) +
   geom_point(size = 3, position = position_dodge(0.3)) +
   geom_errorbar(aes(ymin = lower.CL, ymax = upper.CL), width = 0.2, position = position_dodge(0.3)) +
   labs(
     title = stringr::str_wrap("Estimated Marginal Means of Flux by Marsh Edge Type Across Study Phase (Excluding Giant Marsh)"), width = 50,
-    y = "Estimated Flux", x = "Study Phase", color = "Edge Type"
+    y = "Estimated Flux", x = "Majority Month Deployed", color = "Edge Type"
   ) +
   theme_bw() +
+  scale_color_manual(values = marsh_edge_colors) +  
   theme(axis.text.x = element_text(angle = 45, hjust = 1))
+emm_noGM
+
+ggsave("C:\\Users\\savan\\OneDrive - San Francisco State University\\ProjectData\\GitHub\\DepositionSFB\\images\\rq_1\\emm_noGM.png", 
+       plot = emm_noGM, 
+       width = 8, 
+       height = 5, 
+       dpi = 300,
+       limitsize = FALSE)
 ```
-
-
-
-

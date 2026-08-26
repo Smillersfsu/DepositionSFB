@@ -10,7 +10,7 @@ source("C:\\Users\\savan\\OneDrive - San Francisco State University\\ProjectData
 source("C:\\Users\\savan\\OneDrive - San Francisco State University\\ProjectData\\GitHub\\DepositionSFB\\code\\R\\plotting.R")
 
 
-elev_z_wind_slope_flux <- readr::read_csv("C:\\Users\\savan\\OneDrive - San Francisco State University\\ProjectData\\GitHub\\DepositionSFB\\data\\elev_z_wind_slope_flux.csv")
+elev_z_wind_slope_edge_flux <- readr::read_csv("C:\\Users\\savan\\OneDrive - San Francisco State University\\ProjectData\\GitHub\\DepositionSFB\\data\\elev_z_wind_slope_edge_flux.csv")
 
 ```
 
@@ -25,12 +25,26 @@ source("C:\\Users\\savan\\OneDrive - San Francisco State University\\ProjectData
 #   tier5 <- all,  full
 #   tier6 <- noG,  full
 
+
+
 master_tier1 <- filter_flux(elev_z_wind_slope_flux, "noG",  "review_only")
 master_tier2 <- filter_flux(elev_z_wind_slope_flux, "noG2", "review_only")
 master_tier3 <- filter_flux(elev_z_wind_slope_flux, "all",  "review_only")
 master_tier4 <- filter_flux(elev_z_wind_slope_flux, "noG2", "full")
 master_tier5 <- filter_flux(elev_z_wind_slope_flux, "all",  "full")
 master_tier6 <- filter_flux(elev_z_wind_slope_flux, "noG",  "full")
+
+month_levels <- c("Jul", "Aug", "Sep", "Oct", "Nov", "Dec",
+                  "Jan", "Feb", "Mar", "Apr", "May", "Jun")
+
+master_tier1 <- master_tier1 %>% mutate(Month = factor(Month, levels = month_levels))
+master_tier2 <- master_tier2 %>% mutate(Month = factor(Month, levels = month_levels))
+master_tier3 <- master_tier3 %>% mutate(Month = factor(Month, levels = month_levels))
+master_tier4 <- master_tier4 %>% mutate(Month = factor(Month, levels = month_levels))
+master_tier5 <- master_tier5 %>% mutate(Month = factor(Month, levels = month_levels))
+master_tier6 <- master_tier6 %>% mutate(Month = factor(Month, levels = month_levels))
+
+
 
 save_tier(master_tier1, "master_tier1.csv")
 save_tier(master_tier2, "master_tier2.csv")
@@ -91,12 +105,109 @@ tier_plots$tier1$basic
 # All six tiers included -- the original code left out one review_only
 # tier from this section for no clear reason; flag if that was
 # actually intentional and you want it excluded here too.
-
+1
 rq_tiers <- list(tier1 = master_tier1, tier2 = master_tier2, tier3 = master_tier3,
                   tier4 = master_tier4, tier5 = master_tier5, tier6 = master_tier6)
 
 rq_plots <- purrr::imap(rq_tiers, ~ make_rq_plots(.x, .y))
 
 # access e.g. rq_plots$tier1$edge, rq_plots$tier5$slope, etc.
-rq_plots$tier1$interval
+rq_plots$tier5$interval
+
+# Save the high-res image
+ggsave(("C:\\Users\\savan\\OneDrive - San Francisco State University\\ProjectData\\GitHub\\DepositionSFB\\images\\methods\\rq_plots.png"),
+       plot = rq_plots$tier5$interval,
+       width = 10,  
+       height = 6,
+       dpi = 300,
+       bg = "white"
+)
+```
+
+```{r}
+
+
+tiers <- list(tier1 = master_tier1, tier2 = master_tier2, tier3 = master_tier3,
+              tier4 = master_tier4, tier5 = master_tier5, tier6 = master_tier6)
+
+tier_general <- purrr::imap(tiers, ~ make_flux_table(
+  .x, title = paste("Summary Statistics —", .y), include_ci = TRUE))
+
+tier_month <- purrr::imap(tiers, ~ make_flux_table(
+  .x, group_vars = "Month", title = paste("Flux by Month —", .y),
+  group_labels = list(Month = "Month")))
+
+tier_site <- purrr::imap(tiers, ~ make_flux_table(
+  .x, group_vars = "Site", title = paste("Flux by Site —", .y),
+  group_labels = list(Site = "Site")))
+
+tier_dist <- purrr::imap(tiers, ~ make_flux_table(
+  .x, group_vars = "Dist", title = paste("Flux by Distance —", .y),
+  group_labels = list(Dist = "Distance")))
+
+tier_zstar <- purrr::imap(tiers, ~ make_flux_table(
+  .x, group_vars = "z_star", title = paste("Flux by Z-star —", .y),
+  group_labels = list(z_star = "Z-star")))
+
+tier_edge <- purrr::imap(tiers, ~ make_flux_table(
+  .x, group_vars = "marsh_edge_type", title = paste("Flux by Marsh Edge Type —", .y),
+  group_labels = list(marsh_edge_type = "Marsh Edge Type")))
+```
+
+```{r, export tier5 tables to Word-ready images}
+
+save_flux_table_image <- function(flux_result, caption, filename) {
+  ft <- flux_result$data %>%
+    dplyr::select(-Shapiro_p) %>%
+    dplyr::rename(Shapiro_p = Shapiro_p_display) %>%
+    flextable() %>%
+    set_caption(caption) %>%
+    colformat_double(digits = 3) %>%
+    autofit()
+  
+  save_as_image(
+    ft,
+    path = paste0(
+      "C:\\Users\\savan\\OneDrive - San Francisco State University\\ProjectData\\GitHub\\DepositionSFB\\images\\rq_1\\",
+      filename
+    )
+  )
+  ft
+}
+
+save_flux_table_image(
+  tier_general$tier5,
+  "Overall Summary Statistics of Sediment Flux",
+  "tier5_general_stats.png"
+)
+
+save_flux_table_image(
+  tier_month$tier5,
+  "Sediment Flux by Month",
+  "tier5_month_stats.png"
+)
+
+save_flux_table_image(
+  tier_site$tier5,
+  "Sediment Flux by Site",
+  "tier5_site_stats.png"
+)
+
+save_flux_table_image(
+  tier_dist$tier5,
+  "Sediment Flux by Distance",
+  "tier5_dist_stats.png"
+)
+
+save_flux_table_image(
+  tier_zstar$tier5,
+  "Sediment Flux by Z-star",
+  "tier5_zstar_stats.png"
+)
+
+save_flux_table_image(
+  tier_edge$tier5,
+  "Sediment Flux by Marsh Edge Type",
+  "tier5_edge_stats.png"
+)
 ```

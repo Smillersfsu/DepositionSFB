@@ -55,6 +55,8 @@ library(scales) # axis labels, formatting, and scaling
 #######################################################
 
 library(reactable) #interactive tables for reports
+library(gt)
+library(flextable)
 
 #######################################################
 

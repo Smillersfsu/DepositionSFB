@@ -18,12 +18,13 @@ When you click the **Render** button a document will be generated that includes 
 knitr::opts_chunk$set(echo = TRUE)
 knitr::opts_knit$set(root.dir = 'C:/Users/savan/OneDrive - San Francisco State University/ProjectData/GitHub/DepositionSFB/data')
 
-elev_z_wind_slope_flux <- readr::read_csv(
-  file.path(knitr::opts_knit$get("root.dir"), "elev_z_wind_slope_flux.csv")
+usgs_thesis <- readr::read_csv(
+  file.path(knitr::opts_knit$get("root.dir"), "usgs_thesis.csv")
 )
 
 rq3_model <- lmer(log(Flux) ~  z_star + local_slope + marsh_edge_type +
-                    (1 | Site) , data = elev_z_wind_slope_flux)
+                    (1 | Site) , data = master_tier5_clean)
+summary(rq3_model)
 ```
 
 You can add options to executable code like this
@@ -35,7 +36,7 @@ library(glmnet)
 
 lasso_data <- usgs_thesis %>%
   filter(Study.Dataset == "Thesis") %>%   
-  select(Flux, z_star, local_slope, mean_wind_speed_kt, 
+  select(Flux, z_star, local_slope, mean_wind_speed_kt, slope_fitted_elevation_m,
          max_gust_kt, Dist) %>%
   mutate(Dist = as.numeric(Dist)) %>%
   drop_na() %>%
@@ -56,15 +57,61 @@ plot(cv_lasso_scaled)
 best_lambda_scaled <- cv_lasso_scaled$lambda.min
 lasso_final_scaled <- glmnet(x_scaled, y, alpha = 1, lambda = best_lambda_scaled)
 coef(lasso_final_scaled)
+
+
+library(broom)   # for tidy() -- cleanly extracts glmnet coefficients into a data frame
+
+# Extract standardized LASSO coefficients into a plotting-ready data frame
+lasso_coefs <- coef(lasso_final_scaled) %>%
+  as.matrix() %>%
+  as.data.frame() %>%
+  rownames_to_column("predictor") %>%
+  rename(coefficient = s0) %>%
+  filter(predictor != "(Intercept)") %>%   # drop the intercept -- not a predictor effect
+  filter(coefficient != 0) %>%              # LASSO's whole point: keep only surviving (non-zero) predictors
+  mutate(
+    direction = ifelse(coefficient > 0, "Positive", "Negative"),
+    predictor = fct_reorder(predictor, abs(coefficient))  # order bars by magnitude, weakest to strongest
+  )
+
+# Thorne-style standardized coefficient bar plot
+lasso_plot <- ggplot(lasso_coefs, aes(x = predictor, y = coefficient, fill = direction)) +
+  geom_col(width = 0.6) +
+  geom_hline(yintercept = 0, color = "gray30", linewidth = 0.4) +
+  coord_flip() +   # horizontal bars -- easier to read predictor names, matches the Thorne-style layout
+  scale_fill_manual(values = c("Positive" = "#2166AC", "Negative" = "#B2182B")) +
+  labs(
+    title = stringr::str_wrap("Standardized LASSO Coefficients for Predictors of Daily Rates of Sediment Flux (g/m²/day)", width = 35),
+    x = NULL,
+    y = "Standardized Regression Coefficient",
+    fill = NULL
+  ) +
+  theme_minimal(base_size = 14) +
+  theme(
+    legend.position = "bottom",
+    panel.grid.minor = element_blank(),
+    axis.text.y = element_text(size = 12)
+  )
+
+lasso_plot
+
+ggsave("C:\\Users\\savan\\OneDrive - San Francisco State University\\ProjectData\\GitHub\\DepositionSFB\\images\\rq_3\\lasso_plot.png", 
+       plot = lasso_plot,
+       width = 8, 
+       height = 5, 
+       dpi = 300,
+       limitsize = FALSE)
 ```
 
 ```{r}
 
 library(ggplot2)
 
-ggplot(elev_z_wind_slope_flux_clean, aes(x = mean_wind_speed_kt, y = Flux, color = Tran)) +
+ggplot(master_tier5_clean, aes(x = mean_wind_speed_kt, y = Flux, color = Tran)) +
   geom_point(alpha = 0.4) +
   facet_wrap(~ Site) +
+  scale_fill_manual(values = transect_colors) + 
+  scale_color_manual(values = transect_colors) + 
   labs(
     title = "Flux vs. Mean Wind Speed by Site and Transect",
     x = "Mean Wind Speed (kt)", y = "Flux", color = "Transect"
@@ -78,10 +125,12 @@ library(ggplot2)
 library(dplyr)
 
 # Flux vs. Wind, excluding Giant Marsh
-ggplot(elev_z_wind_slope_flux_clean %>% filter(Site != "GiantMarsh"), 
+ggplot(master_tier5_clean %>% filter(Site != "GiantMarsh"), 
        aes(x = mean_wind_speed_kt, y = Flux, color = Tran)) +
   geom_point(alpha = 0.4) +
   facet_wrap(~ Site) +
+  scale_fill_manual(values = transect_colors) + 
+  scale_color_manual(values = transect_colors) + 
   labs(
     title = "Flux vs. Mean Wind Speed by Site and Transect (Excluding Giant Marsh)",
     x = "Mean Wind Speed (kt)", y = "Flux", color = "Transect"
@@ -89,9 +138,11 @@ ggplot(elev_z_wind_slope_flux_clean %>% filter(Site != "GiantMarsh"),
   theme_bw()
 
 # Flux vs. Slope, excluding Giant Marsh
-ggplot(elev_z_wind_slope_flux_clean %>% filter(Site != "GiantMarsh"), 
+ggplot(master_tier5_clean %>% filter(Site != "GiantMarsh"), 
        aes(x = local_slope, y = Flux, color = Tran)) +
   geom_point(alpha = 0.4) +
+  scale_fill_manual(values = transect_colors) + 
+  scale_color_manual(values = transect_colors) + 
   facet_wrap(~ Site) +
   labs(
     title = "Flux vs. Local Slope by Site and Transect (Excluding Giant Marsh)",
@@ -104,10 +155,12 @@ ggplot(elev_z_wind_slope_flux_clean %>% filter(Site != "GiantMarsh"),
 library(ggplot2)
 library(dplyr)
 
-ggplot(elev_z_wind_slope_flux_clean, 
+ggplot(elev_z_wind_slope_edge_flux, 
        aes(x = local_slope, y = Flux, color = Tran)) +
   geom_point(alpha = 0.4) +
   facet_wrap(~ Site) +
+  scale_fill_manual(values = transect_colors) + 
+  scale_color_manual(values = transect_colors) + 
   labs(
     title = "Flux vs. Local Slope by Site and Transect",
     x = "Local Slope", y = "Flux", color = "Transect"

@@ -4,7 +4,7 @@ author: "Savannah K. Miller"
 date: "2026-06-20"
 output: 
   pdf_document: 
-    output_dir: "C:/Users/savan/OneDrive - San Francisco State University/ProjectData\/GitHub/DepositionSFB/images"
+    output_dir: "C:\\Users\\savan\\OneDrive - San Francisco State University\\ProjectData\\GitHub\\DepositionSFB\\images"
 ---
 
 ```{r}
@@ -51,7 +51,8 @@ sed_thesis$Dist = as.character(sed_thesis$Dist)
 sed_thesis$Date.placed.in.field = as.Date(sed_thesis$Date.placed.in.field, 
   format = "%m/%d/%Y"   # need this so R doesn't automatically assume format
   )
-sed_thesis$Date.removed.from.field = as.Date(sed_thesis$Date.removed.from.field,            format = "%m/%d/%Y"   # need this so R doesn't automatically assume format
+sed_thesis$Date.removed.from.field = as.Date(sed_thesis$Date.removed.from.field, 
+  format = "%m/%d/%Y"   # need this so R doesn't automatically assume format
 )
 sed_thesis$Study.Phase <- as.factor(sed_thesis$Study.Phase)
 sed_thesis$Site <- as.factor(sed_thesis$Site)
@@ -72,6 +73,32 @@ sed_thesis$Flood_Obsv <- as.numeric(sed_thesis$Flood_Obsv)
 sed_thesis$RB_Num <- as.numeric(sed_thesis$RB_Num)
 sed_thesis$Filter_Num <- as.numeric(sed_thesis$Filter_Num)
 
+
+# Adding a Month column, derived from the deployment window
+# (Date.placed.in.field to Date.removed.from.field) rather than just
+# Date.removed.from.field alone -- assigns each row to whichever
+# calendar month contains the majority of days in that window, so a
+# deployment spanning a month boundary isn't mis-binned by whichever
+# single date happens to get used. Runs here (once, at the source)
+# rather than being re-derived in every downstream analysis file, and
+# requires Date.placed.in.field / Date.removed.from.field to already be
+# true Date class -- confirmed above, this must stay below that step.
+# Ties (exactly equal days split across two months) go to whichever
+# month is alphabetically first per which.max()'s default tie-breaking;
+# spot-check any tied rows if that distinction matters for your analysis.
+majority_month <- function(start_date, end_date) {
+  if (is.na(start_date) || is.na(end_date)) return(NA_character_)
+  days <- seq(start_date, end_date, by = "day")
+  month_counts <- table(month(days, label = TRUE, abbr = TRUE))
+  names(which.max(month_counts))
+}
+
+sed_thesis <- sed_thesis %>%
+  mutate(
+    Month = purrr::map2_chr(Date.placed.in.field, Date.removed.from.field, majority_month),
+    Month = factor(Month, levels = c("Jul", "Aug", "Sep", "Oct", "Nov", "Dec",
+                                       "Jan", "Feb", "Mar", "Apr", "May", "Jun"))
+  )
 # Changing the from site abbreviations to Descriptive Site Names
 
 sed_thesis <- sed_thesis %>% 
@@ -168,6 +195,8 @@ master_thesis <- readr::read_csv("C:\\Users\\savan\\OneDrive - San Francisco Sta
 # ISO format (YYYY-MM-DD) that readr::write_csv() wrote them in.
 
 master_thesis$Study.Phase <- factor(master_thesis$Study.Phase, levels = c("M1", "M2", "M3", "M4", "M5", "M6","M7", "M8", "M9", "M10", "M11", "M12"))
+master_thesis$Month <- factor(master_thesis$Month, levels = c("Jul", "Aug", "Sep", "Oct", "Nov", "Dec",
+                                                                 "Jan", "Feb", "Mar", "Apr", "May", "Jun"))
 master_thesis$Site <- as.factor(master_thesis$Site)
 master_thesis$Tran <- as.factor(master_thesis$Tran)
 master_thesis$Dist <- as.factor(master_thesis$Dist)
@@ -196,6 +225,7 @@ master_thesis$Filter_Num <- as.numeric(master_thesis$Filter_Num)
 
 plot_data_noG <- master_thesis %>%
   filter(!(Site == "GiantMarsh"))
+plot_data_noG
 
 ```
 
@@ -204,7 +234,7 @@ plot_data_noG <- master_thesis %>%
 
 plot_data_noG2 <- master_thesis %>%
   filter(!(Site == "GiantMarsh" & Tran == "2"))
-
+plot_data_noG2
 ```
 
 

@@ -48,9 +48,10 @@ source("C:\\Users\\savan\\OneDrive - San Francisco State University\\ProjectData
 ```{r, load elevation-joined flux data and raw veg data}
 # Reads the elevation join's output, not master_usgs.csv directly --
 # this is the chained step, elevation then veg, both before tiering.
-usgs_elev_z_flux <- read.csv("C:\\Users\\savan\\OneDrive - San Francisco State University\\ProjectData\\GitHub\\DepositionSFB\\data\\usgs_elev_z_flux.csv")
+usgs_thesis <- read_xlsx("C:\\Users\\savan\\OneDrive - San Francisco State University\\ProjectData\\GitHub\\DepositionSFB\\data\\usgs_thesis.xlsx")
 
 usgs_veg_raw <- read.csv("C:\\Users\\savan\\OneDrive - San Francisco State University\\ProjectData\\GitHub\\DepositionSFB\\data\\usgs_SFB_1m_vegetation_data.csv")
+
 ```
 
 ```{r, clean usgs veg -- same pattern as veg.Rmd's usgs_veg chunk}
@@ -59,6 +60,7 @@ usgs_veg_raw <- read.csv("C:\\Users\\savan\\OneDrive - San Francisco State Unive
 # M/D/YYYY text, e.g. "8/24/2022") and used as the join key below,
 # replacing the old Month+Year approximate match -- same reasoning as
 # the thesis-side change.
+
 usgs_veg <- usgs_veg_raw |>
   mutate(
     Date    = lubridate::mdy(Date),
@@ -87,7 +89,7 @@ usgs_veg |>
 # so it can be matched exactly against usgs_veg's Date -- previously
 # this chunk only cleaned Site/Tran/Dist/Month/Year for the old
 # approximate join.
-usgs_flux_keyed <- usgs_elev_z_flux |>
+usgs_flux_keyed <- usgs_thesis |>
   mutate(
     Site  = str_squish(as.character(Site)),
     Tran  = str_squish(as.character(Tran)),

@@ -84,6 +84,11 @@ nrow(elev_z_flux)
 
 sed_thesis_keyed |>
   anti_join(rtk_detail, by = c("Site", "Tran", "Dist", "Replicate"))
+
+
+dropped_rows <- anti_join(elev_z_flux, elev_z_flux_clean)
+
+View(dropped_rows)
 ```
 
 ```{r, basic play with z star and elevation}
@@ -115,6 +120,20 @@ ggsave("C:\\Users\\savan\\OneDrive - San Francisco State University\\ProjectData
        height = 40, 
        dpi = 300,
        limitsize = FALSE, plot = flux_z_SP)
+
+
+
+flux_z_SP_clean <-ggplot(elev_z_flux_clean, aes(x=z_star, y=Flux, color=Study.Phase)) +
+  geom_point() + geom_jitter(width = 0.2, height = 0.2, alpha = 0.6) + theme_minimal() + scale_y_continuous() + facet_wrap(~ Site, scales = "free_y") + geom_smooth(aes(color = Study.Phase), method = "lm", se = FALSE, linewidth = 0.8) + geom_hline(yintercept = 0, color = "gray40") +
+  labs(x = "z*", y = "Daily Rate of Flux of Sediment Deposition (g/m^2/day)", 
+       title = "Sediment Deposition Rates Across Distances Per Site Per Season")
+flux_z_SP_clean
+
+ggsave("C:\\Users\\savan\\OneDrive - San Francisco State University\\ProjectData\\GitHub\\DepositionSFB\\images\\flux_z_SP_clean.png", 
+       width = 60, 
+       height = 40, 
+       dpi = 300,
+       limitsize = FALSE, plot = flux_z_SP_clean)
 ```
 
 ```{r}
@@ -134,7 +153,7 @@ ggsave("C:\\Users\\savan\\OneDrive - San Francisco State University\\ProjectData
        limitsize = FALSE)
 
 
-flux_z_smooth = ggplot(elev_z_flux, aes(x = z_star, y = Flux)) +
+flux_z_smooth = ggplot(elev_z_flux_clean, aes(x = z_star, y = Flux)) +
   geom_point(aes(color = Study.Phase), size = 1.5, alpha = 0.4) +
   geom_smooth(method = "lm", se = TRUE, color = "black", linewidth = 1) +
   facet_wrap(~ Site, scales = "free_y") +

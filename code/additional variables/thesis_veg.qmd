@@ -49,9 +49,11 @@ library(readxl)
 ```
 
 ```{r, load elevation-joined flux data and raw veg data}
-elev_z_flux <- readr::read_csv("C:\\Users\\savan\\OneDrive - San Francisco State University\\ProjectData\\GitHub\\DepositionSFB\\data\\elev_z_flux.csv")
+usgs_thesis <- read_excel("C:\\Users\\savan\\OneDrive - San Francisco State University\\ProjectData\\GitHub\\DepositionSFB\\data\\usgs_thesis.xlsx", 
+                          col_types = "text"
+                          )
 
-thesis_veg_raw <- read_excel("C:\\Users\\savan\\OneDrive - San Francisco State University\\ProjectData\\GitHub\\DepositionSFB\\data\\veg_final.xlsx")
+thesis_veg_raw <- read_csv("C:\\Users\\savan\\OneDrive - San Francisco State University\\ProjectData\\GitHub\\DepositionSFB\\data\\veg_final.csv")
 ```
 
 ```{r, clean thesis veg}
@@ -62,6 +64,7 @@ thesis_veg_raw <- read_excel("C:\\Users\\savan\\OneDrive - San Francisco State U
 # old Month+Year approximate match) -- confirmed every veg survey Date
 # exactly matches a Date.removed.from.field value in the flux data, so
 # this is a real same-day match, not a same-month approximation.
+
 thesis_veg <- thesis_veg_raw |>
   mutate(
     Site = str_squish(as.character(Site)),
@@ -72,13 +75,19 @@ thesis_veg <- thesis_veg_raw |>
       Site == "S" ~ "SanPablo",
       TRUE ~ "Other"
     ),
-    Date  = as.Date(Date),
-    AvgHt = ifelse(is.na(AvgHt), 0, AvgHt),
-    MaxHt = ifelse(is.na(MaxHt), 0, MaxHt),
-    Cover = as.numeric(Cover),
-    Month = str_to_title(str_squish(Month)),   # kept for grouping/plots, no longer used in the join
-    Year  = str_squish(as.character(Year))     # kept for reference, redundant with Date now
-  ) |>
+    Date    = as.Date(Date, format = "%m/%d/%Y"),
+    AvgHt   = ifelse(is.na(AvgHt), 0, AvgHt),
+    MaxHt   = ifelse(is.na(MaxHt), 0, MaxHt),
+    Cover   = as.numeric(Cover),
+    Season  = str_squish(Season),
+    Site    = str_remove_all(Site, " "),
+    Year    = str_squish(as.character(Year)),   # kept for reference, redundant with Date now
+    Month   = str_to_title(str_squish(Month)),  # kept for grouping/plots, no longer used in the join
+    Year  = str_squish(as.character(Year)),     # kept for reference, redundant with Date now
+    Tran    = str_extract(`Plot.ID`, "^[A-Za-z]+"),
+    Dist    = as.numeric(str_extract(`Plot.ID`, "[0-9.]+$"))
+  )
+
   separate(PlotID, into = c("Tran", "Dist"), sep = "-", remove = FALSE) |>
   mutate(Dist = as.numeric(Dist))
 
@@ -91,7 +100,6 @@ thesis_veg |>
   filter(n > 1) |>
   nrow()
 ```
-
 
 ```{r, key the flux data to match}
 # Month is derived fresh here from Date.removed.from.field rather than
@@ -106,7 +114,7 @@ study_month_levels <- c("July", "August", "September", "October",
                          "November", "December", "January", "February",
                          "March", "April", "May", "June")
 
-elev_z_flux_keyed <- elev_z_flux |>
+usgs_thesis <- usgs_thesis |>
   mutate(
     Site  = str_squish(as.character(Site)),
     Tran  = str_squish(as.character(Tran)),
@@ -116,25 +124,8 @@ elev_z_flux_keyed <- elev_z_flux |>
   )
 ```
 
-
-
-```{r, join -- long form, species kept by design}
-
-# CHANGED: join key is now Site + Tran + Dist + exact Date (matching
-# thesis_veg's Date against Date.removed.from.field), replacing the
-# old 5-key Site+Tran+Dist+Month+Year approximate match. This is a
-# real same-visit match now, not a same-calendar-month one -- verified
-# every veg Date exists among the flux data's removal dates before
-# making this change.
-elev_z_veg_flux_long <- elev_z_flux_keyed |>
-  left_join(
-    thesis_veg |> select(Site, Tran, Dist, Date, Species, Cover, AvgHt, MaxHt),
-    by = c("Site", "Tran", "Dist", "Date.removed.from.field" = "Date")
-  )
-
-readr::write_csv(elev_z_veg_flux_long, "C:\\Users\\savan\\OneDrive - San Francisco State University\\ProjectData\\GitHub\\DepositionSFB\\data\\elev_z_veg_flux_long.csv")
+```{}
 ```
-
 
 ```{r, filter to veg-sampled rows only}
   

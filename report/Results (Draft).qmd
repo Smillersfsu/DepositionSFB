@@ -1,0 +1,75 @@
+---
+title: "Results (Draft)"
+format: docx
+editor: visual
+---
+
+## 3. Results
+
+#### 3.1 Sediment Deposition Across Ramped and Scarped Marsh Edges
+
+- Simplest graph-scarped marsh edges and ramped marsh edges box plot showing lax of significance
+
+  - Include a statistical summary table below that, which includes skewness as a metric
+
+![](C:/Users/savan/OneDrive%20-%20San%20Francisco%20State%20University/ProjectData/GitHub/DepositionSFB/images/rq_1/basic_rq1.png) ![](C:/Users/savan/OneDrive%20-%20San%20Francisco%20State%20University/ProjectData/GitHub/DepositionSFB/images/rq_1/tier5_edge_stats.png)
+
+- Then go to site specific box plots, keeping the same color code
+
+  - Include a statistical summary table below that, which includes skewness as a metric
+
+![](C:/Users/savan/OneDrive%20-%20San%20Francisco%20State%20University/ProjectData/GitHub/DepositionSFB/images/rq1_site.png) ![](C:/Users/savan/OneDrive%20-%20San%20Francisco%20State%20University/ProjectData/GitHub/DepositionSFB/images/rq_1/tier5_site_stats.png)
+
+- Show two different graphs in relation to each other:
+
+  - One graph should show Distance relationship over time, with marsh edge general linear model
+
+![](C:/Users/savan/OneDrive%20-%20San%20Francisco%20State%20University/ProjectData/GitHub/DepositionSFB/images/rq_1/p_flux_zstar.png)
+
+- One graph should show Monthly/seasonal relationship over time with the marsh edge general linear model
+
+![](C:/Users/savan/OneDrive%20-%20San%20Francisco%20State%20University/ProjectData/GitHub/DepositionSFB/images/rq_1/log_month%20.png)
+
+![](C:/Users/savan/OneDrive%20-%20San%20Francisco%20State%20University/ProjectData/GitHub/DepositionSFB/images/rq_1/tier5_month_stats.png)
+
+![](C:/Users/savan/OneDrive%20-%20San%20Francisco%20State%20University/ProjectData/GitHub/DepositionSFB/images/rq_1/emm_noGM.png) - z\* for each of the sites using a scatter plot, showing the clumping of values per site at certain flux values per z\*
+
+#### 3.2 Sediment Deposition Rates Across Years in One Ramped and One Scarped Edge Marsh
+
+![](C:/Users/savan/OneDrive%20-%20San%20Francisco%20State%20University/ProjectData/GitHub/DepositionSFB/images/rq_2/basic_rq2.png)
+
+![](C:/Users/savan/OneDrive%20-%20San%20Francisco%20State%20University/ProjectData/GitHub/DepositionSFB/images/rq_2/site_stats_usgs.png)
+
+- As the two sampling periods had different distances from the marsh edge relating to each other within San Pablo site, Distance from Marsh Edge is clumped into "Marsh Areas". (add a chart that shows the distances relating to the marsh area categories)
+
+![](C:/Users/savan/OneDrive%20-%20San%20Francisco%20State%20University/ProjectData/GitHub/DepositionSFB/images/rq_2/box_rq2.png)
+
+<!-- -->
+
+- Show similar plots to the one completed in 3.2, this time with year as the variable in facet_wrapped plots of the year differences
+
+![](C:/Users/savan/OneDrive%20-%20San%20Francisco%20State%20University/ProjectData/GitHub/DepositionSFB/images/rq_2/emm_rq2.png)
+
+![](C:/Users/savan/OneDrive%20-%20San%20Francisco%20State%20University/ProjectData/GitHub/DepositionSFB/images/rq_2/usgs_202223_month.png)
+
+![](C:/Users/savan/OneDrive%20-%20San%20Francisco%20State%20University/ProjectData/GitHub/DepositionSFB/images/rq_2/usgs_202526_month6.png)
+
+- Plot the precipitation differences between each of the years to illustrate the comparison between years
+
+![](C:/Users/savan/OneDrive%20-%20San%20Francisco%20State%20University/ProjectData/GitHub/DepositionSFB/images/monthly_precip_2022_2023.png)
+
+#### 3.3 Sediment Deposition in Relation to Intra-Marsh Geomorphic Factors
+
+- Bring the plots for Corte Madera and Buck's Landing transects, just to show how even when clumping these two geomorphically similar marshes, there is differences specific to the marsh in terms of sediment deposition
+
+![](C:/Users/savan/OneDrive%20-%20San%20Francisco%20State%20University/ProjectData/GitHub/DepositionSFB/images/rq_1/BCtransite.png)
+
+![](C:/Users/savan/OneDrive%20-%20San%20Francisco%20State%20University/ProjectData/GitHub/DepositionSFB/images/rq_2/marsharea.png)
+
+![](C:/Users/savan/OneDrive%20-%20San%20Francisco%20State%20University/ProjectData/GitHub/DepositionSFB/images/usgsdata/marsharea_seasonality_SP.png)
+
+- Show outputs for LASSO that have Dist, z\*, marsh edge type, slope, compass bearing?, skewness?
+
+![](C:/Users/savan/OneDrive%20-%20San%20Francisco%20State%20University/ProjectData/GitHub/DepositionSFB/images/rq_3/lasso_plot.png)
+
+Discussion

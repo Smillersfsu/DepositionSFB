@@ -155,7 +155,7 @@ ggplot(master_tier5_clean %>% filter(Site != "GiantMarsh"),
 library(ggplot2)
 library(dplyr)
 
-ggplot(elev_z_wind_slope_edge_flux, 
+ggplot(master_tier5_clean, 
        aes(x = local_slope, y = Flux, color = Tran)) +
   geom_point(alpha = 0.4) +
   facet_wrap(~ Site) +

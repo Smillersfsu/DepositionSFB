@@ -154,32 +154,39 @@ precip_2026
 ## Comparing short storm-window snapshots
 
 ```{r plotting-2022-2026-rain-data}
-precip_2022$event <- "Dec 2022 / Jan 2023"
-precip_2026$event <- "Jan 2026"
+monthly_data2022$event <- "2022–2023"
+monthly_data2026$event <- "2025–2026"
 
-combined_precip <- bind_rows(precip_2022, precip_2026) %>%
-  group_by(event) %>%
-  mutate(day_num = row_number()) %>%  # aligns both events on a comparable x-axis
-  ungroup()
+# Align both periods on "month of study year" (Jul = 1 ... Jun = 12),
+# so November 2022 lines up with November 2025 regardless of exact year.
+study_month_order <- function(date_col) {
+  m <- month(date_col)
+  ifelse(m >= 7, m - 6, m + 6)  # Jul->1, Aug->2, ..., Dec->6, Jan->7, ..., Jun->12
+}
 
-daily_precip_2022_2026 <- ggplot(combined_precip, aes(x = day_num, y = value, fill = event)) +
+combined_precip_monthly <- bind_rows(monthly_data2022, monthly_data2026) %>%
+  mutate(study_month_num = study_month_order(month)) %>%
+  mutate(study_month_label = factor(study_month_num,
+                                     levels = 1:12,
+                                     labels = c("Jul", "Aug", "Sep", "Oct", "Nov", "Dec",
+                                                "Jan", "Feb", "Mar", "Apr", "May", "Jun")))
+
+monthly_precip_2022_2026 <- ggplot(combined_precip_monthly, 
+                                     aes(x = study_month_label, y = monthly_total_in, fill = event)) +
   geom_col(position = "dodge") +
   labs(
-    title = "Daily Precipitation: Dec 2022/Jan 2023 vs Jan 2026",
-    x = "Day of Event Window",
-    y = "Precipitation (inches)",
-    fill = "Event"
+    title = "Monthly Precipitation: 2022–2023 vs 2025–2026",
+    x = "Month of Study Year",
+    y = "Total Precipitation (inches)",
+    fill = "Study Period"
   ) +
-  theme_minimal(base_size = 14)
+  theme_minimal(base_size = 14) +
+  theme(axis.text.x = element_text(angle = 45, hjust = 1))
 
-daily_precip_2022_2026
+monthly_precip_2022_2026
 
-# NOTE: still a hardcoded local path -- update to your machine, or better,
-# use here::here("images", "daily_precip_2022_2026.png") if you adopt the
-# here package, so this doesn't break when the repo moves or someone else
-# clones it.
-ggsave("C:\\Users\\savan\\OneDrive - San Francisco State University\\ProjectData\\GitHub\\DepositionSFB\\images\\daily_precip_2022_2026.png",
-  plot = daily_precip_2022_2026,
+ggsave("C:\\Users\\savan\\OneDrive - San Francisco State University\\ProjectData\\GitHub\\DepositionSFB\\images\\monthly_precip_2022_2026.png",
+  plot = monthly_precip_2022_2026,
   width = 14,
   height = 9,
   dpi = 300,
@@ -245,14 +252,12 @@ precip_full2026 %>%
 monthly_data2026 <- precip_full2026 %>%
   mutate(month = floor_date(date, "month")) %>%
   group_by(month) %>%
-  summarise(monthly_total_in = sum(value, na.rm = TRUE), .groups = "drop") %>%
-  mutate(complete = ifelse(month == floor_date(today, "month"), "Partial month", "Complete"))
+  summarise(monthly_total_in = sum(value, na.rm = TRUE), .groups = "drop") 
 
 monthly_data2026   # print and visually confirm before plotting
 
 plot_precip_2025_2026 <- ggplot(monthly_data2026, aes(x = month, y = monthly_total_in, fill = complete)) +
-  geom_col() +
-  scale_fill_manual(values = c("Complete" = "steelblue", "Partial month" = "gray70")) +
+  geom_col(fill = "steelblue")+
   scale_x_date(date_labels = "%b %Y", date_breaks = "1 month") +
   scale_y_continuous(limits = c(0, 12)) +
   labs(
@@ -263,10 +268,9 @@ plot_precip_2025_2026 <- ggplot(monthly_data2026, aes(x = month, y = monthly_tot
     x = "Month",
     y = "Total Precipitation (inches)"
   ) +
-  # FIX: missing `+` here in the original meant theme_minimal()/theme()
-  # were never actually applied to the plot object.
   theme_minimal(base_size = 14) +
   theme(axis.text.x = element_text(angle = 45, hjust = 1))
+
 
 plot_precip_2025_2026
 

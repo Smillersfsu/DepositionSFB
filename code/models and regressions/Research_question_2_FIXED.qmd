@@ -139,8 +139,6 @@ save_flux_table_image <- function(flux_result, caption, filename) {
 save_flux_table_image(basic_stats_usgs,      "Descriptive Statistics of Sediment Flux by Study Dataset", "basic_stats_usgs.png")
 save_flux_table_image(site_stats_usgs, "Descriptive Statistics of Sediment Flux by Study Dataset Across Sites", "site_stats_usgs.png")
 save_flux_table_image(site_dist_usgs, "Descriptive Statistics of Sediment Flux by Study Dataset Across Distances (m)", "site_dist_usgs.png")
-save_flux_table_image(site_month_usgs,"Descriptive Statistics of Sediment Flux by Study Dataset Across Months", "site_month_usgs.png")
-
 save_flux_table_image(usgs_202223_month, "Sediment Flux Across Sites and Months (2022–2023)", "usgs_202223_month.png")
 save_flux_table_image(usgs_202526_month, "Sediment Flux Across Sites and Months (2025–2026)", "usgs_202526_month6.png")
 
@@ -186,7 +184,7 @@ box_rq2 = ggplot(thesis_rq2 %>% filter(Flux > 0), aes(x = Marsh_Area, y = Flux, 
   scale_color_manual(values = year_colors) + 
   labs(
     title = "Sediment Flux by Marsh Area, Site, and Study Dataset",
-    y = "Log of Flux (g/m²/day)", x = "Marsh Area",
+    y = "Flux (g/m²/day)", x = "Marsh Area",
     fill = "Study Dataset", color = "Study Dataset"
   ) +
   theme_bw() +
@@ -574,7 +572,7 @@ marsharea = ggplot(bay_channel, aes(x = Marsh_Area, y = Flux, fill = Location)) 
   scale_y_log10() +
   labs(
     title = stringr::str_wrap("Sediment Flux by Marsh Area (Intertidal/Edge/Platform), Site, and Location"),
-    y = "Log of Flux (g/m²/day)", x = "Marsh Area",
+    y = "Flux (g/m²/day)", x = "Marsh Area",
     fill = "Location", color = "Location"
   ) +
   theme_bw() +

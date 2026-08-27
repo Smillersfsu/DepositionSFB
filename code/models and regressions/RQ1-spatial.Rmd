@@ -592,7 +592,7 @@ basic_rq1 = ggplot(avgtotal, aes(x = marsh_edge_type, y = Flux, fill = marsh_edg
   geom_jitter(alpha = 0.4, width = 0.2, size = 0.8) +
   scale_y_log10() +
   labs(title = str_wrap("Sediment Flux by Marsh Edge Type", width = 40),
-       y = "Log of Average Flux (g/m^2/day)", x = "Marsh Edge Type") +
+       y = "Average Flux (g/m^2/day)", x = "Marsh Edge Type") +
   theme_bw() +
   scale_fill_manual(values = marsh_edge_colors) + 
   theme(legend.position = "none",

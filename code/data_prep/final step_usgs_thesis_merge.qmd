@@ -51,7 +51,6 @@ str(sed_usgs)
 sed_thesis$Dist        <- str_replace_all(as.character(sed_thesis$Dist), " ", "")
 sed_thesis$Tran         <- str_replace_all(as.character(sed_thesis$Tran), " ", "")
 sed_thesis$Site         <- str_replace_all(sed_thesis$Site, " ", "")
-sed_thesis$Replicate    <- str_replace_all(as.character(sed_thesis$Replicate), " ", "")
 sed_thesis$marsh_edge_type  <- as.factor(sed_thesis$marsh_edge_type)
 sed_thesis$marsh_orientation <- as.factor(sed_thesis$marsh_orientation)
 sed_thesis$Study.Phase  <- factor(sed_thesis$Study.Phase, levels = paste0("M", 1:12))
@@ -59,7 +58,6 @@ sed_thesis$Study.Phase  <- factor(sed_thesis$Study.Phase, levels = paste0("M", 1
 sed_usgs$Dist        <- str_replace_all(as.character(sed_usgs$Dist), " ", "")
 sed_usgs$Tran         <- str_replace_all(as.character(sed_usgs$Tran), " ", "")
 sed_usgs$Site         <- str_replace_all(sed_usgs$Site, " ", "")
-sed_usgs$Replicate    <- str_replace_all(as.character(sed_usgs$Replicate), " ", "")
 sed_usgs$marsh_edge_type  <- as.factor(sed_usgs$marsh_edge_type)
 sed_usgs$marsh_orientation <- as.factor(sed_usgs$marsh_orientation)
 sed_usgs$Study.Phase  <- factor(sed_usgs$Study.Phase, levels = paste0("M", 1:12))
@@ -119,6 +117,55 @@ usgs_thesis <- usgs_thesis %>%
 unique(usgs_thesis$Study.Dataset)
 unique(usgs_thesis$Study.Phase)
 table(usgs_thesis$Study.Dataset, usgs_thesis$Month)
+
+usgs_thesis %>% count(Study.Dataset, n_reps)
+```
+
+```{r}
+
+
+# Applied once here, on the final merged dataset, so every downstream
+# file (Research_question_2_FIXED.qmd, RQ3-variables.qmd, and any
+# bay_channel/thesis_rq2 objects built from usgs_thesis) inherits the
+# same filtered data automatically -- rather than needing filter(Flux >
+# 0) re-applied inconsistently in each individual file, which is how the
+# bay_channel Gamma GLMM error came up in the first place (bay_channel
+# was built from usgs_bay.csv/usgs_river.csv directly, bypassing this
+# step, and had 4 unfiltered zeros).
+#
+# Reported counts, not silently dropped -- worth knowing how many rows
+# this removes and from where, for the methods write-up.
+
+sum(usgs_thesis$Flux <= 0, na.rm = TRUE)
+sum(usgs_thesis$Flux == 0, na.rm = TRUE)
+sum(usgs_thesis$Flux < 0, na.rm = TRUE)
+
+usgs_thesis %>%
+  filter(Flux <= 0) %>%
+  count(Study.Dataset, Site, Month)
+
+# Save the full rows (every column, not just Flux) for the zero/negative
+# entries BEFORE they're dropped -- gives you a standalone reference
+# sheet to isolate exactly which trap/site/month/replicate combinations
+# produced a zero, without having to re-run the merge or dig back
+# through sed_thesis/sed_usgs to find them again later.
+
+zero_flux_rows <- usgs_thesis %>%
+  filter(Flux <= 0) %>%
+  arrange(Study.Dataset, Site, Month)
+
+nrow(zero_flux_rows)   # sanity check -- should match sum(usgs_thesis$Flux <= 0) above
+zero_flux_rows
+
+readr::write_csv(
+  zero_flux_rows,
+  "C:\\Users\\savan\\OneDrive - San Francisco State University\\ProjectData\\GitHub\\DepositionSFB\\data\\usgs_thesis_zero_flux_rows.csv"
+)
+
+nrow(usgs_thesis)
+usgs_thesis <- usgs_thesis %>%
+  filter(Flux > 0)
+nrow(usgs_thesis)
 ```
 
 ```{r, QC check against marsh area match guide}

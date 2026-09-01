@@ -30,8 +30,10 @@ library(tidyverse)
 library(gt) # displaying formatted tables for statistics 
 library(rstatix) # statistical tests and assumption checking
 library(lmerTest) # p-values and tests for lme4 models 
+library(glmmTMB) # for generalized linear mixed effects models specifically 
 library(lme4) # linear and generalized mixed-effects models
 library(ggeffects) # predicted values and marginal effects 
+library(DHARMa) # for measuring residuals on the GLMM
 
 #######################################################
 

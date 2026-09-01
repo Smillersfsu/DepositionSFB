@@ -279,6 +279,30 @@ plot_flux_vs_zstar <- function(site_name, data = elev_z_flux) {
       "Bay" = "#7BCCC4", 
       "Channel" = "#045A8D")
     
+    
+    # patterns for the plots 
+    
+    site_patterns <- c(
+      "SanPablo"      = "stripe",
+      "Buck'sLanding" = "crosshatch",
+      "GiantMarsh"    = "circle",
+      "CorteMadera"   = "wave"
+    )
+    
+    marsh_edge_patterns <- c(
+      "Ramped"  = "stripe",
+      "Scarped" = "crosshatch"
+    )
+    
+    transect_patterns <- c(
+      "T1" = "stripe",
+      "T2" = "circle"
+    )
+    
+    year_patterns <- c(
+      "2022–2023" = "stripe",
+      "2025–2026" = "crosshatch"
+    )
 make_rq_plots <- function(df, tier_label) {
   # ---------------------------------------------------------------
   # Collection Interval Consistency
@@ -422,3 +446,5 @@ make_rq_plots <- function(df, tier_label) {
     slopes_by_transect = slopes_by_transect  # data, not a plot, kept for reference/export
   )
 }
+
+

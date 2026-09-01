@@ -167,3 +167,15 @@ ggplot(master_tier5_clean,
   ) +
   theme_bw()
 ```
+
+```{r, glmm}
+
+rq3_model_glmm <- glmmTMB(
+  Flux ~ z_star + Dist + mean_wind_speed_kt+ marsh_edge_type + (1 | Site),
+  family = Gamma(link = "log"),
+  data = master_tier5_clean
+)
+summary(rq3_model_glmm)
+Anova(rq3_model_glmm, type = "II")
+
+```

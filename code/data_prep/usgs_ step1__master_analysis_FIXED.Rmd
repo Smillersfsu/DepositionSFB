@@ -71,12 +71,74 @@ knitr::opts_chunk$set(echo = TRUE)
 knitr::opts_knit$set(root.dir = 'C:/Users/savan/OneDrive - San Francisco State University/ProjectData/GitHub/DepositionSFB/data')
 ```
 
-```{r, load raw data and prep}
+```{r, load the raw data}
 
 sed_usgs <- read.csv("C:/Users/savan/OneDrive - San Francisco State University/ProjectData/GitHub/DepositionSFB/data/usgs_SFB_sediment_pad_data.csv")
 
 str(sed_usgs)
 
+```
+
+```{r, duplicates and oditties from the original raw file for record}
+
+# ---- Duplicate Detection & Quarantine -----------------------------------
+# Three categories, handled differently:
+#  (1) Exact full-row duplicates -- every column identical. Safe to collapse
+#      to one row automatically; still logged for the record.
+#  (2) Same key, one row NA / one row a real Flux value -- unambiguous,
+#      the real value is kept automatically; still logged for transparency.
+#  (3) Same key, two DIFFERENT real Flux values -- genuinely ambiguous,
+#      cannot be resolved in code. Both rows are pulled out and removed
+#      from the working data until resolved with USGS.
+
+dup_key <- c("Site", "Tran", "Dist", "Replicate",
+             "Date.placed.in.field", "Date.removed.from.field")
+
+# (1) Exact full-row duplicates
+exact_dupes <- sed_usgs[duplicated(sed_usgs) | duplicated(sed_usgs, fromLast = TRUE), ]
+if (nrow(exact_dupes) > 0) {
+exact_dupes$duplicate_type <- "exact_full_row"
+} else {
+  exact_dupes <- exact_dupes %>% mutate(duplicate_type = character(0))
+}
+
+sed_usgs <- sed_usgs %>% distinct()
+
+# (2) Same key, one NA / one real -- auto-resolve, but log it first
+na_pairs <- sed_usgs %>%
+  group_by(across(all_of(dup_key))) %>%
+  filter(n() > 1, any(is.na(Flux)), any(!is.na(Flux))) %>%
+  ungroup() %>%
+  mutate(duplicate_type = "na_pair_autoresolved")
+
+sed_usgs <- sed_usgs %>%
+  group_by(across(all_of(dup_key))) %>%
+  filter(!(is.na(Flux) & n() > 1)) %>%
+  ungroup()
+
+# (3) Same key, two different real values -- quarantine, don't auto-resolve
+conflicting_dupes <- sed_usgs %>%
+  group_by(across(all_of(dup_key))) %>%
+  filter(n() > 1) %>%
+  ungroup() %>%
+  mutate(duplicate_type = "conflicting_values")
+
+sed_usgs <- sed_usgs %>%
+  anti_join(conflicting_dupes, by = dup_key)
+
+# ---- Combined log, for USGS follow-up and your own records --------------
+duplicate_flags <- bind_rows(exact_dupes, na_pairs, conflicting_dupes)
+
+readr::write_csv(duplicate_flags,
+                 "C:\\Users\\savan\\OneDrive - San Francisco State University\\ProjectData\\GitHub\\DepositionSFB\\data\\usgs_duplicate_flags.csv")
+
+duplicate_flags %>% count(duplicate_type)   # quick tally before moving on
+nrow(duplicate_flags)
+
+
+```
+
+```{r, cleaning the data}
 
 # Clean whitespace from character columns only
 sed_usgs$Dist <- str_replace_all(sed_usgs$Dist, " ", "")

@@ -10,7 +10,8 @@ source("C:\\Users\\savan\\OneDrive - San Francisco State University\\ProjectData
 source("C:\\Users\\savan\\OneDrive - San Francisco State University\\ProjectData\\GitHub\\DepositionSFB\\code\\R\\plotting.R")
 
 
-elev_z_wind_slope_edge_flux <- readr::read_csv("C:\\Users\\savan\\OneDrive - San Francisco State University\\ProjectData\\GitHub\\DepositionSFB\\data\\elev_z_wind_slope_edge_flux.csv")
+elev_z_wind_slope_edge_flux <- readr::read_csv("C:\\Users\\savan\\OneDrive - San Francisco State University\\ProjectData\\GitHub\\DepositionSFB\\data\\elev_z_wind_slope_edge_flux.csv") %>%
+mutate(Flux_rep = Flux)
 
 ```
 
@@ -25,17 +26,35 @@ source("C:\\Users\\savan\\OneDrive - San Francisco State University\\ProjectData
 #   tier5 <- all,  full
 #   tier6 <- noG,  full
 
+average_replicates <- function(df) {
+  df %>%
+    group_by(Site, Tran, Dist, Month, Study.Phase) %>%   # match your location/month grain
+    summarise(
+      Flux = mean(Flux_rep, na.rm = TRUE),
+      n_reps = sum(!is.na(Flux_rep)),
+      Elevation_m = mean(Elevation_m, na.rm = TRUE), 
+      z_star = mean(z_star, na.rm = TRUE), 
+      across(-c(Flux_rep, Flux, Replicate, Elevation_m, z_star), first),  # carry other columns through unchanged
+      .groups = "drop"
+    )
+}
 
 
-master_tier1 <- filter_flux(elev_z_wind_slope_flux, "noG",  "review_only")
-master_tier2 <- filter_flux(elev_z_wind_slope_flux, "noG2", "review_only")
-master_tier3 <- filter_flux(elev_z_wind_slope_flux, "all",  "review_only")
-master_tier4 <- filter_flux(elev_z_wind_slope_flux, "noG2", "full")
-master_tier5 <- filter_flux(elev_z_wind_slope_flux, "all",  "full")
-master_tier6 <- filter_flux(elev_z_wind_slope_flux, "noG",  "full")
+
+
+master_tier1 <- filter_flux(elev_z_wind_slope_edge_flux, "noG",  "review_only") %>% average_replicates()
+master_tier2 <- filter_flux(elev_z_wind_slope_edge_flux, "noG2", "review_only") %>% average_replicates()
+master_tier3 <- filter_flux(elev_z_wind_slope_edge_flux, "all",  "review_only") %>% average_replicates()
+master_tier4 <- filter_flux(elev_z_wind_slope_edge_flux, "noG2", "full") %>% average_replicates()
+master_tier5 <- filter_flux(elev_z_wind_slope_edge_flux, "all",  "full") %>% average_replicates()
+master_tier6 <- filter_flux(elev_z_wind_slope_edge_flux, "noG",  "full") %>% average_replicates()
+
+master_tier5 <- master_tier5 %>% filter(n_reps > 0)
 
 month_levels <- c("Jul", "Aug", "Sep", "Oct", "Nov", "Dec",
                   "Jan", "Feb", "Mar", "Apr", "May", "Jun")
+
+master_tier5 %>% count(n_reps)
 
 master_tier1 <- master_tier1 %>% mutate(Month = factor(Month, levels = month_levels))
 master_tier2 <- master_tier2 %>% mutate(Month = factor(Month, levels = month_levels))
@@ -152,6 +171,18 @@ tier_zstar <- purrr::imap(tiers, ~ make_flux_table(
 tier_edge <- purrr::imap(tiers, ~ make_flux_table(
   .x, group_vars = "marsh_edge_type", title = paste("Flux by Marsh Edge Type —", .y),
   group_labels = list(marsh_edge_type = "Marsh Edge Type")))
+
+tier_dist_site <- purrr::imap(tiers, ~ make_flux_table(
+  .x, group_vars = c("Site", "Dist"), title = paste("Flux by Site and Distance —", .y),
+  group_labels = list(Site = "Site", Dist = "Distance")))
+
+tier_zstar_site <- purrr::imap(tiers, ~ make_flux_table(
+  .x, group_vars = c("Site", "z_star"), title = paste("Flux by Site and Z-star —", .y),
+  group_labels = list(Site = "Site", z_star = "Z-star")))
+
+tier_month_site <- purrr::imap(tiers, ~ make_flux_table(
+  .x, group_vars = c("Site", "Month"), title = paste("Flux by Site and Month —", .y),
+  group_labels = list(Site = "Site", Month = "Month")))
 ```
 
 ```{r, export tier5 tables to Word-ready images}
@@ -210,4 +241,24 @@ save_flux_table_image(
   "Sediment Flux by Marsh Edge Type",
   "tier5_edge_stats.png"
 )
+
+save_flux_table_image(
+  tier_dist_site$tier5,
+  "Flux by Site and Distance",
+  "tier5_dist_site_stats.png"
+)
+
+save_flux_table_image(
+  tier_zstar_site$tier5,
+  "Flux by Site and z-star",
+  "tier5_zstar_site_stats.png"
+)
+
+save_flux_table_image(
+  tier_month_site$tier5,
+  "Flux by Site and Month",
+  "tier5_month_site_stats.png"
+)
+
+
 ```

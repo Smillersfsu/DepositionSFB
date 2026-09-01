@@ -249,6 +249,25 @@ ggsave("C:\\Users\\savan\\OneDrive - San Francisco State University\\ProjectData
        limitsize = FALSE)
 ```
 
+```{r, glmm month and phen period}
+
+usgsthesis_model_month_glmm <- glmmTMB(
+  Flux ~ Study.Dataset * Site + Month + (1 | Tran),
+  family = Gamma(link = "log"),
+  data = thesis_rq2
+)
+summary(usgsthesis_model_month_glmm)
+Anova(usgsthesis_model_month_glmm, type = "II")
+emmeans(usgsthesis_model_month_glmm, pairwise ~ Study.Dataset | Site, type = "response")
+
+usgsthesis_model_phenperiod_glmm <- glmmTMB(
+  Flux ~ Study.Dataset + Phen_Period + Study.Dataset * Phen_Period + Site + (1 | Tran),
+  family = Gamma(link = "log"),
+  data = thesis_rq2
+)
+summary(usgsthesis_model_phenperiod_glmm)
+```
+
 ```{r, model 1 - Phen_Period variant}
 usgsthesis_model_phenperiod <- lmer(
   Flux ~ Study.Dataset + Phen_Period + Study.Dataset * Phen_Period + Site + (1 | Tran),
@@ -280,6 +299,24 @@ usgsthesis_model2_month <- lmer(
   data = thesis_rq2
 )
 summary(usgsthesis_model2_month)
+```
+
+```{r, model 2 glmm of month}
+
+usgsthesis_model2_month_glmm <- glmmTMB(
+  Flux ~ Site + (1 | Study.Dataset) + (1 | Month),
+  family = Gamma(link = "log"),
+  data = thesis_rq2
+)
+# NOTE: Study.Dataset only has 2 levels -- likely too few for a random
+# effect to estimate reliably; watch for a singular-fit warning.
+
+usgsthesis_model2_phenperiod_glmm <- glmmTMB(
+  Flux ~ Site + Study.Dataset + (1|Tran),
+  family = Gamma(link = "log"),
+  data = thesis_rq2
+)
+
 ```
 
 ```{r, model 2 - Phen_Period variant}
@@ -353,6 +390,22 @@ ggsave("C:\\Users\\savan\\OneDrive - San Francisco State University\\ProjectData
        height = 5, 
        dpi = 300,
        limitsize = FALSE)
+```
+
+```{r, marsh area and distance models}
+
+marsh_dist_model_glmm <- glmmTMB(
+  Flux ~ Study.Dataset * Month * Dist + (1|Tran),
+  family = Gamma(link = "log"),
+  data = thesis_rq2 %>% filter(Flux > 0)
+)
+
+marsh_area_dataset_model_glmm <- glmmTMB(
+  Flux ~ Marsh_Area * Study.Dataset + Site + (1|Tran),
+  family = Gamma(link = "log"),
+  data = thesis_rq2 %>% filter(Flux > 0)
+)
+
 ```
 
 ```{r, marsh area comparison - Phen_Period variant}
@@ -525,6 +578,44 @@ ggplot(bay_channel, aes(x = Site, y = log(Flux), fill = as.factor(Tran), colour 
 
 ```
 
+```{r, save and filter non-positive Flux values in bay_channel}
+
+# Same treatment as usgs_thesis_merge.qmd's "filter non-positive Flux
+# values" chunk -- bay_channel is built directly from
+# usgs_bay.csv/usgs_river.csv here, not from usgs_thesis.rds, so it does
+# NOT inherit that filter and needs its own copy. This is the exact
+# gap that caused the original Gamma GLMM error on
+# bay_channel_model_month_glmm.
+
+sum(bay_channel$Flux <= 0, na.rm = TRUE)
+sum(bay_channel$Flux == 0, na.rm = TRUE)
+sum(bay_channel$Flux < 0, na.rm = TRUE)
+
+bay_channel %>%
+  filter(Flux <= 0) %>%
+  count(Site, Location, Month)
+
+# Save the full rows for the zero/negative entries before dropping them,
+# same reference-sheet approach as usgs_thesis_zero_flux_rows.csv
+
+bay_channel_zero_flux_rows <- bay_channel %>%
+  filter(Flux <= 0) %>%
+  arrange(Site, Location, Month)
+
+nrow(bay_channel_zero_flux_rows)   # sanity check
+bay_channel_zero_flux_rows
+
+readr::write_csv(
+  bay_channel_zero_flux_rows,
+  "C:\\Users\\savan\\OneDrive - San Francisco State University\\ProjectData\\GitHub\\DepositionSFB\\data\\bay_channel_zero_flux_rows.csv"
+)
+
+nrow(bay_channel)
+bay_channel <- bay_channel %>%
+  filter(Flux > 0)
+nrow(bay_channel)
+```
+
 ```{r, bay channel model - Month variant}
 bay_channel_model_month <- lmer(
   Flux ~ Location + Month + Location * Month + Site + (1|Tran),
@@ -554,6 +645,18 @@ ggsave("C:\\Users\\savan\\OneDrive - San Francisco State University\\ProjectData
        height = 5, 
        dpi = 300,
        limitsize = FALSE)
+```
+
+```{r, bay and channel glmm}
+
+bay_channel_model_month_glmm <- glmmTMB(
+  Flux ~ Location + Month + Location * Month + Site + (1|Tran),
+  family = Gamma(link = "log"),
+  data = bay_channel
+)
+summary(bay_channel_model_month_glmm)
+Anova(bay_channel_model_month_glmm, type = "II")
+
 ```
 
 ### Observational comparison to thesis (Edge/Platform only)
@@ -592,9 +695,4 @@ ggsave("C:\\Users\\savan\\OneDrive - San Francisco State University\\ProjectData
        height = 5, 
        dpi = 300,
        limitsize = FALSE)
-```
-
-
-
-
 ```

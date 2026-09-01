@@ -46,7 +46,8 @@ knitr::opts_knit$set(root.dir = 'C:/Users/savan/OneDrive - San Francisco State U
 # z_star, and Marsh_Loc (bay/channel, reference only) into the
 # Bay/River split and every plot/model built on sed_usgs_bay /
 # sed_usgs_river below.
-sed_usgs <- readr::read_csv("C:\\Users\\savan\\OneDrive - San Francisco State University\\ProjectData\\GitHub\\DepositionSFB\\data\\usgs_elev_z_flux.csv")
+sed_usgs <- readr::read_csv("C:\\Users\\savan\\OneDrive - San Francisco State University\\ProjectData\\GitHub\\DepositionSFB\\data\\usgs_elev_z_flux.csv") %>%
+mutate(Flux_rep = Flux)
 
 # FIX: this used to read.csv() the usgs_elevation_and_z_star.qmd SCRIPT
 # FILE itself (wrong path -- code\\data_prep\\, not data\\; wrong file
@@ -107,8 +108,43 @@ sed_usgs_river <- sed_usgs %>%
 sed_usgs_river <- sed_usgs_river %>%
   mutate(Dist = factor(Dist, levels = c("0.5", "2", "6", "9", "12", "18", "24", "30", "48", "72", "150")))
 
+# right after the split, BEFORE average_replicates() is called
+sed_usgs_river_raw <- sed_usgs_river
+sed_usgs_bay_raw   <- sed_usgs_bay
+
+average_replicates <- function(df) {
+  df %>%
+    group_by(Site, Tran, Dist, Date.removed.from.field, Study.Phase) %>%
+    summarise(
+      Flux = mean(Flux_rep, na.rm = TRUE),
+      n_reps = sum(!is.na(Flux_rep)),
+      Elevation_m = mean(Elevation_m, na.rm = TRUE), 
+      z_star = mean(z_star, na.rm = TRUE), 
+      across(-c(Flux_rep, Flux, Replicate, Elevation_m, z_star), first),
+      .groups = "drop"
+    )
+}
+
+sed_usgs_bay   <- sed_usgs_bay   %>% average_replicates()
+sed_usgs_river <- sed_usgs_river %>% average_replicates()
+
+sed_usgs_bay <- sed_usgs_bay %>%
+  mutate(Month = factor(month(Date.removed.from.field, label = TRUE, abbr = FALSE),
+                         levels = c("July","August","September","October","November",
+                                    "December","January","February","March","April","May","June"),
+                         ordered = TRUE))
+
+sed_usgs_river <- sed_usgs_river %>%
+  mutate(Month = factor(month(Date.removed.from.field, label = TRUE, abbr = FALSE),
+                         levels = c("July","August","September","October","November",
+                                    "December","January","February","March","April","May","June"),
+                         ordered = TRUE))
+
 # Confirm the split adds up to the original row count, no overlap/loss
 nrow(sed_usgs_bay) + nrow(sed_usgs_river) == nrow(sed_usgs)
+sed_usgs_bay %>% count(n_reps)
+sed_usgs_river %>% count(n_reps)
+sed_usgs_bay %>% count(n_reps)     # USGS
 
 # Confirm no unexpected NAs snuck through (would mean a Dist value
 # wasn't covered in your case_when, e.g. a typo or a value you forgot)
@@ -215,11 +251,124 @@ phase_result_usgs <- make_flux_table(
 )
 phase_summary_table_usgs <- phase_result_usgs$data
 
+dist_result_usgs <- make_flux_table(
+  sed_usgs_bay, group_vars = "Dist",
+  title = "Sediment Flux by Distance (USGS)",
+  group_labels = list(Dist = "Distance")
+)
+dist_summary_usgs <- dist_result_usgs$data
+
+zstar_result_usgs <- make_flux_table(
+  sed_usgs_bay, group_vars = "z_star",
+  title = "Sediment Flux by Z-star (USGS)",
+  group_labels = list(z_star = "Z-star")
+)
+zstar_summary_usgs <- zstar_result_usgs$data
+
+month_result_usgs <- make_flux_table(
+  sed_usgs_bay, group_vars = "Month",
+  title = "Sediment Flux by Month (USGS)",
+  group_labels = list(Month = "Month")
+)
+month_summary_usgs <- month_result_usgs$data
+
+dist_site_result_usgs <- make_flux_table(
+  sed_usgs_bay, group_vars = c("Site", "Dist"),
+  title = "Sediment Flux by Site and Distance (USGS)",
+  group_labels = list(Site = "Site", Dist = "Distance")
+)
+dist_site_summary_usgs <- dist_site_result_usgs$data
+
+zstar_site_result_usgs <- make_flux_table(
+  sed_usgs_bay, group_vars = c("Site", "z_star"),
+  title = "Sediment Flux by Site and Z-star (USGS)",
+  group_labels = list(Site = "Site", z_star = "Z-star")
+)
+zstar_site_summary_usgs <- zstar_site_result_usgs$data
+
+month_site_result_usgs <- make_flux_table(
+  sed_usgs_bay, group_vars = c("Site", "Month"),
+  title = "Sediment Flux by Site and Month (USGS)",
+  group_labels = list(Site = "Site", Month = "Month")
+)
+month_site_summary_usgs <- month_site_result_usgs$data
+
 general_summary_usgs
 phen_summary_usgs
 site_summary_usgs
 phase_summary_table_usgs
 
+sed_usgs_bay %>% count(n_reps)
+
+
+```
+
+```{r, river statistics}
+
+general_result_river <- make_flux_table(
+  sed_usgs_river,
+  title = "Summary Statistics for Sediment Flux (USGS River)",
+  include_ci = TRUE
+)
+general_summary_river <- general_result_river$data
+
+phen_result_river <- make_flux_table(
+  sed_usgs_river, group_vars = "Phen_Period",
+  title = "Sediment Flux by Phenological Period (USGS River)",
+  group_labels = list(Phen_Period = "Phenological Period")
+)
+phen_summary_river <- phen_result_river$data
+
+site_result_river <- make_flux_table(
+  sed_usgs_river, group_vars = "Site",
+  title = "Sediment Flux by Site (USGS River)",
+  group_labels = list(Site = "Site")
+)
+site_summary_river <- site_result_river$data
+
+dist_result_river <- make_flux_table(
+  sed_usgs_river, group_vars = "Dist",
+  title = "Sediment Flux by Distance (USGS River)",
+  group_labels = list(Dist = "Distance")
+)
+dist_summary_river <- dist_result_river$data
+
+zstar_result_river <- make_flux_table(
+  sed_usgs_river, group_vars = "z_star",
+  title = "Sediment Flux by Z-star (USGS River)",
+  group_labels = list(z_star = "Z-star")
+)
+zstar_summary_river <- zstar_result_river$data
+
+dist_site_result_river <- make_flux_table(
+  sed_usgs_river, group_vars = c("Site", "Dist"),
+  title = "Sediment Flux by Site and Distance (USGS River)",
+  group_labels = list(Site = "Site", Dist = "Distance")
+)
+dist_site_summary_river <- dist_site_result_river$data
+
+zstar_site_result_river <- make_flux_table(
+  sed_usgs_river, group_vars = c("Site", "z_star"),
+  title = "Sediment Flux by Site and Z-star (USGS River)",
+  group_labels = list(Site = "Site", z_star = "Z-star")
+)
+zstar_site_summary_river <- zstar_site_result_river$data
+
+month_result_river <- make_flux_table(
+  sed_usgs_river, group_vars = "Month",
+  title = "Sediment Flux by Month (USGS River)",
+  group_labels = list(Month = "Month")
+)
+month_summary_river <- month_result_river$data
+
+month_site_result_river <- make_flux_table(
+  sed_usgs_river, group_vars = c("Site", "Month"),
+  title = "Sediment Flux by Site and Month (USGS River)",
+  group_labels = list(Site = "Site", Month = "Month")
+)
+month_site_summary_river <- month_site_result_river$data
+
+sed_usgs_river %>% count(n_reps)
 
 ```
 

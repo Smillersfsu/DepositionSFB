@@ -36,7 +36,39 @@ knitr::opts_knit$set(root.dir = 'C:/Users/savan/OneDrive - San Francisco State U
 
 ### 2.0 Methods
 
-#### 2.1 Position and Elevation of Ramped and Scarped Marsh Edges within San Francisco Bay
+#### 2.1 Study Sites 
+
+- San Francisco Bay Estuary within the continent
+
+-  San Francisco Bay Estuary within the watershed and the outflows, tidal influences, etc.
+
+- Show map of all the sites in a table, first the map of all of them at the top. Then each site, includes benchmarks of the transects. See if you can find specific photos of each site characters
+
+-  Environmental characteristics about the storm, etc.
+
+-  Describe each of the sites
+
+  - Higher elevation relative to each other
+
+  - Riverine sources
+
+  - Sheltered relatively from other sites, open to other
+
+  - See which datum you're using
+
+  - Watershed dimensions? Not sure how important this is and where to get this information
+
+#### 2.2 Marsh Edge Typology 
+
+- Characterization of "marsh edge typology", reference SFEI report
+
+- Characterizing in each marsh edge typology how the "edge" and start of the transect was determined
+
+- First study from San Pablo and Corte Madera in 2022-2023, a ramped and scarped edge
+
+- Replication of methods at those two sites, and adding two additional marsh edge sites to add replicates to the ramped and scarped edge comparison
+
+- Field measurements and photos of the marsh edge during visits
 
 - Outlines with position on a map of the transects within the bay with an aerial transect per each marsh. Include the 2022 collection locations, as well as the channel vs. bay transects
 

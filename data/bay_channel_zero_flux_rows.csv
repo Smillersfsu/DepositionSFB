@@ -1,0 +1,9 @@
+Site,Tran,Dist,Date.removed.from.field,Study.Phase,Flux,n_reps,Elevation_m,z_star,Date.placed.in.field,Season,Year,LOI,Month,marsh_edge_type,marsh_orientation,Phen_Period,Marsh_Loc,Marsh_Area,Location
+CorteMadera,B,0.5,2023-02-17,M8,0,1,1.576,0.672946791,2023-01-18,Winter,2023,NA,February,Scarped,East.facing,"Wet
+(Months 7-9)",Bay,Edge,Bay
+SanPablo,B,12,2022-12-20,M6,0,3,1.042,0.008278519,2022-11-22,Winter,2022,NA,December,Ramped,South.facing,"Tran
+(Months 4-6)",Bay,Intertidal,Bay
+SanPablo,A,18,2023-01-17,M7,0,3,NA,NA,2022-12-20,Winter,2023,NA,January,Ramped,South.facing,"Wet
+(Months 7-9)",NA,Intertidal,Bay
+SanPablo,B,6,2023-01-17,M7,0,3,0.837,-0.227298427,2022-12-20,Winter,2023,NA,January,Ramped,South.facing,"Wet
+(Months 7-9)",Bay,Intertidal,Bay

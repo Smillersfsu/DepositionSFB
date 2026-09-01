@@ -1,0 +1,9 @@
+Site,Tran,Dist,Month,Study.Phase,Flux,n_reps,Elevation_m,z_star,Date.placed.in.field,Date.removed.from.field,Year,Filter_Num,RB_Num,Flood_Obsv,BigBio_Obsv,SmallBio_Obsv,Drop_Obsv,OpenBag_Obsv,Position_Obsv,DryTime_Obsv,NegValue_Num,Master_Flag,marsh_edge_type,marsh_orientation,Phen_Period,Marsh_Area,Point_ID,mean_wind_speed_kt,max_gust_kt,n_obs,local_slope,slope_fitted_elevation_m,extrapolated,edge_slope_max_deg,edge_slope_avg_deg,Study.Dataset,Season,LOI,Marsh_Loc
+CorteMadera,B,0.5,February,M8,0,1,1.576,0.672946791,2023-01-18,2023-02-17,2023,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,Scarped,East.facing,"Wet
+(Months 7-9)",Edge,NA,NA,NA,NA,NA,NA,NA,NA,NA,USGS,Winter,NA,Bay
+SanPablo,B,12,December,M6,0,3,1.042,0.008278519,2022-11-22,2022-12-20,2022,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,Ramped,South.facing,"Tran
+(Months 4-6)",Intertidal,NA,NA,NA,NA,NA,NA,NA,NA,NA,USGS,Winter,NA,Bay
+SanPablo,A,18,January,M7,0,3,NA,NA,2022-12-20,2023-01-17,2023,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,Ramped,South.facing,"Wet
+(Months 7-9)",Intertidal,NA,NA,NA,NA,NA,NA,NA,NA,NA,USGS,Winter,NA,NA
+SanPablo,B,6,January,M7,0,3,0.837,-0.227298427,2022-12-20,2023-01-17,2023,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,Ramped,South.facing,"Wet
+(Months 7-9)",Intertidal,NA,NA,NA,NA,NA,NA,NA,NA,NA,USGS,Winter,NA,Bay

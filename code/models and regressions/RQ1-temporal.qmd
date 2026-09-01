@@ -441,6 +441,34 @@ anova(edge_time_model)
 
 ```
 
+```{r, edge time glmm}
+
+edge_time_model_glmm <- glmmTMB(
+  Flux ~ marsh_edge_type * Month + (1|Site),
+  family = Gamma(link = "log"),
+  data = master_tier5_clean
+)
+summary(edge_time_model_glmm)
+Anova(edge_time_model_glmm, type = "II")
+
+sim_res_edge_time <- simulateResiduals(edge_time_model_glmm)
+testTemporalAutocorrelation(sim_res_edge_time, time = master_tier5_clean$Month)
+
+# AR1 version, since this is repeated monthly sampling
+master_tier5_clean_ar <- master_tier5_clean %>%
+  mutate(Month_ar = factor(Month, ordered = FALSE))
+
+edge_time_model_glmm_ar1 <- glmmTMB(
+  Flux ~ marsh_edge_type * Month + ar1(Month_ar + 0 | Site),
+  family = Gamma(link = "log"),
+  data = master_tier5_clean_ar
+)
+summary(edge_time_model_glmm_ar1)
+
+AIC(edge_time_model_glmm, edge_time_model_glmm_ar1)
+
+```
+
 ```{r}
 library(emmeans)
 library(ggplot2)
@@ -504,4 +532,118 @@ ggsave("C:\\Users\\savan\\OneDrive - San Francisco State University\\ProjectData
        height = 5, 
        dpi = 300,
        limitsize = FALSE)
+```
+
+```{r}
+
+# Replace `Interval_Length` with whatever your actual column is called
+# (Date.removed.from.field - Date.placed.in.field, in days) in the code
+# that built rq_plots.
+
+interval_summary <- master_tier5 %>%
+  mutate(Interval_Length = as.numeric(Date.removed.from.field - Date.placed.in.field))
+
+# Statistical threshold rather than an eyeballed cutoff -- flag anything
+# above Q3 + 1.5*IQR (standard outlier rule), OR anything you and Matt
+# agree is operationally "too long to trust" (e.g., >35 days). Pick one;
+# shown here with both so you can compare.
+q <- quantile(interval_summary$Interval_Length, c(0.25, 0.75), na.rm = TRUE)
+iqr_cutoff <- q[2] + 1.5 * (q[2] - q[1])
+
+long_intervals <- interval_summary %>%
+  filter(Interval_Length > iqr_cutoff | Interval_Length > 35) %>%
+  select(Site, Month, Study.Phase, Date.placed.in.field, Date.removed.from.field, Interval_Length) %>%
+  arrange(Date.removed.from.field)
+
+long_intervals
+```
+
+```{r}
+
+# ---- 2. Exclusion list -----------------------------------------------------
+
+# Option A (commented out for now) -- site-specific exclusion, pulled
+# directly from long_intervals. Revisit this once the broad test below
+# is done and you want a more targeted version.
+# exclude_site_phase <- long_intervals %>%
+#   distinct(Site, Study.Phase)
+
+# Option B (active) -- drop December everywhere, for a first-pass sensitivity check
+december_phases <- master_tier5 %>%
+  filter(Month == "Dec") %>%
+  distinct(Study.Phase) %>%
+  pull(Study.Phase)
+
+december_phases
+
+# ---- 3. Build the sensitivity tier ----------------------------------------
+master_tier5_sensitivity <- filter_flux(elev_z_wind_slope_edge_flux, "all", "full") %>%
+  filter(!(Study.Phase %in% december_phases)) %>%
+  # anti_join(exclude_site_phase, by = c("Site", "Study.Phase")) %>%   # swap in for the site-specific version later
+  average_replicates() %>%
+  filter(n_reps > 0)
+
+# ---- 4. Run both scenarios -------------------------------------------------
+general_with    <- make_flux_table(master_tier5,             title = "Including December")
+general_without <- make_flux_table(master_tier5_sensitivity, title = "Excluding December")
+
+phase_with    <- make_flux_table(master_tier5,             group_vars = "Study.Phase",
+                                 title = "By Study Phase — including December",
+                                 group_labels = list(Study.Phase = "Study Phase"))
+phase_without <- make_flux_table(master_tier5_sensitivity, group_vars = "Study.Phase",
+                                 title = "By Study Phase — excluding December",
+                                 group_labels = list(Study.Phase = "Study Phase"))
+
+# ---- 5. Comparison tables --------------------------------------------------
+overall_comparison <- bind_rows(
+  general_with$data    %>% mutate(Scenario = "Including December", .before = 1),
+  general_without$data %>% mutate(Scenario = "Excluding December", .before = 1)
+)
+
+phase_comparison <- bind_rows(
+  phase_with$data    %>% mutate(Scenario = "Including December", .before = 1),
+  phase_without$data %>% mutate(Scenario = "Excluding December", .before = 1)
+) %>%
+  arrange(Study.Phase, Scenario)
+
+overall_comparison
+phase_comparison
+```
+
+```{r}
+
+# ---- Exclusion list: every Site + Study.Phase combo flagged as a long interval
+exclude_site_phase <- long_intervals %>%
+  distinct(Site, Study.Phase)
+
+exclude_site_phase   # check this before it drives anything below
+
+# ---- Build the sensitivity tier, excluding all flagged combos -----------
+master_tier5_sensitivity_all <- filter_flux(elev_z_wind_slope_edge_flux, "all", "full") %>%
+  anti_join(exclude_site_phase, by = c("Site", "Study.Phase")) %>%
+  average_replicates() %>%
+  filter(n_reps > 0)
+
+nrow(master_tier5)
+nrow(master_tier5_sensitivity_all)   # should be smaller than master_tier5, and smaller
+# than master_tier5_sensitivity (December-only)
+
+
+```
+
+```{r}
+
+general_all <- make_flux_table(master_tier5_sensitivity_all, title = "Excluding all flagged long intervals")
+
+phase_all <- make_flux_table(master_tier5_sensitivity_all, group_vars = "Study.Phase",
+                             title = "By Study Phase — excluding all flagged long intervals",
+                             group_labels = list(Study.Phase = "Study Phase"))
+
+overall_comparison_3way <- bind_rows(
+  general_with$data       %>% mutate(Scenario = "Including all",                .before = 1),
+  general_without$data    %>% mutate(Scenario = "Excluding December only",      .before = 1),
+  general_all$data        %>% mutate(Scenario = "Excluding all flagged intervals", .before = 1)
+)
+
+overall_comparison_3way
 ```

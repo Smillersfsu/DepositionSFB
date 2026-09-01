@@ -314,6 +314,24 @@ ggplot(pred, aes(x = x, y = predicted, color = group, fill = group)) +
   theme(legend.position = "right")
 ```
 
+```{r, glmm version}
+
+model_full_glmm <- glmmTMB(
+  Flux ~ z_star * marsh_edge_type + (1| Site) + (1|Study.Phase), family = Gamma(link = "log"), 
+  data = master_tier5_clean
+)
+
+summary(model_full_glmm)
+
+sim_res_model_full <- simulateResiduals(model_full_glmm)
+plot(sim_res_model_full)
+testDispersion(sim_res_model_full)
+
+emtrends(model_full_glmm, ~ marsh_edge_type, var = "z_star")
+
+```
+
+
 ## Distance models
 
 ```{r, distance model prep}
@@ -351,6 +369,23 @@ summary(distmodel_no_outliers)
 distmodelcont <- lmer(log(Flux) ~ Dist + (1|Site) + (1|Tran), data = avgdist)
 summary(distmodelcont)
 ```
+
+```{r, dist glmm model}
+distmodel_glmm <- glmmTMB(
+  Flux ~ Dist + (1|Site) + (1|Tran),
+  family = Gamma(link = "log"),
+  data = avgdist
+)
+summary(distmodel_glmm)
+
+sim_res_dist <- simulateResiduals(distmodel_glmm)
+plot(sim_res_dist)
+testDispersion(sim_res_dist)
+
+```
+
+
+
 
 ```{r, distance x site model and plots}
   distsitemodel <- lmer(log(Flux) ~ Dist + Site + Dist*Site + (1|Tran), data = avgdist)
@@ -405,6 +440,23 @@ ggplot() +
 
 ```
 
+
+
+```{r, dist site model glmm}
+distsitemodel_glmm <- glmmTMB(
+  Flux ~ Dist + Site + Dist*Site + (1|Tran),
+  family = Gamma(link = "log"),
+  data = avgdist
+)
+summary(distsitemodel_glmm)
+
+sim_res_distsite <- simulateResiduals(distsitemodel_glmm)
+plot(sim_res_distsite)
+testDispersion(sim_res_distsite)
+
+
+```
+
 ## Transect x Site
 
 ```{r, transect x site model}
@@ -432,6 +484,19 @@ ggsave("C:\\Users\\savan\\OneDrive - San Francisco State University\\ProjectData
        limitsize = FALSE)
  
 ```
+```{r, transect and site glMM model}
+
+
+transite_glmm <- glmmTMB(
+  Flux ~ Tran + Site + Tran*Site + (1|Dist),
+  family = Gamma(link = "log"),
+  data = avgdist
+)
+summary(transite_glmm)
+```
+
+
+
 
 ```{r, transect x site model with replicate}
 # transite1's formula includes (1|Study.Phase) purely as a temporal
@@ -451,11 +516,10 @@ nrow(master_tier5_clean)
 
 master_tier5_clean$Tran <- as.factor(master_tier5_clean$Tran)
 master_tier5_clean$Site <- as.factor(master_tier5_clean$Site)
-master_tier5_clean$Replicate <- as.factor(master_tier5_clean$Replicate)
 master_tier5_clean$Study.Phase <- factor(master_tier5_clean$Study.Phase,  levels = paste0("M", 1:12))
 
 transite1 <- lmer(log(Flux) ~ Tran + Site + Tran*Site +
-                    (1|Dist) + (1|Replicate) + (1|Study.Phase),
+                    (1|Dist) + (1|Study.Phase),
                   data = master_tier5_clean)
 summary(transite1)
 
@@ -471,11 +535,24 @@ ggplot(master_tier5_clean, aes(x = as.factor(Tran), y = log(Flux), fill = Site, 
         axis.text.y = element_text(hjust = 1, size = 12))
 ```
 
+```{r, transect site with replicate/phase for glmm}
+
+
+transite1_glmm <- glmmTMB(
+  Flux ~ Tran + Site + Tran*Site + (1|Dist) + (1|Study.Phase),
+  family = Gamma(link = "log"),
+  data = master_tier5_clean
+)
+summary(transite1_glmm)
+```
+
+
+
 ## Marsh edge type and orientation
 
 ```{r, marsh edge type and orientation model prep}
 
-  avgtotal <- aggregate(Flux ~ Site + Dist + Replicate + Study.Phase +
+  avgtotal <- aggregate(Flux ~ Site + Dist + Study.Phase +
                           marsh_orientation + marsh_edge_type,
                         data = master_tier5_clean, FUN = mean)
   str(avgtotal)
@@ -492,6 +569,35 @@ ggplot(master_tier5_clean, aes(x = as.factor(Tran), y = log(Flux), fill = Site, 
 
 
 ```
+
+
+```{r, marsh edge type and orientation plot with glmm}
+
+marsh_edge_model_edge_glmm <- glmmTMB(
+  Flux ~ marsh_edge_type + (1|Dist),
+  family = Gamma(link = "log"),
+  data = master_tier5_clean
+)
+summary(marsh_edge_model_edge_glmm)
+
+marsh_edge_model_sitetran_glmm <- glmmTMB(
+  Flux ~ marsh_edge_type + (1|Site/Tran),
+  family = Gamma(link = "log"),
+  data = master_tier5_clean
+)
+
+marsh_edge_model_orient_dist_glmm <- glmmTMB(
+  Flux ~ marsh_orientation + (1|Dist),
+  family = Gamma(link = "log"),
+  data = master_tier5_clean
+)
+
+emmeans(marsh_edge_model_edge_glmm, pairwise ~ marsh_edge_type, adjust = "tukey", type = "response")
+
+```
+
+
+
 
 ```{r, marsh edge type and orientation models}
 marsh_edge_model_edge <- lmer(Flux ~ marsh_edge_type + (1|Dist), data = master_tier5_clean)
@@ -526,6 +632,19 @@ summary(marsh_group_model)
 anova(marsh_group_model)
 ```
 
+```{r, marsh group model with a glmm}
+
+marsh_group_model_glmm <- glmmTMB(
+  Flux ~ Marsh_Group + (1 | Site) + (1 | Tran),
+  family = Gamma(link = "log"),
+  data = marsh_group_flux
+)
+summary(marsh_group_model_glmm)
+
+library(car)
+Anova(marsh_group_model_glmm, type = "II")
+
+```
 
 ```{r, slope as covariate (RQ3 question)}
 
@@ -535,6 +654,27 @@ summary(deposition_model_slope)
 deposition_model_base <- lmer(Flux ~ z_star + (1 | Site), data = master_tier5_clean)
 anova(deposition_model_base, deposition_model_slope)
 ```
+
+```{r, slope covariate model instead}
+
+
+deposition_model_slope_glmm <- glmmTMB(
+  Flux ~ z_star + local_slope + (1 | Site),
+  family = Gamma(link = "log"),
+  data = master_tier5_clean
+)
+
+deposition_model_base_glmm <- glmmTMB(
+  Flux ~ z_star + (1 | Site),
+  family = Gamma(link = "log"),
+  data = master_tier5_clean
+)
+
+anova(deposition_model_base_glmm, deposition_model_slope_glmm)
+
+```
+
+
 
 ```{r, testing model without 48-maybe should be data prep let's see}
 
@@ -595,7 +735,7 @@ basic_rq1 = ggplot(avgtotal, aes(x = marsh_edge_type, y = Flux, fill = marsh_edg
        y = "Average Flux (g/m^2/day)", x = "Marsh Edge Type") +
   theme_bw() +
   scale_fill_manual(values = marsh_edge_colors) + 
-  theme(legend.position = "none",
+  theme(legend.position = "right",
         axis.text.x = element_text(size = 13),
         axis.title = element_text(size = 13),
         plot.title = element_text(hjust = 0.5))
@@ -603,6 +743,48 @@ basic_rq1
 
 ggsave("C:\\Users\\savan\\OneDrive - San Francisco State University\\ProjectData\\GitHub\\DepositionSFB\\images\\rq_1\\basic_rq1.png", 
        plot = basic_rq1, 
+       width = 8, 
+       height = 5, 
+       dpi = 300,
+       limitsize = FALSE)
+
+basic_rq1_tran = ggplot(avgdist, aes(x = Tran, y = Flux, fill = Site)) +
+  geom_boxplot(alpha = 0.5, outlier.shape = NA) +
+  geom_jitter(alpha = 0.4, width = 0.2, size = 0.8) +
+  scale_y_log10() +
+  labs(title = str_wrap("Sediment Flux by Marsh Edge Type", width = 40),
+       y = "Average Flux (g/m^2/day)", x = "Transect") +
+  theme_bw() +
+  scale_fill_manual(values = site_colors) + 
+  theme(legend.position = "right",
+        axis.text.x = element_text(size = 13),
+        axis.title = element_text(size = 13),
+        plot.title = element_text(hjust = 0.5))
+basic_rq1_tran
+
+ggsave("C:\\Users\\savan\\OneDrive - San Francisco State University\\ProjectData\\GitHub\\DepositionSFB\\images\\rq_1\\basic_rq1_tran.png", 
+       plot = basic_rq1_tran, 
+       width = 8, 
+       height = 5, 
+       dpi = 300,
+       limitsize = FALSE)
+
+basic_rq1_tran_noG2 = ggplot(avgdist %>% filter(!(Site == "GiantMarsh" & Tran == "T2")), aes(x = Tran, y = Flux, fill = Site)) +
+  geom_boxplot(alpha = 0.5, outlier.shape = NA) +
+  geom_jitter(alpha = 0.4, width = 0.2, size = 0.8) +
+  scale_y_log10() +
+  labs(title = str_wrap("Sediment Flux by Marsh Edge Type", width = 40),
+       y = "Average Flux (g/m^2/day)", x = "Transect") +
+  theme_bw() +
+  scale_fill_manual(values = site_colors) + 
+  theme(legend.position = "right",
+        axis.text.x = element_text(size = 13),
+        axis.title = element_text(size = 13),
+        plot.title = element_text(hjust = 0.5))
+basic_rq1_tran_noG2
+
+ggsave("C:\\Users\\savan\\OneDrive - San Francisco State University\\ProjectData\\GitHub\\DepositionSFB\\images\\rq_1\\basic_rq1_tran_noG2.png", 
+       plot = basic_rq1_tran_noG2, 
        width = 8, 
        height = 5, 
        dpi = 300,
@@ -782,5 +964,90 @@ ft <- site_stats$data %>%
 save_as_image(ft, path = "C:\\Users\\savan\\OneDrive - San Francisco State University\\ProjectData\\GitHub\\DepositionSFB\\images\\rq_1\\site_flux_stats.png")
 ```
 
+
+
+```{r}
+
+# Check for NAs
+sum(is.na(usgs_thesis$Flux))              # total count of NAs
+mean(is.na(usgs_thesis$Flux )) * 100       # % of data that's NA
+
+# Check for exact zeros
+sum(usgs_thesis$Flux == 0, na.rm = TRUE)  # total count of exact zeros
+mean(usgs_thesis$Flux == 0, na.rm = TRUE) * 100  # % that's exactly zero
+
+# See where the NAs/zeros are concentrated (by site, transect, distance, etc.)
+library(dplyr)
+
+usgs_thesis %>%
+  group_by(Site, Tran, Dist) %>%
+  summarise(
+    n_total = n(),
+    n_na    = sum(is.na(Flux)),
+    n_zero  = sum(Flux == 0, na.rm = TRUE),
+    pct_na  = round(mean(is.na(Flux)) * 100, 1),
+    pct_zero = round(mean(Flux == 0, na.rm = TRUE) * 100, 1),
+    .groups = "drop"
+  ) %>%
+  arrange(desc(n_na))
+
+# Quick visual check — are NAs/zeros clustered in time?
+usgs_thesis %>%
+  group_by(Month) %>%
+  summarise(
+    n_na = sum(is.na(Flux)),
+    n_zero = sum(Flux == 0, na.rm = TRUE)
+  )
+
+# Full summary at a glance
+summary(usgs_thesis$Flux)   # shows min, NA count in the output directly
+
+# Quick histogram to see where zeros/near-zeros sit relative to the rest of the distribution
+hist(usgs_thesis$Flux, breaks = 50, main = "Distribution of deposition values")
+abline(v = 0, col = "red", lty = 2)
+```
+
+```{r, dispersion accounted for in the GLMM}
+
+# Let dispersion itself vary by Site, rather than assuming constant
+# Gamma dispersion across all 4 sites -- this directly models what your
+# skew/SD table already shows (GiantMarsh has a fundamentally different
+# variance regime), instead of forcing one dispersion parameter to
+# describe all four sites at once.
+
+distsitemodel_glmm_dispersion <- glmmTMB(
+  Flux ~ Dist * Site + (1|Tran),
+  dispformula = ~ Site,
+  family = Gamma(link = "log"),
+  data = avgdist
+)
+summary(distsitemodel_glmm_dispersion)
+
+# Compare to the constant-dispersion version to see if allowing
+# site-specific dispersion is actually warranted
+AIC(distsitemodel_glmm, distsitemodel_glmm_dispersion)
+
+```
+
+
+```{r, sensitivity analysis for with and without GiantMarsh}
+
+
+# Sensitivity analysis: report both with and without GiantMarsh, rather
+# than silently dropping it. This directly answers your advisor's
+# concern (does GiantMarsh drive the result?) while keeping it in your
+# primary analysis and full write-up.
+
+avgdist_noGM <- avgdist %>% filter(Site != "GiantMarsh")
+
+distsitemodel_glmm_noGM <- glmmTMB(
+  Flux ~ Dist * Site + (1|Tran),
+  family = Gamma(link = "log"),
+  data = avgdist_noGM
+)
+
+# Side-by-side comparison for your results/appendix
+summary(distsitemodel_glmm)      # full data, all 4 sites
+summary(distsitemodel_glmm_noGM) # sensitivity check, GiantMarsh excluded
 ```
 

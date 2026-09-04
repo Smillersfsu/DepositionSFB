@@ -1,0 +1,78 @@
+---
+title: "Results (Draft)"
+format: docx
+editor: visual
+output-dir: "C:/Users/savan/OneDrive - San Francisco State University/ProjectData/GitHub/DepositionSFB/report"
+---
+
+# Data Cleaning/Confirmation (1 September 2026)
+
+## a. Pseudo Replication Issue
+
+#### *Thesis Data:*
+
+- Successfully averaged each of the 3 replicates.
+
+- Was able to keep a record of how many of the tiles had NA values (replicates weren't measured due to data filtering or negative flux values)
+
+- Will report those numbers in the appendices
+
+#### *USGS Data:*
+
+- Found that there were some duplicates of replicates that had different values (example Site C Distance 12 meter had two Replicate a tiles, each with a different value).
+- Will schedule a meeting with McKenna asap and confirm from the data release why that was the case.
+- For now, took excluded those Distance measured from analysis entirely.
+
+## b. Long Deployment Sampling Periods-How Does it Affect the Data?
+
+## c. Shapiro p value and Statistics
+
+- Shapiro values are indicating that the data does not fall under a normal distribution-not that the data is insignificant.
+
+- Planning to instead use a GLMM and compare the results of that as opposed to a LMM with a log transformation to see if that changes the data
+
+- Trying to nail down which distribution group I should use for GLMM-there aren't too many studies that have used a
+
+# 3. Results
+
+#### *All the results when in linear models were not significant-statistical tables complementing visualizations to demonstrate complexity*
+
+## 3.1 Sediment Deposition Across Ramped and Scarped Marsh Edges
+
+### a. Basic Aggregation of Ramped vs. Scarped Sites (Visualizations and Statistical Table)
+
+![](C:/Users/savan/OneDrive%20-%20San%20Francisco%20State%20University/ProjectData/GitHub/DepositionSFB/images/rq_1/basic_rq1.png) ![](C:/Users/savan/OneDrive%20-%20San%20Francisco%20State%20University/ProjectData/GitHub/DepositionSFB/images/rq_1/tier5_edge_stats.png)
+
+### b. Site Level Detail-Color Coded still with Ramped vs. Scarped Sites (Visualizations and Statistical Table)
+
+![](C:/Users/savan/OneDrive%20-%20San%20Francisco%20State%20University/ProjectData/GitHub/DepositionSFB/images/rq1_site.png) ![](C:/Users/savan/OneDrive%20-%20San%20Francisco%20State%20University/ProjectData/GitHub/DepositionSFB/images/rq_1/tier5_site_stats.png)
+
+### c. Within Site Level Differences of z\* and Distance (Visualizations and Statistical Table)
+
+![](C:/Users/savan/OneDrive%20-%20San%20Francisco%20State%20University/ProjectData/GitHub/DepositionSFB/images/rq_1/p_flux_zstar.png) ![](C:/Users/savan/OneDrive%20-%20San%20Francisco%20State%20University/ProjectData/GitHub/DepositionSFB/images/rq_1/tier5_dist_stats.png)
+
+### d. Within Site Level Differences Between Months Throughout the Year (Visualizations and Statistical Table)
+
+![](C:/Users/savan/OneDrive%20-%20San%20Francisco%20State%20University/ProjectData/GitHub/DepositionSFB/images/rq_1/log_month.png) ![](C:/Users/savan/OneDrive%20-%20San%20Francisco%20State%20University/ProjectData/GitHub/DepositionSFB/images/rq_1/tier5_month_stats.png)
+
+## 3.2 Sediment Deposition Rates Across Years in One Ramped and One Scarped Edge Marsh
+
+### a. Basic Aggregation of 2022-2023 vs. 2025-2026 comparison (Visualizations and Statistical Table)
+
+![](C:/Users/savan/OneDrive%20-%20San%20Francisco%20State%20University/ProjectData/GitHub/DepositionSFB/images/rq_2/basic_rq2.png) ![](C:/Users/savan/OneDrive%20-%20San%20Francisco%20State%20University/ProjectData/GitHub/DepositionSFB/images/rq_2/basic_stats_usgs.png)
+
+### b. Site Comparison of San Pablo and Corte Madera through 2022-2023 vs. 2025-2026 (Visualizations and Statistical Table)
+
+![](C:/Users/savan/OneDrive%20-%20San%20Francisco%20State%20University/ProjectData/GitHub/DepositionSFB/images/rq_2/box_rq2.png) ![](C:/Users/savan/OneDrive%20-%20San%20Francisco%20State%20University/ProjectData/GitHub/DepositionSFB/images/rq_2/site_stats_usgs.png)
+
+### c. Seasonal Context Between Years Measured of 2022-2023 vs. 2025-2026 (Visualization)
+
+![](C:/Users/savan/OneDrive%20-%20San%20Francisco%20State%20University/ProjectData/GitHub/DepositionSFB/images/monthly_precip_2022_2026.png)
+
+## 3.3 Sediment Deposition in Relation to Intra-Marsh Geomorphic Factors
+
+### a. LASSO Regression Analysis of Intra-Marsh Factors (Visualization)
+
+![](C:/Users/savan/OneDrive%20-%20San%20Francisco%20State%20University/ProjectData/GitHub/DepositionSFB/images/rq_3/lasso_plot.png)
+
+### 

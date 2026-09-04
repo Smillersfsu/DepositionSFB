@@ -947,7 +947,7 @@ ggsave("C:\\Users\\savan\\OneDrive - San Francisco State University\\ProjectData
 ```{r}
 
 site_stats <- make_flux_table(
-  master_thesis, 
+  master_tier5_clean, 
   group_vars = "Site", 
   title = "Descriptive Statistics of Sediment Flux by Site",
   subtitle = "Flux measured in g/m²/day"

@@ -36,17 +36,25 @@ knitr::opts_knit$set(root.dir = 'C:/Users/savan/OneDrive - San Francisco State U
 
 ### 2.0 Methods
 
-#### 2.1 Study Sites 
+#### 2.1 Study Sites
 
-- San Francisco Bay Estuary within the continent
+The San Francisco Bay Estuary is a highly urban estuary within the state of California in one of the most urbanized regions of the state. There are riverine influences that vary in scale, from the fresh water of the Sacramento and San Joaquin Delta, as well as local tributaries starting within the surrounding mountain ranges, many of which have been disconnected from their original path. Much of the footprint around the San Francisco Bay has been filled or diked for human development, however through the efforts of communities, some remaining and restored marsh lands still reside as the intermediary between tidal waters and the terrestrial landscape. This study focused on marshes located within the Northern and Central area of the Estuary, where many planned and completed research projects are located and are adjacent to a subembayment of the San Pablo Bay. This area of the estuary is unique through its proximity to the freshwater flow of the Delta inflows, as well as the strong tidal influence of from the Golden Gate. Sites for this study were chosen based on permitting availability for a year-long, monthly study, repeatability with past studies methods, diversity of positions within the estuary, as well as marsh edge typology based on the work from the Shifting Shorelines report by San Francisco Estuary Insitutute. Marsh edges were defined by presence of a Scarp and a Ramp, as the inflection point and vegetation had a stronger potential of objectivity upon repeated measuring. To enhance comparability, two scarped marshes-San Pablo Marsh and Buck's Landing, and two ramped marshes-Corte Madera Marsh and Giant Marsh, were picked for a year of monitoring from July 2025-2026. One ramped marsh, San Pablo Marsh, and one scarped marsh, Corte Madera Marsh, were chosen based on past studies from U.S. Geological Survey in 2022-2023 in order to compare those rates across time and further understand the marsh edge typologies significance to sediment deposition across longer scales of time.
 
--  San Francisco Bay Estuary within the watershed and the outflows, tidal influences, etc.
+San Pablo Marsh contains a ramped marsh edge typology. It is located at the northern most part of the estuary, facing relative south to the San Pablo Bay and is adjacent to California Highway 37. It is due East of the Petaluma River mouth opening, which contains a shipping channel for the Port of Petaluma for recreational and commerical traffic. The San Pablo Marsh is part of a larger complex of tidal channels and tidal pannes with influence from both riverine and estuarine sources. The vegetation is composed mostly of Salicornia pacifica (Pickleweed) with a belt of vegetation of Spartina foliosa (Cordgrass) on the lower part of the bayward marsh that is frequently inundated.
+
+Corte Madera Marsh contains a scarped marsh edge typology. It is located in the Central Bay facing the Richmond Bay Bridge, adjacent to Highway 101 and a shopping mall with a parking lot. The marsh is generally sheltered through the Sir Frances Drake Peninsula (look for actual name that's appropriate here) and faces East into the San Francisco Bay. There is the San Rafael river nearby the marsh, as well as a commuter ferry whose route is roughly parrallel to that of the marsh edge shoreline. The vegetation is composed mostly of Pickleweed, Distichiulus, and Cordgrass in patches throughout the landscape of the marsh. jawmea
+
+Buck's Landing Marsh contains a ramped marsh edge typology. It is located on the Western side of the estuary, facing North towards the top of the San Pablo Bay and the adjacent opening of Gallinas Creek. Buck's Landing has tidal influence, as well as direct contact through the freshwater influences of Gallinas Creek. This site also had observed scarped and ramped edge morphology throughout the site, apart from the areas of the site measured. There is a boat ramped on the west side of the site, as well as powerlines overhead. The vegetation is mostly composed of Pickleweed, with some other species throughout and a belt of Cordgrass on the lower part of the bayward marsh that is frequently inundated, jawmea
+
+Giant Marsh contains a scarped marsh edge typology. It is located in the San Pablo Bay, facing west on the East side of the bay within Point Pinole Regional Park. The marsh has some riverine influences (look up where this river is) nearby it that is disturbed by human infrastructure and nearby housing developments. There is also directly in front of the marsh there are experimental oyster reefs and old pillons from an older deck. In addition, this marsh is parallel to the Richmond Outer and Pinol Shoals deep water shipping channels. The vegetation is mostly composed of Pickleweed and Distichulus.
+
+- San Francisco Bay Estuary within the watershed and the outflows, tidal influences, etc.
 
 - Show map of all the sites in a table, first the map of all of them at the top. Then each site, includes benchmarks of the transects. See if you can find specific photos of each site characters
 
--  Environmental characteristics about the storm, etc.
+- Environmental characteristics about the storm, etc.
 
--  Describe each of the sites
+- Describe each of the sites
 
   - Higher elevation relative to each other
 
@@ -58,33 +66,29 @@ knitr::opts_knit$set(root.dir = 'C:/Users/savan/OneDrive - San Francisco State U
 
   - Watershed dimensions? Not sure how important this is and where to get this information
 
-#### 2.2 Marsh Edge Typology 
+#### 2.2 Marsh Edge Typology
 
-- Characterization of "marsh edge typology", reference SFEI report
+Marsh Edge typologies were characterized using the broad categories from the San Francisco Estuary Institute report, "Shifting Shorelines". Two sites fell under the "Scarped" marsh edge typology, while two sites fell under the "Ramped" marsh edge typology. The sites were categorized based on the following observeable traits of a steep cliff like change from the marsh platform to the mudflat-scarped, or a steady transition zone between the two-ramped. Ramped marsh edge morphologies measured all had a belt of Cordgrass (Spartina foliosa) transition between the mudflat and the marsh platform, whereas the scarped marsh edges measured started with cordgrass at the beginning of sampling, but had eroded by the end of the study or were not observed again at either site near the marsh transition to mudflat.
 
-- Characterizing in each marsh edge typology how the "edge" and start of the transect was determined
+The marsh edge was decided differently betweeen scarped and ramped marsh edges. For scarped sites, the marsh edge was determined based on the location of the edge of the cliff. For the ramped sites, the marsh edge was determined where the majority of the Cordgrass belt started from the Pickleweed pre-dominant area of the marsh platform. The determination of the marsh edge in ramped sites, due to the vegetation signature standing as the diagnostic, was not as definitive as the scarped marsh edge. This interpretation led to differences between one the ramped sites, San Pablo Marsh, which we compared to an earlier dataset collected by U.S. Geological Survey in 2022-2023.
 
-- First study from San Pablo and Corte Madera in 2022-2023, a ramped and scarped edge
+To test the significance of marsh edge typology on sediment deposition, the transects started perpendicular to the marsh edge (approximately 1 meter from the determined edge) moving inland.
 
-- Replication of methods at those two sites, and adding two additional marsh edge sites to add replicates to the ramped and scarped edge comparison
+For the compared dataset between 2022-2023 and 2025-2026, Corte Madera transects were roughly parallel to the distances collected in the previous study, allowing for sediment deposition measurements to be comparable. In the 2022-2023 dataset of San Pablo marsh, the transect started past the belt of Cordgrass into the mudflat, which with the logarthimc offset misaligned the distance collections of our study. As such, for comparison of 2022-2023 and 2025-2026 studies, "Marsh Areas" were grouped together with the overlapping distances between temporal collections, starting from the edge of the marsh with the cordgrass belt into "Edge" and "Platform" categories.
 
-- Field measurements and photos of the marsh edge during visits
+Upon each visit to the marsh, a photo was taken perpendicular to the edge, directly facing the transect pole 1 foot to the left of the transect. These photos were taken to track change over time in vegetation and the marsh edge morphology throughout the seasons qualitatively. Measurements of each transect, starting from the transect pole to the nearest edge were taken, determined by their typology characteristics (Table 1).
 
 - Outlines with position on a map of the transects within the bay with an aerial transect per each marsh. Include the 2022 collection locations, as well as the channel vs. bay transects
-
-- Outlines the horizontal profile of each marsh with elevation on the y axis and distance on the x
-
-  - Explain z\* as a concept, and explain that each transect will be compared with z\* rather than elevation as it is more representative of tidal flooding
 
 - Show map again of the sites, this time characterizing the wind fetch angle, and broad categories of open vs. protected, vs. west-east-south facing
 
 - Table that includes all this information
 
-![](C:/Users/savan/OneDrive%20-%20San%20Francisco%20State%20University/ProjectData/GitHub/DepositionSFB/images/methods/rq_plots.png)
-
-![](C:/Users/savan/OneDrive%20-%20San%20Francisco%20State%20University/ProjectData/GitHub/DepositionSFB/images/methods/rq_plots_usgs.png)
-
 #### 2.2 Sediment Deposition Collections throughout the Year
+
+![](images/clipboard-1795811635.png)
+
+![](images/clipboard-1685377747.png)
 
 - Collections of sediment completed in 2022-2023 by the U.S. Geological Survey that measured Corte Madera and San Pablo marsh in both channel and bay transects.
 
@@ -101,6 +105,10 @@ knitr::opts_knit$set(root.dir = 'C:/Users/savan/OneDrive - San Francisco State U
 - Have a table that includes the timing of monitoring and a photo of the elevations being taken
 
 - Show the location of the benchmarks, and include the coordinate systems used
+
+- Explain z\* as a concept, and explain that each transect will be compared with z\* rather than elevation as it is more representative of tidal flooding
+
+- Outlines the horizontal profile of each marsh with elevation on the y axis and distance on the x
 
 ## 3. Results
 

@@ -1,0 +1,21 @@
+---
+title: "Discussion/Appendices (Draft)"
+format: docx
+editor: visual
+---
+
+### Site-Specific Differences Observed Based on Locations-Buck's Landing and Corte Madera (Visualization)
+
+\*I recognize that these might be moreso part of the Discussion and not the results
+
+Main point is to demonstrate how two marshes of similar side of the bay (East Facing) similar comparison on z star still have differences between transects as it relates to Flux measured.
+
+![](C:/Users/savan/OneDrive%20-%20San%20Francisco%20State%20University/ProjectData/GitHub/DepositionSFB/images/rq_1/BCtransite.png)
+
+### b. Site-Specific Differences Observed Based on Within the Same Marsh Between Bay and Channel Transects in 2022-2023 (Visualization)
+
+![](C:/Users/savan/OneDrive%20-%20San%20Francisco%20State%20University/ProjectData/GitHub/DepositionSFB/images/rq_2/marsharea.png)
+
+### c. Site-Specific Differences Observed in San Pablo Specifically in the Intertidal Marsh Area Across Months in 2022-2023 (Visualization)
+
+![](C:/Users/savan/OneDrive%20-%20San%20Francisco%20State%20University/ProjectData/GitHub/DepositionSFB/images/usgsdata/marsharea_seasonality_SP.png)

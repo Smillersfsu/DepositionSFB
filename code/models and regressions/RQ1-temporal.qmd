@@ -64,7 +64,9 @@ master_tier5_clean <- master_tier5 %>%
       Phen_Period,
       levels = c("Late_Dry\n(Months 1-3)", "Tran\n(Months 4-6)",
                  "Wet\n(Months 7-9)", "Growth\n(Months 10-12)")
-  )
+    ), 
+      Loc_ID = interaction(Site, Tran, Dist, drop = TRUE)   # NEW: stable per-location ID, reused for AR1 grouping and diagnostics
+  
 )
 
 
@@ -452,14 +454,23 @@ summary(edge_time_model_glmm)
 Anova(edge_time_model_glmm, type = "II")
 
 sim_res_edge_time <- simulateResiduals(edge_time_model_glmm)
-testTemporalAutocorrelation(sim_res_edge_time, time = master_tier5_clean$Month)
+
+locs <- unique(master_tier5_clean$Loc_ID)
+for (loc in locs) {
+  idx <- which(master_tier5_clean$Loc_ID == loc)
+  if (length(idx) < 3) next
+  sim_res_loc <- recalculateResiduals(sim_res_edge_time, sel = idx)
+  cat("\n---", as.character(loc), "---\n")
+  print(testTemporalAutocorrelation(sim_res_loc, time = master_tier5_clean$Study.Phase[idx]))
+}
+
 
 # AR1 version, since this is repeated monthly sampling
 master_tier5_clean_ar <- master_tier5_clean %>%
-  mutate(Month_ar = factor(Month, ordered = FALSE))
+  mutate(Loc_ID = interaction(Site, Tran, Dist, drop = TRUE))
 
 edge_time_model_glmm_ar1 <- glmmTMB(
-  Flux ~ marsh_edge_type * Month + ar1(Month_ar + 0 | Site),
+  Flux ~ marsh_edge_type * Month + ar1(Study.Phase + 0 | Loc_ID), #because month was messy for the linear model-changing to study phase to keep track for categorical sorting
   family = Gamma(link = "log"),
   data = master_tier5_clean_ar
 )
@@ -645,5 +656,73 @@ overall_comparison_3way <- bind_rows(
   general_all$data        %>% mutate(Scenario = "Excluding all flagged intervals", .before = 1)
 )
 
+flagged_phases <- unique(long_intervals$Study.Phase)
+
+phase_comparison_3way <- bind_rows(
+  phase_with$data %>% mutate(Scenario = "Including all", .before =1), 
+  phase_without$data %>% 
+    filter(Study.Phase %in% december_phases) %>% 
+    mutate(Scenario = "Excluding December only", .before =1),  
+  phase_all$data %>% 
+    filter(Study.Phase %in% flagged_phases) %>%
+    mutate(Scenario = "Excluding all flagged intervals", .before = 1)) %>%
+  arrange(Study.Phase, Scenario)
+
 overall_comparison_3way
+phase_comparison_3way
 ```
+
+```{r, december deployment dates table}
+
+
+library(gt)
+
+december_intervals <- master_tier5 %>%
+  mutate(Interval_Length = as.numeric(Date.removed.from.field - Date.placed.in.field)) %>%
+  filter(Month == "Dec") %>%
+  select(Site, Study.Phase, Date.placed.in.field, Date.removed.from.field, Interval_Length) %>%
+  arrange(Site, Date.placed.in.field)
+
+december_table <- december_intervals %>%
+  gt() %>%
+  tab_header(title = "December Deployment and Removal Dates") %>%
+  cols_label(
+    Site = "Site",
+    Study.Phase = "Study Phase",
+    Date.placed.in.field = "Date Placed",
+    Date.removed.from.field = "Date Removed",
+    Interval_Length = "Interval (days)"
+  ) %>%
+  fmt_number(columns = Interval_Length, decimals = 1)
+
+december_table
+
+gtsave(
+  december_table,
+  filename = file.path(knitr::opts_knit$get("root.dir"), "december_deployment_dates.png")
+)
+
+```
+
+```{r}
+overall_comparison_3way_table <- overall_comparison_3way %>%
+  gt() %>%
+  tab_header(title = "Overall Flux Comparison Across December-Exclusion Scenarios") %>%
+  fmt_number(columns = where(is.numeric), decimals = 2)
+
+overall_comparison_3way_table
+
+phase_comparison_3way_table <-phase_comparison_3way %>% 
+  gt() %>% 
+  tab_header(title = "Flux by Study Phase Across Study Phases with Long Intervals > 35 Days") %>%
+  fmt_number(columns = where(is.numeric), decimals = 2)
+
+phase_comparison_3way_table
+
+gtsave(
+  overall_comparison_3way_table,
+  filename = file.path(knitr::opts_knit$get("root.dir"), "overall_comparison_3way.png")
+)
+
+```
+

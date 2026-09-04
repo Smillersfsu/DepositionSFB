@@ -47,6 +47,7 @@ library(cowplot) # figure arrangement and plot annotations
 library(rcartocolor) # color palettes
 library(ggh4x) # advanced ggplot extensions
 library(scales) # axis labels, formatting, and scaling 
+library(webshot2) # for uploading to PNG
 
 
 #######################################################

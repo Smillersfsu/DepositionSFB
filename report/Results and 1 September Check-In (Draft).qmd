@@ -5,7 +5,7 @@ editor: visual
 output-dir: "C:/Users/savan/OneDrive - San Francisco State University/ProjectData/GitHub/DepositionSFB/report"
 ---
 
-# Data Cleaning/Confirmation (1 September 2026)
+# Data Cleaning/Confirmation (4 September 2026)
 
 ## a. Pseudo Replication Issue
 
@@ -24,6 +24,14 @@ output-dir: "C:/Users/savan/OneDrive - San Francisco State University/ProjectDat
 - For now, took excluded those Distance measured from analysis entirely.
 
 ## b. Long Deployment Sampling Periods-How Does it Affect the Data?
+
+![](C:/Users/savan/OneDrive%20-%20San%20Francisco%20State%20University\ProjectData\GitHub\DepositionSFB\images\overall_comparison_3way.png)
+
+![](C:/Users/savan/OneDrive%20-%20San%20Francisco%20State%20University\ProjectData\GitHub\DepositionSFB\data\site_point_grid.png)
+
+![](C:/Users/savan/OneDrive%20-%20San%20Francisco%20State%20University\ProjectData\GitHub\DepositionSFB\data\phase_flux_by_scenario_dodged.png)
+
+![](C:/Users/savan/OneDrive%20-%20San%20Francisco%20State%20University\ProjectData\GitHub\DepositionSFB\images\phase_comparison_3way.png)
 
 ## c. Shapiro p value and Statistics
 

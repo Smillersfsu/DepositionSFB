@@ -644,6 +644,72 @@ nrow(master_tier5_sensitivity_all)   # should be smaller than master_tier5, and 
 
 ```{r}
 
+phase_flux_by_scenario <- bind_rows(
+  master_tier5                  %>% mutate(Scenario = "Including December"),
+  master_tier5_sensitivity      %>% mutate(Scenario = "Excluding December only"),
+  master_tier5_sensitivity_all  %>% mutate(Scenario = "Excluding all flagged intervals")
+) %>%
+  mutate(
+    Scenario = factor(Scenario, levels = c("Including December",
+                                            "Excluding December only",
+                                            "Excluding all flagged intervals")), 
+                       Study.Phase = factor(Study.Phase, levels = paste0("M", 1:12))
+)
+    # Force correct M1-M12 order regardless of what came in from bind_rows
+
+
+phase_flux_boxplot_dodged <- ggplot(phase_flux_by_scenario,
+                                     aes(x = Study.Phase, y = Flux, fill = Scenario)) +
+  geom_boxplot(alpha = 0.7, outlier.shape = NA, position = position_dodge(width = 0.8)) +
+  scale_y_log10() +
+  theme_minimal(base_size = 14) +
+  theme(legend.position = "bottom",
+        axis.text.x = element_text(angle = 45, hjust = 1)) +
+  labs(x = "Study Phase (Month)", y = expression(Log[10]~Flux~(g/m^2/day)),
+       title = "Flux by Study Phase Across Data-Exclusion Scenarios",
+       fill = "Scenario")
+
+phase_flux_boxplot_dodged
+
+ggsave(file.path(knitr::opts_knit$get("root.dir"), "phase_flux_by_scenario_dodged.png"),
+       plot = phase_flux_boxplot_dodged,
+       width = 13,
+       height = 7,
+       dpi = 300,
+       limitsize = FALSE)
+
+
+
+site_point_plot_grid <- ggplot(phase_flux_by_scenario,
+                                aes(x = Study.Phase, y = Flux, color = Site)) +
+  geom_point(alpha = 0.5, size = 1.5, position = position_jitter(width = 0.2)) +
+  scale_y_log10(labels = label_number(accuracy = 1)) +
+  scale_color_brewer(palette = "Dark2") +
+  facet_grid(Scenario ~ Site) +
+  theme_minimal(base_size = 12) +
+  theme(legend.position = "none",
+        axis.text.x = element_text(angle = 45, hjust = 1, size = 9),
+        strip.text.y = element_text(face = "bold", size = 10, angle = 0),
+        strip.text.x = element_text(face = "bold", size = 11),
+        panel.grid.minor = element_blank()) +
+  labs(x = "Study Phase (Month)", y = expression(Log[10]~Flux~(g/m^2/day)),
+       title = "Flux by Study Phase and Site\nAcross Data-Exclusion Scenarios")
+
+site_point_plot_grid
+
+
+ggsave(file.path(knitr::opts_knit$get("root.dir"), "site_point_grid.png"),
+       plot = site_point_plot_grid,
+       width = 15,
+      height = 11,
+       dpi = 300,
+       limitsize = FALSE)
+```
+
+
+
+```{r}
+
 general_all <- make_flux_table(master_tier5_sensitivity_all, title = "Excluding all flagged long intervals")
 
 phase_all <- make_flux_table(master_tier5_sensitivity_all, group_vars = "Study.Phase",
@@ -666,6 +732,7 @@ phase_comparison_3way <- bind_rows(
   phase_all$data %>% 
     filter(Study.Phase %in% flagged_phases) %>%
     mutate(Scenario = "Excluding all flagged intervals", .before = 1)) %>%
+   mutate(Study.Phase = factor(Study.Phase, levels = paste0("M",1:12), ordered = TRUE)) %>%
   arrange(Study.Phase, Scenario)
 
 overall_comparison_3way
@@ -722,6 +789,11 @@ phase_comparison_3way_table
 gtsave(
   overall_comparison_3way_table,
   filename = file.path(knitr::opts_knit$get("root.dir"), "overall_comparison_3way.png")
+)
+
+gtsave(
+ phase_comparison_3way_table,
+  filename = file.path(knitr::opts_knit$get("root.dir"), "phase_comparison_3way.png")
 )
 
 ```

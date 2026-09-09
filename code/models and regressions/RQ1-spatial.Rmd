@@ -967,6 +967,7 @@ save_as_image(ft, path = "C:\\Users\\savan\\OneDrive - San Francisco State Unive
 
 
 ```{r}
+usgs_thesis <- readr::read_csv("C:\\Users\\savan\\OneDrive - San Francisco State University\\ProjectData\\GitHub\\DepositionSFB\\data\\usgs_thesis.csv")
 
 # Check for NAs
 sum(is.na(usgs_thesis$Flux))              # total count of NAs

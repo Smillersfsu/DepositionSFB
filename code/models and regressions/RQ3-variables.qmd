@@ -171,11 +171,13 @@ ggplot(master_tier5_clean,
 ```{r, glmm}
 
 rq3_model_glmm <- glmmTMB(
-  Flux ~ z_star + Dist + mean_wind_speed_kt+ marsh_edge_type + (1 | Site),
+  Flux ~ z_star + Dist + marsh_edge_type + (1 | Site/Tran), # make a transect per edge type category column and add this here as a random effect 
   family = Gamma(link = "log"),
-  data = master_tier5_clean
+  data = master_tier5_clean # look at rate data, look for packages that show the families you can choose
+  # function choose family, caret package   
 )
 summary(rq3_model_glmm)
 Anova(rq3_model_glmm, type = "II")
 
+#nested experimental design
 ```

@@ -34,6 +34,16 @@ library(glmmTMB) # for generalized linear mixed effects models specifically
 library(lme4) # linear and generalized mixed-effects models
 library(ggeffects) # predicted values and marginal effects 
 library(DHARMa) # for measuring residuals on the GLMM
+install.packages("fitdistrplus") 
+#library(fitdistrplus) # descdist()/fitdist()/gofstat() test which 
+# distribution best fits raw Flux 
+install.packages("gamlss")
+# library(gamlss) # another version of fitdistrplus 
+install.packages("brunnermunzel") 
+# libarary(brunnermunzel) # robust Mann-Whitney alternative for when spread 
+# differs between groups 
+
+
 
 #######################################################
 
@@ -48,6 +58,7 @@ library(rcartocolor) # color palettes
 library(ggh4x) # advanced ggplot extensions
 library(scales) # axis labels, formatting, and scaling 
 library(webshot2) # for uploading to PNG
+library(ggdist) # for half-violin density layers for raincloud plot
 
 
 #######################################################

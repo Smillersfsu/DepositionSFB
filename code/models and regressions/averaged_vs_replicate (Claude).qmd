@@ -1,0 +1,133 @@
+---
+title: "Averaged vs. Replicate-Level Flux: Model Comparison (Claude)"
+format: html
+editor: visual
+---
+
+```{=html}
+<!--
+Standalone reference document, companion to
+"marsh_edgeID_vs_site_tran (Claude).qmd" -- same idea, different
+question. That file compares two ways of specifying a random effect
+over the SAME (already-averaged) data. This file compares two
+different GRAINS of the data itself: the averaged master_tier5.csv
+(one Flux value per Site/Tran/Dist/Month, mean of replicate traps) vs.
+the replicate-level master_tier5_byrep.csv (one row per individual
+replicate trap, built by the new keep_replicates() function in
+step6_master_analysis_flagtier.qmd).
+
+Sources the shared conventions/glossary files, same as the other files,
+so terminology (PRIMARY/SENSITIVITY, Rule 1a/1b/1c) matches.
+-->
+```
+
+```{r, setup}
+#| message: false
+
+source("C:\\Users\\savan\\OneDrive - San Francisco State University\\ProjectData\\GitHub\\DepositionSFB\\code\\R\\setup.R")
+source("C:\\Users\\savan\\OneDrive - San Francisco State University\\ProjectData\\GitHub\\DepositionSFB\\code\\R\\plotting.R")
+source("C:\\Users\\savan\\OneDrive - San Francisco State University\\ProjectData\\GitHub\\DepositionSFB\\code\\R\\modeling_conventions (Claude).R")
+source("C:\\Users\\savan\\OneDrive - San Francisco State University\\ProjectData\\GitHub\\DepositionSFB\\code\\R\\statistical_tools_glossary (Claude).R")
+
+knitr::opts_chunk$set(echo = TRUE)
+knitr::opts_knit$set(root.dir = 'C:/Users/savan/OneDrive - San Francisco State University/ProjectData/GitHub/DepositionSFB/data')
+
+master_tier5 <- readr::read_csv(
+  file.path(knitr::opts_knit$get("root.dir"), "master_tier5.csv")
+) %>%
+  filter(Flux > 0, Dist != 48) %>%
+  mutate(Site = as.factor(Site), Tran = as.factor(Tran),
+         marsh_edge_type = factor(marsh_edge_type, levels = c("Scarped", "Ramped")))
+
+master_tier5_byrep <- readr::read_csv(
+  file.path(knitr::opts_knit$get("root.dir"), "master_tier5_byrep.csv")
+) %>%
+  filter(Flux > 0, Dist != 48) %>%
+  mutate(Site = as.factor(Site), Tran = as.factor(Tran),
+         marsh_edge_type = factor(marsh_edge_type, levels = c("Scarped", "Ramped")),
+         Replicate = as.factor(Replicate))
+```
+
+## The question this document answers
+
+`master_tier5.csv` averages every replicate trap at a given Site/Tran/Dist/Month into a single `Flux` value before any model sees it (`average_replicates()`, step6). `master_tier5_byrep.csv` keeps each trap as its own row instead (`keep_replicates()`, step6), which means the same physical point now contributes \~3 rows instead of 1.
+
+That raises the same kind of question as the `marsh_edgeID` comparison: does keeping replicates separate actually buy you anything, or does it just add rows that need to be told, via the random-effects structure, that they came from the same point?
+
+## The models
+
+```{r, fit both}
+#| message: false
+
+# AVERAGED (existing default): one Flux value per Site/Tran/Dist/Month.
+model_avg <- glmmTMB(
+  Flux ~ marsh_edge_type + (1 | Site/Tran),
+  family = Gamma(link = "log"),
+  data = master_tier5
+)
+
+# REPLICATE-LEVEL: one Flux value per trap. (1|Loc_ID) is required here,
+# not optional -- without it, this model would treat 3 correlated traps
+# at the same point as 3 independent observations, which is exactly the
+# pseudoreplication problem this whole project's modeling_conventions.R
+# exists to avoid for Site/Tran. Loc_ID = interaction(Site, Tran, Dist),
+# same construction already used for the AR1 model in RQ1-temporal.qmd.
+model_byrep <- glmmTMB(
+  Flux ~ marsh_edge_type + (1 | Site/Tran) + (1 | Loc_ID),
+  family = Gamma(link = "log"),
+  data = master_tier5_byrep
+)
+
+summary(model_avg)$coefficients$cond["marsh_edge_typeRamped", ]
+summary(model_byrep)$coefficients$cond["marsh_edge_typeRamped", ]
+```
+
+## Why AIC alone can't answer this
+
+```{r, why not AIC}
+nrow(master_tier5)
+nrow(master_tier5_byrep)
+```
+
+`AIC(model_avg, model_byrep)` is **not a valid comparison** here -- unlike the `marsh_edgeID` comparison (same data, different grouping label), these two models are fit to genuinely different N. A lower AIC on `model_byrep` would partly just reflect having \~3x more rows, not a better-fitting model. AIC (and likelihood generally) is only comparable across models fit to the *same* data.
+
+What's actually comparable instead:
+
+```{r, what is comparable}
+
+
+# 1. The fixed-effect estimate and its precision, side by side (already
+#    printed above) -- if Loc_ID is doing its job, these should be
+#    similar. A real divergence is the interesting result, not a bug.
+
+# 2. Diagnostics on EACH model against its OWN data -- this is a fair
+#    comparison because it's asking "does this model fit its data
+#    well," not "which likelihood is bigger."
+sim_avg <- simulateResiduals(model_avg)
+plot(sim_avg)
+testDispersion(sim_avg)
+
+sim_byrep <- simulateResiduals(model_byrep)
+plot(sim_byrep)
+testDispersion(sim_byrep)
+
+# 3. Where the variance actually sits, once you can see trap-to-trap
+#    noise separately from point/transect/site variance -- this is the
+#    actual scientific payoff of not averaging.
+VarCorr(model_byrep)
+```
+
+## What to look for
+
+| Question | What tells you |
+|------------------------------------|------------------------------------|
+| Does keeping replicates change the `marsh_edge_type` conclusion? | Compare the two coefficient/SE rows above directly. |
+| Is `(1\|Loc_ID)` actually absorbing the point-level correlation, or is there leftover structure? | `testDispersion()`/`plot()` on `model_byrep` -- overdispersion here suggests `Loc_ID` isn't fully capturing it. |
+| Was averaging throwing away real signal, or just noise? | `VarCorr(model_byrep)` -- if the `Loc_ID` (point-level) variance is much larger than the residual (trap-to-trap) variance, replicates within a point were mostly redundant and averaging lost little. If residual variance is large relative to `Loc_ID`, individual traps varied a lot and averaging was smoothing over real measurement variability. |
+| Which model is more defensible to report as primary? | If both diagnostics look reasonable and the coefficients agree, report the averaged model as primary (Rule 2 default, simpler, fewer assumptions, matches the rest of the project) and cite this comparison as a robustness check -- same framing recommended for `marsh_edgeID` vs. `Site/Tran`. If they meaningfully disagree, that disagreement is itself a result worth reporting, not something to resolve by picking whichever looks better. |
+
+## Where this is implemented
+
+- `keep_replicates()` / `master_tier5_byrep.csv`: `step6_master_analysis_flagtier.qmd`, alongside the existing (unchanged) `average_replicates()`.
+- `Loc_ID` construction: same pattern as the AR1 temporal-autocorrelation model in `RQ1-temporal (Claude).qmd`.
+- The general Rule 1a nesting logic this document extends: `modeling_conventions (Claude).R`.

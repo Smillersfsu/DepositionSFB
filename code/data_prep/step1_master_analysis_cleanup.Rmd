@@ -121,6 +121,40 @@ sed_thesis <- sed_thesis %>%
   marsh_edge_type = factor(marsh_edge_type, levels = c("Scarped", "Ramped"))
   )
 
+# Making a Marsh Edge ID (transect-level, not nested under Site)
+#
+# DECISION (from the marsh_edgeID_vs_site_tran comparison discussion):
+# 2 sites per edge type x 2 transects per site = 4 transect-level units
+# per edge type. Site assignment within each type is alphabetical here
+# (Buck'sLanding < SanPablo; CorteMadera < GiantMarsh) -- swap the two
+# site names in site_offset below if you want the opposite site to take
+# 1-2 vs 3-4.
+#
+# WHY THIS EXISTS: RQ3-variables (Claude).qmd uses this as an explicit
+# comparison against the nested (1|Site/Tran) random effect -- NOT as a
+# replacement for it. marsh_edgeID is mathematically interaction(Site,
+# Tran) relabeled, so it does not add independent replication; it's a
+# diagnostic for whether attributing transect variation to Site changes
+# the marsh_edge_type conclusion. See
+# "marsh_edgeID_vs_site_tran (Claude).qmd" for the full writeup of that
+# tradeoff before using this column anywhere new.
+
+sed_thesis <- sed_thesis %>%
+  mutate(
+    site_offset = case_when(
+      Site %in% c("Buck'sLanding", "CorteMadera") ~ 0,  # "site A" per type
+      Site %in% c("SanPablo", "GiantMarsh")        ~ 2,  # "site B" per type
+      TRUE ~ NA_real_
+    ),
+    marsh_edgeID = case_when(
+      marsh_edge_type == "Ramped"  ~ paste0("R-", site_offset + as.numeric(as.character(Tran))),
+      marsh_edge_type == "Scarped" ~ paste0("S-", site_offset + as.numeric(as.character(Tran))),
+      TRUE ~ NA_character_
+    ),
+    marsh_edgeID = factor(marsh_edgeID, levels = c("R-1","R-2","R-3","R-4","S-1","S-2","S-3","S-4"))
+  ) %>%
+  select(-site_offset)
+
 #Making a Marsh Orientation Categorization
 
 sed_thesis <- sed_thesis %>% 
@@ -144,6 +178,38 @@ sed_thesis <- sed_thesis %>%
     ), 
     Phen_Period = factor(Phen_Period, levels = c("Late_Dry\n(Months 1-3)", "Tran\n(Months 4-6)", "Wet\n(Months 7-9)", "Growth\n(Months 10-12)")
     ))
+
+# Adding a Season column (Lacy et al. 2019 definition)
+#
+# DECISION: per John's suggestion re: seasonal categorization, and
+# citing Lacy et al. (2019), "Seasonal Variation in Sediment Delivery
+# Across the Bay-Marsh Interface of an Estuarine Salt Marsh" -- Winter
+# = November-February, Summer = March-October.
+#
+# Built from Month (the actual calendar month derived from deployment
+# dates via majority_month() above), NOT from Study.Phase/Phen_Period --
+# Study.Phase is a sequential deployment index (M1-M12) that only
+# roughly tracks calendar month, since deployment windows don't align
+# cleanly with calendar months (flagged in committee meeting notes).
+# Month is the more direct calendar-based variable, which is what
+# Lacy's Nov-Feb/Mar-Oct definition actually requires.
+#
+# NOTE: this uses Lacy's published boundary as-is, not a custom
+# boundary adjusted for the October rain event noted in the committee
+# meeting -- if that adjustment is still wanted, it would mean moving
+# October from Summer to its own category or to Winter, which should
+# be argued explicitly in the discussion section per John's suggestion,
+# not silently folded into this column.
+
+sed_thesis <- sed_thesis %>%
+  mutate(
+    Cal_Season = case_when(
+      Month %in% c("Nov", "Dec", "Jan", "Feb") ~ "Winter",
+      Month %in% c("Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct") ~ "Summer",
+      TRUE ~ NA_character_
+    ),
+    Cal_Season = factor(Cal_Season, levels = c("Winter", "Summer"))
+  )
     
 
 # Adding a Marsh Area category
@@ -205,6 +271,9 @@ master_thesis$Year<- as.factor(master_thesis$Year)
 master_thesis$Flux <- as.numeric(master_thesis$Flux)
 master_thesis$Phen_Period <- factor(master_thesis$Phen_Period, levels = c("Late_Dry\n(Months 1-3)", "Tran\n(Months 4-6)", "Wet\n(Months 7-9)", "Growth\n(Months 10-12)"))
 master_thesis$marsh_edge_type <- as.factor(master_thesis$marsh_edge_type)
+master_thesis$Cal_Season <- factor(master_thesis$Cal_Season, levels = c("Winter", "Summer"))
+master_thesis$marsh_edgeID <- factor(master_thesis$marsh_edgeID,
+                                       levels = c("R-1","R-2","R-3","R-4","S-1","S-2","S-3","S-4"))
 master_thesis$marsh_orientation <- as.factor(master_thesis$marsh_orientation)
 master_thesis$Marsh_Area <- as.factor(master_thesis$Marsh_Area)
 master_thesis$Master_Flag <- as.factor(master_thesis$Master_Flag)

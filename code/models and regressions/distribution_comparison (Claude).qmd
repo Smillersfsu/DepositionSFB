@@ -1,0 +1,176 @@
+---
+title: "Distribution Comparison: Ramped vs. Scarped (Claude)"
+format: html
+editor: visual
+---
+
+```{=html}
+<!--
+Standalone reference document, same family as marsh_edgeID_vs_site_tran
+and averaged_vs_replicate. Built in response to XiaoHang's committee
+feedback (classic/robust distribution comparison, specific test name
+for comparing two distributions) plus John's earlier framing (SCARP vs.
+RAMP variability is a finding in itself, not noise).
+
+Runs on BOTH master_tier5 (averaged) and master_tier5_byrep (replicate-
+level, if you've generated it via the updated step6) so you can see
+whether the averaging-vs-replicate decision changes which test results
+you'd report -- same "explicit comparison, not silent choice" pattern
+as the other two docs.
+
+Sources the shared conventions/glossary files for consistent
+terminology (PRIMARY/SENSITIVITY, Rule 1a/1b/1c).
+-->
+```
+
+```{r, setup}
+#| message: false
+
+source("C:\\Users\\savan\\OneDrive - San Francisco State University\\ProjectData\\GitHub\\DepositionSFB\\code\\R\\setup.R")
+source("C:\\Users\\savan\\OneDrive - San Francisco State University\\ProjectData\\GitHub\\DepositionSFB\\code\\R\\plotting.R")
+source("C:\\Users\\savan\\OneDrive - San Francisco State University\\ProjectData\\GitHub\\DepositionSFB\\code\\R\\modeling_conventions (Claude).R")
+source("C:\\Users\\savan\\OneDrive - San Francisco State University\\ProjectData\\GitHub\\DepositionSFB\\code\\R\\statistical_tools_glossary (Claude).R")
+
+# make_flux_table() (flux_summary.R) already uses moments::skewness()/
+# kurtosis() -- confirmed, so this table uses the same package rather
+# than e1071, which was dropped from setup.R to remove the earlier
+# skewness()/kurtosis() namespace collision between the two packages.
+
+knitr::opts_chunk$set(echo = TRUE)
+knitr::opts_knit$set(root.dir = 'C:/Users/savan/OneDrive - San Francisco State University/ProjectData/GitHub/DepositionSFB/data')
+
+master_tier5 <- readr::read_csv(
+  file.path(knitr::opts_knit$get("root.dir"), "master_tier5.csv")
+) %>%
+  filter(Flux > 0, Dist != 48) %>%
+  mutate(marsh_edge_type = factor(marsh_edge_type, levels = c("Scarped", "Ramped")))
+
+# Optional -- only run if you've generated this via the updated step6.
+# master_tier5_byrep <- readr::read_csv(
+#   file.path(knitr::opts_knit$get("root.dir"), "master_tier5_byrep.csv")
+# ) %>%
+#   filter(Flux > 0, Dist != 48) %>%
+#   mutate(marsh_edge_type = factor(marsh_edge_type, levels = c("Scarped", "Ramped")))
+```
+
+## What "compare two distributions" actually means -- three different questions
+
+This document runs three separate tests because "are Ramped and Scarped different" is really three distinct questions, and conflating them is the easiest way to over- or under-claim a result at the defense:
+
+1.  **Is the *spread* different?** (Fligner-Killeen) -- this is John's "variation itself is a finding" point, tested directly rather than eyeballed from a boxplot.
+2.  **Is the *whole distribution* (shape + spread + location together) different?** (Kolmogorov-Smirnov) -- this is the literal answer to "what's the test for comparing two distributions."
+3.  **Is the *typical value* (location/rank) different?** (Mann-Whitney U / Wilcoxon rank-sum) -- your instinct, and the right test for "which one tends to be higher," but see the caveat below on what it assumes.
+
+## Step 1: Visual comparison + shape statistics
+
+```{r, histogram and shape stats}
+ggplot(master_tier5, aes(x = Flux, fill = marsh_edge_type)) +
+  geom_histogram(aes(y = after_stat(density)), bins = 40, alpha = 0.6,
+                  position = "identity") +
+  scale_fill_manual(values = marsh_edge_colors) +
+  facet_wrap(~ marsh_edge_type, ncol = 1, scales = "free_y") +
+  labs(title = "Distribution of Sediment Flux by Edge Type",
+       x = expression(Flux~(g/m^2/day)), y = "Density", fill = "Marsh Edge Type") +
+  theme_bw() +
+  theme(legend.position = "none")
+
+# Shape statistics table, extending the mean/SD/skewness already in
+# make_flux_table() (flux_summary.R) with kurtosis -- the piece
+# XiaoHang's feedback specifically asked for that wasn't already
+# computed anywhere in the pipeline.
+shape_stats <- master_tier5 %>%
+  group_by(marsh_edge_type) %>%
+  summarise(
+    n         = n(),
+    mean      = mean(Flux, na.rm = TRUE),
+    sd        = sd(Flux, na.rm = TRUE),
+    median    = median(Flux, na.rm = TRUE),
+    skewness  = moments::skewness(Flux, na.rm = TRUE),
+    kurtosis  = moments::kurtosis(Flux, na.rm = TRUE),   # RAW kurtosis --
+    # moments::kurtosis() does NOT subtract 3, so a normal distribution
+    # reads as ~3 here, not 0. (This is the opposite convention from
+    # e1071::kurtosis(), which reports EXCESS kurtosis, normal = 0 --
+    # if you ever see a kurtosis table with values near 0 instead of
+    # near 3, that's a sign it was built with e1071 instead of moments,
+    # not that the distribution itself changed.)
+    shapiro_p = shapiro.test(Flux)$p.value,
+    .groups = "drop"
+  )
+shape_stats
+```
+
+## Step 2: Is the spread different? (Fligner-Killeen)
+
+```{r, fligner killeen}
+# Fligner-Killeen is the NON-PARAMETRIC alternative to Levene's test --
+# tests equality of variance/spread WITHOUT assuming normality, which
+# matters here since Shapiro already rejects normality for both groups
+# (shape_stats$shapiro_p above). Given the SD gap already visible in
+# shape_stats (Scarped's SD is roughly an order of magnitude larger),
+# expect this to come back significant -- report it as a primary
+# finding, not a footnote, per John's framing.
+
+fligner.test(Flux ~ marsh_edge_type, data = master_tier5)
+```
+
+## Step 3: Is the whole distribution different? (Kolmogorov-Smirnov)
+
+```{r, ks test}
+# The literal answer to "what's the test for comparing two
+# distributions" -- tests location, spread, and shape jointly, with no
+# distributional assumptions. This is the test to cite if XiaoHang or
+# the committee asks for one specific name.
+
+flux_ramped  <- master_tier5$Flux[master_tier5$marsh_edge_type == "Ramped"]
+flux_scarped <- master_tier5$Flux[master_tier5$marsh_edge_type == "Scarped"]
+
+ks.test(flux_ramped, flux_scarped)
+```
+
+## Step 4: Is the typical value different? (Mann-Whitney U)
+
+```{r, mann whitney}
+# CAVEAT: Mann-Whitney's "which group tends to be higher" interpretation
+# technically assumes similar spread between groups. Given the Fligner-
+# Killeen result above almost certainly shows spread IS different, a
+# significant result here may partly reflect that spread difference
+# rather than a pure location shift -- report alongside Step 2, not
+# instead of it, and don't claim "Scarped values are simply higher"
+# from this test alone if Step 2 was also significant.
+
+wilcox.test(Flux ~ marsh_edge_type, data = master_tier5)
+
+# Effect size (rank-biserial correlation) -- Mann-Whitney's p-value
+# alone doesn't say how big the difference is, same issue as reporting
+# only a p-value for a t-test.
+# install.packages("rstatix")  # if not already installed
+library(rstatix)
+master_tier5 %>% wilcox_effsize(Flux ~ marsh_edge_type)
+```
+
+```{r, brunner munzel, eval = FALSE}
+# OPTIONAL, more robust alternative: the Brunner-Munzel test asks the
+# same "which group tends to be higher" question as Mann-Whitney, but
+# does NOT assume similar spread between groups -- built for exactly
+# the situation Step 2 is likely to reveal here. Worth running as a
+# cross-check if Mann-Whitney and Fligner-Killeen are both significant,
+# since it isolates the location effect from the spread effect that
+# Mann-Whitney alone can't fully separate.
+# install.packages("brunnermunzel")
+library(brunnermunzel)
+brunnermunzel.test(Flux ~ marsh_edge_type, data = master_tier5)
+```
+
+## How to report this as one coherent result
+
+Given the likely pattern (spread differs a lot, shape/skewness differs, and there may or may not be a clean location shift once spread is accounted for), the honest multi-test story is:
+
+1.  **Lead with Fligner-Killeen** -- Scarped sites show significantly greater variability in sediment flux than Ramped sites. This is the headline result matching John's "variation itself is a finding" framing.
+2.  **Follow with Kolmogorov-Smirnov** -- the two edge types' overall Flux distributions differ significantly (covers XiaoHang's literal ask).
+3.  **Report Mann-Whitney/Brunner-Munzel with the spread caveat stated explicitly** -- e.g. "Scarped values also tend to rank higher (Mann-Whitney, p = ...), though given the spread difference above, a Brunner-Munzel test was used to confirm this isn't purely an artifact of unequal variance."
+
+This is also a good complement to the raincloud plot already in RQ1-spatial.Rmd -- that plot shows the shape difference visually; this document is the statistical backing for exactly what it shows.
+
+## A note on how this fits the classic-tests-vs-GLMM question
+
+This document doesn't resolve whether to lead the thesis with these classic two-group tests or with the Gamma GLMMs already built across RQ1-3 -- that's the open tension between John's and XiaoHang's feedback flagged separately. What it does do: these tests work on the raw two-group comparison (`marsh_edge_type` alone) without needing the `Site/Tran` nesting structure, so they're valid regardless of how that larger debate resolves, and they don't assume the Gamma link function the GLMMs rely on. Worth having as a model-independent sanity check either way -- if a GLMM and Mann-Whitney/KS agree, that's a stronger result than either alone; if they disagree, that's worth understanding before the defense, not after.

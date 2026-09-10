@@ -39,7 +39,29 @@ average_replicates <- function(df) {
     )
 }
 
-
+# DECISION (committee feedback, both John and XiaoHang independently):
+# keep replicates separate rather than only ever averaging them --
+# averaging mutes real variability (esp. the Scarped-vs-Ramped skewness
+# difference), and there's no strong statistical justification for
+# averaging spatially distributed replicate traps. average_replicates()
+# above is left UNCHANGED -- master_tier1-6 and everything downstream
+# of them still default to the averaged grain. This function builds a
+# second, parallel, replicate-level version instead of replacing it.
+#
+# Unlike average_replicates(), Flux is never touched here -- it's
+# already the per-replicate value from elev_z_wind_slope_edge_flux, so
+# there's nothing to rename/collapse. n_reps is still computed, for
+# parity with the averaged version's n_reps > 0 filter below.
+keep_replicates <- function(df) {
+  df %>%
+    group_by(Site, Tran, Dist, Month, Study.Phase) %>%
+    mutate(n_reps = sum(!is.na(Flux_rep))) %>%
+    ungroup() %>%
+    filter(!is.na(Flux_rep)) %>%
+    mutate(
+      Loc_ID = interaction(Site, Tran, Dist, drop = TRUE)
+    )
+}
 
 
 master_tier1 <- filter_flux(elev_z_wind_slope_edge_flux, "noG",  "review_only") %>% average_replicates()
@@ -51,10 +73,16 @@ master_tier6 <- filter_flux(elev_z_wind_slope_edge_flux, "noG",  "full") %>% ave
 
 master_tier5 <- master_tier5 %>% filter(n_reps > 0)
 
+
+master_tier5_byrep <- filter_flux(elev_z_wind_slope_edge_flux, "all", "full") %>% keep_replicates()
+master_tier5_byrep <- master_tier5_byrep %>% filter(n_reps > 0)
+
 month_levels <- c("Jul", "Aug", "Sep", "Oct", "Nov", "Dec",
                   "Jan", "Feb", "Mar", "Apr", "May", "Jun")
 
+
 master_tier5 %>% count(n_reps)
+
 
 master_tier1 <- master_tier1 %>% mutate(Month = factor(Month, levels = month_levels))
 master_tier2 <- master_tier2 %>% mutate(Month = factor(Month, levels = month_levels))
@@ -63,6 +91,8 @@ master_tier4 <- master_tier4 %>% mutate(Month = factor(Month, levels = month_lev
 master_tier5 <- master_tier5 %>% mutate(Month = factor(Month, levels = month_levels))
 master_tier6 <- master_tier6 %>% mutate(Month = factor(Month, levels = month_levels))
 
+# <-- PASTE this line HERE too, alongside the other month_levels lines --
+master_tier5_byrep <- master_tier5_byrep %>% mutate(Month = factor(Month, levels = month_levels))
 
 
 save_tier(master_tier1, "master_tier1.csv")
@@ -71,6 +101,10 @@ save_tier(master_tier3, "master_tier3.csv")
 save_tier(master_tier4, "master_tier4.csv")
 save_tier(master_tier5, "master_tier5.csv")
 save_tier(master_tier6, "master_tier6.csv")
+
+# <-- PASTE this save_tier() call HERE, alongside the other five 
+
+save_tier(master_tier5_byrep, "master_tier5_byrep.csv")
 ```
 
 ```{r, tier statistics}

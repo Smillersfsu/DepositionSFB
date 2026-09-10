@@ -1,0 +1,124 @@
+---
+title: "Random Effects Structure: marsh_edgeID vs. Nested Site/Tran (Claude)"
+format: html
+editor: visual
+---
+
+```{=html}
+<!--
+Standalone reference document, split out of RQ3-variables.qmd so this
+comparison has its own place to live rather than being a single
+tucked-away chunk. Written up on request after several passing mentions
+of this tradeoff across the conversation: once when marsh_edgeID was
+first built (step1_master_analysis_cleanup.Rmd), and once when it was
+actually implemented as a model comparison in RQ3-variables.qmd. This
+file is the fuller pros/cons writeup that was never actually laid out
+in one place until now.
+
+Sources the shared conventions/glossary files, same as the RQ files,
+so the vocabulary here (PRIMARY/SENSITIVITY, Rule 1a/1b/1c) matches.
+-->
+```
+
+```{r, setup}
+#| message: false
+
+source("C:\\Users\\savan\\OneDrive - San Francisco State University\\ProjectData\\GitHub\\DepositionSFB\\code\\R\\setup.R")
+source("C:\\Users\\savan\\OneDrive - San Francisco State University\\ProjectData\\GitHub\\DepositionSFB\\code\\R\\plotting.R")
+source("C:\\Users\\savan\\OneDrive - San Francisco State University\\ProjectData\\GitHub\\DepositionSFB\\code\\R\\modeling_conventions (Claude).R")
+source("C:\\Users\\savan\\OneDrive - San Francisco State University\\ProjectData\\GitHub\\DepositionSFB\\code\\R\\statistical_tools_glossary (Claude).R")
+
+knitr::opts_chunk$set(echo = TRUE)
+knitr::opts_knit$set(root.dir = 'C:/Users/savan/OneDrive - San Francisco State University/ProjectData/GitHub/DepositionSFB/data')
+
+master_tier5 <- readr::read_csv(
+  file.path(knitr::opts_knit$get("root.dir"), "master_tier5.csv")
+)
+
+master_tier5_clean <- master_tier5 %>%
+  filter(Flux > 0, Dist != 48) %>%
+  mutate(
+    Site = as.factor(Site),
+    Tran = as.factor(Tran),
+    marsh_edge_type = factor(marsh_edge_type, levels = c("Scarped", "Ramped")),
+    marsh_edgeID = factor(marsh_edgeID,
+                           levels = c("R-1","R-2","R-3","R-4","S-1","S-2","S-3","S-4"))
+  )
+```
+
+## The question this document answers
+
+Your design has 2 sites per marsh edge type (Ramped: Buck'sLanding, SanPablo; Scarped: CorteMadera, GiantMarsh) and 2 transects per site -- 4 transects per edge type. There are two ways to tell a mixed model about that structure:
+
+1.  **Nested random effect**: `(1 | Site/Tran)` -- transect variation is explicitly attributed to the site it came from.
+2.  **marsh_edgeID random effect**: `(1 | marsh_edgeID)` -- the same 8 transects, relabeled `R-1`...`R-4`, `S-1`...`S-4` by edge type instead of by site, and used as the random-effect grouping variable directly.
+
+## The one fact that resolves most of the confusion
+
+**These two are mathematically the same partition of your data.** `marsh_edgeID` is `interaction(Site, Tran)` with different labels. Every level of `marsh_edgeID` corresponds to exactly one real Site x Tran combination, same as every level of the nested `Site:Tran` grouping does. Swapping one random-effect specification for the other does not add data, does not add independent replicates, and does not increase your effective sample size for testing `marsh_edge_type`.
+
+What *does* change between the two specifications is **what the model is told about the relationship between those 8 groups** -- specifically, whether "these two transects both happened to be at CorteMadera" is information the model gets to use.
+
+## Side-by-side comparison
+
+```{r, fit both structures}
+#| message: false
+
+# PRIMARY structure per modeling_conventions.R, Rule 1b: Site as random,
+# Tran nested under it. Site variation and transect-within-site
+# variation get separate variance components.
+rq_edge_sitetran <- glmmTMB(
+  Flux ~ marsh_edge_type + (1 | Site/Tran),
+  family = Gamma(link = "log"),
+  data = master_tier5_clean
+)
+
+# COMPARISON structure: marsh_edgeID as the sole random effect. Site
+# identity is no longer visible to the model at all -- R-1 and R-2 are
+# not told they share a site, nor are they told they don't.
+rq_edge_edgeID <- glmmTMB(
+  Flux ~ marsh_edge_type + (1 | marsh_edgeID),
+  family = Gamma(link = "log"),
+  data = master_tier5_clean
+)
+
+summary(rq_edge_sitetran)$coefficients$cond["marsh_edge_typeRamped", ]
+summary(rq_edge_edgeID)$coefficients$cond["marsh_edge_typeRamped", ]
+
+AIC(rq_edge_sitetran, rq_edge_edgeID)
+```
+
+|   | `(1 \| Site/Tran)` | `(1 \| marsh_edgeID)` |
+|----|----|----|
+| **Random-effect levels** | 4 sites, each with 2 nested transects (6 variance groups total: 4 site + implicit transect-within-site) | 8 flat groups (R-1...R-4, S-1...S-4) |
+| **Variance components estimated** | Two: between-site, and transect-within-site | One: between-transect (site-level and transect-level variance are conflated into a single component) |
+| **Effective sample size for `marsh_edge_type`** | Still \~4 sites (2 per type) -- Site is the level at which edge type varies, so this is the real constraint regardless of which structure you pick | Same \~4 sites -- relabeling doesn't change this |
+| **What breaks if two sites of the same edge type behave very differently** (e.g. GiantMarsh's documented higher variance vs. CorteMadera) | Visible: site-level variance component absorbs it, and you can inspect it directly (`VarCorr()`) | Invisible: that between-site heterogeneity gets folded into the single transect-level variance, harder to diagnose from the model output alone |
+| **Interpretability for committee/reviewers** | Transparent -- matches the physical design exactly, easy to defend | Requires an explanation of what marsh_edgeID actually is and why it's not literally a second random replicate |
+| **Risk of appearing to inflate replication** | Low -- nesting is the standard, expected way to model this design | Real risk -- if presented without the equivalence caveat, "4 transect-level units per edge type" can read as 4 independent replicates when it's still 2 sites' worth of information |
+
+## Pros and cons
+
+**`(1 | Site/Tran)` -- nested, PRIMARY structure**
+
+- Pro: matches your actual sampling design one-to-one; no relabeling to explain.
+- Pro: separates site-level and transect-level variance, so you can see (via `VarCorr()`) how much of the noise is "sites differ from each other" vs. "transects within a site differ."
+- Pro: standard practice for this kind of design -- least friction with a committee or reviewer.
+- Con: with only 4 sites (2 per edge type), the site-level variance component itself is estimated on very few groups, so it can be unstable or produce a singular fit warning -- worth checking `isSingular()` on this model.
+
+**`(1 | marsh_edgeID)` -- flat, COMPARISON structure**
+
+- Pro: simpler model (one variance component instead of two) -- can be more stable to fit when the site-level variance is genuinely near zero.
+- Pro: useful specifically as a **diagnostic**: if `rq_edge_sitetran` and `rq_edge_edgeID` give similar `marsh_edge_type` estimates and similar AIC, that's evidence your conclusion doesn't hinge on how site-level clustering is modeled -- a reasonable thing to state in a robustness section.
+- Con: throws away the site/transect distinction, so if the two sites within an edge type really do behave differently, that heterogeneity has nowhere to go except the residual or the single random-effect variance -- you lose the ability to say "this is driven by site differences, not transect differences."
+- Con: on its own, without the comparison and the equivalence caveat stated explicitly, it can misrepresent your effective replication to a reader.
+
+## Recommendation
+
+Report `(1 | Site/Tran)` as your primary model in the thesis -- it's the structure that actually matches your design and gives you diagnosable variance components. Use `(1 | marsh_edgeID)` the way it's set up in `RQ3-variables.qmd`: as a named robustness/sensitivity check, with the AIC and coefficient comparison shown side by side, and a sentence stating plainly that `marsh_edgeID` is `Site:Tran` relabeled rather than additional independent data. That framing gets you the actual scientific value of the comparison (does the conclusion depend on the random-effects structure) without any risk of the replication-count concern coming up in your defense unexplained.
+
+## Where this is implemented
+
+- `marsh_edgeID` column: built in `step1_master_analysis_cleanup.Rmd`.
+- The comparison itself, on the full RQ3 fixed-effects model (not just `marsh_edge_type` alone): `RQ3-variables.qmd`, "marsh_edgeID comparison" section (`rq3_model_glmm` vs. `rq3_model_glmm_edgeID`).
+- The general rule this document is an extended footnote to: `modeling_conventions.R`, Rule 1a.

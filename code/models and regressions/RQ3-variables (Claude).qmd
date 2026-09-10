@@ -4,18 +4,19 @@ format: docx
 editor: visual
 ---
 
+```{=html}
 <!--
 Rebuilt this session. The previous version of this file was still the
 default Quarto template ("Quarto enables you to weave together...",
 "Running Code" placeholder headers) with real analysis code dropped in
 underneath it -- cleaned that scaffolding out.
 
-Also fixed a real bug: every chunk referenced `master_tier5_clean`
+Also fixed a real bug: every chunk referenced `master_tier5_byrep_clean`
 without this file ever loading it. That only "worked" if RQ1-spatial.Rmd
 had already been run earlier in the same R session and left the object
 behind -- the same session-leftover-object problem
 Research_question_2_FIXED.qmd's own header notes fixing for
-usgs_thesis_merge.qmd. Fixed the same way here: load master_tier5.csv
+usgs_thesis_merge.qmd. Fixed the same way here: load master_tier5_byrep.csv
 directly in this file instead of assuming it's already in memory.
 
 Resolves the TODO left in the original rq3_model_glmm chunk ("make a
@@ -24,7 +25,9 @@ effect") -- that's marsh_edgeID, added to step1_master_analysis_cleanup.Rmd.
 See the "marsh_edgeID comparison" section below for how it's used here,
 and the caveat on what it does and doesn't buy you statistically.
 -->
+```
 
+```{=html}
 <!--
 STATISTICAL TOOLS USED IN THIS FILE
 (full definitions in statistical_tools_glossary (Claude).R)
@@ -42,6 +45,7 @@ STATISTICAL TOOLS USED IN THIS FILE
   cross-validated penalty strength; cross-checks that the predictors
   kept in rq3_model_glmm survive automatic selection.
 -->
+```
 
 ```{r, load packages and data}
 source("C:\\Users\\savan\\OneDrive - San Francisco State University\\ProjectData\\GitHub\\DepositionSFB\\code\\R\\setup.R")
@@ -59,13 +63,13 @@ source("C:\\Users\\savan\\OneDrive - San Francisco State University\\ProjectData
 knitr::opts_chunk$set(echo = TRUE)
 knitr::opts_knit$set(root.dir = 'C:/Users/savan/OneDrive - San Francisco State University/ProjectData/GitHub/DepositionSFB/data')
 
-# FIX: load master_tier5_clean directly rather than relying on it
+# FIX: load master_tier5_byrep_clean directly rather than relying on it
 # already being in memory from another file's session.
-master_tier5 <- readr::read_csv(
-  file.path(knitr::opts_knit$get("root.dir"), "master_tier5.csv")
+master_tier5_byrep <- readr::read_csv(
+  file.path(knitr::opts_knit$get("root.dir"), "master_tier5_byrep.csv")
 )
 
-master_tier5_clean <- master_tier5 %>%
+master_tier5_byrep_clean <- master_tier5_byrep %>%
   filter(Flux > 0, Dist != 48) %>%
   mutate(
     Site = as.factor(Site),
@@ -84,7 +88,7 @@ usgs_thesis <- readr::read_csv(
 )
 ```
 
-## Base model: z*, local slope, and marsh edge type
+## Base model: z\*, local slope, and marsh edge type
 
 ```{r, rq3 base model}
 # SENSITIVITY check (Rule 2) -- rq3_model_glmm below is primary. Site as
@@ -92,7 +96,7 @@ usgs_thesis <- readr::read_csv(
 # sites and isn't testing site identity itself.
 
 rq3_model <- lmer(log(Flux) ~ z_star + local_slope + marsh_edge_type +
-                    (1 | Site), data = master_tier5_clean)
+                    (1 | Site), data = master_tier5_byrep_clean)
 summary(rq3_model)
 ```
 
@@ -105,7 +109,7 @@ summary(rq3_model)
 rq3_model_glmm <- glmmTMB(
   Flux ~ z_star + local_slope + marsh_edge_type + Dist + (1 | Site/Tran),
   family = Gamma(link = "log"),
-  data = master_tier5_clean
+  data = master_tier5_byrep_clean
 )
 summary(rq3_model_glmm)
 Anova(rq3_model_glmm, type = "II")
@@ -125,7 +129,7 @@ This is run as an explicit **model comparison**, not a silent swap-in, because `
 rq3_model_glmm_edgeID <- glmmTMB(
   Flux ~ z_star + local_slope + marsh_edge_type + Dist + (1 | marsh_edgeID),
   family = Gamma(link = "log"),
-  data = master_tier5_clean
+  data = master_tier5_byrep_clean
 )
 summary(rq3_model_glmm_edgeID)
 
@@ -146,7 +150,7 @@ AIC(rq3_model_glmm, rq3_model_glmm_edgeID)
 rq3_model_glmm_phenperiod <- glmmTMB(
   Flux ~ z_star + local_slope + marsh_edge_type + Dist + Phen_Period + (1 | Site/Tran),
   family = Gamma(link = "log"),
-  data = master_tier5_clean
+  data = master_tier5_byrep_clean
 )
 summary(rq3_model_glmm_phenperiod)
 Anova(rq3_model_glmm_phenperiod, type = "II")
@@ -155,7 +159,7 @@ sim_res_rq3_phenperiod <- simulateResiduals(rq3_model_glmm_phenperiod)
 plot(sim_res_rq3_phenperiod)
 testDispersion(sim_res_rq3_phenperiod)
 
-# Same N as rq3_model_glmm (both on master_tier5_clean), so AIC is a
+# Same N as rq3_model_glmm (both on master_tier5_byrep_clean), so AIC is a
 # valid comparison here -- tells you whether Phen_Period adds
 # meaningful explanatory power over the base spatial predictors alone.
 AIC(rq3_model_glmm, rq3_model_glmm_phenperiod)
@@ -165,7 +169,7 @@ AIC(rq3_model_glmm, rq3_model_glmm_phenperiod)
 rq3_model_glmm_season <- glmmTMB(
   Flux ~ z_star + local_slope + marsh_edge_type + Dist + Cal_Season + (1 | Site/Tran),
   family = Gamma(link = "log"),
-  data = master_tier5_clean
+  data = master_tier5_byrep_clean
 )
 summary(rq3_model_glmm_season)
 Anova(rq3_model_glmm_season, type = "II")
@@ -261,7 +265,7 @@ ggsave("C:\\Users\\savan\\OneDrive - San Francisco State University\\ProjectData
 
 ```{r, flux vs wind}
 
-ggplot(master_tier5_clean, aes(x = mean_wind_speed_kt, y = Flux, color = Tran)) +
+ggplot(master_tier5_byrep_clean, aes(x = mean_wind_speed_kt, y = Flux, color = Tran)) +
   geom_point(alpha = 0.4) +
   facet_wrap(~ Site) +
   scale_fill_manual(values = transect_colors) + 
@@ -276,7 +280,7 @@ ggplot(master_tier5_clean, aes(x = mean_wind_speed_kt, y = Flux, color = Tran)) 
 ```{r, flux vs wind and slope no Giant Marsh}
 
 # Flux vs. Wind, excluding Giant Marsh
-ggplot(master_tier5_clean %>% filter(Site != "GiantMarsh"), 
+ggplot(master_tier5_byrep_clean %>% filter(Site != "GiantMarsh"), 
        aes(x = mean_wind_speed_kt, y = Flux, color = Tran)) +
   geom_point(alpha = 0.4) +
   facet_wrap(~ Site) +
@@ -289,7 +293,7 @@ ggplot(master_tier5_clean %>% filter(Site != "GiantMarsh"),
   theme_bw()
 
 # Flux vs. Slope, excluding Giant Marsh
-ggplot(master_tier5_clean %>% filter(Site != "GiantMarsh"), 
+ggplot(master_tier5_byrep_clean %>% filter(Site != "GiantMarsh"), 
        aes(x = local_slope, y = Flux, color = Tran)) +
   geom_point(alpha = 0.4) +
   scale_fill_manual(values = transect_colors) + 
@@ -303,7 +307,7 @@ ggplot(master_tier5_clean %>% filter(Site != "GiantMarsh"),
 ```
 
 ```{r, flux vs slope}
-ggplot(master_tier5_clean, 
+ggplot(master_tier5_byrep_clean, 
        aes(x = local_slope, y = Flux, color = Tran)) +
   geom_point(alpha = 0.4) +
   facet_wrap(~ Site) +

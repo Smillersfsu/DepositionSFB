@@ -27,7 +27,7 @@ period section.
 Renamed Hydro_Period -> Phen_Period throughout: that column no longer
 exists under the old name, and rather than keep reconstructing it from
 Study.Phase (a guess), this now uses the real Phen_Period column already
-on master_tier5, with the same Late_Dry/Tran/Wet/Growth levels/order as
+on master_tier5_byrep, with the same Late_Dry/Tran/Wet/Growth levels/order as
 the old Hydro_Period (confirmed).
 -->
 ```
@@ -79,11 +79,11 @@ STATISTICAL TOOLS USED IN THIS FILE
 
 ```{r, load and prep data}
 
-master_tier5 <- readr::read_csv(
-  file.path(knitr::opts_knit$get("root.dir"), "master_tier5.csv")
+master_tier5_byrep <- readr::read_csv(
+  file.path(knitr::opts_knit$get("root.dir"), "master_tier5_byrep.csv")
 )
 
-master_tier5_clean <- master_tier5 %>%
+master_tier5_byrep_clean <- master_tier5_byrep %>%
     filter(Flux > 0, 
          Dist != 48) %>%
   mutate(
@@ -113,7 +113,7 @@ master_tier5_clean <- master_tier5 %>%
 
 ```{r, rq1 time}
 
-summary_df <- master_tier5_clean %>%
+summary_df <- master_tier5_byrep_clean %>%
   group_by(Site, Tran, Month) %>%
   summarise(median_flux = median(Flux, na.rm = TRUE),
             q25 = quantile(Flux, 0.25, na.rm = TRUE),
@@ -142,7 +142,7 @@ ggsave(file.path(knitr::opts_knit$get("root.dir"), "rq1_time_trend.png"),
        dpi = 300,
        limitsize = FALSE)
 
-rq1_time = ggplot(master_tier5_clean, aes(x = Month, y = Flux, color = Tran, fill = Tran)) +
+rq1_time = ggplot(master_tier5_byrep_clean, aes(x = Month, y = Flux, color = Tran, fill = Tran)) +
   geom_boxplot(aes(group = interaction(Month, Tran)), 
                alpha = 0.3, outlier.shape = NA, 
                position = position_dodge(width = 6)) +
@@ -174,7 +174,7 @@ ggsave(file.path(knitr::opts_knit$get("root.dir"), "rq1_time.png"),
 # Moved from RQ1-spatial.Rmd's transite1 chunk -- shows the raw Flux
 # distribution across phase, complementing the summary-line versions below.
 
-log_month = ggplot(master_tier5_clean, aes(x = as.factor(Month), y = log(Flux), color = Site)) +
+log_month = ggplot(master_tier5_byrep_clean, aes(x = as.factor(Month), y = log(Flux), color = Site)) +
   geom_point(alpha = 0.4) +
   geom_sina(alpha = 0.6, size = 2) +
   labs(x = "Month of Study", y = "Log Flux (g/cm^2/day)",
@@ -191,7 +191,7 @@ ggsave("C:\\Users\\savan\\OneDrive - San Francisco State University\\ProjectData
        dpi = 300,
        limitsize = FALSE)
 
-wrapmonth_dist = ggplot(master_tier5_clean, aes(x = Dist, y = log(Flux), color = Site)) +
+wrapmonth_dist = ggplot(master_tier5_byrep_clean, aes(x = Dist, y = log(Flux), color = Site)) +
   facet_wrap("Month") +
   geom_point(alpha = 0.4) +
   geom_sina(alpha = 0.6, size = 2) +
@@ -212,7 +212,7 @@ ggsave("C:\\Users\\savan\\OneDrive - San Francisco State University\\ProjectData
 
 ```{r, aggregate per Study.Phase-Site}
 
-total_summary <- master_tier5_clean %>%
+total_summary <- master_tier5_byrep_clean %>%
   group_by(Site, Month) %>%
   summarise(
     mean_flux = mean(Flux, na.rm = TRUE),
@@ -240,7 +240,7 @@ ggsave("C:\\Users\\savan\\OneDrive - San Francisco State University\\ProjectData
 
 ```{r, Study Phase by marsh group and transect}
 
-phase_compare <- master_tier5_clean %>%
+phase_compare <- master_tier5_byrep_clean %>%
   mutate(
     Marsh_Group = case_when(
       Site %in% c("SanPablo", "GiantMarsh") ~ "San Pablo + Giant Marsh",
@@ -292,7 +292,7 @@ ggsave("C:\\Users\\savan\\OneDrive - San Francisco State University\\ProjectData
 
 ```{r, Study Phase by distance}
 
-transect_summary2 <- master_tier5_clean %>%
+transect_summary2 <- master_tier5_byrep_clean %>%
   mutate(Flux_zeroed = ifelse(Flux < 0, 0, Flux)) %>%
   filter(Dist %in% c(0.5, 2, 6, 12, 18, 24)) %>%
   mutate(Dist = factor(Dist, levels = c(0.5, 2, 6, 12, 18, 24))) %>%
@@ -380,7 +380,7 @@ ggsave("C:\\Users\\savan\\OneDrive - San Francisco State University\\ProjectData
        dpi = 300,
        limitsize = FALSE)
 
-transect_summary_no_giant <- master_tier5_clean %>%
+transect_summary_no_giant <- master_tier5_byrep_clean %>%
   mutate(Flux_zeroed = ifelse(Flux < 0, 0, Flux)) %>%
   filter(Site != "GiantMarsh", Dist %in% c(0.5, 2, 6, 12, 18, 24)) %>%
   mutate(Dist = factor(Dist, levels = c(0.5, 2, 6, 12, 18, 24))) %>%
@@ -421,7 +421,7 @@ ggsave("C:\\Users\\savan\\OneDrive - San Francisco State University\\ProjectData
 
 ```{r, phen period plots}
 
-phen_summary <- master_tier5_clean %>%
+phen_summary <- master_tier5_byrep_clean %>%
   mutate(Flux_zeroed = ifelse(Flux < 0, 0.001, Flux)) %>%
   group_by(Phen_Period, Site) %>%
   summarise(
@@ -440,7 +440,7 @@ ggplot(phen_summary, aes(x = Phen_Period, y = mean_flux, color = Site, group = S
   labs(title = "Mean Flux by Phenological Period", subtitle = "Log-scaled y-axis",
        x = "Phenological Period", y = expression(Mean~Flux~(g/m^2/day)), color = "Site")
 
-phen_summary_no_giant <- master_tier5_clean %>%
+phen_summary_no_giant <- master_tier5_byrep_clean %>%
   filter(Site != "GiantMarsh") %>%
   mutate(Flux_zeroed = ifelse(Flux < 0, 0, Flux)) %>%
   group_by(Phen_Period, Site) %>%
@@ -477,7 +477,7 @@ ggplot(phen_summary, aes(x = Phen_Period, y = mean_flux, group = 1)) +
 
 edge_time_model <- lmer(
   Flux ~ marsh_edge_type * Month + (1|Site),
-  data = master_tier5_clean
+  data = master_tier5_byrep_clean
 )
 summary(edge_time_model)
 anova(edge_time_model)
@@ -491,31 +491,36 @@ anova(edge_time_model)
 edge_time_model_glmm <- glmmTMB(
   Flux ~ marsh_edge_type * Month + (1|Site),
   family = Gamma(link = "log"),
-  data = master_tier5_clean
+  data = master_tier5_byrep_clean
 )
 summary(edge_time_model_glmm)
 Anova(edge_time_model_glmm, type = "II")
 
 sim_res_edge_time <- simulateResiduals(edge_time_model_glmm)
 
-locs <- unique(master_tier5_clean$Loc_ID)
+locs <- unique(master_tier5_byrep_clean$Loc_ID)
 for (loc in locs) {
-  idx <- which(master_tier5_clean$Loc_ID == loc)
-  if (length(idx) < 3) next
+  idx <- which(master_tier5_byrep_clean$Loc_ID == loc)
+  time_loc <- master_tier5_byrep_clean$Study.Phase[idx]
+  
+  if (length(unique(time_loc)) < 3) next
+  
   sim_res_loc <- recalculateResiduals(sim_res_edge_time, sel = idx)
+  sim_res_loc <- recalculateResiduals(sim_res_loc, group = time_loc)
+  
   cat("\n---", as.character(loc), "---\n")
-  print(testTemporalAutocorrelation(sim_res_loc, time = master_tier5_clean$Study.Phase[idx]))
+  print(testTemporalAutocorrelation(sim_res_loc, time = unique(time_loc)))
 }
 
 
 # AR1 version, since this is repeated monthly sampling
-master_tier5_clean_ar <- master_tier5_clean %>%
+master_tier5_byrep_clean_ar <- master_tier5_byrep_clean %>%
   mutate(Loc_ID = interaction(Site, Tran, Dist, drop = TRUE))
 
 edge_time_model_glmm_ar1 <- glmmTMB(
   Flux ~ marsh_edge_type * Month + ar1(Study.Phase + 0 | Loc_ID), #because month was messy for the linear model-changing to study phase to keep track for categorical sorting
   family = Gamma(link = "log"),
-  data = master_tier5_clean_ar
+  data = master_tier5_byrep_clean_ar
 )
 summary(edge_time_model_glmm_ar1)
 
@@ -574,12 +579,12 @@ ggsave("C:\\Users\\savan\\OneDrive - San Francisco State University\\ProjectData
 # flagging it explicitly so it's clear this asymmetry is a decision and
 # not an oversight.
 
-master_tier5_clean_noGM <- master_tier5_clean %>%
+master_tier5_byrep_clean_noGM <- master_tier5_byrep_clean %>%
   filter(Site != "GiantMarsh")
 
 edge_time_model_noGM <- lmer(
   Flux ~ marsh_edge_type * Month + (1|Site),
-  data = master_tier5_clean_noGM
+  data = master_tier5_byrep_clean_noGM
 )
 
 summary(edge_time_model_noGM)
@@ -619,7 +624,7 @@ The models above use `Month` (calendar month) as the temporal grouping. `Phen_Pe
 
 edge_phenperiod_model <- lmer(
   Flux ~ marsh_edge_type * Phen_Period + (1|Site),
-  data = master_tier5_clean
+  data = master_tier5_byrep_clean
 )
 summary(edge_phenperiod_model)
 anova(edge_phenperiod_model)
@@ -631,7 +636,7 @@ anova(edge_phenperiod_model)
 edge_phenperiod_model_glmm <- glmmTMB(
   Flux ~ marsh_edge_type * Phen_Period + (1|Site),
   family = Gamma(link = "log"),
-  data = master_tier5_clean
+  data = master_tier5_byrep_clean
 )
 summary(edge_phenperiod_model_glmm)
 Anova(edge_phenperiod_model_glmm, type = "II")
@@ -672,7 +677,7 @@ ggsave("C:\\Users\\savan\\OneDrive - San Francisco State University\\ProjectData
 
 edge_season_model <- lmer(
   Flux ~ marsh_edge_type * Cal_Season + (1|Site),
-  data = master_tier5_clean
+  data = master_tier5_byrep_clean
 )
 summary(edge_season_model)
 anova(edge_season_model)
@@ -684,7 +689,7 @@ anova(edge_season_model)
 edge_season_model_glmm <- glmmTMB(
   Flux ~ marsh_edge_type * Cal_Season + (1|Site),
   family = Gamma(link = "log"),
-  data = master_tier5_clean
+  data = master_tier5_byrep_clean
 )
 summary(edge_season_model_glmm)
 Anova(edge_season_model_glmm, type = "II")
@@ -718,7 +723,7 @@ ggsave("C:\\Users\\savan\\OneDrive - San Francisco State University\\ProjectData
        width = 8, height = 5, dpi = 300, limitsize = FALSE)
 ```
 
-**On the AIC comparisons above:** `edge_time_model_glmm`, `edge_phenperiod_model_glmm`, and `edge_season_model_glmm` are all fit on the same `master_tier5_clean` (same N), so unlike the averaged-vs-replicate comparison earlier in this project, `AIC()` across these three *is* a valid comparison -- it tells you which temporal grain the data actually supports best, not an artifact of differing sample size. A lower AIC for `Cal_Season` over `Month`, for instance, would be a legitimate argument for leading with the coarser, literature-backed grouping in the defense rather than the finer one.
+**On the AIC comparisons above:** `edge_time_model_glmm`, `edge_phenperiod_model_glmm`, and `edge_season_model_glmm` are all fit on the same `master_tier5_byrep_clean` (same N), so unlike the averaged-vs-replicate comparison earlier in this project, `AIC()` across these three *is* a valid comparison -- it tells you which temporal grain the data actually supports best, not an artifact of differing sample size. A lower AIC for `Cal_Season` over `Month`, for instance, would be a legitimate argument for leading with the coarser, literature-backed grouping in the defense rather than the finer one.
 
 ```{r}
 
@@ -726,7 +731,7 @@ ggsave("C:\\Users\\savan\\OneDrive - San Francisco State University\\ProjectData
 # (Date.removed.from.field - Date.placed.in.field, in days) in the code
 # that built rq_plots.
 
-interval_summary <- master_tier5 %>%
+interval_summary <- master_tier5_byrep %>%
   mutate(Interval_Length = as.numeric(Date.removed.from.field - Date.placed.in.field))
 
 # Statistical threshold rather than an eyeballed cutoff -- flag anything
@@ -755,7 +760,7 @@ long_intervals
 #   distinct(Site, Study.Phase)
 
 # Option B (active) -- drop December everywhere, for a first-pass sensitivity check
-december_phases <- master_tier5 %>%
+december_phases <- master_tier5_byrep %>%
   filter(Month == "Dec") %>%
   distinct(Study.Phase) %>%
   pull(Study.Phase)
@@ -763,20 +768,20 @@ december_phases <- master_tier5 %>%
 december_phases
 
 # ---- 3. Build the sensitivity tier ----------------------------------------
-master_tier5_sensitivity <- filter_flux(elev_z_wind_slope_edge_flux, "all", "full") %>%
+master_tier5_byrep_sensitivity <- filter_flux(elev_z_wind_slope_edge_flux, "all", "full") %>%
   filter(!(Study.Phase %in% december_phases)) %>%
   # anti_join(exclude_site_phase, by = c("Site", "Study.Phase")) %>%   # swap in for the site-specific version later
   average_replicates() %>%
   filter(n_reps > 0)
 
 # ---- 4. Run both scenarios -------------------------------------------------
-general_with    <- make_flux_table(master_tier5,             title = "Including December")
-general_without <- make_flux_table(master_tier5_sensitivity, title = "Excluding December")
+general_with    <- make_flux_table(master_tier5_byrep,             title = "Including December")
+general_without <- make_flux_table(master_tier5_byrep_sensitivity, title = "Excluding December")
 
-phase_with    <- make_flux_table(master_tier5,             group_vars = "Study.Phase",
+phase_with    <- make_flux_table(master_tier5_byrep,             group_vars = "Study.Phase",
                                  title = "By Study Phase — including December",
                                  group_labels = list(Study.Phase = "Study Phase"))
-phase_without <- make_flux_table(master_tier5_sensitivity, group_vars = "Study.Phase",
+phase_without <- make_flux_table(master_tier5_byrep_sensitivity, group_vars = "Study.Phase",
                                  title = "By Study Phase — excluding December",
                                  group_labels = list(Study.Phase = "Study Phase"))
 
@@ -805,14 +810,14 @@ exclude_site_phase <- long_intervals %>%
 exclude_site_phase   # check this before it drives anything below
 
 # ---- Build the sensitivity tier, excluding all flagged combos -----------
-master_tier5_sensitivity_all <- filter_flux(elev_z_wind_slope_edge_flux, "all", "full") %>%
+master_tier5_byrep_sensitivity_all <- filter_flux(elev_z_wind_slope_edge_flux, "all", "full") %>%
   anti_join(exclude_site_phase, by = c("Site", "Study.Phase")) %>%
   average_replicates() %>%
   filter(n_reps > 0)
 
-nrow(master_tier5)
-nrow(master_tier5_sensitivity_all)   # should be smaller than master_tier5, and smaller
-# than master_tier5_sensitivity (December-only)
+nrow(master_tier5_byrep)
+nrow(master_tier5_byrep_sensitivity_all)   # should be smaller than master_tier5_byrep, and smaller
+# than master_tier5_byrep_sensitivity (December-only)
 
 
 ```
@@ -820,9 +825,9 @@ nrow(master_tier5_sensitivity_all)   # should be smaller than master_tier5, and 
 ```{r}
 
 phase_flux_by_scenario <- bind_rows(
-  master_tier5                  %>% mutate(Scenario = "Including December"),
-  master_tier5_sensitivity      %>% mutate(Scenario = "Excluding December only"),
-  master_tier5_sensitivity_all  %>% mutate(Scenario = "Excluding all flagged intervals")
+  master_tier5_byrep                  %>% mutate(Scenario = "Including December"),
+  master_tier5_byrep_sensitivity      %>% mutate(Scenario = "Excluding December only"),
+  master_tier5_byrep_sensitivity_all  %>% mutate(Scenario = "Excluding all flagged intervals")
 ) %>%
   mutate(
     Scenario = factor(Scenario, levels = c("Including December",
@@ -883,9 +888,9 @@ ggsave(file.path(knitr::opts_knit$get("root.dir"), "site_point_grid.png"),
 
 ```{r}
 
-general_all <- make_flux_table(master_tier5_sensitivity_all, title = "Excluding all flagged long intervals")
+general_all <- make_flux_table(master_tier5_byrep_sensitivity_all, title = "Excluding all flagged long intervals")
 
-phase_all <- make_flux_table(master_tier5_sensitivity_all, group_vars = "Study.Phase",
+phase_all <- make_flux_table(master_tier5_byrep_sensitivity_all, group_vars = "Study.Phase",
                              title = "By Study Phase — excluding all flagged long intervals",
                              group_labels = list(Study.Phase = "Study Phase"))
 
@@ -917,7 +922,7 @@ phase_comparison_3way
 
 library(gt)
 
-december_intervals <- master_tier5 %>%
+december_intervals <- master_tier5_byrep %>%
   mutate(Interval_Length = as.numeric(Date.removed.from.field - Date.placed.in.field)) %>%
   filter(Month == "Dec") %>%
   select(Site, Study.Phase, Date.placed.in.field, Date.removed.from.field, Interval_Length) %>%

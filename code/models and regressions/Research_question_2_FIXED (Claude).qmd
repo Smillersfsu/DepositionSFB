@@ -4,9 +4,24 @@ format: docx
 editor: visual
 ---
 
-Repurposed from the old Research_question_2.qmd per Session_Status step 5. Loads usgs_thesis.rds (built by usgs_thesis_merge.qmd) instead of relying on session-leftover objects. Two model variants throughout -- Month and Phen_Period -- replacing Study.Phase and Season, neither of which exist in the merged data anymore.
+Repurposed from the old Research_question_2.qmd per Session_Status step 5. Loads usgs_thesis_byrep.rds (built by usgs_thesis_merge (Claude).qmd) instead of relying on session-leftover objects. Two model variants throughout -- Month and Phen_Period -- replacing Study.Phase and Season, neither of which exist in the merged data anymore.
 
 Study.Dataset (USGS vs Thesis) replaces Year as the actual comparison variable throughout every model and plot. Year had 4 messy, non-adjacent levels (2022, 2023, 2025, 2026) that only ever served as a noisy proxy for which dataset a row came from -- Study.Dataset says that directly. Also fixes a real bug this surfaced: Year was never re-factored after the CSV round-trip in usgs_thesis_merge.qmd, so it silently came through as continuous numeric, which is why an earlier version of this file's emmeans plot rendered Year as a blue color gradient instead of distinct groups.
+
+SWITCHED to replicate-level data (this session): now reads
+usgs_thesis_byrep.rds instead of usgs_thesis.rds, and the bay_channel
+section reads usgs_bay_byrep.csv/usgs_river_byrep.csv instead of the
+averaged usgs_bay.csv/usgs_river.csv. (1|Loc_ID) added to every model
+in this file -- Model 1 (Month/Phen_Period variants), Model 2
+(Month/Phen_Period variants), marsh_dist_model(+_glmm),
+marsh_area_dataset_model(+_glmm), and both bay_channel_model_month
+variants -- same fix already applied to RQ1-spatial.Rmd,
+RQ1-temporal.qmd, and RQ3-variables.qmd, for the same reason: without
+it, each point's replicate traps were being treated as independent
+observations. Loc_ID already exists as a column on both
+usgs_thesis_byrep.rds and usgs_bay_byrep.csv/usgs_river_byrep.csv (same
+construction, interaction(Site, Tran, Dist), on both the thesis and
+USGS sides), so no new columns were needed.
 
 ```{=html}
 <!--
@@ -61,7 +76,7 @@ STATISTICAL TOOLS USED IN THIS FILE
 ```
 
 ```{r, load merged dataset}
-usgs_thesis <- readRDS("C:\\Users\\savan\\OneDrive - San Francisco State University\\ProjectData\\GitHub\\DepositionSFB\\data\\usgs_thesis.rds")
+usgs_thesis <- readRDS("C:\\Users\\savan\\OneDrive - San Francisco State University\\ProjectData\\GitHub\\DepositionSFB\\data\\usgs_thesis_byrep.rds")
 
 str(usgs_thesis)
 ```
@@ -252,7 +267,7 @@ qqline(thesis_rq2$Flux)
 thesis_rq2$Month <- factor(thesis_rq2$Month, ordered = FALSE)
 
 usgsthesis_model_month <- lmer(
-  Flux ~ Study.Dataset *Site + Month + (1 | Site:Tran),
+  Flux ~ Study.Dataset *Site + Month + (1 | Site:Tran) + (1|Loc_ID),
   data = thesis_rq2
 )
 summary(usgsthesis_model_month)
@@ -289,7 +304,7 @@ ggsave("C:\\Users\\savan\\OneDrive - San Francisco State University\\ProjectData
 # lmer sensitivity version above -- Site is fixed in both formulas.
 
 usgsthesis_model_month_glmm <- glmmTMB(
-  Flux ~ Study.Dataset * Site + Month + (1 | Site:Tran),
+  Flux ~ Study.Dataset * Site + Month + (1 | Site:Tran) + (1|Loc_ID),
   family = Gamma(link = "log"),
   data = thesis_rq2
 )
@@ -298,7 +313,7 @@ Anova(usgsthesis_model_month_glmm, type = "II")
 emmeans(usgsthesis_model_month_glmm, pairwise ~ Study.Dataset | Site, type = "response")
 
 usgsthesis_model_phenperiod_glmm <- glmmTMB(
-  Flux ~ Study.Dataset + Phen_Period + Study.Dataset * Phen_Period + Site + (1 | Site:Tran),
+  Flux ~ Study.Dataset + Phen_Period + Study.Dataset * Phen_Period + Site + (1 | Site:Tran) + (1|Loc_ID),
   family = Gamma(link = "log"),
   data = thesis_rq2
 )
@@ -310,7 +325,7 @@ summary(usgsthesis_model_phenperiod_glmm)
 # primary. Same (1|Site:Tran) fix.
 
 usgsthesis_model_phenperiod <- lmer(
-  Flux ~ Study.Dataset + Phen_Period + Study.Dataset * Phen_Period + Site + (1 | Site:Tran),
+  Flux ~ Study.Dataset + Phen_Period + Study.Dataset * Phen_Period + Site + (1 | Site:Tran) + (1|Loc_ID),
   data = thesis_rq2
 )
 summary(usgsthesis_model_phenperiod)
@@ -340,7 +355,7 @@ DESIGN NOTE, not just a Tran-nesting fix: `Study.Dataset` is the actual USGS-vs-
 # note above. Not the model to report for the USGS-vs-Thesis comparison.
 
 usgsthesis_model2_month <- lmer(
-  Flux ~ Site + (1 | Study.Dataset) + (1 | Month),
+  Flux ~ Site + (1 | Study.Dataset) + (1 | Month) + (1|Loc_ID),
   data = thesis_rq2
 )
 summary(usgsthesis_model2_month)
@@ -350,7 +365,7 @@ summary(usgsthesis_model2_month)
 # Same variance-partitioning-only caveat as the lmer version above.
 
 usgsthesis_model2_month_glmm <- glmmTMB(
-  Flux ~ Site + (1 | Study.Dataset) + (1 | Month),
+  Flux ~ Site + (1 | Study.Dataset) + (1 | Month) + (1|Loc_ID),
   family = Gamma(link = "log"),
   data = thesis_rq2
 )
@@ -361,7 +376,7 @@ usgsthesis_model2_month_glmm <- glmmTMB(
 # comparison variable) + Site as fixed (only 2 sites, Rule 1c) + Tran
 # nested under Site (Rule 1a fix -- was bare (1|Tran)).
 usgsthesis_model2_phenperiod_glmm <- glmmTMB(
-  Flux ~ Site + Study.Dataset + (1|Site:Tran),
+  Flux ~ Site + Study.Dataset + (1|Site:Tran) + (1|Loc_ID),
   family = Gamma(link = "log"),
   data = thesis_rq2
 )
@@ -373,7 +388,7 @@ usgsthesis_model2_phenperiod_glmm <- glmmTMB(
 # 2). Same (1|Site:Tran) fix as the glmm version.
 
 usgsthesis_model2_phenperiod <- lmer(
-  Flux ~ Site + Study.Dataset  + (1|Site:Tran),
+  Flux ~ Site + Study.Dataset  + (1|Site:Tran) + (1|Loc_ID),
   data = thesis_rq2
 )
 summary(usgsthesis_model2_phenperiod)
@@ -400,7 +415,7 @@ New this session -- the boxplot above (in the Month-variant chunk) shows Flux by
 # SENSITIVITY check -- marsh_dist_model_glmm below is primary.
 
 marsh_dist_model <- lmer(
-  log(Flux) ~ Study.Dataset * Month * Dist + (1|Site/Tran),
+  log(Flux) ~ Study.Dataset * Month * Dist + (1|Site/Tran) + (1|Loc_ID),
   data = thesis_rq2 %>% filter(Flux > 0)
 )
 summary(marsh_dist_model)
@@ -411,7 +426,7 @@ anova(marsh_dist_model)
 # correct nesting fix (Rule 1a), matching the pattern used for Model 1
 # above rather than marsh_dist_model's (1|Site/Tran).
 marsh_area_dataset_model <- lmer(
-  log(Flux) ~ Marsh_Area * Study.Dataset + Site + (1|Site:Tran),
+  log(Flux) ~ Marsh_Area * Study.Dataset + Site + (1|Site:Tran) + (1|Loc_ID),
   data = thesis_rq2 %>% filter(Flux > 0)
 )
 summary(marsh_area_dataset_model)
@@ -459,13 +474,13 @@ ggsave("C:\\Users\\savan\\OneDrive - San Francisco State University\\ProjectData
 # marsh_area_dataset_model_glmm has Site fixed -> (1|Site:Tran).
 
 marsh_dist_model_glmm <- glmmTMB(
-  Flux ~ Study.Dataset * Month * Dist + (1|Site/Tran),
+  Flux ~ Study.Dataset * Month * Dist + (1|Site/Tran) + (1|Loc_ID),
   family = Gamma(link = "log"),
   data = thesis_rq2 %>% filter(Flux > 0)
 )
 
 marsh_area_dataset_model_glmm <- glmmTMB(
-  Flux ~ Marsh_Area * Study.Dataset + Site + (1|Site:Tran),
+  Flux ~ Marsh_Area * Study.Dataset + Site + (1|Site:Tran) + (1|Loc_ID),
   family = Gamma(link = "log"),
   data = thesis_rq2 %>% filter(Flux > 0)
 )
@@ -512,10 +527,10 @@ study_month_levels <- c("July", "August", "September", "October",
                          "November", "December", "January", "February",
                          "March", "April", "May", "June")
 
-sed_usgs_bay_rq2 <- readr::read_csv("C:\\Users\\savan\\OneDrive - San Francisco State University\\ProjectData\\GitHub\\DepositionSFB\\data\\usgs_bay.csv") %>%
+sed_usgs_bay_rq2 <- readr::read_csv("C:\\Users\\savan\\OneDrive - San Francisco State University\\ProjectData\\GitHub\\DepositionSFB\\data\\usgs_bay_byrep.csv") %>%
   mutate(Location = "Bay")
 
-sed_usgs_river_rq2 <- readr::read_csv("C:\\Users\\savan\\OneDrive - San Francisco State University\\ProjectData\\GitHub\\DepositionSFB\\data\\usgs_river.csv") %>%
+sed_usgs_river_rq2 <- readr::read_csv("C:\\Users\\savan\\OneDrive - San Francisco State University\\ProjectData\\GitHub\\DepositionSFB\\data\\usgs_river_byrep.csv") %>%
   mutate(Location = "Channel")
 
 bay_channel <- bind_rows(sed_usgs_bay_rq2, sed_usgs_river_rq2)
@@ -688,7 +703,7 @@ nrow(bay_channel)
 # SENSITIVITY check -- bay_channel_model_month_glmm below is primary.
 
 bay_channel_model_month <- lmer(
-  Flux ~ Location + Month + Location * Month + Site + (1|Site:Tran),
+  Flux ~ Location + Month + Location * Month + Site + (1|Site:Tran) + (1|Loc_ID),
   data = bay_channel
 )
 summary(bay_channel_model_month)
@@ -721,7 +736,7 @@ ggsave("C:\\Users\\savan\\OneDrive - San Francisco State University\\ProjectData
 # PRIMARY model (Rule 2). Same (1|Site:Tran) fix as the lmer version.
 
 bay_channel_model_month_glmm <- glmmTMB(
-  Flux ~ Location + Month + Location * Month + Site + (1|Site:Tran),
+  Flux ~ Location + Month + Location * Month + Site + (1|Site:Tran) + (1|Loc_ID),
   family = Gamma(link = "log"),
   data = bay_channel
 )

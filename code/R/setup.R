@@ -3,6 +3,10 @@
 # data import and database management 
 # reading files, reshaping data, and efficient data handling 
 
+
+if (!requireNamespace("fitdistrplus", quietly = TRUE)) {
+  install.packages("fitdistrplus")
+}
 #######################################################
 
 library(readxl) # import excel spreadsheets

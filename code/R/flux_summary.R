@@ -33,8 +33,60 @@ shapiro_p <- function(x, na.rm = TRUE) {
   shapiro.test(x)$p.value
 }
 
+# ADDED: group-comparison test (Mann-Whitney or Kruskal-Wallis), for the
+# "does Flux actually differ across these groups" question -- a
+# different question from Shapiro_p above, which only checks per-group
+# normality and says nothing about whether groups differ from each
+# other. Chooses the test automatically based on how many groups
+# group_vars actually defines in the data:
+#   - exactly 2 groups  -> Mann-Whitney U (wilcox.test)
+#   - 3+ groups         -> Kruskal-Wallis (kruskal.test), the same idea
+#     generalized past two groups -- same relationship Kruskal-Wallis
+#     has to Mann-Whitney that Fligner-Killeen has to a two-group
+#     variance test in distribution_comparison (Claude).qmd.
+#   - 0 or 1 groups (no group_vars, or only one level present after
+#     filtering) -> NULL, nothing to compare.
+# exact = FALSE on the Mann-Whitney call avoids the "cannot compute
+# exact p-value with ties" warning that's likely with a large
+# replicate-level dataset (repeated/rounded Flux values are common
+# enough at that grain to produce ties).
+group_comparison_test <- function(data, group_vars) {
+  if (is.null(group_vars)) return(NULL)
+  
+  data_complete <- data %>% dplyr::filter(!is.na(Flux))
+  group_factor <- interaction(
+    dplyr::select(data_complete, dplyr::all_of(group_vars)),
+    drop = TRUE
+  )
+  n_groups <- nlevels(group_factor)
+  
+  if (n_groups == 2) {
+    res <- tryCatch(
+      wilcox.test(data_complete$Flux ~ group_factor, exact = FALSE),
+      error = function(e) NULL
+    )
+    if (is.null(res)) return(NULL)
+    list(test = "Mann-Whitney U", statistic = unname(res$statistic), p_value = res$p.value)
+  } else if (n_groups > 2) {
+    res <- tryCatch(
+      kruskal.test(data_complete$Flux ~ group_factor),
+      error = function(e) NULL
+    )
+    if (is.null(res)) return(NULL)
+    list(test = "Kruskal-Wallis", statistic = unname(res$statistic), p_value = res$p.value)
+  } else {
+    NULL
+  }
+}
+
 make_flux_table <- function(data, group_vars = NULL, title, subtitle = NULL,
                             group_labels = NULL, include_ci = FALSE) {
+  # ADDED: compute the group-comparison test on the RAW row-level data,
+  # before group_by()/summarise() collapses it to one row per group --
+  # wilcox.test()/kruskal.test() need the original Flux values split by
+  # group, not the per-group summary statistics.
+  comparison_test <- group_comparison_test(data, group_vars)
+  
   if (!is.null(group_vars)) {
     data <- dplyr::group_by(data, dplyr::across(dplyr::all_of(group_vars)))
   }
@@ -83,11 +135,30 @@ make_flux_table <- function(data, group_vars = NULL, title, subtitle = NULL,
     gt::tab_source_note(source_note = "Flux units: g/m\u00b2") %>%
     gt::tab_source_note(source_note = "Shapiro_p < .05 indicates a significant departure from normality; NA where n < 3 or n > 5000.")
   
+  # ADDED: group-comparison source note, only when one was computable
+  # (2+ groups present). States which test ran and why, so a reader
+  # doesn't have to guess whether Mann-Whitney or Kruskal-Wallis was
+  # used for a given table.
+  if (!is.null(comparison_test)) {
+    comparison_p_display <- if (comparison_test$p_value < 0.001) {
+      "< .001"
+    } else {
+      sprintf("%.3f", comparison_test$p_value)
+    }
+    gt_table <- gt_table %>%
+      gt::tab_source_note(source_note = paste0(
+        comparison_test$test, " across ", paste(group_vars, collapse = " x "),
+        ": statistic = ", sprintf("%.2f", comparison_test$statistic),
+        ", p = ", comparison_p_display,
+        " -- tests whether Flux differs across these groups (distinct from Shapiro_p, which only checks per-group normality)."
+      ))
+  }
+  
   if (!is.null(group_labels)) {
     gt_table <- gt_table %>% gt::cols_label(!!!group_labels)
   }
   
-  list(data = result, table = gt_table)
+  list(data = result, table = gt_table, comparison_test = comparison_test)
 }
 
 # NOTE: this file is a pure function library now -- no top-level code
@@ -98,5 +169,10 @@ make_flux_table <- function(data, group_vars = NULL, title, subtitle = NULL,
 # since that's where master_thesis actually gets built -- sourcing this
 # file used to error immediately in any document (like flagtier.qmd)
 # that doesn't also have master_thesis defined.
+#
+# group_comparison_test() (and the source note it adds to every
+# make_flux_table() call with group_vars set) is new -- added to answer
+# "does Flux actually differ across these groups," which Shapiro_p was
+# never able to answer on its own.
 
 

@@ -8,20 +8,7 @@ Repurposed from the old Research_question_2.qmd per Session_Status step 5. Loads
 
 Study.Dataset (USGS vs Thesis) replaces Year as the actual comparison variable throughout every model and plot. Year had 4 messy, non-adjacent levels (2022, 2023, 2025, 2026) that only ever served as a noisy proxy for which dataset a row came from -- Study.Dataset says that directly. Also fixes a real bug this surfaced: Year was never re-factored after the CSV round-trip in usgs_thesis_merge.qmd, so it silently came through as continuous numeric, which is why an earlier version of this file's emmeans plot rendered Year as a blue color gradient instead of distinct groups.
 
-SWITCHED to replicate-level data (this session): now reads
-usgs_thesis_byrep.rds instead of usgs_thesis.rds, and the bay_channel
-section reads usgs_bay_byrep.csv/usgs_river_byrep.csv instead of the
-averaged usgs_bay.csv/usgs_river.csv. (1|Loc_ID) added to every model
-in this file -- Model 1 (Month/Phen_Period variants), Model 2
-(Month/Phen_Period variants), marsh_dist_model(+_glmm),
-marsh_area_dataset_model(+_glmm), and both bay_channel_model_month
-variants -- same fix already applied to RQ1-spatial.Rmd,
-RQ1-temporal.qmd, and RQ3-variables.qmd, for the same reason: without
-it, each point's replicate traps were being treated as independent
-observations. Loc_ID already exists as a column on both
-usgs_thesis_byrep.rds and usgs_bay_byrep.csv/usgs_river_byrep.csv (same
-construction, interaction(Site, Tran, Dist), on both the thesis and
-USGS sides), so no new columns were needed.
+SWITCHED to replicate-level data (this session): now reads usgs_thesis_byrep.rds instead of usgs_thesis.rds, and the bay_channel section reads usgs_bay_byrep.csv/usgs_river_byrep.csv instead of the averaged usgs_bay.csv/usgs_river.csv. (1\|Loc_ID) added to every model in this file -- Model 1 (Month/Phen_Period variants), Model 2 (Month/Phen_Period variants), marsh_dist_model(+\_glmm), marsh_area_dataset_model(+\_glmm), and both bay_channel_model_month variants -- same fix already applied to RQ1-spatial.Rmd, RQ1-temporal.qmd, and RQ3-variables.qmd, for the same reason: without it, each point's replicate traps were being treated as independent observations. Loc_ID already exists as a column on both usgs_thesis_byrep.rds and usgs_bay_byrep.csv/usgs_river_byrep.csv (same construction, interaction(Site, Tran, Dist), on both the thesis and USGS sides), so no new columns were needed.
 
 ```{=html}
 <!--

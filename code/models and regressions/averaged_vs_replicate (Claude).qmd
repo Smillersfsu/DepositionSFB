@@ -120,7 +120,7 @@ VarCorr(model_byrep)
 ## What to look for
 
 | Question | What tells you |
-|------------------------------------|------------------------------------|
+|----|----|
 | Does keeping replicates change the `marsh_edge_type` conclusion? | Compare the two coefficient/SE rows above directly. |
 | Is `(1\|Loc_ID)` actually absorbing the point-level correlation, or is there leftover structure? | `testDispersion()`/`plot()` on `model_byrep` -- overdispersion here suggests `Loc_ID` isn't fully capturing it. |
 | Was averaging throwing away real signal, or just noise? | `VarCorr(model_byrep)` -- if the `Loc_ID` (point-level) variance is much larger than the residual (trap-to-trap) variance, replicates within a point were mostly redundant and averaging lost little. If residual variance is large relative to `Loc_ID`, individual traps varied a lot and averaging was smoothing over real measurement variability. |

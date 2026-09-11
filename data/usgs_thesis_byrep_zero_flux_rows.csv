@@ -1,0 +1,35 @@
+Study.Phase,Site,Tran,Dist,Replicate,Date.placed.in.field,Date.removed.from.field,Year,Flux,Filter_Num,RB_Num,Flood_Obsv,BigBio_Obsv,SmallBio_Obsv,Drop_Obsv,OpenBag_Obsv,Position_Obsv,DryTime_Obsv,NegValue_Num,Master_Flag,Month,marsh_edge_type,marsh_edgeID,marsh_orientation,Phen_Period,Cal_Season,Marsh_Area,Point_ID,Elevation_m,z_star,mean_wind_speed_kt,max_gust_kt,n_obs,local_slope,slope_fitted_elevation_m,extrapolated,edge_slope_max_deg,edge_slope_avg_deg,Flux_rep,n_reps,Loc_ID,Study.Dataset,Season,LOI,Marsh_Loc
+M7,CorteMadera,B,2,a,2022-12-21,2023-01-18,2023,0,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,January,Scarped,NA,East.facing,"Wet
+(Months 7-9)",NA,Edge,NA,1.605,0.707544739,NA,NA,NA,NA,NA,NA,NA,NA,0,3,CorteMadera.B.2,USGS,Winter,NA,Bay
+M8,CorteMadera,B,0.5,b,2023-01-18,2023-02-17,2023,0,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,February,Scarped,NA,East.facing,"Wet
+(Months 7-9)",NA,Edge,NA,1.576,0.672946791,NA,NA,NA,NA,NA,NA,NA,NA,0,1,CorteMadera.B.0.5,USGS,Winter,NA,Bay
+M5,SanPablo,B,12,a,2022-10-26,2022-11-22,2022,0,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,November,Ramped,NA,South.facing,"Tran
+(Months 4-6)",NA,Intertidal,NA,1.042,0.008278519,NA,NA,NA,NA,NA,NA,NA,NA,0,3,SanPablo.B.12,USGS,Winter,NA,Bay
+M6,SanPablo,B,12,b,2022-11-22,2022-12-20,2022,0,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,December,Ramped,NA,South.facing,"Tran
+(Months 4-6)",NA,Intertidal,NA,1.042,0.008278519,NA,NA,NA,NA,NA,NA,NA,NA,0,3,SanPablo.B.12,USGS,Winter,NA,Bay
+M6,SanPablo,B,12,c,2022-11-22,2022-12-20,2022,0,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,December,Ramped,NA,South.facing,"Tran
+(Months 4-6)",NA,Intertidal,NA,1.042,0.008278519,NA,NA,NA,NA,NA,NA,NA,NA,0,3,SanPablo.B.12,USGS,Winter,NA,Bay
+M6,SanPablo,B,12,a,2022-11-22,2022-12-20,2022,0,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,December,Ramped,NA,South.facing,"Tran
+(Months 4-6)",NA,Intertidal,NA,1.042,0.008278519,NA,NA,NA,NA,NA,NA,NA,NA,0,3,SanPablo.B.12,USGS,Winter,NA,Bay
+M6,SanPablo,B,150,c,2022-11-22,2022-12-20,2022,0,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,December,Ramped,NA,South.facing,"Tran
+(Months 4-6)",NA,Upland,NA,2.014,1.125257985,NA,NA,NA,NA,NA,NA,NA,NA,0,3,SanPablo.B.150,USGS,Winter,NA,Bay
+M7,SanPablo,A,12,c,2022-12-20,2023-01-17,2023,0,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,January,Ramped,NA,South.facing,"Wet
+(Months 7-9)",NA,Intertidal,NA,1.069,0.039305726,NA,NA,NA,NA,NA,NA,NA,NA,0,3,SanPablo.A.12,USGS,Winter,NA,Bay
+M7,SanPablo,A,18,b,2022-12-20,2023-01-17,2023,0,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,January,Ramped,NA,South.facing,"Wet
+(Months 7-9)",NA,Intertidal,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,0,3,SanPablo.A.18,USGS,Winter,NA,NA
+M7,SanPablo,A,18,c,2022-12-20,2023-01-17,2023,0,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,January,Ramped,NA,South.facing,"Wet
+(Months 7-9)",NA,Intertidal,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,0,3,SanPablo.A.18,USGS,Winter,NA,NA
+M7,SanPablo,A,18,a,2022-12-20,2023-01-17,2023,0,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,January,Ramped,NA,South.facing,"Wet
+(Months 7-9)",NA,Intertidal,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,0,3,SanPablo.A.18,USGS,Winter,NA,NA
+M7,SanPablo,A,24,c,2022-12-20,2023-01-17,2023,0,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,January,Ramped,NA,South.facing,"Wet
+(Months 7-9)",NA,Edge,NA,1.713,0.779362081,NA,NA,NA,NA,NA,NA,NA,NA,0,3,SanPablo.A.24,USGS,Winter,NA,Bay
+M7,SanPablo,B,6,b,2022-12-20,2023-01-17,2023,0,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,January,Ramped,NA,South.facing,"Wet
+(Months 7-9)",NA,Intertidal,NA,0.837,-0.227298427,NA,NA,NA,NA,NA,NA,NA,NA,0,3,SanPablo.B.6,USGS,Winter,NA,Bay
+M7,SanPablo,B,6,c,2022-12-20,2023-01-17,2023,0,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,January,Ramped,NA,South.facing,"Wet
+(Months 7-9)",NA,Intertidal,NA,0.837,-0.227298427,NA,NA,NA,NA,NA,NA,NA,NA,0,3,SanPablo.B.6,USGS,Winter,NA,Bay
+M7,SanPablo,B,6,a,2022-12-20,2023-01-17,2023,0,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,January,Ramped,NA,South.facing,"Wet
+(Months 7-9)",NA,Intertidal,NA,0.837,-0.227298427,NA,NA,NA,NA,NA,NA,NA,NA,0,3,SanPablo.B.6,USGS,Winter,NA,Bay
+M7,SanPablo,B,24,a,2022-12-20,2023-01-17,2023,0,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,January,Ramped,NA,South.facing,"Wet
+(Months 7-9)",NA,Edge,NA,1.563,0.606988706,NA,NA,NA,NA,NA,NA,NA,NA,0,3,SanPablo.B.24,USGS,Winter,NA,Bay
+M8,SanPablo,B,150,c,2023-01-17,2023-02-15,2023,0,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,February,Ramped,NA,South.facing,"Wet
+(Months 7-9)",NA,Upland,NA,2.014,1.125257985,NA,NA,NA,NA,NA,NA,NA,NA,0,3,SanPablo.B.150,USGS,Winter,NA,Bay

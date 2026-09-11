@@ -1,9 +1,41 @@
-Site,Tran,Dist,Date.removed.from.field,Study.Phase,Flux,n_reps,Elevation_m,z_star,Date.placed.in.field,Season,Year,LOI,Month,marsh_edge_type,marsh_orientation,Phen_Period,Marsh_Loc,Marsh_Area,Location
-CorteMadera,B,0.5,2023-02-17,M8,0,1,1.576,0.672946791,2023-01-18,Winter,2023,NA,February,Scarped,East.facing,"Wet
-(Months 7-9)",Bay,Edge,Bay
-SanPablo,B,12,2022-12-20,M6,0,3,1.042,0.008278519,2022-11-22,Winter,2022,NA,December,Ramped,South.facing,"Tran
-(Months 4-6)",Bay,Intertidal,Bay
-SanPablo,A,18,2023-01-17,M7,0,3,NA,NA,2022-12-20,Winter,2023,NA,January,Ramped,South.facing,"Wet
-(Months 7-9)",NA,Intertidal,Bay
-SanPablo,B,6,2023-01-17,M7,0,3,0.837,-0.227298427,2022-12-20,Winter,2023,NA,January,Ramped,South.facing,"Wet
-(Months 7-9)",Bay,Intertidal,Bay
+Site,Tran,Dist,Replicate,Date.placed.in.field,Date.removed.from.field,Season,Year,Flux,LOI,Month,marsh_edge_type,marsh_orientation,Study.Phase,Phen_Period,Marsh_Loc,Elevation_m,z_star,Flux_rep,Marsh_Area,n_reps,Loc_ID,Location
+CorteMadera,B,2,a,2022-12-21,2023-01-18,Winter,2023,0,NA,January,Scarped,East.facing,M7,"Wet
+(Months 7-9)",Bay,1.605,0.707544739,0,Edge,3,CorteMadera.B.2,Bay
+CorteMadera,B,0.5,b,2023-01-18,2023-02-17,Winter,2023,0,NA,February,Scarped,East.facing,M8,"Wet
+(Months 7-9)",Bay,1.576,0.672946791,0,Edge,1,CorteMadera.B.0.5,Bay
+SanPablo,B,12,a,2022-10-26,2022-11-22,Winter,2022,0,NA,November,Ramped,South.facing,M5,"Tran
+(Months 4-6)",Bay,1.042,0.008278519,0,Intertidal,3,SanPablo.B.12,Bay
+SanPablo,B,12,b,2022-11-22,2022-12-20,Winter,2022,0,NA,December,Ramped,South.facing,M6,"Tran
+(Months 4-6)",Bay,1.042,0.008278519,0,Intertidal,3,SanPablo.B.12,Bay
+SanPablo,B,12,c,2022-11-22,2022-12-20,Winter,2022,0,NA,December,Ramped,South.facing,M6,"Tran
+(Months 4-6)",Bay,1.042,0.008278519,0,Intertidal,3,SanPablo.B.12,Bay
+SanPablo,B,12,a,2022-11-22,2022-12-20,Winter,2022,0,NA,December,Ramped,South.facing,M6,"Tran
+(Months 4-6)",Bay,1.042,0.008278519,0,Intertidal,3,SanPablo.B.12,Bay
+SanPablo,B,150,c,2022-11-22,2022-12-20,Winter,2022,0,NA,December,Ramped,South.facing,M6,"Tran
+(Months 4-6)",Bay,2.014,1.125257985,0,Upland,3,SanPablo.B.150,Bay
+SanPablo,A,12,c,2022-12-20,2023-01-17,Winter,2023,0,NA,January,Ramped,South.facing,M7,"Wet
+(Months 7-9)",Bay,1.069,0.039305726,0,Intertidal,3,SanPablo.A.12,Bay
+SanPablo,A,18,b,2022-12-20,2023-01-17,Winter,2023,0,NA,January,Ramped,South.facing,M7,"Wet
+(Months 7-9)",NA,NA,NA,0,Intertidal,3,SanPablo.A.18,Bay
+SanPablo,A,18,c,2022-12-20,2023-01-17,Winter,2023,0,NA,January,Ramped,South.facing,M7,"Wet
+(Months 7-9)",NA,NA,NA,0,Intertidal,3,SanPablo.A.18,Bay
+SanPablo,A,18,a,2022-12-20,2023-01-17,Winter,2023,0,NA,January,Ramped,South.facing,M7,"Wet
+(Months 7-9)",NA,NA,NA,0,Intertidal,3,SanPablo.A.18,Bay
+SanPablo,A,24,c,2022-12-20,2023-01-17,Winter,2023,0,NA,January,Ramped,South.facing,M7,"Wet
+(Months 7-9)",Bay,1.713,0.779362081,0,Edge,3,SanPablo.A.24,Bay
+SanPablo,B,6,b,2022-12-20,2023-01-17,Winter,2023,0,NA,January,Ramped,South.facing,M7,"Wet
+(Months 7-9)",Bay,0.837,-0.227298427,0,Intertidal,3,SanPablo.B.6,Bay
+SanPablo,B,6,c,2022-12-20,2023-01-17,Winter,2023,0,NA,January,Ramped,South.facing,M7,"Wet
+(Months 7-9)",Bay,0.837,-0.227298427,0,Intertidal,3,SanPablo.B.6,Bay
+SanPablo,B,6,a,2022-12-20,2023-01-17,Winter,2023,0,NA,January,Ramped,South.facing,M7,"Wet
+(Months 7-9)",Bay,0.837,-0.227298427,0,Intertidal,3,SanPablo.B.6,Bay
+SanPablo,B,24,a,2022-12-20,2023-01-17,Winter,2023,0,NA,January,Ramped,South.facing,M7,"Wet
+(Months 7-9)",Bay,1.563,0.606988706,0,Edge,3,SanPablo.B.24,Bay
+SanPablo,B,150,c,2023-01-17,2023-02-15,Winter,2023,0,NA,February,Ramped,South.facing,M8,"Wet
+(Months 7-9)",Bay,2.014,1.125257985,0,Upland,3,SanPablo.B.150,Bay
+SanPablo,C,6,c,2022-11-22,2022-12-20,Winter,2022,0,NA,December,Ramped,South.facing,M6,"Tran
+(Months 4-6)",Bay,1.014,-0.023897845,0,Intertidal,2,SanPablo.C.6,Channel
+SanPablo,C,150,c,2022-11-22,2022-12-20,Winter,2022,0,NA,December,Ramped,South.facing,M6,"Tran
+(Months 4-6)",Bay,1.988,1.0953799340000001,0,Upland,3,SanPablo.C.150,Channel
+SanPablo,C,12,c,2023-01-17,2023-02-15,Winter,2023,0,NA,February,Ramped,South.facing,M8,"Wet
+(Months 7-9)",Bay,1.267,0.26683858,0,Intertidal,3,SanPablo.C.12,Channel

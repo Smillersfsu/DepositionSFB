@@ -6,18 +6,7 @@ editor: visual
 
 Prep half of the old Comparing_USGS_to_Thesis.qmd, per the reorg plan -- this file only builds usgs_thesis.rds. Modeling (Shapiro-Wilk, GLMMs, ramped/scarped comparisons, etc.) moves to the repurposed "Research question 2.qmd", not duplicated here.
 
-ADDED (this session): a replicate-level parallel throughout, producing
-usgs_thesis_byrep.rds/.csv alongside the existing averaged
-usgs_thesis.rds/.csv. Built from master_tier5_byrep.csv and
-usgs_bay_byrep.csv (the unaveraged outputs of
-step6_master_analysis_flagtier.qmd and
-usgs_step3_master_analysis_usgs_bayriver_FIXED.Rmd respectively), using
-the exact same cleanup/Month/Study.Dataset/merge/Flux-filter steps as
-the averaged version, just applied to the unaveraged pair. Neither the
-join logic nor the averaged output changed. Research_question_2_FIXED.qmd
-still needs to be pointed at usgs_thesis_byrep.rds and have (1|Loc_ID)
-added to its models before it actually uses this -- that hasn't been
-done yet.
+ADDED (this session): a replicate-level parallel throughout, producing usgs_thesis_byrep.rds/.csv alongside the existing averaged usgs_thesis.rds/.csv. Built from master_tier5_byrep.csv and usgs_bay_byrep.csv (the unaveraged outputs of step6_master_analysis_flagtier.qmd and usgs_step3_master_analysis_usgs_bayriver_FIXED.Rmd respectively), using the exact same cleanup/Month/Study.Dataset/merge/Flux-filter steps as the averaged version, just applied to the unaveraged pair. Neither the join logic nor the averaged output changed. Research_question_2_FIXED.qmd still needs to be pointed at usgs_thesis_byrep.rds and have (1\|Loc_ID) added to its models before it actually uses this -- that hasn't been done yet.
 
 ```{r, load packages}
 source("C:\\Users\\savan\\OneDrive - San Francisco State University\\ProjectData\\GitHub\\DepositionSFB\\code\\R\\setup.R")

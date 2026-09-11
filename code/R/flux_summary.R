@@ -20,6 +20,33 @@ skewness_adj <- function(x, na.rm = TRUE) {
   (sqrt(n * (n - 1)) / (n - 2)) * g1            # bias-adjusted (Fisher-Pearson)
 }
 
+# ADDED: raw (non-excess) sample kurtosis -- normal distribution ~= 3,
+# NOT 0. Deliberately calls moments::kurtosis() rather than writing
+# another hand-rolled formula (the way skewness_adj() above does) --
+# moments is already a real dependency of this project (loaded in
+# setup.R), and using it here specifically matches the convention
+# already established and explained for
+# distribution_comparison (Claude).qmd's shape_stats table: both use
+# moments::kurtosis(), both read ~3 as "normal," so a Kurtosis number
+# from this table and one from that document are directly comparable.
+#
+# NOTE ON AN EXISTING INCONSISTENCY, not something this change fixes:
+# Skewness (skewness_adj(), above) and Kurtosis (kurtosis_raw(), here)
+# in this same table are computed by two DIFFERENT methods --
+# skewness_adj() is a hand-rolled, BIAS-ADJUSTED (Fisher-Pearson)
+# skewness that does not use the moments package at all, while
+# kurtosis_raw() calls moments::kurtosis() directly (unadjusted).
+# They're internally consistent (every table built with this file uses
+# the same two formulas), but worth knowing if either number is ever
+# checked against a source that computes both with one single package.
+kurtosis_raw <- function(x, na.rm = TRUE) {
+  if (na.rm) x <- x[!is.na(x)]
+  n <- length(x)
+  if (n < 4) return(NA_real_)   # kurtosis needs more points than skewness to be meaningful
+  
+  moments::kurtosis(x)
+}
+
 # Shapiro-Wilk normality test, returning just the p-value for easy use in
 # a summarise() pipeline. shapiro.test() requires 3 <= n <= 5000; returns
 # NA outside that range rather than erroring, so this can run safely
@@ -101,6 +128,7 @@ make_flux_table <- function(data, group_vars = NULL, title, subtitle = NULL,
       Min = min(Flux, na.rm = TRUE),
       Max = max(Flux, na.rm = TRUE),
       Skewness = skewness_adj(Flux, na.rm = TRUE),
+      Kurtosis = kurtosis_raw(Flux, na.rm = TRUE),
       Shapiro_p = shapiro_p(Flux, na.rm = TRUE),
       .groups = "drop"
     )
@@ -125,7 +153,7 @@ make_flux_table <- function(data, group_vars = NULL, title, subtitle = NULL,
     gt::gt() %>%
     gt::tab_header(title = title, subtitle = subtitle) %>%
     gt::fmt_number(
-      columns = dplyr::any_of(c("Mean", "SD", "SE", "Median", "Min", "Max", "Skewness", "CI95_Lower", "CI95_Upper")),
+      columns = dplyr::any_of(c("Mean", "SD", "SE", "Median", "Min", "Max", "Skewness", "Kurtosis", "CI95_Lower", "CI95_Upper")),
       decimals = 3
     ) %>%
     gt::fmt_number(
@@ -133,6 +161,7 @@ make_flux_table <- function(data, group_vars = NULL, title, subtitle = NULL,
       decimals = 4
     ) %>%
     gt::tab_source_note(source_note = "Flux units: g/m\u00b2") %>%
+    gt::tab_source_note(source_note = "Kurtosis is RAW (not excess) -- a normal distribution reads ~3, not 0.") %>%
     gt::tab_source_note(source_note = "Shapiro_p < .05 indicates a significant departure from normality; NA where n < 3 or n > 5000.")
   
   # ADDED: group-comparison source note, only when one was computable

@@ -1185,7 +1185,12 @@ save_as_image(ft, path = "C:\\Users\\savan\\OneDrive - San Francisco State Unive
 
 
 ```{r}
-usgs_thesis <- readr::read_csv("C:\\Users\\savan\\OneDrive - San Francisco State University\\ProjectData\\GitHub\\DepositionSFB\\data\\usgs_thesis.csv")
+# FIX: this was reading the AVERAGED usgs_thesis.csv, inconsistent with
+# the rest of this file (already on master_tier5_byrep). Doesn't feed
+# any model -- pure NA/zero diagnostic -- but should still reflect the
+# same grain as everything else, since the byrep version is what "true
+# noise" actually looks like.
+usgs_thesis <- readr::read_csv("C:\\Users\\savan\\OneDrive - San Francisco State University\\ProjectData\\GitHub\\DepositionSFB\\data\\usgs_thesis_byrep.csv")
 
 # Check for NAs
 sum(is.na(usgs_thesis$Flux))              # total count of NAs

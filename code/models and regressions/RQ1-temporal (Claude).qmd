@@ -500,13 +500,22 @@ sim_res_edge_time <- simulateResiduals(edge_time_model_glmm)
 
 locs <- unique(master_tier5_byrep_clean$Loc_ID)
 for (loc in locs) {
-  idx <- which(master_tier5_byrep_clean$Loc_ID == loc)
+  idx <- master_tier5_byrep_clean$Loc_ID == loc    # logical vector, full length
   time_loc <- master_tier5_byrep_clean$Study.Phase[idx]
   
   if (length(unique(time_loc)) < 3) next
   
-  sim_res_loc <- recalculateResiduals(sim_res_edge_time, sel = idx)
-  sim_res_loc <- recalculateResiduals(sim_res_loc, group = time_loc)
+  # group must be the FULL-length vector (matching the original model's
+  # data, all 1430 rows) -- sel does the subsetting down to this
+  # location. Passing them in two separate sequential calls (subset
+  # first, then group the already-subsetted result) doesn't match
+  # DHARMa's documented usage for this pattern and is the likely source
+  # of the length mismatch.
+  sim_res_loc <- recalculateResiduals(
+    sim_res_edge_time,
+    group = master_tier5_byrep_clean$Study.Phase,
+    sel = idx
+  )
   
   cat("\n---", as.character(loc), "---\n")
   print(testTemporalAutocorrelation(sim_res_loc, time = unique(time_loc)))

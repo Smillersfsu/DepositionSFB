@@ -84,8 +84,15 @@ master_tier5_byrep_clean <- master_tier5_byrep %>%
   )
 
 usgs_thesis <- readr::read_csv(
-  file.path(knitr::opts_knit$get("root.dir"), "usgs_thesis.csv")
+  file.path(knitr::opts_knit$get("root.dir"), "usgs_thesis_byrep.csv")
 )
+# FIX: this was reading the AVERAGED usgs_thesis.csv, while every model
+# in this file (rq3_model_glmm and its variants) is now fit on
+# master_tier5_byrep_clean. Unlike RQ1-spatial's equivalent fix, this
+# one is a real analytical step, not just diagnostics -- the LASSO
+# section below uses usgs_thesis to cross-check which predictors
+# rq3_model_glmm is justified in keeping, so it needs to be evaluated
+# on the same grain as the model it's validating.
 ```
 
 ## Base model: z\*, local slope, and marsh edge type

@@ -1,0 +1,36 @@
+---
+title: "11 September Results Draft Outline"
+format: docx
+editor: visual
+---
+
+# 3. Results
+
+*All results from linear models still working on it, but it seems like distance and z star are significant across models, and differences in marsh edge typology are approaching significance with a p value \~0.07. Would need more data to test mechanism*.
+
+## 3.1 Sediment Deposition Across Ramped and Scarped Marsh Edges
+
+## Across Space
+
+### *Distance from Marsh Edge*
+
+![](C:/Users/savan/OneDrive%20-%20San%20Francisco%20State%20University/ProjectData/GitHub/DepositionSFB/images/rq_1/p_flux_dist_shape.png)
+
+### *Relative Elevation with Tidal Inundation (z\*)*
+
+![](C:/Users/savan/OneDrive%20-%20San%20Francisco%20State%20University/ProjectData/GitHub/DepositionSFB/images/rq_1/p_flux_zstar.png)
+
+## Across Time
+
+### *Per Month (Need to Confirm Timing)*
+
+![](C:/Users/savan/OneDrive%20-%20San%20Francisco%20State%20University/ProjectData/GitHub/DepositionSFB/images/rq_1/log_month%20.png)
+
+### *Phenological and Seasonal (Working on It-Will Decide Very Soon)*
+
+```         
+```
+
+### Main Takeaway Result to Close Out Results/Discussion for Future Work-Skewness!
+
+![](images/clipboard-163651344.png)

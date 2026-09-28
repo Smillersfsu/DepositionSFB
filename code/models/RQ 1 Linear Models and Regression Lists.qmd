@@ -1,0 +1,136 @@
+---
+title: "RQ 1 Linear Models and Regression Lists"
+format: html
+editor: visual
+---
+
+#### Research Question 1: Does marsh edge type correlate with differences in sediment deposition (g/m\^2/day)?
+
+#### *Spatially*
+
+model_full = lmer(log(Flux) \~z_star \* marsh_edge_type + (1\|Site) + (1\| Study.Phase)
+
+model_full_glmm = glmmTMB(Flux \~ z_star \* marsh_edge_type + (1\| Site) + (1\|Study.Phase), family = Gamma(link = "log")
+
+model_dist_z_star = glmmTMB(Flux\~Dist\*z_star + marsh_edge_type + (1\| Tran) + (1\|Loc_ID), family = Gamma(link = "log")
+
+```{r}
+summary(model_full) 
+summary(model_full_glmm)
+summary(model_dist_zstar)
+# both use the dataframe "master_tier5_byrep_clean"
+```
+
+distmodel = glmer(Flux \~ Dist + (1\| Site/Tran)
+
+logdistmodel = lmer(log(Flux) \~ Dist + (1\|Site/Tran)
+
+distmodel_glmm = glmmTMB(Flux\~ Dist + (1\|Site/Tran), family = Gamma(link = "log")
+
+```{r}
+# use the df "avgdist" which aggregates the Flux value by: Dist, Site, Tran, and cuts out 48 m
+
+print(distmodel)
+print(logdistmodel)
+print(distmodel_glmm)
+```
+
+distsitemodel = lmer(log(Flux) \~ Dist + Site + Dist\*Site + (1\|Site:Tran)
+
+distsitemodel_glmm = glmmTMB(Flux\~ Dist + Site + Dist\*Site + (1\| Site: Tran), family = Gamma(link = "log")
+
+distsitemodel_glmm_dispersion = glmmTMB(Flux\~Dist\*Site + (1\|Site:Tran), dispformula = \~Site, family = Gamma(link = "log")
+
+distsitemodel_glmm_noGM = glmmTMB(Flux\~Dist\*Site + (1\|Site:Tran), family = Gamma(link= "log")
+
+```{r}
+# use the df "avgdist" which aggregates the Flux value by: Dist, Site, Tran, and cuts out 48 m
+
+# distsitemodel_glmm_noGM uses avg distant but takes out Giant Marsh for a sensitivity test 
+
+print(distsitemodel, distsitemodel_glmm, distsitemodel_glmm_dispersion, distsitemodel_glmm_noGM)
+
+
+```
+
+transite = lmer(log(Flux) \~ Tran + Site + Tran\*Site + (1\|Dist)
+
+transite_glmm = glmmTMB(Flux\~Tran + Site + Tran\*Site + (1\|Dist), family = Gamma(link = "log")
+
+transite1 = lmer(log(Flux) \~ Tran + Site + Tran\*Site + (1\|Dist) + (1\|Study.Phase)\
+
+transite1_glmm = glmmTMB(Flux\~ Tran + Site + Tran\*Site + (1\|Dist) + (1\|Study.Phase), family = Gamma(link = "log")
+
+```{r}
+# transite, transite_glmm: use the df "avgdist" which aggregates the Flux value by: Dist, Site, Tran, and cuts out 48 m
+
+# transite1 and transite1_glmm uses master_tier5_byrep_clean
+
+print(transite)
+print(transite_glmm)
+print(transite1)
+print(transite1_glmm)
+
+
+```
+
+marsh_edge_model_edge_glmm = glmmTMB(Flux\~marsh_edge_type + (1\|Dist), family = Gamma(link = "log"))
+
+marsh_edge_model_sitetran_glmm = glmmTMB(Flux\~marsh_edge_type + (1\|Site/Tran), family = Gamma(link="log") )
+
+marsh_edge_model_orient_dist_glmm = glmmTMB(Flux\~marsh_orientation + (1\|Dist), family = Gamma(link ="log") )
+
+marsh_edge_model_edge = lmer(Flux\~marsh_edge_type + (1\|Dist))
+
+marsh_edge_model_sitetran = lmer(Flux\~marsh_edge_type + (1\|Site/Tran) )
+
+marsh_edge_model_orient_dist = lmer(Flux\~ marsh_orientation + (1\|Dist) )
+
+marsh_edge_model_orient_sitetran = lmer(Flux\~marsh_orientation + (1\|Site/Tran) )
+
+```{r}
+# all use df master_tier5_byrep_clean 
+print(marsh_edge_model_edge_glmm, marsh_edge_model_sitetran_glmm, marsh_edge_model_orient_dist_glmm, marsh_edge_model_edge, marsh_edge_model_sitetran, marsh_edge_model_orient_dist, marsh_edge_model_orient_sitetran)
+```
+
+marsh_group_model = lmer(Flux \~ Marsh_Group + (1\|Site/Tran)
+
+marsh_group_model_glmm = glmmTMB(Flux \~ Marsh_Group + (1\|Site/Tran), family = Gamma(link = "log")
+
+```{r}
+#uses marsh_group_flux which mutates San Pablo + Giant Marsh into OpenBay, and Corte Madera and Buck's Landing into Protected 
+
+print(marsh_group_model, marsh_group_model_glmm)
+```
+
+BCtransite = lmer(log(Flux) \~ Tran + Site + Tran\*Site + (1\|Dist)
+
+```{r}
+# used df avgdist_protected, where the avgdist df had San Pablo and Giant Marsh removed from it 
+```
+
+#### *Temporally*
+
+edge_time_model = lmer(Flux\~ marsh_edge_type \* Month + (1\|Site)
+
+edge_time_model_glmm = glmmTMB(Flux \~ marsh_edge_type \* Month + (1\|Site), family = Gamma(link = "log")
+
+edge_time_model_glmm_ar1 = glmmTMB(Flux\~marsh_edge_type \* Month + ar1(Study.Phase + 0\|Loc_ID), family = Gamma(link = "log")
+
+edge_time_model_noGM = lmer(Flux\~marsh_edge_type \* Month + (1\|Site)
+
+edge_phenperiod_model = lmer(Flux\~marsh_edge_type \* Phen_Period + (1\|Site)
+
+edge_phenperiod_model_glmm = glmmTMB(Flux\~marsh_edge_type \* Phen_Period + (1\|Site), family = Gamma(link = "log")
+
+edge_season_model = lmer(Flux \~marsh_edge_type \* Cal_Season + (1\|Site)\
+
+edge_season_model_glmm = glmmTMB(Flux \~ marsh_edge_type \* Cal_Season + (1\|Site), family = Gamma(link = "log")
+
+```{r}
+# uses master_tier5_byrep_clean
+print(edge_time_model,edge_time_model_glmm_ar1, edge_time_model_noGM, edge_phenperiod_model, edge_phenperiod_model_glmm, edge_season_model, edge_season_model_glmm)
+
+```
+
+#### 

@@ -1,0 +1,33 @@
+---
+title: "RQ 3 Linear Models and Regression Lists"
+format: docx
+editor: visual
+---
+
+## Research Question 3: Do intra-marsh characteristics have more of an effect on sediment deposition than marsh typology?
+
+deposition_model_slope = lmer(Flux\~z_star + local_slope + (1\|Site)
+
+deposition_model_base = lmer(Flux\~z_star + (1\|Site)
+
+deposition_model_slope_glmm = glmmTMB(Flux\~z_star + local_slope + (1\|Site), family = Gamma(link= "log")
+
+deposition_model_base_glmm = glmmTMB(Flux\~z_star + (1\|Site), family = Gamma(link = "log")
+
+\`\`\`{r} \# uses master_tier5_byrep_clean df print(deposition_model_slope)}
+
+summary(deposition_model_slope, deposition_model_base, deposition_model_slope_glmm, deposition_model_base_glmm)
+
+rq3_model = lmer(log(Flux) \~ z_star + local_slope + marsh_edge_type + (1\|Site)
+
+rq3_model_glmm \<-glmmTMB(Flux\~z_star + local_slope + marsh_edge_type + Dist + (1\|Site/Tran), family = Gamma(link = "log")
+
+rq3_model_glmm_edgeID = glmmTMB(Flux \~ z_star + local_slope + marsh_edge_type + Dist + (1\|marsh_edgeID), family = Gamma(link = "log")
+
+rq3_model_glmm_phenperiod = glmmTMB(Flux\~z_star + local_slope + marsh_edge_type + Dist + Phen_Period + (1\| Site/Tran), family = Gamma(link = "log")
+
+rq3_model_glmm_season = glmmTMB(Flux\~z_star + local_slope + marsh_edge_type + Dist + Cal_Season + (1\| Site/Tran), family = Gamma(link = "log")
+
+```{r}
+# df is master_tier5_byrep_clean
+```

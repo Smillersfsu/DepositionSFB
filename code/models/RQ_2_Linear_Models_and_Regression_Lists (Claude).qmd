@@ -1,0 +1,103 @@
+---
+title: "RQ 2 Linear Models List (Claude)"
+format: docx
+editor: visual
+---
+
+```{=html}
+<!--
+CORRECTED (this session): two discrepancies fixed against the actual
+current Research_question_2_FIXED (Claude).qmd:
+1. usgsthesis_model_month_glmm was missing "* Site" -- the real formula
+   is Study.Dataset * Site + Month, matching the lmer version right
+   above it. As typed here before, it only had Study.Dataset + Month
+   (main effects, no interaction) -- a different, weaker model than the
+   one actually in the file.
+2. usgsthesis_model2_phenperiod_glmm (the PRIMARY model for that
+   comparison) was missing entirely -- only its lmer sensitivity twin,
+   usgsthesis_model2_phenperiod, was listed.
+Everything else in this file was already correct -- Loc_ID was present
+throughout, unlike the RQ1 and RQ3 tracking docs.
+-->
+```
+
+#### Research Question 2: Does sediment deposition within the same marsh (ramped versus scarped edge marsh typology) change across years?
+
+usgsthesis_model_month = lmer(Flux\~Study.Dataset\*Site + Month + (1\|Site:Tran) + (1\|Loc_ID))
+
+usgsthesis_model_month_glmm = glmmTMB(Flux\~Study.Dataset \* Site + Month + (1\|Site:Tran) + (1\|Loc_ID), family = Gamma(link = "log"))
+
+usgsthesis_model_phenperiod = lmer(Flux \~ Study.Dataset + Phen_Period + Study.Dataset \* Phen_Period + Site + (1\|Site:Tran) + (1\|Loc_ID))
+
+usgsthesis_model_phenperiod_glmm = glmmTMB(Flux \~ Study.Dataset + Phen_Period + Study.Dataset \* Phen_Period + Site + (1\|Site:Tran) + (1\|Loc_ID), family = Gamma(link = "log"))
+
+```{r}
+# uses thesis_rq2
+
+summary(usgsthesis_model_month)
+summary(usgsthesis_model_month_glmm)
+Anova(usgsthesis_model_month_glmm, type = "II")
+emmeans(usgsthesis_model_month_glmm, pairwise ~ Study.Dataset | Site, type = "response")
+summary(usgsthesis_model_phenperiod)
+summary(usgsthesis_model_phenperiod_glmm)
+```
+
+usgsthesis_model2_month = lmer(Flux \~ Site + (1\|Study.Dataset) + (1\|Month)) *\# variance-partitioning check only -- Study.Dataset as a 2-level random effect can't reliably estimate a variance component; not the model to report for the USGS-vs-Thesis comparison*
+
+usgsthesis_model2_month_glmm = glmmTMB(Flux\~ Site + (1\|Study.Dataset) + (1\|Month), family = Gamma(link = "log")) *\# same caveat as above*
+
+usgsthesis_model2_phenperiod_glmm = glmmTMB(Flux \~ Site + Study.Dataset + (1\|Site:Tran) + (1\|Loc_ID), family = Gamma(link = "log")) *\# PRIMARY model for Model 2 -- Study.Dataset as fixed, since it's the actual comparison variable*
+
+usgsthesis_model2_phenperiod = lmer(Flux \~ Site + Study.Dataset + (1\|Site:Tran) + (1\|Loc_ID)) *\# sensitivity check for usgsthesis_model2_phenperiod_glmm*
+
+```{r}
+# uses thesis_rq2
+# NOTE: Study.Dataset only has 2 levels -- watch for a singular-fit 
+# warning on usgsthesis_model2_month/_glmm
+
+summary(usgsthesis_model2_month)
+summary(usgsthesis_model2_month_glmm)
+summary(usgsthesis_model2_phenperiod_glmm)
+summary(usgsthesis_model2_phenperiod)
+```
+
+marsh_dist_model = lmer(log(Flux) \~ Study.Dataset \* Month \* Dist + (1\|Site/Tran) + (1\|Loc_ID))
+
+marsh_dist_model_glmm = glmmTMB(Flux\~Study.Dataset \* Month \* Dist + (1\|Site/Tran) + (1\|Loc_ID), family = Gamma(link = "log"))
+
+marsh_area_dataset_model = lmer(log(Flux) \~ Marsh_Area \* Study.Dataset + Site + (1\|Site:Tran) + (1\|Loc_ID))
+
+marsh_area_dataset_model_glmm = glmmTMB(Flux \~ Marsh_Area \* Study.Dataset + Site + (1\|Site:Tran) + (1\|Loc_ID), family = Gamma(link = "log"))
+
+```{r}
+# uses thesis_rq2, filtered to Flux > 0
+# marsh_dist_model(+_glmm) has no Site term -- (1|Site/Tran) nesting
+# marsh_area_dataset_model(+_glmm) has Site as fixed -- (1|Site:Tran) nesting
+
+summary(marsh_dist_model)
+summary(marsh_dist_model_glmm)
+summary(marsh_area_dataset_model)
+summary(marsh_area_dataset_model_glmm)
+```
+
+bay_channel_model_month = lmer(Flux \~ Location + Month + Location \* Month + Site + (1\|Site:Tran) + (1\|Loc_ID))
+
+bay_channel_model_month_glmm = glmmTMB(Flux\~Location + Month + Location \* Month + Site + (1\|Site:Tran) + (1\|Loc_ID), family = Gamma(link = "log"))
+
+```{r}
+# uses bay_channel (built from usgs_bay_byrep.csv / usgs_river_byrep.csv)
+# Site kept FIXED here (only 2 sites -- CorteMadera, SanPablo)
+
+summary(bay_channel_model_month)
+summary(bay_channel_model_month_glmm)
+```
+
+```{=html}
+<!--
+NOT YET IN THIS FILE, worth adding: Research_question_2_FIXED.qmd
+currently has zero DHARMa diagnostics (no simulateResiduals() calls
+anywhere) -- flagged earlier in the session, still unresolved. Worth
+adding simulateResiduals()/plot()/testDispersion() for whichever of
+these ends up primary before treating its p-values as final.
+-->
+```

@@ -356,6 +356,8 @@ usgsthesis_model2_month_glmm <- glmmTMB(
   family = Gamma(link = "log"),
   data = thesis_rq2
 )
+
+summary(usgsthesis_model2_month_glmm)
 # NOTE: Study.Dataset only has 2 levels -- likely too few for a random
 # effect to estimate reliably; watch for a singular-fit warning.
 
@@ -368,6 +370,7 @@ usgsthesis_model2_phenperiod_glmm <- glmmTMB(
   data = thesis_rq2
 )
 
+summary(usgsthesis_model2_phenperiod_glmm)
 ```
 
 ```{r, model 2 - Phen_Period variant}

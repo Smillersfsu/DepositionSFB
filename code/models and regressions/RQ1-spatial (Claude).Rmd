@@ -174,26 +174,402 @@ ggsave("C:\\Users\\savan\\OneDrive - San Francisco State University\\ProjectData
 
 library(ggdist)
 
-rq1_raincloud = ggplot(master_tier5_byrep_clean,
-                        aes(x = marsh_edge_type, y = Flux,
-                            fill = marsh_edge_type, color = marsh_edge_type)) +
-  stat_halfeye(adjust = 0.5, width = 0.6, justification = -0.2,
-               alpha = 0.5, .width = 0, point_colour = NA) +
-  geom_boxplot(width = 0.12, outlier.shape = NA, alpha = 0.6) +
-  geom_jitter(aes(x = as.numeric(as.factor(marsh_edge_type)) - 0.15),
-              width = 0.08, size = 1, alpha = 0.3) +
+rq1_density_sj = master_tier5_byrep_clean %>%
+  mutate(marsh_edge_type = factor(marsh_edge_type, levels = c("Scarped", "Ramped")),
+         log_flux = log10(Flux)) %>%
+  ggplot(aes(y = log_flux, fill = marsh_edge_type, color = marsh_edge_type)) +
+  geom_density(aes(x = after_stat(count)), orientation = "y",
+               bw = "SJ", alpha = 0.5) +
+  scale_y_continuous(
+    labels = function(x) scales::label_math(10^.x, format = force)(x)
+  ) +
   scale_fill_manual(values = marsh_edge_colors) +
   scale_color_manual(values = marsh_edge_colors) +
-  labs(x = "Marsh Edge Type", y = expression(Flux~(g/m^2/day)),
+  facet_wrap(~marsh_edge_type, ncol = 2) +
+  labs(x = "Count", y = expression(Flux~(g/m^2/day)),
        title = str_wrap("Distribution Shape of Sediment Flux: Ramped vs. Scarped", width = 40)) +
   theme_bw() +
   theme(legend.position = "none")
-rq1_raincloud
+rq1_density_sj
 
-ggsave("C:\\Users\\savan\\OneDrive - San Francisco State University\\ProjectData\\GitHub\\DepositionSFB\\images\\rq_1\\rq1_raincloud.png",
-       plot = rq1_raincloud,
+ggsave("C:\\Users\\savan\\OneDrive - San Francisco State University\\ProjectData\\GitHub\\DepositionSFB\\images\\rq_1\\rq1_density_sj.png",
+       plot = rq1_density_sj,
        width = 8, height = 5, dpi = 300, limitsize = FALSE)
 
+
+library(diptest) # not sure what this means yet
+
+library(tidyverse)
+library(ggbeeswarm)  # for geom_quasirandom() — install.packages("ggbeeswarm") if needed
+
+# --------------------------------------------------------------------------
+# STEP 1: Prep data + compute the stats we need for annotations (#2, #3)
+# --------------------------------------------------------------------------
+
+plot_data <- master_tier5_byrep_clean %>%
+  mutate(marsh_edge_type = factor(marsh_edge_type, levels = c("Scarped", "Ramped")),
+         log_flux = log10(Flux))
+
+# Per-group summary: n, IQR bounds, and outlier MAGNITUDE (not just count).
+#
+# FIX: IQR/whiskers are now computed on log10(Flux), not raw Flux, because
+# the plot is DISPLAYED on a log10 scale. Computing Tukey bounds on raw,
+# heavily right-skewed Flux made "q1 - 1.5*iqr" go negative -- impossible
+# for a flux value -- which silently produced zero lower-tail outliers
+# (the "min = NA" bug). Doing the same math in log-space keeps the outlier
+# rule consistent with what the reader is actually looking at.
+#
+# NOTE: outlier COUNT/% still looks similar across groups almost by
+# construction (Tukey's rule is relative to each group's own IQR) -- the
+# real difference is MAGNITUDE, in both directions, so both tails are
+# computed and reported separately.
+group_stats <- plot_data %>%
+  group_by(marsh_edge_type) %>%
+  summarise(
+    n         = n(),
+    q1_log    = quantile(log_flux, 0.25, na.rm = TRUE),
+    q3_log    = quantile(log_flux, 0.75, na.rm = TRUE),
+    iqr_log   = q3_log - q1_log,
+    lower_log = q1_log - 1.5 * iqr_log,
+    upper_log = q3_log + 1.5 * iqr_log,
+    lower     = 10 ^ lower_log,   # back-transformed to raw Flux units
+    upper     = 10 ^ upper_log,
+    .groups   = "drop"
+  ) %>%
+  rowwise() %>%
+  mutate(
+    upper_vals   = list(plot_data$Flux[plot_data$marsh_edge_type == marsh_edge_type &
+                                        plot_data$Flux > upper]),
+    lower_vals   = list(plot_data$Flux[plot_data$marsh_edge_type == marsh_edge_type &
+                                        plot_data$Flux < lower]),
+    # counts kept PER TAIL (not combined) so each annotation only claims
+    # the outliers it's actually describing -- avoids the "57 outliers"
+    # reading as if it belongs to the max/upper number alone
+    n_upper      = length(upper_vals),
+    n_lower      = length(lower_vals),
+    pct_upper    = round(100 * n_upper / n, 1),
+    pct_lower    = round(100 * n_lower / n, 1),
+    max_upper    = if (n_upper > 0) max(upper_vals) else NA_real_,
+    min_lower    = if (n_lower > 0) min(lower_vals) else NA_real_,
+    # fold-multiple beyond the whisker -- the "how far", not "how many"
+    upper_ratio  = round(max_upper / upper, 1),
+    lower_ratio  = round(lower / min_lower, 1),
+    label_top    = str_wrap(paste0(n_upper, " upper outliers (", pct_upper, "%) · max = ",
+                           scales::label_comma()(round(max_upper)),
+                           " (", upper_ratio, "x whisker)"), width = 26),
+    label_bottom = str_wrap(if (n_lower > 0) {
+      paste0(n_lower, " lower outliers (", pct_lower, "%) · min = ",
+             signif(min_lower, 2), " (", lower_ratio, "x below whisker)")
+    } else {
+      "no lower-tail outliers"
+    }, width = 26)
+  ) %>%
+  ungroup()
+
+# #3: build "Scarped\n(n = 210)" style axis labels
+n_labels <- group_stats %>%
+  mutate(axis_label = paste0(marsh_edge_type, "\n(n = ", n, ")")) %>%
+  select(marsh_edge_type, axis_label) %>%
+  deframe()
+
+# Flag each point as outlier or not, for coloring in #6 (uses the corrected,
+# log-space-derived lower/upper bounds)
+plot_data <- plot_data %>%
+  left_join(group_stats %>% select(marsh_edge_type, lower, upper), by = "marsh_edge_type") %>%
+  mutate(is_outlier = Flux < lower | Flux > upper)
+
+# --------------------------------------------------------------------------
+# STEP 2: Build the plot
+# --------------------------------------------------------------------------
+# De-emphasizing the middle: the box/median/IQR are nearly identical between
+# groups (confirmed, not just a plotting artifact) -- that's a real finding
+# ("central tendency doesn't differ"), but it shouldn't dominate the plot's
+# visual weight when the actual story is in the tails. Changes below:
+#   - violin now trim = TRUE, so it stops at the real data range instead of
+#     a kernel-density tail that visually exaggerates the extremes
+#   - violin width/alpha reduced so it reads as context, not the focal shape
+#   - light shaded rectangles mark the "beyond whisker" zone in each tail,
+#     pulling the eye toward where the groups actually diverge
+
+annot_y_top    <- max(plot_data$Flux, na.rm = TRUE) * 2.2
+annot_y_bottom <- min(plot_data$Flux, na.rm = TRUE) * 0.35
+
+# Shaded rectangles highlighting the extreme zones (beyond each group's
+# whisker), drawn first so everything else layers on top
+extreme_zones <- group_stats %>%
+  mutate(
+    # constant, not level-dependent: once faceted, each panel centers its
+    # one category at x = 1 regardless of the original factor level
+    xmin = 1 - 0.35,
+    xmax = 1 + 0.35
+  )
+
+rq1_boxplot <- ggplot(plot_data, aes(x = marsh_edge_type, y = Flux,
+                                      fill = marsh_edge_type, color = marsh_edge_type)) +
+
+  # highlight the upper extreme zone (above whisker) per group
+  geom_rect(data = extreme_zones,
+            aes(xmin = xmin, xmax = xmax, ymin = upper, ymax = Inf),
+            inherit.aes = FALSE, fill = "grey85", alpha = 0.35) +
+  # highlight the lower extreme zone (below whisker) per group
+  geom_rect(data = extreme_zones,
+            aes(xmin = xmin, xmax = xmax, ymin = 0, ymax = lower),
+            inherit.aes = FALSE, fill = "grey85", alpha = 0.35) +
+
+  # #1 (revised again): violin made much thinner/subtler -- narrower width,
+  # near-invisible fill, and a muted gray outline instead of the group
+  # color, so it reads as faint background texture rather than a shape
+  # competing with the boxplot/beeswarm/tail story
+  geom_violin(fill = "grey60", color = "grey60",
+              alpha = 0.06, trim = TRUE, linewidth = 0.25, width = 0.35) +
+
+  geom_boxplot(width = 0.1, alpha = 0.85, outlier.shape = NA, linewidth = 0.5) +
+
+  # #6: quasirandom (beeswarm-style) points instead of default outlier dots
+  geom_quasirandom(aes(alpha = is_outlier, size = is_outlier),
+                    width = 0.15, shape = 19) +
+  scale_alpha_manual(values = c(`FALSE` = 0.12, `TRUE` = 0.9), guide = "none") +
+  scale_size_manual(values = c(`FALSE` = 0.8, `TRUE` = 1.9), guide = "none") +
+
+  # #2: magnitude annotations, both tails
+  geom_text(data = group_stats,
+            aes(x = marsh_edge_type, y = annot_y_top, label = label_top),
+            inherit.aes = FALSE, size = 3.1, fontface = "bold", color = "gray20",
+            lineheight = 0.9) +
+  geom_text(data = group_stats,
+            aes(x = marsh_edge_type, y = annot_y_bottom, label = label_bottom),
+            inherit.aes = FALSE, size = 3.1, fontface = "bold", color = "gray20",
+            lineheight = 0.9) +
+
+  # #5: log scale, explicit note in axis title; extra top/bottom expansion
+  # gives the now-wrapped, multi-line annotations room to breathe
+  scale_y_log10(labels = scales::label_comma(),
+                expand = expansion(mult = c(0.15, 0.35))) +
+
+  # #3: sample size in x-axis labels
+  scale_x_discrete(labels = n_labels) +
+
+  # split into one panel per group -- this is the actual fix for the text
+  # overlap: each group's annotations now get the FULL panel width instead
+  # of sharing one x-axis with the neighboring group's text bleeding in.
+  # scales = "free_x" + drop = TRUE means each panel shows only its own
+  # single category, centered; y stays fixed/shared so the two panels
+  # remain visually comparable.
+  facet_wrap(~ marsh_edge_type, nrow = 1, scales = "free_x") +
+
+  scale_fill_manual(values = marsh_edge_colors) +
+  scale_color_manual(values = marsh_edge_colors) +
+
+  # #4: title states the finding
+  labs(
+    x = "Marsh Edge Type",
+    y = expression(Flux~(g/m^2/day)~"— log"[10]~"scale"),
+    title = str_wrap("Similar Central Flux, but Scarped Edges Reach Far More Extreme Values",
+                      width = 45),
+    subtitle = "Median/IQR are nearly identical (shaded = beyond-whisker zone); tail magnitude diverges sharply",
+    caption = "Outlier bounds (Tukey's 1.5×IQR) computed on log10(Flux) to match the log-scaled axis."
+  ) +
+
+  theme_bw() +
+  theme(
+    legend.position       = "none",
+    plot.title            = element_text(face = "bold", size = 13),
+    plot.subtitle         = element_text(size = 9.5, color = "gray30"),
+    plot.caption           = element_text(size = 8, color = "gray45", hjust = 0),
+    # simplify: no panel box, no vertical gridlines (only 2 categories --
+    # nothing for them to line up against), minor gridlines dropped, axis
+    # lines kept so the plot still reads as bounded
+    panel.border          = element_blank(),
+    panel.grid.minor       = element_blank(),
+    panel.grid.major.x     = element_blank(),
+    axis.line             = element_line(color = "grey40", linewidth = 0.3),
+    axis.ticks            = element_line(color = "grey40", linewidth = 0.3),
+    plot.margin            = margin(t = 10, r = 14, b = 8, l = 8),
+    # facet strip hidden -- the x-axis label (group + n) already identifies
+    # each panel, so a strip label would just repeat it
+    strip.background       = element_blank(),
+    strip.text             = element_blank(),
+    panel.spacing           = unit(1.5, "lines")
+  )
+
+rq1_boxplot
+
+ggsave("C:\\Users\\savan\\OneDrive - San Francisco State University\\ProjectData\\GitHub\\DepositionSFB\\images\\rq_1\\rq1_boxplot.png",
+       plot = rq1_boxplot,
+       width = 8, height = 5.5, dpi = 300, limitsize = FALSE)
+
+library(tidyverse)
+library(patchwork)  # combines the Scarped block and Ramped block side by side
+                     # install.packages("patchwork") if needed
+
+# --------------------------------------------------------------------------
+# STEP 1: Prep data
+# --------------------------------------------------------------------------
+# ASSUMPTION: your data has a column called `Site` that pairs with the
+# `site_colors` named vector, and each Site belongs to exactly one
+# marsh_edge_type (e.g. GiantMarsh/CorteMadera -> Scarped;
+# SanPablo/Buck'sLanding -> Ramped). If that's not the case, adjust below.
+
+plot_data <- master_tier5_byrep_clean %>%
+  mutate(marsh_edge_type = factor(marsh_edge_type, levels = c("Scarped", "Ramped")),
+         Site = factor(Site, levels = names(site_colors)),
+         log_flux = log10(Flux))
+
+# --------------------------------------------------------------------------
+# STEP 2: Per-SITE Tukey bounds (log space) -- now that each site gets its
+# own panel, outlier extremity is assessed against that site's own
+# distribution rather than the whole marsh type's.
+# --------------------------------------------------------------------------
+site_stats <- plot_data %>%
+  group_by(marsh_edge_type, Site) %>%
+  summarise(
+    n         = n(),
+    q1_log    = quantile(log_flux, 0.25, na.rm = TRUE),
+    q3_log    = quantile(log_flux, 0.75, na.rm = TRUE),
+    iqr_log   = q3_log - q1_log,
+    lower_log = q1_log - 1.5 * iqr_log,
+    upper_log = q3_log + 1.5 * iqr_log,
+    lower     = 10 ^ lower_log,
+    upper     = 10 ^ upper_log,
+    .groups   = "drop"
+  ) %>%
+  rowwise() %>%
+  mutate(
+    upper_vals   = list(plot_data$Flux[plot_data$Site == Site & plot_data$Flux > upper]),
+    lower_vals   = list(plot_data$Flux[plot_data$Site == Site & plot_data$Flux < lower]),
+    n_upper      = length(upper_vals),
+    n_lower      = length(lower_vals),
+    pct_upper    = round(100 * n_upper / n, 1),
+    pct_lower    = round(100 * n_lower / n, 1),
+    max_upper    = if (n_upper > 0) max(upper_vals) else NA_real_,
+    min_lower    = if (n_lower > 0) min(lower_vals) else NA_real_,
+    upper_ratio  = round(max_upper / upper, 1),
+    lower_ratio  = round(lower / min_lower, 1),
+    label_top    = str_wrap(paste0(n_upper, " upper outliers (", pct_upper, "%) · max = ",
+                                    scales::label_comma()(round(max_upper)),
+                                    " (", upper_ratio, "x whisker)"), width = 26),
+    label_bottom = str_wrap(if (n_lower > 0) {
+      paste0(n_lower, " lower outliers (", pct_lower, "%) · min = ",
+             signif(min_lower, 2), " (", lower_ratio, "x below whisker)")
+    } else {
+      "no lower-tail outliers"
+    }, width = 26),
+    strip_label  = paste0(Site, "\n(n = ", n, ")")
+  ) %>%
+  ungroup()
+
+plot_data <- plot_data %>%
+  left_join(site_stats %>% select(Site, lower, upper), by = "Site") %>%
+  mutate(is_outlier = Flux < lower | Flux > upper)
+
+outlier_points <- plot_data %>% filter(is_outlier)
+
+# Shared y-axis range across BOTH blocks so Scarped and Ramped stay visually
+# comparable even though they're built as two separate ggplot objects
+y_range <- range(plot_data$Flux, na.rm = TRUE)
+y_limits <- c(y_range[1] / 9, y_range[2] * 9)
+
+# --------------------------------------------------------------------------
+# STEP 3: A function that builds one marsh-edge-type block (its own sites,
+# faceted), so Scarped and Ramped are built identically
+# --------------------------------------------------------------------------
+build_block <- function(edge_type) {
+
+  block_data     <- filter(plot_data, marsh_edge_type == edge_type)
+  block_stats    <- filter(site_stats, marsh_edge_type == edge_type)
+  block_outliers <- filter(outlier_points, marsh_edge_type == edge_type)
+  strip_labels   <- deframe(block_stats %>% select(Site, strip_label))
+
+  annot_y_top    <- y_range[2] * 5
+  annot_y_bottom <- y_range[1] / 5
+
+  # NOTE: this is the actual fix -- sites were sharing ONE panel as two
+  # x-categories (same crowding bug as before), not truly faceted. Adding
+  # facet_wrap here gives each site its own panel at full width, which is
+  # also what lets the wrapped annotation text render without overlapping
+  # its neighbor.
+  ggplot(block_data, aes(x = 1, y = Flux, fill = Site, color = Site)) +
+
+    geom_rect(data = block_stats,
+              aes(xmin = 1 - 0.4, xmax = 1 + 0.4, ymin = upper, ymax = Inf),
+              inherit.aes = FALSE, fill = "grey85", alpha = 0.35) +
+    geom_rect(data = block_stats,
+              aes(xmin = 1 - 0.4, xmax = 1 + 0.4, ymin = 0, ymax = lower),
+              inherit.aes = FALSE, fill = "grey85", alpha = 0.35) +
+
+    geom_violin(fill = "grey60", color = "grey60",
+                alpha = 0.08, trim = TRUE, linewidth = 0.25, width = 0.5) +
+    geom_boxplot(width = 0.15, alpha = 0.85, outlier.shape = NA, linewidth = 0.5) +
+
+    geom_jitter(data = block_outliers,
+                aes(x = 1),
+                position = position_jitter(width = 0.1, height = 0, seed = 1),
+                size = 2, shape = 19, alpha = 0.8) +
+
+    geom_text(data = block_stats,
+              aes(x = 1, y = annot_y_top, label = label_top),
+              inherit.aes = FALSE, size = 2.8, fontface = "bold", color = "gray20",
+              lineheight = 0.9) +
+    geom_text(data = block_stats,
+              aes(x = 1, y = annot_y_bottom, label = label_bottom),
+              inherit.aes = FALSE, size = 2.8, fontface = "bold", color = "gray20",
+              lineheight = 0.9) +
+
+    scale_fill_manual(values = site_colors, guide = "none") +
+    scale_color_manual(values = site_colors) +
+    scale_y_log10(labels = scales::label_comma(), limits = y_limits,
+                  expand = expansion(mult = c(0.04, 0.08))) +
+
+    facet_wrap(~ Site, nrow = 1, scales = "free_x", labeller = as_labeller(strip_labels)) +
+
+    labs(title = edge_type, x = NULL, y = expression(Flux~(g/m^2/day))) +
+
+    theme_bw() +
+    theme(
+      legend.position     = "none",   # combined legend added once, below
+      plot.title          = element_text(face = "bold", size = 12, hjust = 0.5),
+      panel.border        = element_blank(),
+      panel.grid.minor    = element_blank(),
+      panel.grid.major.x  = element_blank(),
+      axis.line           = element_line(color = "grey40", linewidth = 0.3),
+      axis.ticks.x        = element_blank(),
+      axis.text.x         = element_blank(),
+      strip.background    = element_blank(),
+      strip.text          = element_text(size = 9, face = "bold"),
+      panel.spacing        = unit(1, "lines")
+    )
+}
+
+# --------------------------------------------------------------------------
+# STEP 4: Build both blocks, combine, add one shared legend + overall title
+# --------------------------------------------------------------------------
+p_scarped <- build_block("Scarped")
+p_ramped  <- build_block("Ramped") + theme(axis.text.y = element_blank(),
+                                            axis.ticks.y = element_blank(),
+                                            axis.line.y = element_blank())
+
+# turn the legend back on for just one panel so patchwork can collect it
+p_scarped_legend <- p_scarped + theme(legend.position = "right") +
+  guides(color = guide_legend(title = "Site", override.aes = list(size = 3)))
+
+rq1_boxplot_bysite <- (p_scarped_legend | p_ramped) +
+  plot_layout(guides = "collect") +
+  plot_annotation(
+    title    = "Which Sites Drive the Extreme Flux Values?",
+    subtitle = "Each panel is one site; grouped by marsh edge type. Log10 scale; shaded = beyond-whisker zone",
+    caption  = "Outlier bounds (Tukey's 1.5×IQR) computed on log10(Flux), per site, to match the log-scaled axis.",
+    theme = theme(
+      plot.title    = element_text(face = "bold", size = 14),
+      plot.subtitle = element_text(size = 9.5, color = "gray30"),
+      plot.caption  = element_text(size = 8, color = "gray45", hjust = 0)
+    )
+  )
+
+rq1_boxplot_bysite
+
+ggsave("C:\\Users\\savan\\OneDrive - San Francisco State University\\ProjectData\\GitHub\\DepositionSFB\\images\\rq_1\\rq1_boxplot_bysite.png",
+       plot = rq1_boxplot_bysite,
+       width = 11, height = 5.5, dpi = 300, limitsize = FALSE)
 ```
 
 ```{r, RQ1 Scarp continued}
@@ -441,13 +817,13 @@ summary(master_tier5_byrep_clean$Flux)
 
 
 library(lme4)
-model <- lmer(log(Flux) ~ z_star * marsh_edge_type + (1|Site) + (1|Study.Phase), 
+model <- lmer(log(Flux) ~ z_star * marsh_edge_type + (1|Site) + (1|Loc_ID) + (1|Study.Phase), 
               data = master_tier5_byrep_clean)
 summary(model)
 
 library(lmerTest)
 model_full <- lmer(log(Flux) ~ z_star * marsh_edge_type + 
-                     (1 | Site) + (1 | Study.Phase),  
+                     (1 | Site) + (1|Loc_ID) + (1 | Study.Phase),  
                    data = master_tier5_byrep_clean,
                    REML = FALSE)
 summary(model_full)
@@ -499,7 +875,13 @@ emtrends(model_full_glmm, ~ marsh_edge_type, var = "z_star")
 
 ```{r, distance model prep}
 
-avgdist <- aggregate(Flux ~ Dist + Site + Tran, data = master_tier5_byrep_clean, FUN = mean) %>%
+# FIX (re-applied): this was re-averaging master_tier5_byrep_clean's
+# replicate-level rows via aggregate(..., FUN = mean), undoing the
+# "don't average replicates" decision. Replaced with a plain filter --
+# every replicate stays its own row, Loc_ID (already a column on
+# master_tier5_byrep_clean) passes through unchanged for use below.
+
+avgdist <- master_tier5_byrep_clean %>%
   filter(Dist != 48) %>%
   mutate(Dist = factor(Dist, levels = c(0.5, 2, 6, 12, 18, 24)))
 
@@ -527,10 +909,10 @@ qqline(avgdist$Flux)
 # change the conclusion?) -- logdistmodel is the reported Gaussian
 # comparison, distmodel_glmm below is the primary model (Rule 2).
 
-distmodel <- glmer(Flux ~ Dist + (1|Site/Tran), data = avgdist)
+distmodel <- glmer(Flux ~ Dist + (1|Site/Tran) + (1|Loc_ID), data = avgdist)
 summary(distmodel)
 
-logdistmodel <- lmer(log(Flux) ~ Dist + (1|Site/Tran), data = avgdist)
+logdistmodel <- lmer(log(Flux) ~ Dist + (1|Site/Tran) + (1|Loc_ID), data = avgdist)
 summary(logdistmodel)
 
 plot(logdistmodel)        # residuals vs fitted
@@ -539,14 +921,14 @@ qqline(resid(logdistmodel))
 
 # Outlier check -- SENSITIVITY variant, not a separate result to report
 outliers <- which(abs(scale(resid(logdistmodel))) > 2.5)
-distmodel_no_outliers <- lmer(log(Flux) ~ Dist + (1|Site/Tran),
+distmodel_no_outliers <- lmer(log(Flux) ~ Dist + (1|Site/Tran) + (1|Loc_ID),
                               data = avgdist[-outliers, ])
 summary(logdistmodel)
 summary(distmodel_no_outliers)
 
 # SENSITIVITY: identical formula to logdistmodel above, kept only to
 # confirm refitting doesn't change estimates -- not a distinct model.
-distmodelcont <- lmer(log(Flux) ~ Dist + (1|Site/Tran), data = avgdist)
+distmodelcont <- lmer(log(Flux) ~ Dist + (1|Site/Tran) + (1|Loc_ID), data = avgdist)
 summary(distmodelcont)
 ```
 
@@ -555,7 +937,7 @@ summary(distmodelcont)
 # Same (1|Site/Tran) nesting fix as above.
 
 distmodel_glmm <- glmmTMB(
-  Flux ~ Dist + (1|Site/Tran),
+  Flux ~ Dist + (1|Site/Tran) + (1|Loc_ID),
   family = Gamma(link = "log"),
   data = avgdist
 )
@@ -579,7 +961,7 @@ testDispersion(sim_res_dist)
 # intercept per real Site x Tran combination, without adding a second
 # Site random effect on top of the fixed one.
 
-  distsitemodel <- lmer(log(Flux) ~ Dist + Site + Dist*Site + (1|Site:Tran), data = avgdist)
+  distsitemodel <- lmer(log(Flux) ~ Dist + Site + Dist*Site + (1|Site:Tran) + (1|Loc_ID), data = avgdist)
 summary(distsitemodel)
 
 avgdist$predicted <- predict(distsitemodel)
@@ -639,7 +1021,7 @@ ggplot() +
 # Site:Tran rather than Site/Tran.
 
 distsitemodel_glmm <- glmmTMB(
-  Flux ~ Dist + Site + Dist*Site + (1|Site:Tran),
+  Flux ~ Dist + Site + Dist*Site + (1|Site:Tran) + (1|Loc_ID),
   family = Gamma(link = "log"),
   data = avgdist
 )
@@ -658,7 +1040,7 @@ testDispersion(sim_res_distsite)
  
 library(ggforce)  # for geom_sina() in the reference-additions plots
 
- transite <- lmer(log(Flux) ~ Tran + Site + Tran*Site + (1|Dist), data = avgdist)
+ transite <- lmer(log(Flux) ~ Tran + Site + Tran*Site + (1|Dist) + (1|Loc_ID), data = avgdist)
   summary(transite)
   
 tran_site = ggplot(avgdist, aes(x = as.factor(Tran), y = log(Flux), fill = Site, colour = Site)) +
@@ -683,7 +1065,7 @@ ggsave("C:\\Users\\savan\\OneDrive - San Francisco State University\\ProjectData
 
 
 transite_glmm <- glmmTMB(
-  Flux ~ Tran + Site + Tran*Site + (1|Dist),
+  Flux ~ Tran + Site + Tran*Site + (1|Dist) + (1|Loc_ID),
   family = Gamma(link = "log"),
   data = avgdist
 )
@@ -714,7 +1096,7 @@ master_tier5_byrep_clean$Site <- as.factor(master_tier5_byrep_clean$Site)
 master_tier5_byrep_clean$Study.Phase <- factor(master_tier5_byrep_clean$Study.Phase,  levels = paste0("M", 1:12))
 
 transite1 <- lmer(log(Flux) ~ Tran + Site + Tran*Site +
-                    (1|Dist) + (1|Study.Phase),
+                    (1|Dist) + (1|Loc_ID) + (1|Study.Phase),
                   data = master_tier5_byrep_clean)
 summary(transite1)
 
@@ -734,7 +1116,7 @@ ggplot(master_tier5_byrep_clean, aes(x = as.factor(Tran), y = log(Flux), fill = 
 
 
 transite1_glmm <- glmmTMB(
-  Flux ~ Tran + Site + Tran*Site + (1|Dist) + (1|Study.Phase),
+  Flux ~ Tran + Site + Tran*Site + (1|Dist) + (1|Loc_ID) + (1|Study.Phase),
   family = Gamma(link = "log"),
   data = master_tier5_byrep_clean
 )
@@ -769,20 +1151,20 @@ summary(transite1_glmm)
 ```{r, marsh edge type and orientation plot with glmm}
 
 marsh_edge_model_edge_glmm <- glmmTMB(
-  Flux ~ marsh_edge_type + (1|Dist),
+  Flux ~ marsh_edge_type + (1|Dist) + (1|Loc_ID),
   family = Gamma(link = "log"),
   data = master_tier5_byrep_clean
 )
 summary(marsh_edge_model_edge_glmm)
 
 marsh_edge_model_sitetran_glmm <- glmmTMB(
-  Flux ~ marsh_edge_type + (1|Site/Tran),
+  Flux ~ marsh_edge_type + (1|Site/Tran) + (1|Loc_ID),
   family = Gamma(link = "log"),
   data = master_tier5_byrep_clean
 )
 
 marsh_edge_model_orient_dist_glmm <- glmmTMB(
-  Flux ~ marsh_orientation + (1|Dist),
+  Flux ~ marsh_orientation + (1|Dist) + (1|Loc_ID),
   family = Gamma(link = "log"),
   data = master_tier5_byrep_clean
 )
@@ -795,10 +1177,10 @@ emmeans(marsh_edge_model_edge_glmm, pairwise ~ marsh_edge_type, adjust = "tukey"
 
 
 ```{r, marsh edge type and orientation models}
-marsh_edge_model_edge <- lmer(Flux ~ marsh_edge_type + (1|Dist), data = master_tier5_byrep_clean)
+marsh_edge_model_edge <- lmer(Flux ~ marsh_edge_type + (1|Dist) + (1|Loc_ID), data = master_tier5_byrep_clean)
 summary(marsh_edge_model_edge)
 
-marsh_edge_model_sitetran <- lmer(Flux ~ marsh_edge_type + (1|Site/Tran), data = master_tier5_byrep_clean)
+marsh_edge_model_sitetran <- lmer(Flux ~ marsh_edge_type + (1|Site/Tran) + (1|Loc_ID), data = master_tier5_byrep_clean)
 summary(marsh_edge_model_sitetran)
 
 
@@ -811,10 +1193,10 @@ summary(marsh_edge_model_sitetran)
 # marsh_edge_model_sitetran above), so treat it as primary and the
 # (1|Dist) version as a secondary comparison.
 
-marsh_edge_model_orient_dist <- lmer(Flux ~ marsh_orientation + (1|Dist), data = master_tier5_byrep_clean)
+marsh_edge_model_orient_dist <- lmer(Flux ~ marsh_orientation + (1|Dist) + (1|Loc_ID), data = master_tier5_byrep_clean)
 summary(marsh_edge_model_orient_dist)
 
-marsh_edge_model_orient_sitetran <- lmer(Flux ~ marsh_orientation + (1|Site/Tran), data = master_tier5_byrep_clean)
+marsh_edge_model_orient_sitetran <- lmer(Flux ~ marsh_orientation + (1|Site/Tran) + (1|Loc_ID), data = master_tier5_byrep_clean)
 summary(marsh_edge_model_orient_sitetran)
 
 library(emmeans)
@@ -831,7 +1213,7 @@ marsh_group_flux <- master_tier5_byrep_clean %>%
     TRUE ~ NA_character_
   ))
 
-marsh_group_model <- lmer(Flux ~ Marsh_Group + (1 | Site/Tran), data = marsh_group_flux)
+marsh_group_model <- lmer(Flux ~ Marsh_Group + (1 | Site/Tran) + (1|Loc_ID), data = marsh_group_flux)
 summary(marsh_group_model)
 anova(marsh_group_model)
 ```
@@ -843,7 +1225,7 @@ anova(marsh_group_model)
 # just nested rather than crossed with Tran.
 
 marsh_group_model_glmm <- glmmTMB(
-  Flux ~ Marsh_Group + (1 | Site/Tran),
+  Flux ~ Marsh_Group + (1 | Site/Tran) + (1|Loc_ID),
   family = Gamma(link = "log"),
   data = marsh_group_flux
 )
@@ -856,10 +1238,10 @@ Anova(marsh_group_model_glmm, type = "II")
 
 ```{r, slope as covariate (RQ3 question)}
 
-deposition_model_slope <- lmer(Flux ~ z_star + local_slope + (1 | Site), data = master_tier5_byrep_clean)
+deposition_model_slope <- lmer(Flux ~ z_star + local_slope + (1 | Site) + (1|Loc_ID), data = master_tier5_byrep_clean)
 summary(deposition_model_slope)
 
-deposition_model_base <- lmer(Flux ~ z_star + (1 | Site), data = master_tier5_byrep_clean)
+deposition_model_base <- lmer(Flux ~ z_star + (1 | Site) + (1|Loc_ID), data = master_tier5_byrep_clean)
 anova(deposition_model_base, deposition_model_slope)
 ```
 
@@ -867,13 +1249,13 @@ anova(deposition_model_base, deposition_model_slope)
 
 
 deposition_model_slope_glmm <- glmmTMB(
-  Flux ~ z_star + local_slope + (1 | Site),
+  Flux ~ z_star + local_slope + (1 | Site) + (1|Loc_ID),
   family = Gamma(link = "log"),
   data = master_tier5_byrep_clean
 )
 
 deposition_model_base_glmm <- glmmTMB(
-  Flux ~ z_star + (1 | Site),
+  Flux ~ z_star + (1 | Site) + (1|Loc_ID),
   family = Gamma(link = "log"),
   data = master_tier5_byrep_clean
 )
@@ -1111,7 +1493,7 @@ avgdist_protected <- avgdist %>%
 # summary(BCtransite) run after this chunk would have shown a ggplot
 # object, not the model. Plot renamed to BCtransite_plot so both survive.
 
-BCtransite <- lmer(log(Flux) ~ Tran + Site + Tran*Site + (1|Dist), data = avgdist_protected)
+BCtransite <- lmer(log(Flux) ~ Tran + Site + Tran*Site + (1|Dist) + (1|Loc_ID), data = avgdist_protected)
 summary(BCtransite)
 
 BCtransite_plot = ggplot(avgdist_protected, aes(x = as.factor(Tran), y = log(Flux), fill = Site, colour = Site)) +
@@ -1155,6 +1537,146 @@ ggsave("C:\\Users\\savan\\OneDrive - San Francisco State University\\ProjectData
        plot = p_flux_zstar,
        width = 8, 
        height = 5, 
+       dpi = 300,
+       limitsize = FALSE)
+```
+
+```{r}
+# NEW: same style as p_flux_zstar above, swapping z* for Distance, for
+# a matching holistic view of Flux vs. distance-from-edge across all
+# four sites.
+
+p_flux_dist <- ggplot(master_tier5_byrep_clean, aes(x = Dist, y = Flux, color = Site)) +
+  geom_point(size = 2, alpha = 0.7) +
+  scale_color_manual(values = site_colors) +
+   scale_y_log10() +
+  labs(
+    title = str_wrap("Daily Sediment Flux vs. Distance Across 2 Ramped and 2 Scarped Marshes, 2025-2026 ", width = 40),
+    x = "Distance (m)",
+    y = expression(Flux~(g/m^2/day)),
+    color = "Site"
+  ) +
+  theme_minimal() +
+  theme(legend.position = "bottom")
+p_flux_dist
+
+
+ggsave("C:\\Users\\savan\\OneDrive - San Francisco State University\\ProjectData\\GitHub\\DepositionSFB\\images\\rq_1\\p_flux_dist.png", 
+       plot = p_flux_dist,
+       width = 8, 
+       height = 5, 
+       dpi = 300,
+       limitsize = FALSE)
+```
+
+```{r}
+# NEW: p_flux_dist above plots Dist as continuous, but it only ever
+# takes 6 real values -- every point at a given distance stacks into
+# one overplotted column, hiding the actual shape/spread at each
+# distance. This treats Dist as a discrete factor and shows the SHAPE
+# (violin) + raw points at each distance, split into Ramped vs. Scarped
+# panels so Corte Madera and GiantMarsh sit together for direct
+# comparison -- built to test the "does variability concentrate near
+# the marsh edge, and is that specific to Scarped" question raised in
+# both the committee meeting notes (John's original hypothesis) and the
+# DHARMa residual-vs-Dist diagnostic earlier in this project.
+
+master_tier5_byrep_clean$Site <- factor(master_tier5_byrep_clean$Site, 
+                   levels = c("GiantMarsh", "CorteMadera", "SanPablo", "Buck'sLanding"))
+
+p_flux_dist_shape <- master_tier5_byrep_clean %>%
+  mutate(Dist_factor = factor(Dist, levels = c(0.5, 2, 6, 12, 18, 24))) %>%
+  ggplot(aes(x = Dist_factor, y = Flux, fill = Site, color = Site)) +
+  geom_violin(alpha = 0.4, position = position_dodge(width = 0.8), scale = "width") +
+  geom_jitter(size = 1, alpha = 0.3, position = position_jitterdodge(jitter.width = 0.15, dodge.width = 0.8)) +
+  scale_y_log10() +
+  scale_fill_manual(values = site_colors) +
+  scale_color_manual(values = site_colors) +
+  facet_wrap(~ Site, ncol = 1) +
+  labs(
+    title = str_wrap("Distribution Shape of Sediment Flux by Distance, Ramped vs. Scarped", width = 40),
+    x = "Distance (m)",
+    y = expression(Flux~(g/m^2/day)),
+    fill = "Site", color = "Site"
+  ) +
+  theme_minimal() +
+  theme(legend.position = "bottom")
+p_flux_dist_shape
+
+ggsave("C:\\Users\\savan\\OneDrive - San Francisco State University\\ProjectData\\GitHub\\DepositionSFB\\images\\rq_1\\p_flux_dist_shape.png", 
+       plot = p_flux_dist_shape,
+       width = 10, 
+       height = 14, 
+       dpi = 300,
+       limitsize = FALSE)
+
+library(glmmTMB)  # flexible, fast, handles Gamma family well
+
+m_glmm <- glmmTMB(Flux ~ Dist * marsh_edge_type + (1 | Site),
+                   family = Gamma(link = "log"),
+                   data = master_tier5_byrep_clean)
+
+summary(m_glmm)
+
+m_no_giant <- glmmTMB(Flux ~ factor(Dist) * marsh_edge_type + (1 | Site),
+                       family = Gamma(link = "log"),
+                       data = master_tier5_byrep_clean %>% filter(Site != "GiantMarsh"))
+
+summary(m_no_giant)
+
+
+master_close_dist <- master_tier5_byrep_clean %>%
+  filter(Dist %in% c(0.5, 2))
+
+m_close <- glmmTMB(Flux ~ Dist * marsh_edge_type + (1 | Site),
+                    family = Gamma(link = "log"),
+                    data = master_close_dist)
+summary(m_close)
+```
+
+```{r}
+# NEW: p_flux_dist_shape above shows all 6 distances, but the actual
+# interesting pattern -- GiantMarsh and CorteMadera skewing in OPPOSITE
+# directions -- only shows up at the two nearest distances (0.5m, 2m);
+# the other 4 are flat/uninformative and just add clutter around it.
+# This zooms into just the edge zone and reuses the same
+# stat_halfeye + boxplot raincloud technique already established for
+# the edge-type comparison earlier in this file, so the visual language
+# stays consistent across the document. All 4 sites side by side within
+# each distance panel, so Ramped's flatness and Scarped's split are
+# directly comparable in one view.
+#
+# Worth noting in the writeup: this pattern (Corte Madera skewing low,
+# GiantMarsh skewing high, both specifically near the edge) echoes the
+# committee meeting note about the z* elevation graph showing the same
+# split -- Corte Madera skewed toward lower elevation, GiantMarsh highly
+# variable at the upper end, attributed there to a possible lip feature.
+# If Flux shows the same signature independently, that's converging
+# evidence for the same underlying mechanism, not two unrelated findings.
+
+p_edge_zone_raincloud <- master_tier5_byrep_clean %>%
+  filter(Dist %in% c(0.5, 2)) %>%
+  mutate(Dist_factor = factor(Dist, levels = c(0.5, 2), labels = c("0.5 m", "2 m"))) %>%
+  ggplot(aes(x = Site, y = Flux, fill = Site, color = Site)) +
+  stat_halfeye(adjust = 0.5, width = 0.6, justification = -0.2, alpha = 0.5, .width = 0, point_colour = NA) +
+  geom_boxplot(width = 0.12, outlier.shape = NA, alpha = 0.6) +
+  scale_y_log10() +
+  scale_fill_manual(values = site_colors) +
+  scale_color_manual(values = site_colors) +
+  facet_wrap(~ Dist_factor) +
+  labs(
+    title = str_wrap("Sediment Flux Distribution Shape at the Marsh Edge (0.5m & 2m)", width = 40),
+    x = "Site", y = expression(Flux~(g/m^2/day))
+  ) +
+  theme_bw() +
+  theme(legend.position = "none",
+        axis.text.x = element_text(angle = 45, hjust = 1))
+p_edge_zone_raincloud
+
+ggsave("C:\\Users\\savan\\OneDrive - San Francisco State University\\ProjectData\\GitHub\\DepositionSFB\\images\\rq_1\\p_edge_zone_raincloud.png", 
+       plot = p_edge_zone_raincloud,
+       width = 9, 
+       height = 6, 
        dpi = 300,
        limitsize = FALSE)
 ```
@@ -1240,7 +1762,7 @@ abline(v = 0, col = "red", lty = 2)
 # describe all four sites at once.
 
 distsitemodel_glmm_dispersion <- glmmTMB(
-  Flux ~ Dist * Site + (1|Site:Tran),
+  Flux ~ Dist * Site + (1|Site:Tran) + (1|Loc_ID),
   dispformula = ~ Site,
   family = Gamma(link = "log"),
   data = avgdist
@@ -1265,7 +1787,7 @@ AIC(distsitemodel_glmm, distsitemodel_glmm_dispersion)
 avgdist_noGM <- avgdist %>% filter(Site != "GiantMarsh")
 
 distsitemodel_glmm_noGM <- glmmTMB(
-  Flux ~ Dist * Site + (1|Site:Tran),
+  Flux ~ Dist * Site + (1|Site:Tran) + (1|Loc_ID),
   family = Gamma(link = "log"),
   data = avgdist_noGM
 )

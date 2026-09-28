@@ -1,0 +1,44 @@
+---
+title: "RQ 2 Linear Models List"
+format: docx
+editor: visual
+---
+
+## 
+
+#### Research Question 2: Does sediment deposition within the same marsh (ramped versus scared edge marsh typology) change across years?
+
+`usgsthesis_model_month = lmer(Flux~Study.Dataset*Site + Month + (1| Site:Tran) + (1|Loc_ID)`
+
+usgsthesis_model_month_glmm = glmmTMB(Flux\~Study.Dataset + Month + (1\| Site:Tran) + (1\|Loc_ID), family = Gamma(link = "log") )
+
+usgsthesis_model_phenperiod \<- lmer(Flux \~ Study.Dataset + Phen_Period + Study.Dataset \* Phen_Period + Site + (1\| Site:Tran) + (1\|Loc_ID)
+
+usgsthesis_model2_month \<- lmer(Flux \~ Site + (1\| Study.Dataset) + (1\| Month) + (1\|Loc_ID)
+
+usgsthesis_model2_month_glmm = glmmTMB(Flux\~ Site + (1\|Study.Dataset) + (1\|Month) + (1\| Loc_ID), family = Gamma(link = "log")
+
+usgsthesis_model2_phenperiod = lmer(Flux \~ Site + Study.Dataset + (1\|Site:Tran) + (1\|Loc_ID)
+
+marsh_dist_model = lmer(log(Flux) \~ Study.Dataset \* Month \* Dist + (1\|Site/Tran) + (1\|Loc_ID)
+
+marsh_area_dataset_model = lmer(log(Flux) \~ Marsh_Area \* Study.Dataset + Site + (1\|Site:Tran) + (1\|Loc_ID)
+
+marsh_dist_model_glmm = glmmTMB(Flux\~Study.Dataset \* Month \* Dist + (1\| Site/Tran) + (1\|Loc_ID), family = Gamma(link = "log")
+
+marsh_area_dataset_model_glmm = glmmTMB(Flux \~ Marsh_Area \* Study.Dataset + Site + (1\|Site:Tran) + (1\|Loc_ID), family = Gamma(link = "log")
+
+```{r}
+# used the df thesis_rq2 
+#marsh_dist_model and marsh_area_dataset_model, marsh_dist_model_glmm, marsh_area_dataset_model_glmm, marsh_area_dataset_model_glmm is filtered to Flux > 0 
+```
+
+#### 
+
+bay_channel_model_month = lmer(Flux \~ Location + Month + Location \* Month + Site + (1\|Site:Tran) + (1\|Loc_ID)
+
+bay_channel_model_month_glmm = glmmTMB(Flux\~Location + Month + Location \* Month + Site + (1\|Site:Tran) + (1\|Loc_ID), family = Gamma(link = "log")
+
+```{r}
+# bay_channel df 
+```

@@ -103,7 +103,7 @@ usgs_thesis <- readr::read_csv(
 # sites and isn't testing site identity itself.
 
 rq3_model <- lmer(log(Flux) ~ z_star + local_slope + marsh_edge_type +
-                    (1 | Site), data = master_tier5_byrep_clean)
+                    (1 | Site) + (1|Loc_ID), data = master_tier5_byrep_clean)
 summary(rq3_model)
 ```
 
@@ -114,7 +114,7 @@ summary(rq3_model)
 # not left bare.
 
 rq3_model_glmm <- glmmTMB(
-  Flux ~ z_star + local_slope + marsh_edge_type + Dist + (1 | Site/Tran),
+  Flux ~ z_star + local_slope + marsh_edge_type + Dist + (1 | Site/Tran) + (1|Loc_ID),
   family = Gamma(link = "log"),
   data = master_tier5_byrep_clean
 )
@@ -134,7 +134,7 @@ This is run as an explicit **model comparison**, not a silent swap-in, because `
 
 ```{r, marsh_edgeID comparison}
 rq3_model_glmm_edgeID <- glmmTMB(
-  Flux ~ z_star + local_slope + marsh_edge_type + Dist + (1 | marsh_edgeID),
+  Flux ~ z_star + local_slope + marsh_edge_type + Dist + (1 | marsh_edgeID) + (1|Loc_ID),
   family = Gamma(link = "log"),
   data = master_tier5_byrep_clean
 )
@@ -155,7 +155,7 @@ AIC(rq3_model_glmm, rq3_model_glmm_edgeID)
 
 ```{r, rq3 phen period comparison}
 rq3_model_glmm_phenperiod <- glmmTMB(
-  Flux ~ z_star + local_slope + marsh_edge_type + Dist + Phen_Period + (1 | Site/Tran),
+  Flux ~ z_star + local_slope + marsh_edge_type + Dist + Phen_Period + (1 | Site/Tran) + (1|Loc_ID),
   family = Gamma(link = "log"),
   data = master_tier5_byrep_clean
 )
@@ -174,7 +174,7 @@ AIC(rq3_model_glmm, rq3_model_glmm_phenperiod)
 
 ```{r, rq3 season comparison}
 rq3_model_glmm_season <- glmmTMB(
-  Flux ~ z_star + local_slope + marsh_edge_type + Dist + Cal_Season + (1 | Site/Tran),
+  Flux ~ z_star + local_slope + marsh_edge_type + Dist + Cal_Season + (1 | Site/Tran) + (1|Loc_ID),
   family = Gamma(link = "log"),
   data = master_tier5_byrep_clean
 )

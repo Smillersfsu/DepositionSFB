@@ -1,0 +1,43 @@
+---
+title: "Analysis"
+format: docx
+editor: visual
+---
+
+## 
+
+Sediment deposition was approximated as a rate from the original grams measurement, divided by the number of days deployed, multiplied by 1000 to go from a cm to a meter rate at each replicate tile per distance along the transect. Surface area was calculated from the surface area of the filter placed ( ) subtracted by the surface area of the rubber band used ( ). Each replicate tile was averaged together as a group of three into one distance measurement. Elevation at each replicate tile was also averaged into one distance metric.
+
+Initially to test marsh edge type across rates of sediment deposition, we compared the distribution of data and the statistical traits. Additionally to test the effect of marsh edge type on rates of sediment deposition, we ran general linear mixed models at the Site level, with Transect as a nested effect within the Site level. We also incorporated added fixed and random effects of Phenological Period (see table), Distance from marsh edge, and z\* (Elevation relative to tidal inundation).
+
+With the combined dataset between 2022-2023 and 2025-2026 collection between Corte Madera and San Pablo, the marsh edge general linear mixed model was repeated. In addition, Year was added as a fixed effects to test if the sediment deposition changed over time across each marsh.
+
+Within the 2025-2026 collection, Distance and Z\* was used in a gneralized linear model with Least Absolute Shrinkage and Selection Operator (LASSO) regression to determine if intra-marsh features had a greater significance as a factor for sediment deposition than marsh edge type.
+
+## Analysis Section — Edit Checklist
+
+### Fix the math/units
+
+- [ ] Sediment rate conversion doesn't work as written (g ÷ days, then "×1000 to go from cm to m" — that's backwards, and cm/m units don't obviously follow from mass ÷ time). Spell out every conversion step explicitly.
+- [ ] Fill in empty parentheticals: surface area of filter ( ) and surface area of rubber band ( )
+
+### Typos / grammar
+
+- [ ] "gneralized" → "generalized"
+- [ ] "Distance and Z\* was used" → "were used"
+- [ ] "a fixed effects" → "a fixed effect"
+- [ ] Standardize "z*" vs "Z*" throughout
+
+### Clarity / phrasing
+
+- [ ] "compared the distribution of data and the statistical traits" — name the actual tests used (e.g., Shapiro-Wilk, Levene's)
+- [ ] "at the Site level, with Transect as a nested effect within the Site level" — trim redundant "Site level"
+- [ ] "incorporated added fixed and random effects" — redundant wording; explicitly state which variables are fixed vs. random
+- [ ] "With the combined dataset between 2022-2023 and 2025-2026 collection between Corte Madera and San Pablo" — reword; "between...and" doing double duty is confusing
+- [ ] Combine/tighten the two averaging sentences (replicate tile sediment + elevation)
+- [ ] "had a greater significance as a factor for" → "were stronger predictors of"
+
+### Structure/consistency check
+
+- [ ] Consider a subheading break between rate-calculation methods and statistical modeling paragraphs
+- [ ] Confirm "general linear mixed models" (early) vs. "generalized linear model" (LASSO section) distinction is intentional, not a slip

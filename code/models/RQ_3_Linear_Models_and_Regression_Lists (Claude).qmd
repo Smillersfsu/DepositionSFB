@@ -1,0 +1,85 @@
+---
+title: "RQ 3 Linear Models and Regression Lists (Claude)"
+format: docx
+editor: visual
+---
+
+```{=html}
+<!--
+CORRECTED (this session):
+1. Every formula below was missing (1|Loc_ID) -- fixed to match the
+   actual current RQ3-variables (Claude).qmd.
+2. deposition_model_slope/base (+_glmm) are coded in RQ1-spatial.Rmd,
+   not RQ3-variables.qmd -- kept tracked here on purpose, since the
+   question they answer (does intra-marsh elevation/slope predict Flux)
+   maps to RQ3's framing rather than RQ1's. Noted below which file
+   actually runs them.
+3. The original code chunk here had malformed/escaped backticks
+   (```` \`\`\`{r} \# ... print(...)} ````) that would fail to run as
+   written -- rewritten as a normal chunk below.
+-->
+```
+
+## Research Question 3: Do intra-marsh characteristics have more of an effect on sediment deposition than marsh typology?
+
+deposition_model_slope = lmer(Flux\~z_star + local_slope + (1\|Site) + (1\|Loc_ID))
+
+deposition_model_base = lmer(Flux\~z_star + (1\|Site) + (1\|Loc_ID))
+
+deposition_model_slope_glmm = glmmTMB(Flux\~z_star + local_slope + (1\|Site) + (1\|Loc_ID), family = Gamma(link= "log"))
+
+deposition_model_base_glmm = glmmTMB(Flux\~z_star + (1\|Site) + (1\|Loc_ID), family = Gamma(link = "log"))
+
+```{r}
+# CODED IN RQ1-spatial.Rmd, tracked here by design -- see note above.
+# uses master_tier5_byrep_clean
+# base vs. slope compared via anova() -- nested model comparison, 
+# does adding local_slope improve fit over z_star alone
+
+summary(deposition_model_slope)
+summary(deposition_model_base)
+anova(deposition_model_base, deposition_model_slope)
+summary(deposition_model_slope_glmm)
+summary(deposition_model_base_glmm)
+anova(deposition_model_base_glmm, deposition_model_slope_glmm)
+```
+
+rq3_model = lmer(log(Flux) \~ z_star + local_slope + marsh_edge_type + (1\|Site) + (1\|Loc_ID))
+
+rq3_model_glmm = glmmTMB(Flux\~z_star + local_slope + marsh_edge_type + Dist + (1\|Site/Tran) + (1\|Loc_ID), family = Gamma(link = "log"))
+
+```{r}
+# uses master_tier5_byrep_clean
+# rq3_model is the Gaussian SENSITIVITY check; rq3_model_glmm is PRIMARY
+
+summary(rq3_model)
+summary(rq3_model_glmm)
+Anova(rq3_model_glmm, type = "II")
+```
+
+rq3_model_glmm_edgeID = glmmTMB(Flux \~ z_star + local_slope + marsh_edge_type + Dist + (1\|marsh_edgeID) + (1\|Loc_ID), family = Gamma(link = "log"))
+
+```{r}
+# uses master_tier5_byrep_clean
+# explicit COMPARISON against rq3_model_glmm, not a replacement --
+# marsh_edgeID is interaction(Site, Tran) relabeled, not additional
+# independent replication
+
+summary(rq3_model_glmm_edgeID)
+AIC(rq3_model_glmm, rq3_model_glmm_edgeID)
+```
+
+rq3_model_glmm_phenperiod = glmmTMB(Flux\~z_star + local_slope + marsh_edge_type + Dist + Phen_Period + (1\|Site/Tran) + (1\|Loc_ID), family = Gamma(link = "log"))
+
+rq3_model_glmm_season = glmmTMB(Flux\~z_star + local_slope + marsh_edge_type + Dist + Cal_Season + (1\|Site/Tran) + (1\|Loc_ID), family = Gamma(link = "log"))
+
+```{r}
+# uses master_tier5_byrep_clean
+# each is compared against the base rq3_model_glmm separately --
+# Phen_Period and Cal_Season are two groupings of the same underlying
+# time variable, not combined into one formula together
+
+summary(rq3_model_glmm_phenperiod)
+summary(rq3_model_glmm_season)
+AIC(rq3_model_glmm, rq3_model_glmm_phenperiod, rq3_model_glmm_season)
+```

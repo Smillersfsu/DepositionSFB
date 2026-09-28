@@ -1,0 +1,463 @@
+---
+title: "master_analysis_flagtier"
+format: docx
+editor: visual
+---
+
+```{r, load packages and working directory}
+
+source("C:\\Users\\savan\\OneDrive - San Francisco State University\\ProjectData\\GitHub\\DepositionSFB\\code\\R\\setup.R")
+source("C:\\Users\\savan\\OneDrive - San Francisco State University\\ProjectData\\GitHub\\DepositionSFB\\code\\R\\plotting.R")
+
+
+elev_z_wind_slope_edge_flux <- readr::read_csv("C:\\Users\\savan\\OneDrive - San Francisco State University\\ProjectData\\GitHub\\DepositionSFB\\data\\elev_z_wind_slope_edge_flux.csv") %>%
+mutate(Flux_rep = Flux)
+
+```
+
+```{r, build tiers}
+source("C:\\Users\\savan\\OneDrive - San Francisco State University\\ProjectData\\GitHub\\DepositionSFB\\code\\R\\tier_filtering.R")
+
+# Tier <-> (site_scope, flag_criterion), in filtering order:
+#   tier1 <- noG,  review_only
+#   tier2 <- noG2, review_only
+#   tier3 <- all,  review_only
+#   tier4 <- noG2, full
+#   tier5 <- all,  full
+#   tier6 <- noG,  full
+
+average_replicates <- function(df) {
+  df %>%
+    group_by(Site, Tran, Dist, Month, Study.Phase) %>%   # match your location/month grain
+    summarise(
+      Flux = mean(Flux_rep, na.rm = TRUE),
+      n_reps = sum(!is.na(Flux_rep)),
+      Elevation_m = mean(Elevation_m, na.rm = TRUE), 
+      z_star = mean(z_star, na.rm = TRUE), 
+      across(-c(Flux_rep, Flux, Replicate, Elevation_m, z_star), first),  # carry other columns through unchanged
+      .groups = "drop"
+    )
+}
+
+# DECISION (committee feedback, both John and XiaoHang independently):
+# keep replicates separate rather than only ever averaging them --
+# averaging mutes real variability (esp. the Scarped-vs-Ramped skewness
+# difference), and there's no strong statistical justification for
+# averaging spatially distributed replicate traps. average_replicates()
+# above is left UNCHANGED -- master_tier1-6 and everything downstream
+# of them still default to the averaged grain. This function builds a
+# second, parallel, replicate-level version instead of replacing it.
+#
+# Unlike average_replicates(), Flux is never touched here -- it's
+# already the per-replicate value from elev_z_wind_slope_edge_flux, so
+# there's nothing to rename/collapse. n_reps is still computed, for
+# parity with the averaged version's n_reps > 0 filter below.
+keep_replicates <- function(df) {
+  df %>%
+    group_by(Site, Tran, Dist, Month, Study.Phase) %>%
+    mutate(n_reps = sum(!is.na(Flux_rep))) %>%
+    ungroup() %>%
+    filter(!is.na(Flux_rep)) %>%
+    mutate(
+      Loc_ID = interaction(Site, Tran, Dist, drop = TRUE)
+    )
+}
+
+
+master_tier1 <- filter_flux(elev_z_wind_slope_edge_flux, "noG",  "review_only") %>% average_replicates()
+master_tier2 <- filter_flux(elev_z_wind_slope_edge_flux, "noG2", "review_only") %>% average_replicates()
+master_tier3 <- filter_flux(elev_z_wind_slope_edge_flux, "all",  "review_only") %>% average_replicates()
+master_tier4 <- filter_flux(elev_z_wind_slope_edge_flux, "noG2", "full") %>% average_replicates()
+master_tier5 <- filter_flux(elev_z_wind_slope_edge_flux, "all",  "full") %>% average_replicates()
+master_tier6 <- filter_flux(elev_z_wind_slope_edge_flux, "noG",  "full") %>% average_replicates()
+
+master_tier5 <- master_tier5 %>% filter(n_reps > 0)
+
+# Raw-replicate companions for all six tiers -- built here for
+# completeness/comparison purposes, but only master_tier5_byrep is
+# actually used in any analysis further down this file (tier5 is the
+# only tier used going forward). Same (site_scope, flag_criterion)
+# pairing as each averaged tier above:
+#   tier1 <- noG,  review_only   tier4 <- noG2, full
+#   tier2 <- noG2, review_only   tier5 <- all,  full
+#   tier3 <- all,  review_only   tier6 <- noG,  full
+master_tier1_byrep <- filter_flux(elev_z_wind_slope_edge_flux, "noG",  "review_only") %>% keep_replicates()
+master_tier2_byrep <- filter_flux(elev_z_wind_slope_edge_flux, "noG2", "review_only") %>% keep_replicates()
+master_tier3_byrep <- filter_flux(elev_z_wind_slope_edge_flux, "all",  "review_only") %>% keep_replicates()
+master_tier4_byrep <- filter_flux(elev_z_wind_slope_edge_flux, "noG2", "full")        %>% keep_replicates()
+master_tier5_byrep <- filter_flux(elev_z_wind_slope_edge_flux, "all",  "full")        %>% keep_replicates()
+master_tier6_byrep <- filter_flux(elev_z_wind_slope_edge_flux, "noG",  "full")        %>% keep_replicates()
+
+master_tier1_byrep <- master_tier1_byrep %>% filter(n_reps > 0)
+master_tier2_byrep <- master_tier2_byrep %>% filter(n_reps > 0)
+master_tier3_byrep <- master_tier3_byrep %>% filter(n_reps > 0)
+master_tier4_byrep <- master_tier4_byrep %>% filter(n_reps > 0)
+master_tier5_byrep <- master_tier5_byrep %>% filter(n_reps > 0)
+master_tier6_byrep <- master_tier6_byrep %>% filter(n_reps > 0)
+
+month_levels <- c("Jul", "Aug", "Sep", "Oct", "Nov", "Dec",
+                  "Jan", "Feb", "Mar", "Apr", "May", "Jun")
+
+
+master_tier5 %>% count(n_reps)
+
+
+master_tier1 <- master_tier1 %>% mutate(Month = factor(Month, levels = month_levels))
+master_tier2 <- master_tier2 %>% mutate(Month = factor(Month, levels = month_levels))
+master_tier3 <- master_tier3 %>% mutate(Month = factor(Month, levels = month_levels))
+master_tier4 <- master_tier4 %>% mutate(Month = factor(Month, levels = month_levels))
+master_tier5 <- master_tier5 %>% mutate(Month = factor(Month, levels = month_levels))
+master_tier6 <- master_tier6 %>% mutate(Month = factor(Month, levels = month_levels))
+
+master_tier5_byrep <- master_tier5_byrep %>% mutate(Month = factor(Month, levels = month_levels))
+
+master_tier1_byrep <- master_tier1_byrep %>% mutate(Month = factor(Month, levels = month_levels))
+master_tier2_byrep <- master_tier2_byrep %>% mutate(Month = factor(Month, levels = month_levels))
+master_tier3_byrep <- master_tier3_byrep %>% mutate(Month = factor(Month, levels = month_levels))
+master_tier4_byrep <- master_tier4_byrep %>% mutate(Month = factor(Month, levels = month_levels))
+master_tier6_byrep <- master_tier6_byrep %>% mutate(Month = factor(Month, levels = month_levels))
+
+
+save_tier(master_tier1, "master_tier1.csv")
+save_tier(master_tier2, "master_tier2.csv")
+save_tier(master_tier3, "master_tier3.csv")
+save_tier(master_tier4, "master_tier4.csv")
+save_tier(master_tier5, "master_tier5.csv")
+save_tier(master_tier6, "master_tier6.csv")
+
+save_tier(master_tier5_byrep, "master_tier5_byrep.csv")
+
+save_tier(master_tier1_byrep, "master_tier1_byrep.csv")
+save_tier(master_tier2_byrep, "master_tier2_byrep.csv")
+save_tier(master_tier3_byrep, "master_tier3_byrep.csv")
+save_tier(master_tier4_byrep, "master_tier4_byrep.csv")
+save_tier(master_tier6_byrep, "master_tier6_byrep.csv")
+```
+
+```{r, tier statistics}
+ # for make_flux_table()
+source("C:\\Users\\savan\\OneDrive - San Francisco State University\\ProjectData\\GitHub\\DepositionSFB\\code\\R\\flux_summary.R")
+
+tiers <- list(tier1 = master_tier1, tier2 = master_tier2, tier3 = master_tier3,
+              tier4 = master_tier4, tier5 = master_tier5, tier6 = master_tier6)
+
+tier_general <- purrr::imap(tiers, ~ make_flux_table(
+  .x, title = paste("Summary Statistics —", .y), include_ci = TRUE))
+
+tier_general_byrep <- make_flux_table(
+  master_tier5_byrep, title = "Summary Statistics (Raw Replicates) — tier5", include_ci = TRUE)
+
+tier_phen <- purrr::imap(tiers, ~ make_flux_table(
+  .x, group_vars = "Phen_Period", title = paste("Flux by Phenological Period —", .y),
+  group_labels = list(Phen_Period = "Phenological Period")))
+
+tier_phen_byrep <- make_flux_table(
+  master_tier5_byrep, group_vars = "Phen_Period",
+  title = "Flux by Phenological Period (Raw Replicates) — tier5",
+  group_labels = list(Phen_Period = "Phenological Period"))
+
+tier_site <- purrr::imap(tiers, ~ make_flux_table(
+  .x, group_vars = "Site", title = paste("Flux by Site —", .y),
+  group_labels = list(Site = "Site")))
+
+tier_site_byrep <- make_flux_table(
+  master_tier5_byrep, group_vars = "Site",
+  title = "Flux by Site (Raw Replicates) — tier5",
+  group_labels = list(Site = "Site"))
+
+# Note: kept as Date.removed.from.field per original tier code (this was
+# labeled "phase_summary_tier*" in the old chunks but never actually
+# grouped by Study.Phase -- see Session_Status "misleading name" note).
+tier_removal_date <- purrr::imap(tiers, ~ make_flux_table(
+  .x, group_vars = "Date.removed.from.field",
+  title = paste("Flux by Date Removed From Field —", .y),
+  group_labels = list(Date.removed.from.field = "Date Removed From Field")))
+
+tier_removal_date_byrep <- make_flux_table(
+  master_tier5_byrep, group_vars = "Date.removed.from.field",
+  title = "Flux by Date Removed From Field (Raw Replicates) — tier5",
+  group_labels = list(Date.removed.from.field = "Date Removed From Field"))
+
+# access e.g. tier_general$tier1$table, tier_phen$tier5$data, etc.
+# and, in parallel: tier_general_byrep$table, tier_phen_byrep$data, etc.
+# (single objects now, not lists, since this is tier5 only)
+tier_general$tier1$table
+tier_general_byrep$table
+
+```
+
+```{r, tier plots}
+
+
+tier_plots <- purrr::imap(tiers, ~ make_sed_plots(
+  .x, title_suffix = paste0(" (", .y, ")")))
+
+tier_plots_byrep <- make_sed_plots(
+  master_tier5_byrep, title_suffix = " (tier5, Raw Replicates)")
+# Date.removed.from.field is now the default phase_var, so no need to
+# pass it explicitly -- kept here only if you ever want a tier to use
+# a different grouping.
+
+# access e.g. tier_plots$tier1$basic, tier_plots$tier4$phase_site, etc.
+# and, in parallel: tier_plots_byrep$basic, etc.
+# z* plot (elev_site, colored by Site) is included automatically for any
+# tier whose data has a z_star column.
+tier_plots$tier1$basic
+tier_plots_byrep$basic
+```
+
+```{r, rq plots}
+# make_rq_plots() itself now lives in R/plotting.R (sourced above).
+# All six tiers included -- the original code left out one review_only
+# tier from this section for no clear reason; flag if that was
+# actually intentional and you want it excluded here too.
+
+rq_tiers <- list(tier1 = master_tier1, tier2 = master_tier2, tier3 = master_tier3,
+                  tier4 = master_tier4, tier5 = master_tier5, tier6 = master_tier6)
+
+rq_plots <- purrr::imap(rq_tiers, ~ make_rq_plots(.x, .y))
+rq_plots_byrep <- make_rq_plots(master_tier5_byrep, "tier5_byrep")
+
+# access e.g. rq_plots$tier1$edge, rq_plots$tier5$slope, etc.
+# and, in parallel: rq_plots_byrep$edge, rq_plots_byrep$slope, etc.
+rq_plots$tier5$interval
+rq_plots_byrep$interval
+
+# Save the high-res image
+ggsave(("C:\\Users\\savan\\OneDrive - San Francisco State University\\ProjectData\\GitHub\\DepositionSFB\\images\\methods\\rq_plots.png"),
+       plot = rq_plots$tier5$interval,
+       width = 10,  
+       height = 6,
+       dpi = 300,
+       bg = "white"
+)
+
+# Parallel raw-replicate export, distinct filename so it doesn't
+# overwrite the averaged version above
+ggsave(("C:\\Users\\savan\\OneDrive - San Francisco State University\\ProjectData\\GitHub\\DepositionSFB\\images\\methods\\rq_plots_byrep.png"),
+       plot = rq_plots_byrep$interval,
+       width = 10,  
+       height = 6,
+       dpi = 300,
+       bg = "white"
+)
+```
+
+```{r}
+
+
+tiers <- list(tier1 = master_tier1, tier2 = master_tier2, tier3 = master_tier3,
+              tier4 = master_tier4, tier5 = master_tier5, tier6 = master_tier6)
+
+tier_general <- purrr::imap(tiers, ~ make_flux_table(
+  .x, title = paste("Summary Statistics —", .y), include_ci = TRUE))
+
+tier_general_byrep <- make_flux_table(
+  master_tier5_byrep, title = "Summary Statistics (Raw Replicates) — tier5", include_ci = TRUE)
+
+tier_month <- purrr::imap(tiers, ~ make_flux_table(
+  .x, group_vars = "Month", title = paste("Flux by Month —", .y),
+  group_labels = list(Month = "Month")))
+
+tier_month_byrep <- make_flux_table(
+  master_tier5_byrep, group_vars = "Month",
+  title = "Flux by Month (Raw Replicates) — tier5",
+  group_labels = list(Month = "Month"))
+
+tier_site <- purrr::imap(tiers, ~ make_flux_table(
+  .x, group_vars = "Site", title = paste("Flux by Site —", .y),
+  group_labels = list(Site = "Site")))
+
+tier_site_byrep <- make_flux_table(
+  master_tier5_byrep, group_vars = "Site",
+  title = "Flux by Site (Raw Replicates) — tier5",
+  group_labels = list(Site = "Site"))
+
+tier_dist <- purrr::imap(tiers, ~ make_flux_table(
+  .x, group_vars = "Dist", title = paste("Flux by Distance —", .y),
+  group_labels = list(Dist = "Distance")))
+
+tier_dist_byrep <- make_flux_table(
+  master_tier5_byrep, group_vars = "Dist",
+  title = "Flux by Distance (Raw Replicates) — tier5",
+  group_labels = list(Dist = "Distance"))
+
+tier_zstar <- purrr::imap(tiers, ~ make_flux_table(
+  .x, group_vars = "z_star", title = paste("Flux by Z-star —", .y),
+  group_labels = list(z_star = "Z-star")))
+
+tier_zstar_byrep <- make_flux_table(
+  master_tier5_byrep, group_vars = "z_star",
+  title = "Flux by Z-star (Raw Replicates) — tier5",
+  group_labels = list(z_star = "Z-star"))
+
+tier_edge <- purrr::imap(tiers, ~ make_flux_table(
+  .x, group_vars = "marsh_edge_type", title = paste("Flux by Marsh Edge Type —", .y),
+  group_labels = list(marsh_edge_type = "Marsh Edge Type")))
+
+tier_edge_byrep <- make_flux_table(
+  master_tier5_byrep, group_vars = "marsh_edge_type",
+  title = "Flux by Marsh Edge Type (Raw Replicates) — tier5",
+  group_labels = list(marsh_edge_type = "Marsh Edge Type"))
+
+tier_dist_site <- purrr::imap(tiers, ~ make_flux_table(
+  .x, group_vars = c("Site", "Dist"), title = paste("Flux by Site and Distance —", .y),
+  group_labels = list(Site = "Site", Dist = "Distance")))
+
+tier_dist_site_byrep <- make_flux_table(
+  master_tier5_byrep, group_vars = c("Site", "Dist"),
+  title = "Flux by Site and Distance (Raw Replicates) — tier5",
+  group_labels = list(Site = "Site", Dist = "Distance"))
+
+tier_zstar_site <- purrr::imap(tiers, ~ make_flux_table(
+  .x, group_vars = c("Site", "z_star"), title = paste("Flux by Site and Z-star —", .y),
+  group_labels = list(Site = "Site", z_star = "Z-star")))
+
+tier_zstar_site_byrep <- make_flux_table(
+  master_tier5_byrep, group_vars = c("Site", "z_star"),
+  title = "Flux by Site and Z-star (Raw Replicates) — tier5",
+  group_labels = list(Site = "Site", z_star = "Z-star"))
+
+tier_month_site <- purrr::imap(tiers, ~ make_flux_table(
+  .x, group_vars = c("Site", "Month"), title = paste("Flux by Site and Month —", .y),
+  group_labels = list(Site = "Site", Month = "Month")))
+
+tier_month_site_byrep <- make_flux_table(
+  master_tier5_byrep, group_vars = c("Site", "Month"),
+  title = "Flux by Site and Month (Raw Replicates) — tier5",
+  group_labels = list(Site = "Site", Month = "Month"))
+```
+
+```{r, export tier5 tables to Word-ready images}
+
+save_flux_table_image <- function(flux_result, caption, filename) {
+  ft <- flux_result$data %>%
+    dplyr::select(-Shapiro_p) %>%
+    dplyr::rename(Shapiro_p = Shapiro_p_display) %>%
+    flextable() %>%
+    set_caption(caption) %>%
+    colformat_double(digits = 3) %>%
+    autofit()
+  
+  save_as_image(
+    ft,
+    path = paste0(
+      "C:\\Users\\savan\\OneDrive - San Francisco State University\\ProjectData\\GitHub\\DepositionSFB\\images\\rq_1\\",
+      filename
+    )
+  )
+  ft
+}
+
+save_flux_table_image(
+  tier_general$tier5,
+  "Overall Summary Statistics of Sediment Flux",
+  "tier5_general_stats.png"
+)
+
+save_flux_table_image(
+  tier_month$tier5,
+  "Sediment Flux by Month",
+  "tier5_month_stats.png"
+)
+
+save_flux_table_image(
+  tier_site$tier5,
+  "Sediment Flux by Site",
+  "tier5_site_stats.png"
+)
+
+save_flux_table_image(
+  tier_dist$tier5,
+  "Sediment Flux by Distance",
+  "tier5_dist_stats.png"
+)
+
+save_flux_table_image(
+  tier_zstar$tier5,
+  "Sediment Flux by Z-star",
+  "tier5_zstar_stats.png"
+)
+
+save_flux_table_image(
+  tier_edge$tier5,
+  "Sediment Flux by Marsh Edge Type",
+  "tier5_edge_stats.png"
+)
+
+save_flux_table_image(
+  tier_dist_site$tier5,
+  "Flux by Site and Distance",
+  "tier5_dist_site_stats.png"
+)
+
+save_flux_table_image(
+  tier_zstar_site$tier5,
+  "Flux by Site and z-star",
+  "tier5_zstar_site_stats.png"
+)
+
+save_flux_table_image(
+  tier_month_site$tier5,
+  "Flux by Site and Month",
+  "tier5_month_site_stats.png"
+)
+
+# ---- Parallel raw-replicate exports (distinct filenames, tier5 only) --
+
+save_flux_table_image(
+  tier_general_byrep,
+  "Overall Summary Statistics of Sediment Flux (Raw Replicates)",
+  "tier5_byrep_general_stats.png"
+)
+
+save_flux_table_image(
+  tier_month_byrep,
+  "Sediment Flux by Month (Raw Replicates)",
+  "tier5_byrep_month_stats.png"
+)
+
+save_flux_table_image(
+  tier_site_byrep,
+  "Sediment Flux by Site (Raw Replicates)",
+  "tier5_byrep_site_stats.png"
+)
+
+save_flux_table_image(
+  tier_dist_byrep,
+  "Sediment Flux by Distance (Raw Replicates)",
+  "tier5_byrep_dist_stats.png"
+)
+
+save_flux_table_image(
+  tier_zstar_byrep,
+  "Sediment Flux by Z-star (Raw Replicates)",
+  "tier5_byrep_zstar_stats.png"
+)
+
+save_flux_table_image(
+  tier_edge_byrep,
+  "Sediment Flux by Marsh Edge Type (Raw Replicates)",
+  "tier5_byrep_edge_stats.png"
+)
+
+save_flux_table_image(
+  tier_dist_site_byrep,
+  "Flux by Site and Distance (Raw Replicates)",
+  "tier5_byrep_dist_site_stats.png"
+)
+
+save_flux_table_image(
+  tier_zstar_site_byrep,
+  "Flux by Site and z-star (Raw Replicates)",
+  "tier5_byrep_zstar_site_stats.png"
+)
+
+save_flux_table_image(
+  tier_month_site_byrep,
+  "Flux by Site and Month (Raw Replicates)",
+  "tier5_byrep_month_site_stats.png"
+)
+
+
+```

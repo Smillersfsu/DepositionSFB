@@ -29,6 +29,17 @@ exists under the old name, and rather than keep reconstructing it from
 Study.Phase (a guess), this now uses the real Phen_Period column already
 on master_tier5_byrep, with the same Late_Dry/Tran/Wet/Growth levels/order as
 the old Hydro_Period (confirmed).
+
+CORRECTION PASS (this session): this file was already reading
+master_tier5_byrep.csv, but every model except the AR1 one
+(edge_time_model_glmm_ar1, which already correctly used
+ar1(Study.Phase + 0 | Loc_ID)) still used only (1|Site) as its random
+effect -- no Loc_ID, meaning each point's replicate traps were being
+treated as independent observations. (1|Loc_ID) added to
+edge_time_model(+_glmm/_noGM), edge_phenperiod_model(+_glmm), and
+edge_season_model(+_glmm). Loc_ID already exists as a column on
+master_tier5_byrep (built by keep_replicates() in step6), same object
+used by the AR1 model, so no new columns were needed.
 -->
 ```
 
@@ -174,13 +185,13 @@ ggsave(file.path(knitr::opts_knit$get("root.dir"), "rq1_time.png"),
 # Moved from RQ1-spatial.Rmd's transite1 chunk -- shows the raw Flux
 # distribution across phase, complementing the summary-line versions below.
 
-log_month = ggplot(master_tier5_byrep_clean, aes(x = as.factor(Month), y = log(Flux), color = Site)) +
-  geom_point(alpha = 0.4) +
+log_month = ggplot(master_tier5_byrep_clean %>% mutate(Month = factor(trimws(Month), 
+levels = c("Jul", "Aug", "Sep", "Oct", "Nov", "Dec", "Jan", "Feb", "Mar", "Apr", "May", "Jun"))), aes(x = as.factor(Month), y = log(Flux), color = Site)) +
   geom_sina(alpha = 0.6, size = 2) +
   labs(x = "Month of Study", y = "Log Flux (g/cm^2/day)",
        colour = "Site") +
   scale_color_manual(values = c(site_colors)) + 
-  theme_classic(base_size = 18) +
+  theme_classic(base_size = 18) +  
   theme(axis.text.x = element_text(angle = 45, hjust = 1, size = 18))
 log_month 
 
@@ -191,23 +202,92 @@ ggsave("C:\\Users\\savan\\OneDrive - San Francisco State University\\ProjectData
        dpi = 300,
        limitsize = FALSE)
 
-wrapmonth_dist = ggplot(master_tier5_byrep_clean, aes(x = Dist, y = log(Flux), color = Site)) +
-  facet_wrap("Month") +
-  geom_point(alpha = 0.4) +
-  geom_sina(alpha = 0.6, size = 2) +
-  labs(x = "Distance", y = "Log Flux (g/cm^2/day)",
-       colour = "Site") +
-  scale_color_manual(values = c(site_colors)) +
-  theme_classic(base_size = 18) +
-  theme(axis.text.x = element_text(angle = 45, hjust = 1, size = 18)) 
-wrapmonth_dist
+library(ggforce)
 
-ggsave("C:\\Users\\savan\\OneDrive - San Francisco State University\\ProjectData\\GitHub\\DepositionSFB\\images\\rq_1\\wrapmonth_dist.png", 
-       plot = wrapmonth_dist, 
-       width = 8, 
-       height = 5, 
-       dpi = 300,
-       limitsize = FALSE)
+# CHANGED: was one facet_wrap("Month") plot with all 12 months crammed
+# into an 8x5 image -- each panel too small to see individual points at
+# replicate grain. facet_wrap_paginate() uses the same faceting syntax
+# but renders one month per page, at full plot size, so each gets the
+# whole canvas instead of 1/12th of it.
+
+for (i in seq_along(month_levels)) {
+  wrapmonth_dist_page = ggplot(master_tier5_byrep_clean, aes(x = Dist, y = log(Flux), color = Site)) +
+    facet_wrap_paginate(~ Month, ncol = 1, nrow = 1, page = i) +
+    geom_point(alpha = 0.4) +
+    geom_sina(alpha = 0.6, size = 2) +
+    labs(x = "Distance", y = "Log Flux (g/cm^2/day)",
+         colour = "Site") +
+    scale_color_manual(values = c(site_colors)) +
+    theme_classic(base_size = 18) +
+    theme(axis.text.x = element_text(angle = 45, hjust = 1, size = 18))
+  
+  print(wrapmonth_dist_page)
+  
+  ggsave(paste0("C:\\Users\\savan\\OneDrive - San Francisco State University\\ProjectData\\GitHub\\DepositionSFB\\images\\rq_1\\wrapmonth_dist_", month_levels[i], ".png"),
+         plot = wrapmonth_dist_page,
+         width = 10,
+         height = 7,
+         dpi = 300,
+         limitsize = FALSE)
+}
+
+
+
+for (i in seq_along(month_levels)) {
+  wrapmonth_dist_violin_page = master_tier5_byrep_clean %>%
+    mutate(
+      Month = factor(trimws(Month), 
+                     levels = c("Jul", "Aug", "Sep", "Oct", "Nov", "Dec",
+                                "Jan", "Feb", "Mar", "Apr", "May", "Jun")),
+      Dist_factor = factor(Dist, levels = c(0.5, 2, 6, 12, 18, 24))
+    ) %>%
+    ggplot(aes(x = Dist_factor, y = log(Flux), fill = Site, color = Site)) +
+    geom_violin(alpha = 0.4, position = position_dodge(width = 0.8), scale = "width") +
+    geom_jitter(size = 1, alpha = 0.3, position = position_jitterdodge(jitter.width = 0.15, dodge.width = 0.8)) +
+    facet_wrap_paginate(~ Month, ncol = 1, nrow = 1, page = i) +
+    labs(x = "Distance", y = "Log Flux (g/cm^2/day)",
+         fill = "Site", color = "Site") +
+    scale_fill_manual(values = site_colors) +
+    scale_color_manual(values = site_colors) +
+    theme_classic(base_size = 18) +
+    theme(axis.text.x = element_text(angle = 45, hjust = 1, size = 18))
+  
+  print(wrapmonth_dist_violin_page)
+  
+  ggsave(paste0("C:\\Users\\savan\\OneDrive - San Francisco State University\\ProjectData\\GitHub\\DepositionSFB\\images\\rq_1\\wrapmonth_dist_violin_", 
+                c("Jul","Aug","Sep","Oct","Nov","Dec","Jan","Feb","Mar","Apr","May","Jun")[i], ".png"),
+         plot = wrapmonth_dist_violin_page,
+         width = 10, height = 7, dpi = 300, limitsize = FALSE)
+}
+
+
+
+for (i in seq_along(month_levels)) {
+  wrapmonth_dist_boxplot_page = master_tier5_byrep_clean %>%
+    mutate(
+      Month = factor(trimws(Month), 
+                     levels = c("Jul", "Aug", "Sep", "Oct", "Nov", "Dec",
+                                "Jan", "Feb", "Mar", "Apr", "May", "Jun")),
+      Dist_factor = factor(Dist, levels = c(0.5, 2, 6, 12, 18, 24))
+    ) %>%
+    ggplot(aes(x = Dist_factor, y = log(Flux), fill = Site, color = Site)) +
+    geom_boxplot(alpha = 0.4, outlier.shape = NA, position = position_dodge(width = 0.8)) +
+    geom_jitter(size = 1, alpha = 0.3, position = position_jitterdodge(jitter.width = 0.15, dodge.width = 0.8)) +
+    facet_wrap_paginate(~ Month, ncol = 1, nrow = 1, page = i) +
+    labs(x = "Distance", y = "Log Flux (g/cm^2/day)",
+         fill = "Site", color = "Site") +
+    scale_fill_manual(values = site_colors) +
+    scale_color_manual(values = site_colors) +
+    theme_classic(base_size = 18) +
+    theme(axis.text.x = element_text(angle = 45, hjust = 1, size = 18))
+  
+  print(wrapmonth_dist_boxplot_page)
+  
+  ggsave(paste0("C:\\Users\\savan\\OneDrive - San Francisco State University\\ProjectData\\GitHub\\DepositionSFB\\images\\rq_1\\wrapmonth_dist_boxplot_", 
+                c("Jul","Aug","Sep","Oct","Nov","Dec","Jan","Feb","Mar","Apr","May","Jun")[i], ".png"),
+         plot = wrapmonth_dist_boxplot_page,
+         width = 10, height = 7, dpi = 300, limitsize = FALSE)
+}
 ```
 
 ```{r, aggregate per Study.Phase-Site}
@@ -476,7 +556,7 @@ ggplot(phen_summary, aes(x = Phen_Period, y = mean_flux, group = 1)) +
 # to nest.
 
 edge_time_model <- lmer(
-  Flux ~ marsh_edge_type * Month + (1|Site),
+  Flux ~ marsh_edge_type * Month + (1|Site) + (1|Loc_ID),
   data = master_tier5_byrep_clean
 )
 summary(edge_time_model)
@@ -489,7 +569,7 @@ anova(edge_time_model)
 # on raw Flux).
 
 edge_time_model_glmm <- glmmTMB(
-  Flux ~ marsh_edge_type * Month + (1|Site),
+  Flux ~ marsh_edge_type * Month + (1|Site) + (1|Loc_ID),
   family = Gamma(link = "log"),
   data = master_tier5_byrep_clean
 )
@@ -497,7 +577,6 @@ summary(edge_time_model_glmm)
 Anova(edge_time_model_glmm, type = "II")
 
 sim_res_edge_time <- simulateResiduals(edge_time_model_glmm)
-
 locs <- unique(master_tier5_byrep_clean$Loc_ID)
 for (loc in locs) {
   idx <- master_tier5_byrep_clean$Loc_ID == loc    # logical vector, full length
@@ -505,12 +584,11 @@ for (loc in locs) {
   
   if (length(unique(time_loc)) < 3) next
   
-  # group must be the FULL-length vector (matching the original model's
-  # data, all 1430 rows) -- sel does the subsetting down to this
+  # group must be the FULL-length vector (matching sim_res_edge_time's
+  # original data, all rows) -- sel does the subsetting down to this
   # location. Passing them in two separate sequential calls (subset
   # first, then group the already-subsetted result) doesn't match
-  # DHARMa's documented usage for this pattern and is the likely source
-  # of the length mismatch.
+  # DHARMa's documented usage for this pattern.
   sim_res_loc <- recalculateResiduals(
     sim_res_edge_time,
     group = master_tier5_byrep_clean$Study.Phase,
@@ -520,7 +598,6 @@ for (loc in locs) {
   cat("\n---", as.character(loc), "---\n")
   print(testTemporalAutocorrelation(sim_res_loc, time = unique(time_loc)))
 }
-
 
 # AR1 version, since this is repeated monthly sampling
 master_tier5_byrep_clean_ar <- master_tier5_byrep_clean %>%
@@ -592,7 +669,7 @@ master_tier5_byrep_clean_noGM <- master_tier5_byrep_clean %>%
   filter(Site != "GiantMarsh")
 
 edge_time_model_noGM <- lmer(
-  Flux ~ marsh_edge_type * Month + (1|Site),
+  Flux ~ marsh_edge_type * Month + (1|Site) + (1|Loc_ID),
   data = master_tier5_byrep_clean_noGM
 )
 
@@ -632,7 +709,7 @@ The models above use `Month` (calendar month) as the temporal grouping. `Phen_Pe
 # Month for Phen_Period.
 
 edge_phenperiod_model <- lmer(
-  Flux ~ marsh_edge_type * Phen_Period + (1|Site),
+  Flux ~ marsh_edge_type * Phen_Period + (1|Site) + (1|Loc_ID),
   data = master_tier5_byrep_clean
 )
 summary(edge_phenperiod_model)
@@ -643,7 +720,7 @@ anova(edge_phenperiod_model)
 # PRIMARY model for the edge-type x Phen_Period comparison (Rule 2).
 
 edge_phenperiod_model_glmm <- glmmTMB(
-  Flux ~ marsh_edge_type * Phen_Period + (1|Site),
+  Flux ~ marsh_edge_type * Phen_Period + (1|Site) + (1|Loc_ID),
   family = Gamma(link = "log"),
   data = master_tier5_byrep_clean
 )
@@ -685,7 +762,7 @@ ggsave("C:\\Users\\savan\\OneDrive - San Francisco State University\\ProjectData
 # Month for Cal_Season (Lacy et al. 2019: Nov-Feb Winter, Mar-Oct Summer).
 
 edge_season_model <- lmer(
-  Flux ~ marsh_edge_type * Cal_Season + (1|Site),
+  Flux ~ marsh_edge_type * Cal_Season + (1|Site) + (1|Loc_ID),
   data = master_tier5_byrep_clean
 )
 summary(edge_season_model)
@@ -696,7 +773,7 @@ anova(edge_season_model)
 # PRIMARY model for the edge-type x Cal_Season comparison (Rule 2).
 
 edge_season_model_glmm <- glmmTMB(
-  Flux ~ marsh_edge_type * Cal_Season + (1|Site),
+  Flux ~ marsh_edge_type * Cal_Season + (1|Site) + (1|Loc_ID),
   family = Gamma(link = "log"),
   data = master_tier5_byrep_clean
 )

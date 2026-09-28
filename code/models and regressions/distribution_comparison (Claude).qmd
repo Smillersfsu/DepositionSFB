@@ -1,6 +1,6 @@
 ---
 title: "Distribution Comparison: Ramped vs. Scarped (Claude)"
-format: html
+format: docx
 editor: visual
 ---
 

@@ -82,7 +82,7 @@ Upon each visit to the marsh, a photo was taken perpendicular to the edge, direc
 
 - Table that includes all this information
 
-#### 2.2 Sediment Deposition Collections throughout the Year
+#### 2.3 Sediment Deposition Collections throughout the Year
 
 ![](images/clipboard-1795811635.png)
 
@@ -98,7 +98,7 @@ Upon each visit to the marsh, a photo was taken perpendicular to the edge, direc
 
 - Show a graph that displays the average deployment times of each data collection throughout the year (see if you can color code the sites)
 
-#### 2.3 RTK Elevation Measurements for Horizontal Marsh Edge Profiles of 2025-2026 Study
+#### 2.4 RTK Elevation Measurements for Horizontal Marsh Edge Profiles of 2025-2026 Study
 
 - Have a table that includes the timing of monitoring and a photo of the elevations being taken
 
@@ -108,9 +108,11 @@ Upon each visit to the marsh, a photo was taken perpendicular to the edge, direc
 
 - Outlines the horizontal profile of each marsh with elevation on the y axis and distance on the x
 
-## 3. Results
+## 3. Analysis 
 
-#### 3.1 Sediment Deposition Across Ramped and Scarped Marsh Edges
+## 4. Results
+
+#### 4.1 Sediment Deposition Across Ramped and Scarped Marsh Edges
 
 - Simplest graph-scarped marsh edges and ramped marsh edges box plot showing lax of significance
 
@@ -128,35 +130,40 @@ Upon each visit to the marsh, a photo was taken perpendicular to the edge, direc
 
   - z\* for each of the sites using a scatter plot, showing the clumping of values per site at certain flux values per z\*
 
-#### 3.2 Sediment Deposition Rates Across Years in One Ramped and One Scarped Edge Marsh
+#### 4.2 Sediment Deposition Rates Across Years in One Ramped and One Scarped Edge Marsh
 
 - Show similar plots to the one completed in 3.2, this time with year as the variable in facet_wrapped plots of the year differences
 
 - Plot the precipitation differences between each of the years to illustrate the comparison between years
 
-#### 3.3 Sediment Deposition in Relation to Intra-Marsh Geomorphic Factors
+#### 4.3 Sediment Deposition in Relation to Intra-Marsh Geomorphic Factors
 
 - Bring the plots for Corte Madera and Buck's Landing transects, just to show how even when clumping these two geomorphically similar marshes, there is differences specific to the marsh in terms of sediment deposition
 
 - Show outputs for LASSO that have Dist, z\*, marsh edge type, slope, compass bearing?, skewness? Discussion
 
-### 4. Discussion
+### 5. Discussion
 
-#### 4.1 Sediment Deposition Across Ramped and Scarped Marsh Edges
+#### 5.1 Sediment Deposition Across Ramped and Scarped Marsh Edges
 
-#### 4.2 Sediment Deposition Rates Across Years in One Ramped and One Scarped Edge Marsh
+- space within the marsh effects deposition values-0.5 and 2 meters had variance in their deposition values compared to then other distances further into the marsh-each site has a slightly different pattern
 
-#### 4.3 Sediment Deposition in Relation to Intra-Marsh Geomorphic Factors
+- Variance in deposition over time was mostly observed at the marsh edge between months (0.5-2 meters from marked edge) across sites, with the summer/early fall months having higher deposition near the marsh edge compared to the winter/spring/late fall months
+
+#### 5.2 Sediment Deposition Rates Across Years in One Ramped and One Scarped Edge Marsh
+
+#### 5.3 Sediment Deposition in Relation to Intra-Marsh Geomorphic Factors
 
 - Bring up the channel vs. bay plots to demonstrate how individually within a marsh sediment deposition varies even within the same time period
 
-#### 4.4 Limitations of Study
+#### 5.4 Limitations of Study
 
-#### 4.5 Case Study of Ramped and Scarped Marshes
+#### 5.5 Case Study of Ramped and Scarped Marshes
 
 - The results of this study can only be presented as case studies of 2 different marsh edge typologies: ramped and scarped. As the study's results presented themselves, the sampling number increased based on the relative elevation of each marsh being different from each other, resulting in one lower elevation marsh (one scarped and one ramped) and one higher elevation marsh (one scarped and one ramped). As such, future studies should either expand the number of ramped and scarped sites to test marsh edge typology as a variable, or unify the elevation amongst the site options so they can test marsh typology more concretly, as the LASSO output showed a strong favor for z\* as a factor, and past studies have emphasized the importance of tidal elevation as a driver of sediment deposition. In addition, two of these marshes shared both a general geomorphic direction (east facing) and a "protected" bay, while the other two marshes were characterized as "open bay" without protection, and with two different compass bearings (south and west facing). Ideally, future studies should pick adjacent marshes that have similar compass directions and embayyment protections. However, given the small number of marshes available for research, and the risk for disturbance over a consistent, monthly year long study, this could be difficult to find in order to run a comparative study specifically looking at marsh edge typology.
+- Possible model of interactions with sediment supply and wave energy (see Ganju note about different Ganju-Kirwan paper where that model was proposed)
 
-#### 4.6 Scarped West-Facing Marshes of the Urban East Bay
+#### 5.6 Scarped West-Facing Marshes of the Urban East Bay
 
 - All of these marshes are adjacent to human structures, and are located within a heavily urban estuary adjacent to major shipping channels
 
@@ -165,7 +172,55 @@ Upon each visit to the marsh, a photo was taken perpendicular to the edge, direc
 - Giant Marsh is a good example well supported locally of a western facing scarped, eroding marsh. Recent results of Whale's Tale holds similarity in findings and systems at these scarps need more in detail study on the intraspecific factors at play that influence these dynamics
 
   - These western faced marshes are especially important socially as they are often adjacent and abutting large city communities of the East Bay. Understanding how these marshes currently work and how we can sustain them can help promote the benefits of marshes for urban communities as places of recreation, community building, and nature based feature protections against coastal flooding. Many of these existing marshes have been cut off or altered from their original riverine local inputs, which likely can have a huge effect on the sediment inputs of these marshes as discussed in 3.3, and implied within the results of 3.2 from Corte Madera across years, which is protected but has small riverine inputs. These marshes appear to be eroding quickly through their scarped edge, and they provide both an urgent and abundant solution for nature based features in urban communities against sea level rise.
+  
+  (originally from the Results, Discussion would be better here when discussing kurtosis/differences between sites as a result of their location within the system)
+  
+  This could implicate that topographic features and orientation of the marsh edge is a more specific factor to point to than the shape of the marsh edge when considering the distribution of values. However, given the small sample size of marshes compared (n = 2) as well as the lack of site specific data collected.
 
-### 5. Conclusion
+
+```{r}
+
+DISCUSSION NOTE: ramped vs. scarped seasonal shift in distance gradients
+
+Source: site_dist_season_quick_avg (averaged data)
+  Flux ~ Site * Dist * Cal_Season + (1|Loc_ID) + (1|Study.Phase), Gamma(log)
+  Planned contrast: average summer-to-winter shift in distance slope at
+  the ramped sites (San Pablo, Buck's Landing) minus the scarped sites
+  (Giant Marsh, Corte Madera). Table SX.
+
+Result: NOT significant.
+  estimate = 0.0325 (log scale, per m), SE = 0.0191, z = 1.70, p = .089
+  = 3.3% per m larger shift at ramped sites, 95% CI [-0.5, 7.2]
+
+What it means:
+  - Direction matches the plot: the ramped sites' gradients shifted more
+    between seasons (ramped slopes crossed from below zero in summer to
+    above zero in winter; scarped slopes stayed on the same side of zero).
+  - But the difference isn't established: the CI includes zero.
+  - Crossing zero isn't itself a test -- ramped slopes start near zero,
+    so a similar-sized shift carries them across. The contrast is the test.
+  - Consistent with the 3-way test: Site x Dist x Season, p = .23.
+  - n = 2 sites per edge type -> low power; compares these four marshes,
+    not edge types in general.
+
+Draft wording:
+  "Distance gradients shifted toward higher inland flux in winter at all
+  four sites. This shift was larger on average at the two ramped sites
+  than at the two scarped sites (difference = 3.3% per m, 95% CI
+  [-0.5, 7.2]), though not significantly so (p = .089). With two sites
+  per edge type, this study had limited power to detect such a
+  difference; comparing more marshes of each type would test whether
+  ramped edges respond more strongly to seasonal change."
+
+Reminders:
+  - Don't call it "marginally significant" or "trending toward
+    significance"; report the estimate, CI and p-value.
+  - Ask advisor: does this belong in the Discussion (current plan) or
+    as a supplementary result?
+-->
+```
+```
+
+### 6. Conclusion
 
 This study stands as one of the first to compare rates of sediment deposition across marshes, using marsh edge typology specifically as a categorical variable. Due to the small sampling size between marshes, this study should be viewed as a case study for future studies to repeat methods and protocols. The results of this study imply that intra specific marsh variables such as the tidal elevation, and distance from the marsh edge are important for sediment deposition which has been shown from past research. Future studies would aid from collecting additional field data within each site such as wave energy in front of the marsh edge, and wind direction. Additional studies of repeated long term monitoring of both scarped and ramped edged marshes will allow for more robust understanding on how to protect marshes over increased expected sea level rise, and possibly provide insight on what factors are most important to promote sediment deposition in marshes so we can expand vertical migration ahead of sea level rise.

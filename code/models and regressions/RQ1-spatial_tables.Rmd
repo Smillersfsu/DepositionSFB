@@ -1,0 +1,142 @@
+---
+title: "RQ1 - Spatial: GLMM output tables"
+author: "Savannah K. Miller"
+output: html_document
+---
+
+<!--
+SPLIT FILE (output tables). Makes the GLMM output-table images, which
+need both tiers of each model (<model>_byrep.png and <model>_avg.png).
+It doesn't fit anything: it reads the models saved at the end of
+RQ1-spatial_byrep.Rmd and RQ1-spatial_avg.Rmd, so knit both of those
+first. Re-knit them whenever a model changes; this file only reflects
+what they last saved.
+-->
+
+```{r, load packages and working directory}
+
+source("C:\\Users\\savan\\OneDrive - San Francisco State University\\ProjectData\\GitHub\\DepositionSFB\\code\\R\\setup.R")
+source("C:\\Users\\savan\\OneDrive - San Francisco State University\\ProjectData\\GitHub\\DepositionSFB\\code\\R\\plotting.R")
+source("C:\\Users\\savan\\OneDrive - San Francisco State University\\ProjectData\\GitHub\\DepositionSFB\\code\\R\\flux_summary.R")
+
+# New: the fixed-vs-random-effects rule, the Gamma-primary/Gaussian-
+# sensitivity decision, and the model-naming convention used throughout
+# this file are now written down ONCE in modeling_conventions (Claude).R instead
+# of being re-decided per chunk. Read that file's header comment before
+# editing any model below.
+source("C:\\Users\\savan\\OneDrive - San Francisco State University\\ProjectData\\GitHub\\DepositionSFB\\code\\R\\modeling_conventions (Claude).R")
+
+# Definitions for every statistical function used in this file --
+# see the "Statistical Tools Used in This File" section right below,
+# or statistical_tools_glossary (Claude).R for the fuller version.
+source("C:\\Users\\savan\\OneDrive - San Francisco State University\\ProjectData\\GitHub\\DepositionSFB\\code\\R\\statistical_tools_glossary (Claude).R")
+
+# FIX (render): every package this file uses is loaded here, at the top.
+# Knitting runs the file top to bottom in a fresh R session, so a
+# library() call placed after the first use of its functions fails on
+# knit even though it works interactively. Two did that here:
+#   - glmmTMB: first used in the "glmm version" chunk, but
+#     library(glmmTMB) was ~1,300 lines later ("glmmTMB library" chunk)
+#   - DHARMa: used from the "glmm version" chunk on, never loaded
+# (both only worked if setup.R or an earlier session had loaded them).
+# The rest are loaded before first use already; they're listed here too
+# so the file doesn't depend on chunk order. lmerTest loads after lme4 so
+# every lmer() gets Satterthwaite p-values -- before, the first lmer()
+# fit ran between library(lme4) and library(lmerTest) and got none.
+# Loading a package twice is harmless, so the later library() calls are
+# left in place.
+library(tidyverse)   # dplyr, ggplot2, tidyr, stringr, readr
+library(scales)      # scales:: label helpers
+library(lme4)        # lmer(), glmer()
+library(lmerTest)    # Satterthwaite p-values for lmer()
+library(glmmTMB)     # Gamma GLMMs
+library(DHARMa)      # residual diagnostics
+library(car)         # Anova()
+library(emmeans)     # emmeans(), emtrends()
+library(ggeffects)   # ggpredict()
+library(MuMIn)       # r.squaredGLMM()
+library(moments)     # skewness(), kurtosis()
+library(ggdist)      # stat_halfeye()
+library(tidytext)    # reorder_within()
+library(ggbeeswarm)  # geom_quasirandom()
+library(patchwork)   # combining plots
+library(ggforce)     # geom_sina()
+```
+
+```{r, working directory}
+knitr::opts_chunk$set(echo = TRUE)
+knitr::opts_knit$set(root.dir = 'C:/Users/savan/OneDrive - San Francisco State University/ProjectData/GitHub/DepositionSFB/data')
+```
+
+```{r, load saved models}
+rds_dir <- knitr::opts_knit$get("root.dir")
+rds_files <- file.path(rds_dir, c("rq1_spatial_models_byrep.rds", "rq1_spatial_models_avg.rds"))
+missing_rds <- rds_files[!file.exists(rds_files)]
+if (length(missing_rds) > 0) {
+  stop("Saved models not found: ", paste(basename(missing_rds), collapse = ", "),
+       ". Knit RQ1-spatial_byrep.Rmd and RQ1-spatial_avg.Rmd first.")
+}
+
+rq1_spatial_models <- c(readRDS(rds_files[1]), readRDS(rds_files[2]))
+rq1_spatial_models <- Filter(Negate(is.null), rq1_spatial_models)
+
+# glmmTMB models read back from disk lose their compiled-code pointer.
+# Summary-type output works regardless; if your glmmTMB version has
+# up2date(), use it to restore the models fully.
+if ("up2date" %in% getNamespaceExports("glmmTMB")) {
+  rq1_spatial_models <- lapply(rq1_spatial_models, function(m)
+    if (inherits(m, "glmmTMB")) glmmTMB::up2date(m) else m)
+}
+
+list2env(rq1_spatial_models, envir = globalenv())
+names(rq1_spatial_models)
+
+rq1_img_dir <- "C:/Users/savan/OneDrive - San Francisco State University/ProjectData/GitHub/DepositionSFB/images/rq_1"
+
+# save_glmm_tables() needs both <model> and <model>_avg; this wrapper
+# skips (with a message) any model missing a tier.
+save_glmm_tables_available <- function(model_list, out_dir) {
+  has_both <- vapply(names(model_list), function(m)
+    exists(m, envir = globalenv()) && exists(paste0(m, "_avg"), envir = globalenv()),
+    logical(1))
+  if (any(!has_both)) {
+    message("Skipping (not saved in both tiers): ",
+            paste(names(model_list)[!has_both], collapse = ", "))
+  }
+  if (any(has_both)) save_glmm_tables(model_list[has_both], out_dir = out_dir)
+}
+```
+
+```{r, GLMM output tables}
+# One image per GLMM, for both tiers: <model>_byrep.png and <model>_avg.png.
+# Each table: fixed effects (log-scale estimate, SE, z, p, exp(estimate)
+# with 95% CI), then a footer with Type II Wald chi-square tests, random-
+# effect variances, dispersion terms (if any), N, AIC, marginal/conditional
+# R2, formula and family. Models come from the .rds files the two tier files save; any model
+# missing from either tier is skipped with a message.
+#
+# Gamma glmmTMB models only. The lmer() SENSITIVITY versions and distmodel
+# (a glmer() call with no family, which lme4 silently fits as a Gaussian
+# lmer) are not GLMMs in the Rule 2 sense, so they're left out.
+
+rq1_spatial_glmms <- list(
+  model_full_glmm                   = "Flux ~ z* x marsh edge type",
+  distmodel_glmm                    = "Flux ~ distance from edge",
+  distsitemodel_glmm                = "Flux ~ distance x site",
+  distsitemodel_glmm_dispersion     = "Flux ~ distance x site, site-specific dispersion",
+  distsitemodel_glmm_noGM           = "Flux ~ distance x site, Giant Marsh excluded",
+  transite_glmm                     = "Flux ~ transect x site",
+  transite1_glmm                    = "Flux ~ transect x site, study phase random effect",
+  marsh_edge_model_edge_glmm        = "Flux ~ marsh edge type, (1|Dist)",
+  marsh_edge_model_sitetran_glmm    = "Flux ~ marsh edge type, (1|Site/Tran)",
+  marsh_edge_model_orient_dist_glmm = "Flux ~ marsh orientation, (1|Dist)",
+  marsh_group_model_glmm            = "Flux ~ marsh group (open bay vs. protected)",
+  deposition_model_base_glmm        = "Flux ~ z*",
+  deposition_model_slope_glmm       = "Flux ~ z* + local slope",
+  m_glmm                            = "Flux ~ distance x marsh edge type",
+  m_no_giant                        = "Flux ~ distance (factor) x marsh edge type, Giant Marsh excluded",
+  m_close                           = "Flux ~ distance x marsh edge type, 0.5 and 2 m only"
+)
+
+save_glmm_tables_available(rq1_spatial_glmms, out_dir = rq1_img_dir)
+```

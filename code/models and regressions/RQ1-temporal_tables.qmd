@@ -1,0 +1,159 @@
+---
+title: "RQ1 - Temporal: GLMM output tables"
+format: pdf
+editor: visual
+---
+
+```{=html}
+<!--
+SPLIT FILE (output tables). Makes the GLMM output-table images, which
+need both tiers of each model (<model>_byrep.png and <model>_avg.png).
+It doesn't fit anything: it reads the models saved at the end of
+RQ1-temporal_byrep.qmd and RQ1-temporal_avg.qmd, so run (or render)
+both of those first. Re-run them whenever a model changes; this file
+only reflects what they last saved.
+-->
+```
+
+```{r, load packages and working directory}
+
+source("C:\\Users\\savan\\OneDrive - San Francisco State University\\ProjectData\\GitHub\\DepositionSFB\\code\\R\\setup.R")
+source("C:\\Users\\savan\\OneDrive - San Francisco State University\\ProjectData\\GitHub\\DepositionSFB\\code\\R\\plotting.R")
+
+# Shared fixed/random-effects rule, family decision, and naming
+# convention -- see that file's header before editing any model below.
+source("C:\\Users\\savan\\OneDrive - San Francisco State University\\ProjectData\\GitHub\\DepositionSFB\\code\\R\\modeling_conventions (Claude).R")
+
+# Definitions for every statistical function used in this file -- see
+# the "Statistical Tools Used in This File" note below, or
+# statistical_tools_glossary (Claude).R for the fuller version.
+source("C:\\Users\\savan\\OneDrive - San Francisco State University\\ProjectData\\GitHub\\DepositionSFB\\code\\R\\statistical_tools_glossary (Claude).R")
+
+# FIX: make_flux_table() is used further down but flux_summary.R was never
+# sourced in this file -- it only worked if RQ1-spatial had been run first
+# in the same R session. flux_summary.R also holds save_glmm_tables() /
+# save_site_split_tables(), used by the output-table chunks at the bottom.
+source("C:\\Users\\savan\\OneDrive - San Francisco State University\\ProjectData\\GitHub\\DepositionSFB\\code\\R\\flux_summary.R")
+
+# FIX: month_levels drives the three paginated wrapmonth loops below but
+# was only defined in RQ1-spatial -- same same-session dependency as above.
+month_levels <- c("Jul", "Aug", "Sep", "Oct", "Nov", "Dec",
+                  "Jan", "Feb", "Mar", "Apr", "May", "Jun")
+
+# FIX (render): every package this file uses is loaded here, at the top.
+# Rendering runs the file top to bottom in a fresh R session, so a
+# library() call placed after the first use of its functions fails on
+# render even though it works interactively (where the library was
+# already loaded from an earlier run). ggforce was the one that broke:
+# geom_sina() is used in the "study phase raw distribution by site"
+# chunk, but library(ggforce) came two chunks later. Loading packages
+# twice is harmless, so the later library() calls are left in place.
+library(tidyverse)  # dplyr, ggplot2, tidyr, stringr (str_wrap), etc.
+library(scales)     # label_number()
+library(lmerTest)   # lmer() with Satterthwaite p-values (Gaussian sensitivity models)
+library(ggforce)    # geom_sina(), facet_wrap_paginate()
+library(glmmTMB)    # GLMMs
+library(car)        # Anova()
+library(DHARMa)     # residual diagnostics
+library(emmeans)    # emmeans(), emtrends()
+library(mgcv)       # gam()
+library(gt)         # output tables
+
+knitr::opts_chunk$set(echo = TRUE)
+knitr::opts_knit$set(root.dir = 'C:/Users/savan/OneDrive - San Francisco State University/ProjectData/GitHub/DepositionSFB/data')
+
+```
+
+```{r, load saved models}
+rds_dir <- knitr::opts_knit$get("root.dir")
+rds_files <- file.path(rds_dir, c("rq1_temporal_models_byrep.rds", "rq1_temporal_models_avg.rds"))
+missing_rds <- rds_files[!file.exists(rds_files)]
+if (length(missing_rds) > 0) {
+  stop("Saved models not found: ", paste(basename(missing_rds), collapse = ", "),
+       ". Run RQ1-temporal_byrep.qmd and RQ1-temporal_avg.qmd first.")
+}
+
+rq1_models <- c(readRDS(rds_files[1]), readRDS(rds_files[2]))
+rq1_models <- Filter(Negate(is.null), rq1_models)
+
+# glmmTMB models read back from disk lose their compiled-code pointer.
+# Summary-type output works regardless; if your glmmTMB version has
+# up2date(), use it to restore the models fully.
+if ("up2date" %in% getNamespaceExports("glmmTMB")) {
+  rq1_models <- lapply(rq1_models, function(m) if (inherits(m, "glmmTMB")) glmmTMB::up2date(m) else m)
+}
+
+list2env(rq1_models, envir = globalenv())
+names(rq1_models)
+
+rq1_img_dir <- "C:/Users/savan/OneDrive - San Francisco State University/ProjectData/GitHub/DepositionSFB/images/rq_1"
+
+# save_glmm_tables() needs both <model> and <model>_avg. This wrapper
+# skips (with a message) any model that's missing a tier, instead of
+# stopping the whole render.
+save_glmm_tables_available <- function(model_list, out_dir) {
+  has_both <- vapply(names(model_list), function(m)
+    exists(m, envir = globalenv()) && exists(paste0(m, "_avg"), envir = globalenv()),
+    logical(1))
+  if (any(!has_both)) {
+    message("Skipping (not saved in both tiers): ",
+            paste(names(model_list)[!has_both], collapse = ", "))
+  }
+  if (any(has_both)) save_glmm_tables(model_list[has_both], out_dir = out_dir)
+}
+```
+
+```{r, GLMM output tables}
+# One image per GLMM, for both tiers: <model>_byrep.png and <model>_avg.png
+# (same layout as the RQ1-spatial tables). The lmer() SENSITIVITY versions
+# (edge_time_model, edge_time_model_noGM, edge_phenperiod_model,
+# edge_season_model) are Gaussian, not GLMMs, so they're left out.
+
+rq1_temporal_glmms <- list(
+  edge_time_model_glmm       = "Flux ~ marsh edge type x month",
+  edge_time_model_glmm_ar1   = "Flux ~ marsh edge type x month, AR1 temporal autocorrelation",
+  edge_phenperiod_model_glmm = "Flux ~ marsh edge type x phenological period",
+  edge_season_model_glmm     = "Flux ~ marsh edge type x calendar season"
+)
+
+save_glmm_tables_available(rq1_temporal_glmms, out_dir = rq1_img_dir)
+
+# ADDED: distance GLMMs (each has an _avg twin, as save_glmm_tables expects)
+rq1_distance_glmms <- list(
+  dist_time_model_glmm          = "Flux ~ log distance x month",
+  dist_season_model_glmm        = "Flux ~ log distance x calendar season",
+  dist_season_model_glmm_factor = "Flux ~ distance (factor) x calendar season",
+  edge_dist_season_model_glmm   = "Flux ~ marsh edge type x log distance x calendar season"
+)
+save_glmm_tables_available(rq1_distance_glmms, out_dir = rq1_img_dir)
+
+# ADDED: sensitivity refits. If save_glmm_tables_available() doesn't handle the
+# dispformula model, drop edge_season_model_glmm_disp from this list --
+# its comparison is already covered by edge_season_sensitivity_*.png.
+rq1_sensitivity_glmms <- list(
+  edge_season_model_glmm_tran   = "Edge type x season, + transect random effect",
+  edge_season_model_glmm_disp   = "Edge type x season, seasonal dispersion",
+  edge_season_model_glmm_noGM   = "Edge type x season, excluding GiantMarsh",
+  edge_season_model_glmm_noDec  = "Edge type x season, excluding December",
+  edge_season_model_glmm_noFlag = "Edge type x season, excluding flagged long intervals",
+  edge_season_model_glmm_interval = "Edge type x season, + deployment length covariate"
+)
+save_glmm_tables_available(rq1_sensitivity_glmms, out_dir = rq1_img_dir)
+
+# ADDED: site differences (no edge-type term; see "Site differences")
+rq1_site_glmms <- list(
+  site_season_model_glmm = "Flux ~ site x calendar season (site as fixed effect)"
+)
+save_glmm_tables_available(rq1_site_glmms, out_dir = rq1_img_dir)
+
+# ADDED: wind GLMMs. edge_time_gam is an mgcv gam, not a glmmTMB model,
+# so it's left out of save_glmm_tables_available() -- its summary() output in the
+# GAM chunk is the table to report.
+rq1_wind_cont_glmms <- list(
+  phase_base_wind_cont_glmm = "Flux ~ marsh edge type, study phase random effect (no wind; continuous-wind rows)",
+  mean_wind_model_glmm      = "Flux ~ marsh edge type x mean wind speed (kt), study phase random effect",
+  gust_model_glmm           = "Flux ~ marsh edge type x maximum gust (kt), study phase random effect",
+  wind_cat_model_glmm       = "Flux ~ marsh edge type x Beaufort category of mean wind speed, study phase random effect"
+)
+save_glmm_tables_available(rq1_wind_cont_glmms, out_dir = rq1_img_dir)
+```

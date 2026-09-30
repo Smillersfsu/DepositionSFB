@@ -209,8 +209,7 @@ log_phase_q1 <- master_tier5_byrep_clean %>%
   geom_jitter(width = 0.15, alpha = 0.3, size = 1) +
   facet_wrap(~ Study.Phase, nrow = 1, labeller = as_labeller(phase_labels)) +
   coord_cartesian(ylim = y_range) +
-  labs(x = NULL, y = "Log Flux (g/cm^2/day)", fill = "Site", color = "Site",
-       title = "Log Flux by Site: Study Phases 1-4") +
+  labs(x = NULL, y = "Log Flux (g/m^2/day)", fill = "Site", color = "Site") +
   scale_fill_manual(values = site_colors) +
   scale_color_manual(values = site_colors) +
   theme_shared
@@ -230,8 +229,7 @@ log_phase_q2 <- master_tier5_byrep_clean %>%
   geom_jitter(width = 0.15, alpha = 0.3, size = 1) +
   facet_wrap(~ Study.Phase, nrow = 1, labeller = as_labeller(phase_labels)) +
   coord_cartesian(ylim = y_range) +
-  labs(x = NULL, y = "Log Flux (g/cm^2/day)", fill = "Site", color = "Site",
-       title = "Log Flux by Site: Study Phases 5-8") +
+  labs(x = NULL, y = "Log Flux (g/m^2/day)", fill = "Site", color = "Site") +
   scale_fill_manual(values = site_colors) +
   scale_color_manual(values = site_colors) +
   theme_shared
@@ -251,8 +249,7 @@ log_phase_q3 <- master_tier5_byrep_clean %>%
   geom_jitter(width = 0.15, alpha = 0.3, size = 1) +
   facet_wrap(~ Study.Phase, nrow = 1, labeller = as_labeller(phase_labels)) +
   coord_cartesian(ylim = y_range) +
-  labs(x = NULL, y = "Log Flux (g/cm^2/day)", fill = "Site", color = "Site",
-       title = "Log Flux by Site: Study Phases 9-12") +
+  labs(x = NULL, y = "Log Flux (g/m^2/day)", fill = "Site", color = "Site") +
   scale_fill_manual(values = site_colors) +
   scale_color_manual(values = site_colors) +
   theme_shared

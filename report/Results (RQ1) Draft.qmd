@@ -8,22 +8,18 @@ editor: visual
 
 #### 3.1 Sediment Deposition Across Ramped and Scarped Marsh Edges
 
-Flux rate (grams/m\^2/day) as the metric used to measure sediment deposition between the two ramped marsh edge sites and two scarped marsh edge sites.
+Flux rate (g/m^2^/day) as the metric used to measure sediment deposition between the two ramped marsh edge sites and two scarped marsh edge sites.
 
-Median sediment deposition differed between all sites, and generally scarped marsh edge sites showed a higher median value than the scarped marsh edge sites (Scarped: Giant Marsh = 3.002 vs. Corte Madera = 2.251 g/m^2/day;\ Ramped:\ San\ Pablo\ =\ 1.799\ vs.\ Buck's\ Landing\ =\ 1.705\ g/m^2/day; Table #). Skewness and kurtosis between the sites was not similar across marsh edge types, as San Pablo shared greater similarity to Giant Marsh then to Buck's Landing, and vice versa. (Giant Marsh: Skewness: 4.616, Kurtosis = 23.807 vs. San Pablo: Skewness: 4.003, Kurtosis = 21.691; Table \# ). This could implicate that topographic features and orientation of the marsh edge is a more specific factor to point to than the shape of the marsh edge when considering the distribution of values. However, given the small sample size of marshes compared (n = 2) as well as the lack of site specific data collected.
+Median sediment deposition differed between all sites, and generally scarped marsh edge sites showed a higher median value than the ramped marsh edge sites (Scarped: Giant Marsh = 3.671 g/m^2^/ day vs. Corte Madera = 2.082 g/m^2^/day; Ramped: San Pablo =1.811 g/m^2^/ day vs. Buck's Landing = 1.675 g/m^2^/ day ; Table 2). Skewness and kurtosis between the sites was not similar across marsh edge types, as San Pablo shared greater similarity to Giant Marsh then to Buck's Landing, and vice versa. (Giant Marsh: Skewness: 4.156, Kurtosis = 19.546 vs. San Pablo: Skewness: 3.914, Kurtosis = 20.404, Table 2).
 
-When grouped with other site level characteristics, the categorization of marsh edge type between marshes appears to grow more complex when accounting for differences in how each marsh deposited values with increasing distance from the marsh edge. Keeping the scarped and ramped marsh edge comparison with site nested in the visualizations and models, distance from marsh edge appears to have generally a significant effect on all four marshes, though it's effect can differ between each of the four. Specifically, the closer the distance to the edge of the marsh, the greater the variability in sediment deposition appears to have.
+When results were analyzed using a Generalized Linear Mixed Model (GLMM) testing Transect nested within Site in conjunction with response variable of Flux, Transect did not differ significantly from within Site, as much as between site variance did (Table 3). Therefore, for future GLMMs, Transect was nested as a replicate within Site.
 
-To account for additional difference in each of the marshes structure, elevation along each transect was measured at each replicate tile where sediment was collected. When plotted within a horizontal profile, it is clear that each of the Scarped sites differ in their elevation relative to each other, while the two Ramped sites hold similar ranges of elevation through their slope of the edge. When plotted with z\* and sediment deposition, it appears that each site reacts differently to elevation to sediment deposition.
+*Spatially*
 
-- Then go to site specific box plots, keeping the same color code
+Distance from marsh edge appears to have generally a significant effect on all four marshes, though it's effect appear to differ between each of the four sites when considering the statistical representations (Tables 5-8). Specifically, the closer the distance to the edge of the marsh, the greater the variability in sediment deposition appears to have between all four marsh sites measured (Figure 11).
 
-  - Include a statistical summary table below that, which includes skewness as a metric
+Elevation along each transect was measured at each replicate tile where sediment was collected. From surveys of elevation, Scarped sites differ in their elevation relative to each other, while the two ramped sites hold similar ranges of elevation through their slope of the edge (Figures 6 and 7). When plotted with z\* and sediment deposition, it appears that each site behaves differently to elevation to sediment deposition, with each site having a different pattern of sediment deposition along elevation differences within the transect (Figure 10). The two scarped sites did not have overlap in their z\* values, and represented different ranges of values, one on the lowest end of the z\* elevation range, and one on the highest end of the z\* elevation range. Both of the ramped sites had majority overlap in elevations measured within the transects. Despite the differences in elevation z\* profiles between scarped sites appeared to have different sediment deposition values relative to differences in z\* values (Table 4). The context of z\* between sites demonstrates that within Corte Madera, the higher elevation point along the transect is 24 meters from the marsh edge, whereas within Giant Marsh, the highest elevation point along the transect is 2 meters from the marsh edge.
 
-- Show two different graphs in relation to each other:
+*Temporally*
 
-  - One graph should show Distance relationship over time, with marsh edge general linear model
-
-    One graph should show Monthly/seasonal relationship over time with the marsh edge general linear model
-
-  - z\* for each of the sites using a scatter plot, showing the clumping of values per site at certain flux values per z\*
+Throughout the months monitored from July 2025 through June 2026, generally July 2025-October 2025, and May-June 2026 had higher rates of sediment deposition between all four sites overall (Figures 12-14; Tables 9-12). Between sites, the scale of the Summer season (March-October) and Winter season (November-February) as proposed by Lacy et. al 2019, showed statistically significant differences in how sites responded individually to Season (Table 13).

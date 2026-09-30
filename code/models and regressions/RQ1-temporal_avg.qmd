@@ -1,0 +1,2268 @@
+---
+title: "RQ1 - Temporal: Averaged-tier analysis"
+format: pdf
+editor: visual
+---
+
+```{=html}
+<!--
+SPLIT FILE (averaged tier). RQ1-temporal was split into three files so
+each tier can be run on its own:
+  - RQ1-temporal_byrep.qmd: every analysis on the replicate-level tier
+  - RQ1-temporal_avg.qmd (this file): the same analyses on the averaged
+    tier (master_tier5 / master_tier5_clean). Chunks here are the ones
+    that were labeled "ADDED averaged companion" in the combined file.
+  - RQ1-temporal_tables.qmd: the GLMM output-table images, which need
+    both tiers. It reads the models the two tier files save at the end,
+    so run both tier files first.
+Both tier files load BOTH data tiers (loading is fast; the models are
+what's slow), because a few shared definitions -- distance centering,
+wind centering, the Beaufort category summary, the long-interval list --
+are built from the replicate-level data and must be identical in both.
+Chunks labeled SHARED are identical in both tier files; if you edit one,
+make the same edit in the other file.
+Section headers and narrative text are kept from the combined file, so
+some refer to "the byrep chunk above" -- that chunk now lives in
+RQ1-temporal_byrep.qmd.
+
+Companion to RQ1-spatial.Rmd, split out this session. This file holds
+everything from master_thesis_regressions.Rmd and master_thesis_visualizations.qmd
+that looks at Flux across Study.Phase, Month, date, or Hydro_Period,
+rather than across site/edge-type/distance/elevation.
+
+Moved in from master_thesis_regressions.Rmd:
+- "derive Month for reference models" (Month factor derivation)
+- "rq1 time" chunk -> rq1_time_trend, rq1_time (Flux by Month)
+- two of the three plots from "transect x site model with replicate and
+  phase" -- Study.Phase sina plot and Dist x Study.Phase facet plot.
+  (transite1 model itself and its Tran-by-Site plot stayed in
+  RQ1-spatial.Rmd, since the model's actual question is Tran x Site.)
+
+Everything else below was already rebuilt in master_thesis_visualizations.qmd
+this session (bug fixes noted there carried over unchanged): the
+Study.Phase trend-by-site/transect/distance-bin plots and the phenological
+period section.
+
+Renamed Hydro_Period -> Phen_Period throughout: that column no longer
+exists under the old name, and rather than keep reconstructing it from
+Study.Phase (a guess), this now uses the real Phen_Period column already
+on master_tier5_byrep, with the same Late_Dry/Tran/Wet/Growth levels/order as
+the old Hydro_Period (confirmed).
+
+CORRECTION PASS (this session): this file was already reading
+master_tier5_byrep.csv, but every model except the AR1 one
+(edge_time_model_glmm_ar1, which already correctly used
+ar1(Study.Phase + 0 | Loc_ID)) still used only (1|Site) as its random
+effect -- no Loc_ID, meaning each point's replicate traps were being
+treated as independent observations. (1|Loc_ID) added to
+edge_time_model(+_glmm/_noGM), edge_phenperiod_model(+_glmm), and
+edge_season_model(+_glmm). Loc_ID already exists as a column on
+master_tier5_byrep (built by keep_replicates() in step6), same object
+used by the AR1 model, so no new columns were needed.
+
+ADDED (distance + diagnostics pass):
+- Distance predictors (log_Dist_c, Dist_f) added to both clean tiers
+  right after load.
+- run_dharma() / check_temporal_ac() helpers. Every GLMM now gets the
+  same DHARMa checks. The old per-location autocorrelation loop in the
+  edge time glmm chunk is replaced by check_temporal_ac(), which fixes a
+  residual/time ordering issue in that loop (see the helper's comments).
+- New section "Distance x time GLMMs": dist_time_model_glmm,
+  dist_season_model_glmm, dist_season_model_glmm_factor (linearity
+  check) and edge_dist_season_model_glmm, each with an _avg twin.
+- New section "Edge-type GLMM sensitivity refits": transect random
+  effect, seasonal dispersion, no GiantMarsh (Gamma), no December, no
+  flagged long intervals, with a p-value comparison table.
+
+ADDED (wind / site / GAM pass):
+- Deployment timing variables (Interval_Length, Interval_c, mid_date,
+  study_day) added to both clean tiers.
+- New section "Smooth seasonal trend (GAM)": edge_time_gam, a Gamma GAM
+  with a smooth of study day and an edge-type difference smooth.
+- Sensitivity refits gain _interval (deployment length as a covariate).
+  A Site-as-fixed-effect refit was tried and removed: edge type is nested
+  in site, so the two can't both be fixed effects. Site differences are
+  modeled separately in "Site differences" (site_season_model_glmm).
+- New section "Wind GLMMs" (wind columns come from step3_thesis_wind.qmd;
+  there is no wind category column): mean_wind_model_glmm (mean_wind_speed_kt) and
+  gust_model_glmm (max_gust_kt), each edge type x wind with Study.Phase
+  as a random effect, plus a shared no-wind base model for comparison.
+- Wind category: Wind_cat bins mean_wind_speed_kt by the Beaufort scale
+  (default groups: Light < 7 kt, Gentle 7-10, Moderate+ >= 11);
+  wind_cat_model_glmm uses it with the same design and rows.
+-->
+```
+
+```{r, load packages and working directory}
+
+source("C:\\Users\\savan\\OneDrive - San Francisco State University\\ProjectData\\GitHub\\DepositionSFB\\code\\R\\setup.R")
+source("C:\\Users\\savan\\OneDrive - San Francisco State University\\ProjectData\\GitHub\\DepositionSFB\\code\\R\\plotting.R")
+
+# Shared fixed/random-effects rule, family decision, and naming
+# convention -- see that file's header before editing any model below.
+source("C:\\Users\\savan\\OneDrive - San Francisco State University\\ProjectData\\GitHub\\DepositionSFB\\code\\R\\modeling_conventions (Claude).R")
+
+# Definitions for every statistical function used in this file -- see
+# the "Statistical Tools Used in This File" note below, or
+# statistical_tools_glossary (Claude).R for the fuller version.
+source("C:\\Users\\savan\\OneDrive - San Francisco State University\\ProjectData\\GitHub\\DepositionSFB\\code\\R\\statistical_tools_glossary (Claude).R")
+
+# FIX: make_flux_table() is used further down but flux_summary.R was never
+# sourced in this file -- it only worked if RQ1-spatial had been run first
+# in the same R session. flux_summary.R also holds save_glmm_tables() /
+# save_site_split_tables(), used by the output-table chunks at the bottom.
+source("C:\\Users\\savan\\OneDrive - San Francisco State University\\ProjectData\\GitHub\\DepositionSFB\\code\\R\\flux_summary.R")
+
+# FIX: month_levels drives the three paginated wrapmonth loops below but
+# was only defined in RQ1-spatial -- same same-session dependency as above.
+month_levels <- c("Jul", "Aug", "Sep", "Oct", "Nov", "Dec",
+                  "Jan", "Feb", "Mar", "Apr", "May", "Jun")
+
+# FIX (render): every package this file uses is loaded here, at the top.
+# Rendering runs the file top to bottom in a fresh R session, so a
+# library() call placed after the first use of its functions fails on
+# render even though it works interactively (where the library was
+# already loaded from an earlier run). ggforce was the one that broke:
+# geom_sina() is used in the "study phase raw distribution by site"
+# chunk, but library(ggforce) came two chunks later. Loading packages
+# twice is harmless, so the later library() calls are left in place.
+library(tidyverse)  # dplyr, ggplot2, tidyr, stringr (str_wrap), etc.
+library(scales)     # label_number()
+library(lmerTest)   # lmer() with Satterthwaite p-values (Gaussian sensitivity models)
+library(ggforce)    # geom_sina(), facet_wrap_paginate()
+library(glmmTMB)    # GLMMs
+library(car)        # Anova()
+library(DHARMa)     # residual diagnostics
+library(emmeans)    # emmeans(), emtrends()
+library(mgcv)       # gam()
+library(gt)         # output tables
+
+knitr::opts_chunk$set(echo = TRUE)
+knitr::opts_knit$set(root.dir = 'C:/Users/savan/OneDrive - San Francisco State University/ProjectData/GitHub/DepositionSFB/data')
+
+```
+
+```{=html}
+<!--
+STATISTICAL TOOLS USED IN THIS FILE
+(full definitions in statistical_tools_glossary (Claude).R)
+
+- lmer() [lme4] -- Gaussian mixed model; SENSITIVITY check version of
+  edge_time_model_glmm (Rule 2).
+- glmmTMB() [glmmTMB] -- PRIMARY model fitter, Gamma(link = "log").
+  Includes the ar1() correlation structure in edge_time_model_glmm_ar1,
+  for the repeated-monthly-sampling autocorrelation check below.
+- Anova() [car] -- Type II significance test on fixed effects.
+- anova() [base/lme4] -- fixed-effects table for a single lmer model.
+- AIC() -- compares edge_time_model_glmm against its AR1 version
+  (non-nested models, so a likelihood-ratio anova() isn't appropriate).
+- emmeans() [emmeans] -- model-predicted means by marsh_edge_type x
+  Month, with type = "response" to back-transform off the log link.
+- simulateResiduals() / testDispersion() [DHARMa] -- simulation-based
+  residual diagnostics appropriate for a Gamma GLMM.
+- testTemporalAutocorrelation() / recalculateResiduals() [DHARMa] --
+  checks whether residuals at consecutive Study.Phase time points are
+  correlated, run separately per Loc_ID (site x transect x distance) via
+  recalculateResiduals() -- the actual justification for trying the
+  ar1() structure, rather than assuming autocorrelation is a problem.
+  Now run through check_temporal_ac() (see the DHARMa helpers chunk).
+- run_dharma() [ADDED helper] -- runs simulateResiduals(), plot(),
+  testDispersion(), plotResiduals() by predictor, and the temporal
+  autocorrelation check on every GLMM, so all models get identical checks.
+- plotResiduals() [DHARMa] -- residuals within each level of a variable
+  (Levene test + within-group uniformity); flags a variable the model is
+  missing or a group it fits poorly.
+- binom.test() [base] -- is the number of locations with significant
+  temporal autocorrelation more than the 5% expected by chance?
+- emtrends() [emmeans] -- distance slope (on log(Dist)) within each
+  month/season/edge type, reported as flux ratio per doubling of distance.
+- dispformula [glmmTMB] -- lets the Gamma dispersion differ by season in
+  edge_season_model_glmm_disp.
+- gam() [mgcv] -- generalized additive model; fits a smooth seasonal
+  curve instead of 12 month means. s(x, by = ordered factor) gives the
+  difference curve between edge types; bs = "re" adds random intercepts.
+- gam.check() [mgcv] -- checks whether each smooth has enough basis
+  functions (k).
+- VarCorr() [glmmTMB] -- extracts the Study.Phase variance, to compute the
+  share of month-to-month variation explained by wind (phase_var()).
+-->
+```
+
+```{r, load and prep data}
+
+# 48 m is kept in master_tier5_byrep.csv on purpose (step6 feeds the
+# USGS comparison / marsh walk), so RQ1 removes it HERE, at load --
+# which also covers the December sensitivity section below, which
+# builds from master_tier5_byrep directly rather than the _clean version.
+master_tier5_byrep <- readr::read_csv(
+  file.path(knitr::opts_knit$get("root.dir"), "master_tier5_byrep.csv")
+) |>
+  filter(is.na(Dist) | Dist != 48)
+stopifnot(!any(master_tier5_byrep$Dist == 48, na.rm = TRUE))
+
+master_tier5_byrep_clean <- master_tier5_byrep %>%
+    filter(Flux > 0, 
+         Dist != 48) %>%
+  mutate(
+    Study.Phase = factor(Study.Phase, levels = paste0("M", 1:12)),
+    Site = factor(Site, levels = c("GiantMarsh", "SanPablo", "Buck'sLanding", "CorteMadera")),
+    Tran = factor(Tran),
+    marsh_edge_type = factor(marsh_edge_type, levels = c("Scarped", "Ramped")),
+    marsh_orientation = as.factor(marsh_orientation), 
+    Month = factor(
+      Month, levels = c("Jul", "Aug", "Sep", "Oct", "Nov", "Dec",
+                                       "Jan", "Feb", "Mar", "Apr", "May", "Jun")), 
+    Phen_Period = factor(
+      Phen_Period,
+      levels = c("Late_Dry\n(Months 1-3)", "Tran\n(Months 4-6)",
+                 "Wet\n(Months 7-9)", "Growth\n(Months 10-12)")
+    ), 
+    Cal_Season = factor(Cal_Season, levels = c("Winter", "Summer")),   # NEW: Lacy et al. (2019) Nov-Feb/Mar-Oct
+      Loc_ID = interaction(Site, Tran, Dist, drop = TRUE)   # NEW: stable per-location ID, reused for AR1 grouping and diagnostics
+  
+)
+
+
+```
+
+```{r, ADDED averaged companion data load and prep}
+# Same filter/factor steps as the byrep load above, applied to
+# master_tier5.csv (the averaged tier) instead.
+
+# 48 m removed at load, same as the byrep side
+master_tier5 <- readr::read_csv(
+  file.path(knitr::opts_knit$get("root.dir"), "master_tier5.csv")
+) |>
+  filter(is.na(Dist) | Dist != 48)
+stopifnot(!any(master_tier5$Dist == 48, na.rm = TRUE))
+
+master_tier5_clean <- master_tier5 %>%
+    filter(Flux > 0, 
+         Dist != 48) %>%
+  mutate(
+    Study.Phase = factor(Study.Phase, levels = paste0("M", 1:12)),
+    Site = factor(Site, levels = c("GiantMarsh", "SanPablo", "Buck'sLanding", "CorteMadera")),
+    Tran = factor(Tran),
+    marsh_edge_type = factor(marsh_edge_type, levels = c("Scarped", "Ramped")),
+    marsh_orientation = as.factor(marsh_orientation), 
+    Month = factor(
+      Month, levels = c("Jul", "Aug", "Sep", "Oct", "Nov", "Dec",
+                                       "Jan", "Feb", "Mar", "Apr", "May", "Jun")), 
+    Phen_Period = factor(
+      Phen_Period,
+      levels = c("Late_Dry\n(Months 1-3)", "Tran\n(Months 4-6)",
+                 "Wet\n(Months 7-9)", "Growth\n(Months 10-12)")
+    ), 
+    Cal_Season = factor(Cal_Season, levels = c("Winter", "Summer")),
+      Loc_ID = interaction(Site, Tran, Dist, drop = TRUE)
+  
+)
+```
+
+```{r, ADDED distance predictors}
+# ADDED: distance predictors for the distance x time GLMMs further down.
+#
+# Distances are log-spaced by design (0.5, 2, 6, 12, 18, 24 m), and
+# deposition away from a marsh edge usually decays roughly as a power law
+# or exponential, so log(Dist) is the natural continuous scale. On the
+# Gamma log link, a log(Dist) slope b means Flux scales as Dist^b, and
+# exp(b * log(2)) is the multiplicative change in Flux per doubling of
+# distance -- that's the number reported in the distance-slope tables.
+#
+# log_Dist_c is centered on the geometric mean of the six design
+# distances (~5.6 m). Without centering, any main effect in a model with
+# a distance interaction (edge type, season, month) would be the effect
+# at log(Dist) = 0, i.e. at 1 m -- not a sampled distance. Centered, those
+# main effects are read at a mid-transect distance instead.
+#
+# Dist_f (6-level factor) is used for the linearity check (is log-linear
+# adequate?) and for DHARMa residual plots by distance.
+
+dist_levels     <- c(0.5, 2, 6, 12, 18, 24)
+log_dist_center <- mean(log(dist_levels))
+
+add_dist_vars <- function(df) {
+  df %>% mutate(
+    log_Dist   = log(Dist),
+    log_Dist_c = log(Dist) - log_dist_center,
+    Dist_f     = factor(Dist, levels = dist_levels)
+  )
+}
+
+master_tier5_byrep_clean <- add_dist_vars(master_tier5_byrep_clean)
+master_tier5_clean       <- add_dist_vars(master_tier5_clean)
+
+# Every Dist in the clean tiers should be one of the six design distances
+if (anyNA(master_tier5_byrep_clean$Dist_f) || anyNA(master_tier5_clean$Dist_f)) {
+  warning("Some Dist values are not in dist_levels: ",
+          paste(setdiff(unique(c(master_tier5_byrep_clean$Dist, master_tier5_clean$Dist)),
+                        dist_levels), collapse = ", "))
+}
+```
+
+```{r, ADDED deployment timing variables}
+# ADDED: deployment-timing variables for the interval-length sensitivity
+# model and the GAM seasonal-smooth model.
+#   Interval_Length -- days the trap was deployed (same calculation as
+#                      the long-interval chunk further down)
+#   Interval_c      -- Interval_Length centered on the median deployment,
+#                      so model intercepts are for a typical-length deployment
+#   mid_date        -- deployment midpoint, the best single date for
+#                      "when" a trap's flux happened
+#   study_day       -- days from the earliest midpoint; the time axis for the GAM
+
+date_cols <- c("Date.placed.in.field", "Date.removed.from.field")
+if (!all(date_cols %in% names(master_tier5_byrep_clean)) ||
+    !all(date_cols %in% names(master_tier5_clean))) {
+  stop("Deployment date columns missing from a clean tier: ",
+       paste(date_cols, collapse = ", "))
+}
+
+add_timing_vars <- function(df) {
+  df %>% mutate(
+    Interval_Length = as.numeric(as.Date(Date.removed.from.field) - as.Date(Date.placed.in.field)),
+    mid_date        = as.Date(Date.placed.in.field) + Interval_Length / 2
+  )
+}
+
+master_tier5_byrep_clean <- add_timing_vars(master_tier5_byrep_clean)
+master_tier5_clean       <- add_timing_vars(master_tier5_clean)
+
+study_start     <- min(c(master_tier5_byrep_clean$mid_date, master_tier5_clean$mid_date), na.rm = TRUE)
+interval_center <- median(master_tier5_byrep_clean$Interval_Length, na.rm = TRUE)
+
+finish_timing_vars <- function(df) {
+  df %>% mutate(
+    Interval_c = Interval_Length - interval_center,
+    study_day  = as.numeric(mid_date - study_start)
+  )
+}
+master_tier5_byrep_clean <- finish_timing_vars(master_tier5_byrep_clean)
+master_tier5_clean       <- finish_timing_vars(master_tier5_clean)
+
+summary(master_tier5_byrep_clean$Interval_Length)
+sum(is.na(master_tier5_byrep_clean$Interval_Length))   # rows the interval/GAM models will drop
+```
+
+```{r, SHARED long-interval and December definitions}
+# SHARED (both tier files): the long-deployment and December definitions
+# that the December sensitivity tables and the sensitivity GLMM refits
+# use in BOTH tiers. Moved here from the December sensitivity chunks so
+# the averaged file doesn't depend on byrep chunks. Deployment dates are
+# the same in both tiers, so these are built once from master_tier5_byrep.
+
+# Replace `Interval_Length` with whatever your actual column is called
+# (Date.removed.from.field - Date.placed.in.field, in days) in the code
+# that built rq_plots.
+
+interval_summary <- master_tier5_byrep %>%
+  mutate(Interval_Length = as.numeric(Date.removed.from.field - Date.placed.in.field))
+
+# Statistical threshold rather than an eyeballed cutoff -- flag anything
+# above Q3 + 1.5*IQR (standard outlier rule), OR anything you and Matt
+# agree is operationally "too long to trust" (e.g., >35 days). Pick one;
+# shown here with both so you can compare.
+q <- quantile(interval_summary$Interval_Length, c(0.25, 0.75), na.rm = TRUE)
+iqr_cutoff <- q[2] + 1.5 * (q[2] - q[1])
+
+long_intervals <- interval_summary %>%
+  filter(Interval_Length > iqr_cutoff | Interval_Length > 35) %>%
+  select(Site, Month, Study.Phase, Date.placed.in.field, Date.removed.from.field, Interval_Length) %>%
+  arrange(Date.removed.from.field)
+
+long_intervals
+
+# ---- Exclusion options ----------------------------------------------------
+# Option A (commented out for now) -- site-specific exclusion, pulled
+# directly from long_intervals. Revisit this once the broad test below
+# is done and you want a more targeted version.
+# exclude_site_phase <- long_intervals %>%
+#   distinct(Site, Study.Phase)
+
+# Option B (active) -- drop December everywhere, for a first-pass sensitivity check
+december_phases <- master_tier5_byrep %>%
+  filter(Month == "Dec") %>%
+  distinct(Study.Phase) %>%
+  pull(Study.Phase)
+december_phases
+
+# Every Site + Study.Phase combo flagged as a long interval
+exclude_site_phase <- long_intervals %>%
+  distinct(Site, Study.Phase)
+exclude_site_phase   # check this before it drives anything below
+
+flagged_phases <- unique(long_intervals$Study.Phase)
+```
+
+```{r, ADDED DHARMa diagnostic helpers}
+# ADDED: one function that runs the same DHARMa checks on every GLMM in
+# this file, so each model gets identical diagnostics instead of whatever
+# subset happened to be typed out in its chunk (edge_time_model_glmm had
+# no plot()/testDispersion() at all; the AR1 models had no DHARMa).
+#
+# run_dharma() does, in order:
+#   1. simulateResiduals() with n_sim = 1000 (up from the 250 default,
+#      so the dispersion and outlier p-values are more stable)
+#   2. plot(sim) -- QQ plot with KS / dispersion / outlier tests, plus
+#      residuals vs. fitted
+#   3. testDispersion() -- printed, with its histogram
+#   4. plotResiduals() against each variable in `predictors` -- checks
+#      that residuals are uniform within each level of each variable
+#      (Levene test + within-group uniformity for factors). Worth
+#      including variables that are NOT in the model too (e.g. Dist_f
+#      for the edge-type models): a pattern there means that variable
+#      is explaining flux the model is ignoring.
+#   5. check_temporal_ac() -- temporal autocorrelation (see below)
+# It returns the DHARMa object invisibly so it can be reused.
+#
+# `data` must be the exact data frame the model was fit on (same rows,
+# same order). The stopifnot() catches the case where glmmTMB silently
+# dropped NA rows, which would misalign residuals and predictors.
+
+library(DHARMa)
+
+rq1_img_dir <- "C:/Users/savan/OneDrive - San Francisco State University/ProjectData/GitHub/DepositionSFB/images/rq_1"
+
+run_dharma <- function(model, data, label,
+                       predictors = c("marsh_edge_type"),
+                       temporal   = TRUE,
+                       time_var   = "Study.Phase",
+                       loc_var    = "Loc_ID",
+                       n_sim      = 1000,
+                       seed       = 123) {
+  stopifnot(nrow(data) == nobs(model))
+  sim <- simulateResiduals(model, n = n_sim, seed = seed)
+
+  cat("\n==================== DHARMa:", label, "====================\n")
+  plot(sim, title = paste("DHARMa residuals:", label))
+  print(testDispersion(sim))
+
+  for (p in predictors) {
+    plotResiduals(sim, form = data[[p]], xlab = p,
+                  main = paste0(label, ": residuals vs. ", p))
+  }
+
+  if (temporal) check_temporal_ac(sim, data, label, time_var, loc_var)
+  invisible(sim)
+}
+
+# check_temporal_ac(): replaces the per-location loop that used to live
+# in the edge time glmm chunk. Two fixes vs. that loop:
+#   - time was passed as unique(time_loc), i.e. in whatever order rows
+#     appear in the data, while recalculateResiduals() returns grouped
+#     residuals in sorted group order. Unless the data happened to be
+#     sorted by phase, residuals and times could be paired up wrong.
+#     Here time is the numeric phase (M1..M12 -> 1..12), sorted, which
+#     matches the grouped-residual order.
+#   - it printed 48 separate test outputs. With 48 tests at alpha = 0.05,
+#     2-3 "significant" locations are expected by chance alone, so the
+#     useful number is how many are significant vs. that expectation.
+#     That's what the summary line (and its binomial test) reports; the
+#     full per-location table is returned invisibly.
+#   - min_times raised from 3 to 5: a Durbin-Watson test on 3-4 points
+#     has essentially no power.
+# It also runs one pooled test on residuals aggregated across all
+# locations by phase. That's the check for leftover month-to-month
+# pattern the fixed effects didn't capture -- most informative for the
+# Cal_Season / Phen_Period models, which don't have a 12-level time term
+# absorbing it.
+
+check_temporal_ac <- function(sim, data, label,
+                              time_var = "Study.Phase", loc_var = "Loc_ID",
+                              min_times = 5) {
+  time_num <- as.integer(data[[time_var]])   # factor codes, in study order
+  loc      <- as.character(data[[loc_var]])
+
+  per_loc <- lapply(unique(loc), function(l) {
+    idx   <- loc == l
+    times <- sort(unique(time_num[idx]))
+    if (length(times) < min_times) return(NULL)
+    sim_l <- recalculateResiduals(sim, group = time_num, sel = idx)
+    tt    <- testTemporalAutocorrelation(sim_l, time = times, plot = FALSE)
+    data.frame(Loc_ID = l, n_times = length(times),
+               DW = unname(tt$statistic), p = tt$p.value)
+  })
+  per_loc <- dplyr::bind_rows(per_loc)
+
+  n_tested <- nrow(per_loc)
+  n_sig    <- sum(per_loc$p < 0.05)
+  binom_p  <- binom.test(n_sig, n_tested, p = 0.05, alternative = "greater")$p.value
+
+  cat("\n--- Temporal autocorrelation:", label, "---\n")
+  cat(sprintf(paste0("Per-location Durbin-Watson tests: %d of %d locations p < 0.05 ",
+                     "(%.1f expected by chance); binomial test for excess: p = %.3f\n"),
+              n_sig, n_tested, 0.05 * n_tested, binom_p))
+  cat(sprintf("Median DW across locations: %.2f (2 = none; < 2 = positive autocorrelation)\n",
+              median(per_loc$DW)))
+
+  cat("Pooled across locations (residuals aggregated by phase):\n")
+  sim_pooled <- recalculateResiduals(sim, group = time_num)
+  print(testTemporalAutocorrelation(sim_pooled, time = sort(unique(time_num))))
+
+  invisible(per_loc)
+}
+
+# emmeans()/emtrends() on glmmTMB name their CI columns asymp.LCL /
+# asymp.UCL and the back-transformed estimate "response"; this renames
+# them to the lmer-style names the plotting code below uses.
+std_ci_names <- function(df) {
+  names(df)[names(df) %in% c("asymp.LCL", "lower.CL")] <- "lower.CL"
+  names(df)[names(df) %in% c("asymp.UCL", "upper.CL")] <- "upper.CL"
+  names(df)[names(df) == "response"] <- "emmean"
+  df
+}
+```
+
+## Flux over calendar date
+
+```{r, ADDED averaged companion for rq1_time_trend and rq1_time}
+
+summary_df_avg <- master_tier5_clean %>%
+  group_by(Site, Tran, Month) %>%
+  summarise(median_flux = median(Flux, na.rm = TRUE),
+            q25 = quantile(Flux, 0.25, na.rm = TRUE),
+            q75 = quantile(Flux, 0.75, na.rm = TRUE),
+            .groups = "drop")
+
+rq1_time_trend_avg = ggplot(summary_df_avg, aes(x = Month, y = median_flux, color = Tran, fill = Tran)) +
+  geom_ribbon(aes(ymin = q25, ymax = q75), alpha = 0.15, color = NA) +
+  geom_line(linewidth = 0.8) +
+  geom_point(size = 1.8) +
+  facet_wrap(~Site, scales = "free_y") +
+  scale_color_manual(values = transect_colors) +
+  scale_fill_manual(values = transect_colors) +
+  theme_minimal(base_size = 15) +
+  labs(x = "Date Removed from Field", y = expression(Median~Flux~(g/m^2/day)),
+       color = "Transect", fill = "Transect") +
+  theme(legend.position = "bottom",
+        strip.text = element_text(face = "bold"), 
+        axis.text.x = element_text(angle = 45, hjust = 1, size = 18))
+rq1_time_trend_avg
+
+ggsave(file.path(knitr::opts_knit$get("root.dir"), "rq1_time_trend_avg.png"),
+       plot = rq1_time_trend_avg,
+       width = 13.33,
+       height = 7.5,
+       dpi = 300,
+       limitsize = FALSE)
+
+rq1_time_avg = ggplot(master_tier5_clean, aes(x = Month, y = Flux, color = Tran, fill = Tran)) +
+  geom_boxplot(aes(group = interaction(Month, Tran)), 
+               alpha = 0.3, outlier.shape = NA, 
+               position = position_dodge(width = 6)) +
+  geom_jitter(position = position_jitterdodge(jitter.width = 1.5, dodge.width = 6),
+              size = 0.8, alpha = 0.3) +
+  facet_wrap(~Site, scales = "free_y") +
+  scale_color_manual(values = c(values = transect_colors)) +
+  scale_fill_manual(values = c(values = transect_colors)) +
+  theme_minimal(base_size = 15) +
+  labs(x = "Date Removed from Field", y = expression(Flux~(g/m^2/day)),
+       color = "Transect", fill = "Transect") +
+  theme(legend.position = "bottom",
+        strip.text = element_text(face = "bold"),
+        axis.text.x = element_text(angle = 45, hjust = 1))
+rq1_time_avg
+
+ggsave(file.path(knitr::opts_knit$get("root.dir"), "rq1_time_avg.png"),
+       plot = rq1_time_avg,
+       width = 13.33,
+       height = 7.5,
+       dpi = 300,
+       limitsize = FALSE)
+
+```
+
+## Flux over Study.Phase
+
+```{r, ADDED averaged companion for log_month}
+
+log_month_avg = ggplot(master_tier5_clean %>% mutate(Month = factor(trimws(Month), 
+levels = c("Jul", "Aug", "Sep", "Oct", "Nov", "Dec", "Jan", "Feb", "Mar", "Apr", "May", "Jun"))), aes(x = as.factor(Month), y = log(Flux), color = Site)) +
+  geom_sina(alpha = 0.6, size = 2) +
+  labs(x = "Month of Study", y = "Log Flux (g/cm^2/day)",
+       colour = "Site") +
+  scale_color_manual(values = c(site_colors)) + 
+  theme_classic(base_size = 18) +  
+  theme(axis.text.x = element_text(angle = 45, hjust = 1, size = 18))
+log_month_avg 
+
+ggsave("C:\\Users\\savan\\OneDrive - San Francisco State University\\ProjectData\\GitHub\\DepositionSFB\\images\\rq_1\\log_month_avg.png", 
+       plot = log_month_avg, 
+       width = 8, 
+       height = 5, 
+       dpi = 300,
+       limitsize = FALSE)
+
+```
+
+```{r, ADDED averaged companions for the wrapmonth pages}
+# Same three paginated loops as above, on master_tier5_clean.
+
+for (i in seq_along(month_levels)) {
+  wrapmonth_dist_page_avg = ggplot(master_tier5_clean, aes(x = Dist, y = log(Flux), color = Site)) +
+    facet_wrap_paginate(~ Month, ncol = 1, nrow = 1, page = i) +
+    geom_point(alpha = 0.4) +
+    geom_sina(alpha = 0.6, size = 2) +
+    labs(x = "Distance", y = "Log Flux (g/cm^2/day)",
+         colour = "Site") +
+    scale_color_manual(values = c(site_colors)) +
+    theme_classic(base_size = 18) +
+    theme(axis.text.x = element_text(angle = 45, hjust = 1, size = 18))
+  
+  print(wrapmonth_dist_page_avg)
+  
+  ggsave(paste0("C:\\Users\\savan\\OneDrive - San Francisco State University\\ProjectData\\GitHub\\DepositionSFB\\images\\rq_1\\wrapmonth_dist_", month_levels[i], "_avg.png"),
+         plot = wrapmonth_dist_page_avg,
+         width = 10,
+         height = 7,
+         dpi = 300,
+         limitsize = FALSE)
+}
+
+
+for (i in seq_along(month_levels)) {
+  wrapmonth_dist_violin_page_avg = master_tier5_clean %>%
+    mutate(
+      Month = factor(trimws(Month), 
+                     levels = c("Jul", "Aug", "Sep", "Oct", "Nov", "Dec",
+                                "Jan", "Feb", "Mar", "Apr", "May", "Jun")),
+      Dist_factor = factor(Dist, levels = c(0.5, 2, 6, 12, 18, 24))
+    ) %>%
+    ggplot(aes(x = Dist_factor, y = log(Flux), fill = Site, color = Site)) +
+    geom_violin(alpha = 0.4, position = position_dodge(width = 0.8), scale = "width") +
+    geom_jitter(size = 1, alpha = 0.3, position = position_jitterdodge(jitter.width = 0.15, dodge.width = 0.8)) +
+    facet_wrap_paginate(~ Month, ncol = 1, nrow = 1, page = i) +
+    labs(x = "Distance", y = "Log Flux (g/cm^2/day)",
+         fill = "Site", color = "Site") +
+    scale_fill_manual(values = site_colors) +
+    scale_color_manual(values = site_colors) +
+    theme_classic(base_size = 18) +
+    theme(axis.text.x = element_text(angle = 45, hjust = 1, size = 18))
+  
+  print(wrapmonth_dist_violin_page_avg)
+  
+  ggsave(paste0("C:\\Users\\savan\\OneDrive - San Francisco State University\\ProjectData\\GitHub\\DepositionSFB\\images\\rq_1\\wrapmonth_dist_violin_", 
+                c("Jul","Aug","Sep","Oct","Nov","Dec","Jan","Feb","Mar","Apr","May","Jun")[i], "_avg.png"),
+         plot = wrapmonth_dist_violin_page_avg,
+         width = 10, height = 7, dpi = 300, limitsize = FALSE)
+}
+
+
+for (i in seq_along(month_levels)) {
+  wrapmonth_dist_boxplot_page_avg = master_tier5_clean %>%
+    mutate(
+      Month = factor(trimws(Month), 
+                     levels = c("Jul", "Aug", "Sep", "Oct", "Nov", "Dec",
+                                "Jan", "Feb", "Mar", "Apr", "May", "Jun")),
+      Dist_factor = factor(Dist, levels = c(0.5, 2, 6, 12, 18, 24))
+    ) %>%
+    ggplot(aes(x = Dist_factor, y = log(Flux), fill = Site, color = Site)) +
+    geom_boxplot(alpha = 0.4, outlier.shape = NA, position = position_dodge(width = 0.8)) +
+    geom_jitter(size = 1, alpha = 0.3, position = position_jitterdodge(jitter.width = 0.15, dodge.width = 0.8)) +
+    facet_wrap_paginate(~ Month, ncol = 1, nrow = 1, page = i) +
+    labs(x = "Distance", y = "Log Flux (g/cm^2/day)",
+         fill = "Site", color = "Site") +
+    scale_fill_manual(values = site_colors) +
+    scale_color_manual(values = site_colors) +
+    theme_classic(base_size = 18) +
+    theme(axis.text.x = element_text(angle = 45, hjust = 1, size = 18))
+  
+  print(wrapmonth_dist_boxplot_page_avg)
+  
+  ggsave(paste0("C:\\Users\\savan\\OneDrive - San Francisco State University\\ProjectData\\GitHub\\DepositionSFB\\images\\rq_1\\wrapmonth_dist_boxplot_", 
+                c("Jul","Aug","Sep","Oct","Nov","Dec","Jan","Feb","Mar","Apr","May","Jun")[i], "_avg.png"),
+         plot = wrapmonth_dist_boxplot_page_avg,
+         width = 10, height = 7, dpi = 300, limitsize = FALSE)
+}
+```
+
+```{r, ADDED averaged companion for mean_month_site}
+
+total_summary_avg <- master_tier5_clean %>%
+  group_by(Site, Month) %>%
+  summarise(
+    mean_flux = mean(Flux, na.rm = TRUE),
+    se_flux = sd(Flux, na.rm = TRUE) / sqrt(n()),
+    .groups = "drop"
+  )
+
+mean_month_site_avg = ggplot(total_summary_avg, aes(x = Month, y = mean_flux, group = Site, color = Site)) +
+  geom_point(size = 3) +
+  geom_errorbar(aes(ymin = mean_flux - se_flux, ymax = mean_flux + se_flux), width = 0.2) +
+  facet_wrap(~ Site, scales = "free_y") +
+  scale_color_manual(values = c(site_colors)) + 
+  theme_minimal() +
+  labs(x = "Majority Month Deployed", y = expression(Mean~Flux~(g/m^2/day))) + 
+  theme(axis.text.x = element_text(angle = 45, hjust = 1))
+mean_month_site_avg
+
+ggsave("C:\\Users\\savan\\OneDrive - San Francisco State University\\ProjectData\\GitHub\\DepositionSFB\\images\\rq_1\\mean_month_site_avg.png", 
+       plot = mean_month_site_avg, 
+       width = 8, 
+       height = 5, 
+       dpi = 300,
+       limitsize = FALSE)
+```
+
+```{r, ADDED averaged companion for Study Phase by marsh group and transect}
+
+phase_compare_avg <- master_tier5_clean %>%
+  mutate(
+    Marsh_Group = case_when(
+      Site %in% c("SanPablo", "GiantMarsh") ~ "San Pablo + Giant Marsh",
+      Site %in% c("Buck'sLanding", "CorteMadera") ~ "Buck's Landing + Corte Madera",
+      TRUE ~ NA_character_
+    )
+  ) %>%
+  filter(!is.na(Marsh_Group)) %>%
+  group_by(Marsh_Group, Site, Tran, Month) %>%
+  summarise(
+    mean_flux = mean(Flux, na.rm = TRUE),
+    se_flux = sd(Flux, na.rm = TRUE) / sqrt(n()),
+    n = n(),
+    .groups = "drop"
+  )
+
+phase_compare_grouped_avg <- phase_compare_avg %>%
+  group_by(Marsh_Group, Month) %>%
+  summarise(
+    mean_flux = weighted.mean(mean_flux, n, na.rm = TRUE),
+    se_flux = sqrt(sum(se_flux^2 * n^2, na.rm = TRUE)) / sum(n),
+    .groups = "drop"
+  )
+
+ggplot(phase_compare_grouped_avg, aes(x = Month, y = mean_flux, color = Marsh_Group, group = Marsh_Group)) +
+  geom_point(size = 3) +
+  geom_errorbar(aes(ymin = mean_flux - se_flux, ymax = mean_flux + se_flux), width = 0.2) +
+  theme_minimal() +
+  labs(x = "Majority Month Deployed", y = expression(Mean~Flux~(g/m^2/day)), color = "Marsh Group")
+
+mean_month_avg = ggplot(phase_compare_avg, aes(x = Month, y = mean_flux, color = Tran, group = Tran)) +
+  geom_point(size = 3) +
+  scale_color_manual(values = c(transect_colors)) +
+  geom_errorbar(aes(ymin = mean_flux - se_flux, ymax = mean_flux + se_flux), width = 0.2) +
+  facet_wrap(~ Site, scales = "free_y") +
+  theme_minimal() +
+  labs(x = "Month Majority Deployment", y = expression(Mean~Flux~(g/m^2/day)), color = "Transect") + 
+  theme(axis.text.x = element_text(angle = 45, hjust = 1))
+mean_month_avg
+
+ggsave("C:\\Users\\savan\\OneDrive - San Francisco State University\\ProjectData\\GitHub\\DepositionSFB\\images\\rq_1\\mean_month_avg.png", 
+       plot = mean_month_avg, 
+       width = 8, 
+       height = 5, 
+       dpi = 300,
+       limitsize = FALSE)
+
+```
+
+```{r, ADDED averaged companion for Study Phase by distance}
+
+transect_summary2_avg <- master_tier5_clean %>%
+  mutate(Flux_zeroed = ifelse(Flux < 0, 0, Flux)) %>%
+  filter(Dist %in% c(0.5, 2, 6, 12, 18, 24)) %>%
+  mutate(Dist = factor(Dist, levels = c(0.5, 2, 6, 12, 18, 24))) %>%
+  group_by(Dist, Site, Month) %>%
+  summarise(
+    mean_flux = mean(Flux_zeroed, na.rm = TRUE),
+    se_flux = sd(Flux_zeroed, na.rm = TRUE) / sqrt(n()),
+    n = n(),
+    .groups = "drop"
+  )
+
+dist_month_avg <- ggplot(transect_summary2_avg, aes(x = Month, y = mean_flux, color = Site, group = Site)) +
+  geom_point(size = 3) +
+  geom_errorbar(aes(ymin = pmax(mean_flux - se_flux, 0.001), ymax = mean_flux + se_flux),
+                width = 0.2, linewidth = 0.5) +
+  facet_wrap(~ Dist, scales = "free_y", ncol = 2) +
+  scale_y_log10() +
+  scale_color_manual(values = c(site_colors)) + 
+  theme_minimal(base_size = 14) +
+  theme(axis.text.x = element_text(angle = 45, hjust = 1),
+        strip.text = element_text(size = 13, face = "bold"),
+        legend.position = "bottom") +
+  labs(
+    title = str_wrap("Mean Sediment Flux Across Study Phase by Distance from Marsh Edge (Averaged)", width = 40),
+    subtitle = "Negative flux values set to zero",
+    x = "Majority Month Deployed", y = expression(Mean~Flux~(g/m^2/day)), color = "Site"
+  )
+dist_month_avg
+
+ggsave("C:\\Users\\savan\\OneDrive - San Francisco State University\\ProjectData\\GitHub\\DepositionSFB\\images\\rq_1\\dist_month_avg.png",
+       plot = dist_month_avg,
+       width = 16,
+       height = 14,
+       dpi = 300,
+       limitsize = FALSE)
+
+dist_plot_mean_avg <- ggplot(transect_summary2_avg, aes(x = Dist, y = mean_flux, color = Month, group = Site)) +
+  geom_point(size = 3) +
+  geom_errorbar(aes(ymin = pmax(mean_flux - se_flux, 0.001), ymax = mean_flux + se_flux),
+                width = 0.2, linewidth = 0.5) +
+  facet_wrap(~ Site, scales = "free_y", ncol = 2) +
+  scale_y_log10() +
+  scale_color_manual(values = c(site_colors)) + 
+  theme_minimal(base_size = 14) +
+  theme(axis.text.x = element_text(angle = 45, hjust = 1),
+        strip.text = element_text(size = 13, face = "bold"),
+        legend.position = "bottom") +
+  labs(
+    title = str_wrap("Mean Sediment Flux Across Study Phase by Distance from Marsh Edge (Averaged)", width = 40),
+    subtitle = "Negative flux values set to zero",
+    x = "Distance from Marsh Edge (m)", y = expression(Mean~Flux~(g/m^2/day)), color = "Site"
+  )
+dist_plot_mean_avg
+
+ggsave("C:\\Users\\savan\\OneDrive - San Francisco State University\\ProjectData\\GitHub\\DepositionSFB\\images\\rq_1\\dist_plot_mean_avg.png",
+       plot = dist_plot_mean_avg,
+       width = 16,
+       height = 14,
+       dpi = 300,
+       limitsize = FALSE)
+
+
+dist_plot_simple_avg <- ggplot(transect_summary2_avg, aes(x = Dist, y = mean_flux, color = Site)) +
+  geom_point(size = 3) +
+  geom_errorbar(aes(ymin = pmax(mean_flux - se_flux, 0.001), ymax = mean_flux + se_flux),
+                width = 0.2, linewidth = 0.5) +
+  facet_wrap(~ Site, scales = "free_y", ncol = 2) +
+  scale_y_log10() +
+  scale_color_manual(values = c(site_colors)) + 
+  theme_minimal(base_size = 14) +
+  theme(axis.text.x = element_text(angle = 45, hjust = 1),
+        strip.text = element_text(size = 13, face = "bold"),
+        legend.position = "bottom") +
+  labs(
+    title = str_wrap("Mean Sediment Flux Across Study Phase by Distance from Marsh Edge (Averaged)", width = 40),
+    subtitle = "Negative flux values set to zero",
+    x = "Distance from Marsh Edge (m)", y = expression(Mean~Flux~(g/m^2/day)), color = "Site"
+  )
+dist_plot_simple_avg
+
+ggsave("C:\\Users\\savan\\OneDrive - San Francisco State University\\ProjectData\\GitHub\\DepositionSFB\\images\\rq_1\\dist_plot_simple_avg.png",
+       plot = dist_plot_simple_avg,
+       width = 16,
+       height = 14,
+       dpi = 300,
+       limitsize = FALSE)
+
+transect_summary_no_giant_avg <- master_tier5_clean %>%
+  mutate(Flux_zeroed = ifelse(Flux < 0, 0, Flux)) %>%
+  filter(Site != "GiantMarsh", Dist %in% c(0.5, 2, 6, 12, 18, 24)) %>%
+  mutate(Dist = factor(Dist, levels = c(0.5, 2, 6, 12, 18, 24))) %>%
+  group_by(Dist, Site, Month) %>%
+  summarise(
+    mean_flux = mean(Flux_zeroed, na.rm = TRUE),
+    se_flux = sd(Flux_zeroed, na.rm = TRUE) / sqrt(n()),
+    n = n(),
+    .groups = "drop"
+  )
+
+dist_plot_no_giant_avg <- ggplot(transect_summary_no_giant_avg, aes(x = Month, y = mean_flux, color = Site, group = Site)) +
+  geom_point(size = 3) +
+  geom_errorbar(aes(ymin = mean_flux - se_flux, ymax = mean_flux + se_flux), width = 0.2, linewidth = 0.5) +
+  facet_wrap(~ Dist, scales = "free_y", ncol = 2) +
+  scale_color_manual(values = c(site_colors)) + 
+  theme_minimal(base_size = 14) +
+  theme(axis.text.x = element_text(angle = 45, hjust = 1),
+        strip.text = element_text(size = 13, face = "bold"),
+        legend.position = "bottom") +
+  labs(
+    title = str_wrap("Mean Sediment Flux Across Study Phase by Distance from Marsh Edge (Averaged)", width = 40),
+    subtitle = "GiantMarsh removed; negative flux values set to zero",
+    x = "Majority Month Deployed", y = expression(Mean~Flux~(g/m^2/day)), color = "Site"
+  )
+dist_plot_no_giant_avg
+
+ggsave("C:\\Users\\savan\\OneDrive - San Francisco State University\\ProjectData\\GitHub\\DepositionSFB\\images\\rq_1\\dist_plot_no_giant_avg.png",
+       plot = dist_plot_no_giant_avg,
+       width = 16,
+       height = 14,
+       dpi = 300,
+       limitsize = FALSE)
+
+```
+
+## Phenological period
+
+```{r, ADDED averaged companion for phen period plots}
+
+phen_summary_avg <- master_tier5_clean %>%
+  mutate(Flux_zeroed = ifelse(Flux < 0, 0.001, Flux)) %>%
+  group_by(Phen_Period, Site) %>%
+  summarise(
+    mean_flux = mean(Flux_zeroed, na.rm = TRUE),
+    se_flux = sd(Flux_zeroed, na.rm = TRUE) / sqrt(n()),
+    n = n(),
+    .groups = "drop"
+  )
+
+ggplot(phen_summary_avg, aes(x = Phen_Period, y = mean_flux, color = Site, group = Site)) +
+  geom_line(linewidth = 1) +
+  geom_point(size = 3) +
+  geom_errorbar(aes(ymin = pmax(mean_flux - se_flux, 0.001), ymax = mean_flux + se_flux), width = 0.2) +
+  scale_y_log10() +
+  theme_minimal(base_size = 14) +
+  labs(title = "Mean Flux by Phenological Period (Averaged)", subtitle = "Log-scaled y-axis",
+       x = "Phenological Period", y = expression(Mean~Flux~(g/m^2/day)), color = "Site")
+
+phen_summary_no_giant_avg <- master_tier5_clean %>%
+  filter(Site != "GiantMarsh") %>%
+  mutate(Flux_zeroed = ifelse(Flux < 0, 0, Flux)) %>%
+  group_by(Phen_Period, Site) %>%
+  summarise(
+    mean_flux = mean(Flux_zeroed, na.rm = TRUE),
+    se_flux = sd(Flux_zeroed, na.rm = TRUE) / sqrt(n()),
+    n = n(),
+    .groups = "drop"
+  )
+
+ggplot(phen_summary_no_giant_avg, aes(x = Phen_Period, y = mean_flux, color = Site, group = Site)) +
+  geom_line(linewidth = 1) +
+  geom_point(size = 3) +
+  geom_errorbar(aes(ymin = mean_flux - se_flux, ymax = mean_flux + se_flux), width = 0.2) +
+  theme_minimal(base_size = 14) +
+  labs(title = "Mean Flux by Phenological Period (Averaged)", subtitle = "GiantMarsh removed",
+       x = "Phenological Period", y = expression(Mean~Flux~(g/m^2/day)), color = "Site")
+
+ggplot(phen_summary_avg, aes(x = Phen_Period, y = mean_flux, group = 1)) +
+  geom_line(linewidth = 1) +
+  geom_point(size = 3) +
+  geom_errorbar(aes(ymin = mean_flux - se_flux, ymax = mean_flux + se_flux), width = 0.2) +
+  facet_wrap(~ Site, scales = "free_y") +
+  theme_minimal(base_size = 14) +
+  labs(title = "Mean Flux by Phenological Period (Averaged)", x = "Phenological Period", y = expression(Mean~Flux~(g/m^2/day)))
+```
+
+```{r, ADDED averaged companion for edge_time_model}
+edge_time_model_avg <- lmer(
+  Flux ~ marsh_edge_type * Month + (1|Site) + (1|Loc_ID),
+  data = master_tier5_clean
+)
+summary(edge_time_model_avg)
+anova(edge_time_model_avg)
+```
+
+```{r, ADDED averaged companion for edge time glmm and AR1}
+
+edge_time_model_glmm_avg <- glmmTMB(
+  Flux ~ marsh_edge_type * Month + (1|Site) + (1|Loc_ID),
+  family = Gamma(link = "log"),
+  data = master_tier5_clean
+)
+summary(edge_time_model_glmm_avg)
+Anova(edge_time_model_glmm_avg, type = "II")
+
+sim_res_edge_time_avg <- run_dharma(
+  edge_time_model_glmm_avg, master_tier5_clean,
+  label      = "edge_time_model_glmm (averaged)",
+  predictors = c("marsh_edge_type", "Month", "Dist_f")
+)
+
+master_tier5_clean_ar <- master_tier5_clean %>%
+  mutate(Loc_ID = interaction(Site, Tran, Dist, drop = TRUE))
+
+edge_time_model_glmm_ar1_avg <- glmmTMB(
+  Flux ~ marsh_edge_type * Month + ar1(Study.Phase + 0 | Loc_ID),
+  family = Gamma(link = "log"),
+  data = master_tier5_clean_ar
+)
+summary(edge_time_model_glmm_ar1_avg)
+
+AIC(edge_time_model_glmm_avg, edge_time_model_glmm_ar1_avg)
+
+sim_res_edge_time_ar1_avg <- run_dharma(
+  edge_time_model_glmm_ar1_avg, master_tier5_clean_ar,
+  label      = "edge_time_model_glmm_ar1 (averaged)",
+  predictors = c("marsh_edge_type", "Month", "Dist_f"),
+  temporal   = FALSE
+)
+
+```
+
+```{r, ADDED averaged companion for the emm plot}
+
+emm_avg_obj <- emmeans(edge_time_model_glmm_avg, ~ marsh_edge_type * Month, type = "response")
+emm_edge_time_avg_df <- as.data.frame(emm_avg_obj) %>%
+  rename(emmean = response, lower.CL = asymp.LCL, upper.CL = asymp.UCL)
+
+emm_avg = ggplot(emm_edge_time_avg_df, aes(x = Month, y = emmean, color = marsh_edge_type, group = marsh_edge_type)) +
+  geom_point(size = 3, position = position_dodge(0.3)) +
+  geom_errorbar(aes(ymin = lower.CL, ymax = upper.CL), width = 0.2, position = position_dodge(0.3)) +
+  labs(
+    title = str_wrap("Estimated Marginal Means of Flux by Marsh Edge Type Across Month within 2025-2026 (Averaged)", width = 40),
+    y = "Estimated Flux", x = "Majority Month Deployed", color = "Edge Type"
+  ) +
+  theme_bw() +
+  scale_color_manual(values = marsh_edge_colors) + 
+ theme(axis.text.x = element_text(angle = 45, hjust = 1))
+emm_avg 
+
+ggsave("C:\\Users\\savan\\OneDrive - San Francisco State University\\ProjectData\\GitHub\\DepositionSFB\\images\\rq_1\\emm_avg.png", 
+       plot = emm_avg,
+       width = 8, 
+       height = 5, 
+       dpi = 300,
+       limitsize = FALSE)
+
+
+```
+
+```{r, ADDED averaged companion for edge_time_model_noGM}
+
+master_tier5_clean_noGM <- master_tier5_clean %>%
+  filter(Site != "GiantMarsh")
+
+edge_time_model_noGM_avg <- lmer(
+  Flux ~ marsh_edge_type * Month + (1|Site) + (1|Loc_ID),
+  data = master_tier5_clean_noGM
+)
+
+summary(edge_time_model_noGM_avg)
+anova(edge_time_model_noGM_avg)
+
+emm_edge_time_noGM_avg <- emmeans(edge_time_model_noGM_avg, ~ marsh_edge_type * Month)
+emm_edge_time_noGM_avg_df <- as.data.frame(emm_edge_time_noGM_avg)
+
+emm_noGM_avg = ggplot(emm_edge_time_noGM_avg_df, aes(x = Month, y = emmean, color = marsh_edge_type, group = marsh_edge_type)) +
+  geom_point(size = 3, position = position_dodge(0.3)) +
+  geom_errorbar(aes(ymin = lower.CL, ymax = upper.CL), width = 0.2, position = position_dodge(0.3)) +
+  labs(
+    title = stringr::str_wrap("Estimated Marginal Means of Flux by Marsh Edge Type Across Study Phase (Excluding Giant Marsh) (Averaged)"), width = 50,
+    y = "Estimated Flux", x = "Majority Month Deployed", color = "Edge Type"
+  ) +
+  theme_bw() +
+  scale_color_manual(values = marsh_edge_colors) +  
+  theme(axis.text.x = element_text(angle = 45, hjust = 1))
+emm_noGM_avg
+
+ggsave("C:\\Users\\savan\\OneDrive - San Francisco State University\\ProjectData\\GitHub\\DepositionSFB\\images\\rq_1\\emm_noGM_avg.png", 
+       plot = emm_noGM_avg, 
+       width = 8, 
+       height = 5, 
+       dpi = 300,
+       limitsize = FALSE)
+```
+
+## Temporal grain comparison: Month vs. Phen_Period vs. Cal_Season
+
+The models above use `Month` (calendar month) as the temporal grouping. `Phen_Period` (existing, `Study.Phase`-based, 4 levels) and `Cal_Season` (new, Lacy et al. 2019, 2 levels) are both alternative temporal groupings of the same data -- run here as separate, explicitly-labeled models, not as replacements for the Month-based model above. Comparing all three tells you whether the marsh_edge_type x time pattern is robust to how "time" gets grouped, or whether it's sensitive to that choice -- itself a useful thing to know before deciding which grain to lead with in the defense.
+
+```{r, ADDED averaged companion for edge_phenperiod_model}
+edge_phenperiod_model_avg <- lmer(
+  Flux ~ marsh_edge_type * Phen_Period + (1|Site) + (1|Loc_ID),
+  data = master_tier5_clean
+)
+summary(edge_phenperiod_model_avg)
+anova(edge_phenperiod_model_avg)
+```
+
+```{r, ADDED averaged companion for edge phen period glmm}
+edge_phenperiod_model_glmm_avg <- glmmTMB(
+  Flux ~ marsh_edge_type * Phen_Period + (1|Site) + (1|Loc_ID),
+  family = Gamma(link = "log"),
+  data = master_tier5_clean
+)
+summary(edge_phenperiod_model_glmm_avg)
+Anova(edge_phenperiod_model_glmm_avg, type = "II")
+
+sim_res_edge_phenperiod_avg <- run_dharma(
+  edge_phenperiod_model_glmm_avg, master_tier5_clean,
+  label      = "edge_phenperiod_model_glmm (averaged)",
+  predictors = c("marsh_edge_type", "Phen_Period", "Dist_f")
+)
+
+AIC(edge_time_model_glmm_avg, edge_phenperiod_model_glmm_avg)
+```
+
+```{r, ADDED averaged companion for edge phen period emm plot}
+emm_edge_phenperiod_avg <- emmeans(edge_phenperiod_model_glmm_avg, ~ marsh_edge_type * Phen_Period, type = "response")
+emm_edge_phenperiod_avg_df <- as.data.frame(emm_edge_phenperiod_avg) %>%
+  rename(emmean = response, lower.CL = asymp.LCL, upper.CL = asymp.UCL)
+
+emm_phenperiod_avg = ggplot(emm_edge_phenperiod_avg_df, aes(x = Phen_Period, y = emmean, color = marsh_edge_type, group = marsh_edge_type)) +
+  geom_point(size = 3, position = position_dodge(0.3)) +
+  geom_errorbar(aes(ymin = lower.CL, ymax = upper.CL), width = 0.2, position = position_dodge(0.3)) +
+  labs(
+    title = str_wrap("Estimated Marginal Means of Flux by Marsh Edge Type Across Phenological Period (Averaged)", width = 40),
+    y = "Estimated Flux", x = "Phenological Period", color = "Edge Type"
+  ) +
+  theme_bw() +
+  scale_color_manual(values = marsh_edge_colors) +
+  theme(axis.text.x = element_text(angle = 45, hjust = 1))
+emm_phenperiod_avg
+
+ggsave("C:\\Users\\savan\\OneDrive - San Francisco State University\\ProjectData\\GitHub\\DepositionSFB\\images\\rq_1\\emm_phenperiod_avg.png",
+       plot = emm_phenperiod_avg,
+       width = 8, height = 5, dpi = 300, limitsize = FALSE)
+```
+
+```{r, ADDED averaged companion for edge_season_model}
+edge_season_model_avg <- lmer(
+  Flux ~ marsh_edge_type * Cal_Season + (1|Site) + (1|Loc_ID),
+  data = master_tier5_clean
+)
+summary(edge_season_model_avg)
+anova(edge_season_model_avg)
+```
+
+```{r, ADDED averaged companion for edge season glmm}
+edge_season_model_glmm_avg <- glmmTMB(
+  Flux ~ marsh_edge_type * Cal_Season + (1|Site) + (1|Loc_ID),
+  family = Gamma(link = "log"),
+  data = master_tier5_clean
+)
+summary(edge_season_model_glmm_avg)
+Anova(edge_season_model_glmm_avg, type = "II")
+
+sim_res_edge_season_avg <- run_dharma(
+  edge_season_model_glmm_avg, master_tier5_clean,
+  label      = "edge_season_model_glmm (averaged)",
+  predictors = c("marsh_edge_type", "Cal_Season", "Dist_f")
+)
+
+AIC(edge_time_model_glmm_avg, edge_season_model_glmm_avg)
+```
+
+```{r, ADDED averaged companion for edge season emm plot}
+emm_edge_season_avg <- emmeans(edge_season_model_glmm_avg, ~ marsh_edge_type * Cal_Season, type = "response")
+emm_edge_season_avg_df <- as.data.frame(emm_edge_season_avg) %>%
+  rename(emmean = response, lower.CL = asymp.LCL, upper.CL = asymp.UCL)
+
+emm_season_avg = ggplot(emm_edge_season_avg_df, aes(x = Cal_Season, y = emmean, color = marsh_edge_type, group = marsh_edge_type)) +
+  geom_point(size = 3, position = position_dodge(0.3)) +
+  geom_errorbar(aes(ymin = lower.CL, ymax = upper.CL), width = 0.2, position = position_dodge(0.3)) +
+  labs(
+    title = str_wrap("Estimated Marginal Means of Flux by Marsh Edge Type Across Cal_Season (Lacy et al. 2019) (Averaged)", width = 40),
+    y = "Estimated Flux", x = "Cal_Season", color = "Edge Type"
+  ) +
+  theme_bw() +
+  scale_color_manual(values = marsh_edge_colors) +
+  theme(axis.text.x = element_text(angle = 45, hjust = 1))
+emm_season_avg
+
+ggsave("C:\\Users\\savan\\OneDrive - San Francisco State University\\ProjectData\\GitHub\\DepositionSFB\\images\\rq_1\\emm_season_avg.png",
+       plot = emm_season_avg,
+       width = 8, height = 5, dpi = 300, limitsize = FALSE)
+```
+
+**On the AIC comparisons above:** `edge_time_model_glmm`, `edge_phenperiod_model_glmm`, and `edge_season_model_glmm` are all fit on the same `master_tier5_byrep_clean` (same N), so unlike the averaged-vs-replicate comparison earlier in this project, `AIC()` across these three *is* a valid comparison -- it tells you which temporal grain the data actually supports best, not an artifact of differing sample size. A lower AIC for `Cal_Season` over `Month`, for instance, would be a legitimate argument for leading with the coarser, literature-backed grouping in the defense rather than the finer one.
+
+## Distance x time GLMMs (ADDED)
+
+The edge-type models above ask whether the *kind* of edge changes flux over time. The models in this section ask the complementary question: does flux decline with distance from the marsh edge, and does that decline get steeper or shallower across the year? Distance is fit as continuous `log_Dist_c` (see the distance-predictors chunk near the top), with a factor-distance version alongside as a linearity check. The last model puts edge type, distance and season together.
+
+All of these are Gamma(log) GLMMs on the same rows as the edge-type models, with the same `(1|Site) + (1|Loc_ID)` random effects. Like edge type, distance is constant within a `Loc_ID`, so its effect is estimated *between* locations: the 48 locations, not the several hundred observations, are the effective sample size for anything involving distance.
+
+```{r, ADDED distance model helpers}
+# Distance slope from a model, per level of `specs`, as the multiplicative
+# change in Flux per doubling of distance: 0.8 = flux drops 20% each time
+# distance doubles; 1 = no distance effect; > 1 = flux rises away from
+# the edge. Slopes are for a typical location (random effects at 0).
+dist_trend_table <- function(model, specs) {
+  emtrends(model, specs, var = "log_Dist_c") %>%
+    as.data.frame() %>%
+    std_ci_names() %>%
+    mutate(
+      ratio_per_doubling = exp(log_Dist_c.trend * log(2)),
+      ratio_lower        = exp(lower.CL * log(2)),
+      ratio_upper        = exp(upper.CL * log(2))
+    )
+}
+
+plot_dist_trends <- function(df, x_var, color_var = NULL, title) {
+  if (is.null(color_var)) {
+    aes_map <- aes(x = .data[[x_var]], y = ratio_per_doubling)
+  } else {
+    aes_map <- aes(x = .data[[x_var]], y = ratio_per_doubling,
+                   color = .data[[color_var]], group = .data[[color_var]])
+  }
+  ggplot(df, aes_map) +
+    geom_hline(yintercept = 1, linetype = "dashed", color = "grey50") +
+    geom_point(size = 3, position = position_dodge(0.3)) +
+    geom_errorbar(aes(ymin = ratio_lower, ymax = ratio_upper),
+                  width = 0.2, position = position_dodge(0.3)) +
+    scale_y_log10() +
+    labs(title = str_wrap(title, width = 45), x = NULL,
+         y = "Flux ratio per doubling of distance\n(< 1 = declines away from edge)") +
+    theme_bw() +
+    theme(axis.text.x = element_text(angle = 45, hjust = 1))
+}
+
+# Model-predicted Flux along a smooth 0.5-24 m distance grid (evenly
+# spaced on the log scale), back-transformed to the Flux scale.
+# `specs` must end in "| log_Dist_c", e.g. ~ Cal_Season | log_Dist_c
+predict_dist_curve <- function(model, specs, n = 60) {
+  grid_c <- seq(log(min(dist_levels)), log(max(dist_levels)), length.out = n) - log_dist_center
+  emmeans(model, specs, at = list(log_Dist_c = grid_c), type = "response") %>%
+    as.data.frame() %>%
+    std_ci_names() %>%
+    mutate(Dist = exp(log_Dist_c + log_dist_center))
+}
+```
+
+```{r, ADDED averaged companion for dist time glmm}
+dist_time_model_glmm_avg <- glmmTMB(
+  Flux ~ log_Dist_c * Month + (1|Site) + (1|Loc_ID),
+  family = Gamma(link = "log"),
+  data = master_tier5_clean
+)
+summary(dist_time_model_glmm_avg)
+Anova(dist_time_model_glmm_avg, type = "II")
+
+sim_res_dist_time_avg <- run_dharma(
+  dist_time_model_glmm_avg, master_tier5_clean,
+  label      = "dist_time_model_glmm (averaged)",
+  predictors = c("Dist_f", "Month", "marsh_edge_type")
+)
+
+dist_time_trends_avg <- dist_trend_table(dist_time_model_glmm_avg, ~ Month)
+dist_time_trends_avg
+
+dist_time_slope_plot_avg <- plot_dist_trends(
+  dist_time_trends_avg, x_var = "Month",
+  title = "Change in Flux per Doubling of Distance from Marsh Edge, by Month (Averaged)"
+) + labs(x = "Majority Month Deployed")
+dist_time_slope_plot_avg
+
+ggsave(file.path(rq1_img_dir, "dist_time_slopes_avg.png"),
+       plot = dist_time_slope_plot_avg, width = 8, height = 5, dpi = 300, limitsize = FALSE)
+```
+
+```{r, ADDED averaged companion for dist season glmm}
+dist_season_model_glmm_avg <- glmmTMB(
+  Flux ~ log_Dist_c * Cal_Season + (1|Site) + (1|Loc_ID),
+  family = Gamma(link = "log"),
+  data = master_tier5_clean
+)
+summary(dist_season_model_glmm_avg)
+Anova(dist_season_model_glmm_avg, type = "II")
+
+sim_res_dist_season_avg <- run_dharma(
+  dist_season_model_glmm_avg, master_tier5_clean,
+  label      = "dist_season_model_glmm (averaged)",
+  predictors = c("Dist_f", "Cal_Season", "marsh_edge_type")
+)
+
+dist_season_trends_avg <- dist_trend_table(dist_season_model_glmm_avg, ~ Cal_Season)
+dist_season_trends_avg
+
+AIC(dist_time_model_glmm_avg, dist_season_model_glmm_avg)
+```
+
+```{r, ADDED averaged companion for dist season linearity check}
+dist_season_model_glmm_factor_avg <- glmmTMB(
+  Flux ~ Dist_f * Cal_Season + (1|Site) + (1|Loc_ID),
+  family = Gamma(link = "log"),
+  data = master_tier5_clean
+)
+summary(dist_season_model_glmm_factor_avg)
+Anova(dist_season_model_glmm_factor_avg, type = "II")
+
+sim_res_dist_season_factor_avg <- run_dharma(
+  dist_season_model_glmm_factor_avg, master_tier5_clean,
+  label      = "dist_season_model_glmm_factor (averaged)",
+  predictors = c("Dist_f", "Cal_Season")
+)
+
+AIC(dist_season_model_glmm_avg, dist_season_model_glmm_factor_avg)
+
+dist_season_curve_avg <- predict_dist_curve(dist_season_model_glmm_avg, ~ Cal_Season | log_Dist_c)
+
+dist_season_factor_emm_avg <- emmeans(dist_season_model_glmm_factor_avg, ~ Cal_Season | Dist_f,
+                                      type = "response") %>%
+  as.data.frame() %>%
+  std_ci_names() %>%
+  mutate(Dist = as.numeric(as.character(Dist_f)))
+
+dist_season_curve_plot_avg <- ggplot(dist_season_curve_avg,
+                                     aes(x = Dist, y = emmean, color = Cal_Season, fill = Cal_Season)) +
+  geom_ribbon(aes(ymin = lower.CL, ymax = upper.CL), alpha = 0.15, color = NA) +
+  geom_line(linewidth = 1) +
+  geom_pointrange(data = dist_season_factor_emm_avg,
+                  aes(ymin = lower.CL, ymax = upper.CL),
+                  position = position_dodge(0.08), size = 0.4) +
+  scale_x_log10(breaks = dist_levels, labels = dist_levels) +
+  labs(
+    title = str_wrap("Predicted Flux vs. Distance from Marsh Edge by Calendar Season (Averaged)", width = 45),
+    subtitle = "Line = log-linear distance model; points = distance-as-factor model",
+    x = "Distance from Marsh Edge (m, log scale)", y = "Estimated Flux",
+    color = "Cal_Season", fill = "Cal_Season"
+  ) +
+  theme_bw()
+dist_season_curve_plot_avg
+
+ggsave(file.path(rq1_img_dir, "dist_season_curve_avg.png"),
+       plot = dist_season_curve_plot_avg, width = 8, height = 5, dpi = 300, limitsize = FALSE)
+```
+
+```{r, ADDED averaged companion for edge dist season glmm}
+edge_dist_season_model_glmm_avg <- glmmTMB(
+  Flux ~ marsh_edge_type * log_Dist_c * Cal_Season + (1|Site) + (1|Loc_ID),
+  family = Gamma(link = "log"),
+  data = master_tier5_clean
+)
+summary(edge_dist_season_model_glmm_avg)
+Anova(edge_dist_season_model_glmm_avg, type = "II")
+
+sim_res_edge_dist_season_avg <- run_dharma(
+  edge_dist_season_model_glmm_avg, master_tier5_clean,
+  label      = "edge_dist_season_model_glmm (averaged)",
+  predictors = c("marsh_edge_type", "Dist_f", "Cal_Season")
+)
+
+edge_dist_season_trends_avg <- dist_trend_table(edge_dist_season_model_glmm_avg,
+                                                ~ marsh_edge_type | Cal_Season)
+edge_dist_season_trends_avg
+
+AIC(edge_season_model_glmm_avg, dist_season_model_glmm_avg, edge_dist_season_model_glmm_avg)
+
+edge_dist_season_curve_avg <- predict_dist_curve(edge_dist_season_model_glmm_avg,
+                                                 ~ marsh_edge_type * Cal_Season | log_Dist_c)
+
+edge_dist_season_plot_avg <- ggplot(edge_dist_season_curve_avg,
+                                    aes(x = Dist, y = emmean, color = marsh_edge_type, fill = marsh_edge_type)) +
+  geom_ribbon(aes(ymin = lower.CL, ymax = upper.CL), alpha = 0.15, color = NA) +
+  geom_line(linewidth = 1) +
+  facet_wrap(~ Cal_Season) +
+  scale_x_log10(breaks = dist_levels, labels = dist_levels) +
+  scale_color_manual(values = marsh_edge_colors) +
+  scale_fill_manual(values = marsh_edge_colors) +
+  labs(
+    title = str_wrap("Predicted Flux vs. Distance from Marsh Edge by Edge Type and Calendar Season (Averaged)", width = 50),
+    x = "Distance from Marsh Edge (m, log scale)", y = "Estimated Flux",
+    color = "Edge Type", fill = "Edge Type"
+  ) +
+  theme_bw()
+edge_dist_season_plot_avg
+
+ggsave(file.path(rq1_img_dir, "edge_dist_season_curve_avg.png"),
+       plot = edge_dist_season_plot_avg, width = 10, height = 5, dpi = 300, limitsize = FALSE)
+```
+
+## Smooth seasonal trend (GAM) (ADDED)
+
+The Month models estimate 12 separate means and treat adjacent months as unrelated, which spends a lot of parameters and ignores that August is more like July than like January. A generalized additive model (GAM) instead fits a smooth curve through time, letting the data decide how wiggly the seasonal pattern is. It uses the same Gamma(log) family and the same Site and Loc_ID random intercepts (as `bs = "re"` smooths).
+
+Edge type enters as an *ordered* factor, which is the standard way to test whether two groups have different curves: `s(study_day)` is the curve for scarped edges, and `s(study_day, by = edge_o)` is the *difference* curve for ramped minus scarped. The p-value on that difference smooth is the test of "does the seasonal pattern differ by edge type", the GAM equivalent of the edge x Month interaction.
+
+A non-cyclic smooth is used on purpose: a cyclic smooth would force late June to join up with early July, which assumes next year repeats this one. With one year of data, that's an assumption rather than something the data can show.
+
+```{r, SHARED GAM helpers}
+# SHARED (both tier files): helper functions for the GAM chunks.
+library(mgcv)
+
+prep_gam_data <- function(df) {
+  out <- df %>%
+    filter(!is.na(study_day)) %>%
+    mutate(edge_o = ordered(marsh_edge_type, levels = c("Scarped", "Ramped"))) %>%
+    droplevels()
+  contrasts(out$edge_o) <- "contr.treatment"
+  out
+}
+
+# Predicted seasonal curves for a typical location (Site and Loc_ID
+# random effects excluded), back-transformed to the Flux scale
+predict_gam_curve <- function(model, data, n = 200) {
+  nd <- expand.grid(
+    study_day = seq(min(data$study_day), max(data$study_day), length.out = n),
+    edge_o    = levels(data$edge_o)
+  )
+  nd$edge_o <- ordered(nd$edge_o, levels = levels(data$edge_o))
+  nd$Site   <- data$Site[1]     # placeholders; excluded from the prediction
+  nd$Loc_ID <- data$Loc_ID[1]
+  pr <- predict(model, newdata = nd, type = "link", se.fit = TRUE,
+                exclude = c("s(Site)", "s(Loc_ID)"))
+  nd %>% mutate(
+    fit   = exp(pr$fit),
+    lower = exp(pr$fit - 1.96 * pr$se.fit),
+    upper = exp(pr$fit + 1.96 * pr$se.fit),
+    date  = study_start + study_day
+  )
+}
+```
+
+```{r, ADDED averaged companion for edge time gam}
+gam_avg <- prep_gam_data(master_tier5_clean)
+
+edge_time_gam_avg <- gam(
+  Flux ~ edge_o + s(study_day, k = 8) + s(study_day, by = edge_o, k = 8) +
+    s(Site, bs = "re") + s(Loc_ID, bs = "re"),
+  family = Gamma(link = "log"),
+  data = gam_avg,
+  method = "REML"
+)
+summary(edge_time_gam_avg)
+gam.check(edge_time_gam_avg)
+
+sim_res_edge_time_gam_avg <- run_dharma(
+  edge_time_gam_avg, gam_avg,
+  label      = "edge_time_gam (averaged)",
+  predictors = c("marsh_edge_type", "Month", "Dist_f")
+)
+
+gam_curve_avg <- predict_gam_curve(edge_time_gam_avg, gam_avg)
+
+gam_curve_plot_avg <- ggplot(gam_curve_avg, aes(x = date, y = fit, color = edge_o, fill = edge_o)) +
+  geom_ribbon(aes(ymin = lower, ymax = upper), alpha = 0.15, color = NA) +
+  geom_line(linewidth = 1) +
+  scale_x_date(date_breaks = "1 month", date_labels = "%b %Y") +
+  scale_color_manual(values = marsh_edge_colors) +
+  scale_fill_manual(values = marsh_edge_colors) +
+  labs(
+    title = str_wrap("Smoothed Seasonal Trend in Flux by Marsh Edge Type (GAM) (Averaged)", width = 45),
+    x = "Deployment Midpoint", y = "Estimated Flux",
+    color = "Edge Type", fill = "Edge Type"
+  ) +
+  theme_bw() +
+  theme(axis.text.x = element_text(angle = 45, hjust = 1))
+gam_curve_plot_avg
+
+ggsave(file.path(rq1_img_dir, "edge_time_gam_avg.png"),
+       plot = gam_curve_plot_avg, width = 8, height = 5, dpi = 300, limitsize = FALSE)
+```
+
+## Wind GLMMs (ADDED)
+
+Wind comes from `step3_thesis_wind.qmd`, which averages hourly NOAA CO-OPS station readings over each trap's actual deployment window (Date.placed.in.field to Date.removed.from.field) and joins two continuous columns onto the flux data: `mean_wind_speed_kt` and `max_gust_kt`. There is no wind category column, so wind enters these models as continuous speeds in knots.
+
+Wind is tied closely to time: all traps at a site share one deployment window, and three of the four sites (CorteMadera, GiantMarsh, Buck'sLanding) share station 9414863, so within a study phase wind differs mainly between San Pablo and the other three sites (plus small differences where sites were deployed on different days). That means wind and Month shouldn't both be fixed effects: the "wind beyond month" contrast would mostly be San Pablo vs. everyone else, i.e. a site difference. Instead, these models keep edge type × wind as fixed effects and move time into the random effects as `(1|Study.Phase)`. The Study.Phase random intercept absorbs month-to-month variation, wind is tested against that variation (the honest test, since wind has only about two dozen distinct values), and comparing the Study.Phase variance with and without wind gives the share of month-to-month variation wind accounts for.
+
+One model uses `mean_wind_speed_kt` and the other uses `max_gust_kt`. They're fit separately rather than together because mean speed and peak gust are usually strongly correlated (the setup chunk prints the correlation); in one model, they would compete for the same variation and neither coefficient would be interpretable.
+
+Both models are fit on the same rows, so AIC tells you which wind measure better explains flux: sustained wind (which drives waves and resuspension over the whole deployment) or peak gusts (short storm events).
+
+```{r, ADDED continuous wind setup}
+wind_cont_vars <- c("mean_wind_speed_kt", "max_gust_kt")
+
+# Study.Phase random-intercept variance from a glmmTMB model; used to
+# compute the share of month-to-month variation wind explains
+phase_var <- function(m) VarCorr(m)$cond$Study.Phase[1, 1]
+
+missing_wind <- setdiff(wind_cont_vars, intersect(names(master_tier5_byrep_clean), names(master_tier5_clean)))
+if (length(missing_wind) > 0) {
+  stop("Not found in both clean tiers: ", paste(missing_wind, collapse = ", "))
+}
+
+# Centered on the replicate-level mean, so the edge-type main effect is
+# read at a typical wind speed rather than at 0 kt. Kept in knots (not
+# standardized) so coefficients stay in real units.
+wind_centers <- sapply(wind_cont_vars, function(v) {
+  x <- master_tier5_byrep_clean[[v]]
+  mean(x[is.finite(x)])
+})
+wind_centers
+
+add_wind_cont <- function(df) {
+  df %>% mutate(
+    mean_wind_c = mean_wind_speed_kt - wind_centers[["mean_wind_speed_kt"]],
+    max_gust_c  = max_gust_kt        - wind_centers[["max_gust_kt"]]
+  )
+}
+master_tier5_byrep_clean <- add_wind_cont(master_tier5_byrep_clean)
+master_tier5_clean       <- add_wind_cont(master_tier5_clean)
+
+# Both models use rows with BOTH wind values usable, so AIC between them is valid.
+# is.finite(), not !is.na(): in step3_thesis_wind.qmd, a deployment window
+# with no station readings (e.g. the 2022-2023 repeat-year windows, before
+# station coverage starts) gets mean() = NaN but max() = -Inf. !is.na()
+# drops the NaN but keeps -Inf, which would break the model.
+keep_wind_rows <- function(df) {
+  df %>%
+    filter(is.finite(mean_wind_speed_kt), is.finite(max_gust_kt)) %>%
+    droplevels()
+}
+wind_cont_byrep <- keep_wind_rows(master_tier5_byrep_clean)
+wind_cont_avg   <- keep_wind_rows(master_tier5_clean)
+c(clean = nrow(master_tier5_byrep_clean), wind_cont = nrow(wind_cont_byrep))
+
+# Do the wind values vary among sites within a phase, or is there one
+# value per phase (a single weather station)? Either way the models below
+# work; with one value per phase, wind has only ~12 independent values,
+# which the (1|Study.Phase) term accounts for.
+wind_cont_byrep %>%
+  group_by(Study.Phase) %>%
+  summarise(across(all_of(wind_cont_vars), ~ n_distinct(.x), .names = "n_{.col}"),
+            .groups = "drop")
+
+# Correlation between the two measures, at the phase x site level
+wind_cont_byrep %>%
+  distinct(Site, Study.Phase, mean_wind_speed_kt, max_gust_kt) %>%
+  { cor(.$mean_wind_speed_kt, .$max_gust_kt) }
+
+# Multiplicative change in Flux per `per` knots of wind, by edge type
+wind_trend_table <- function(model, var, per = 5) {
+  emtrends(model, ~ marsh_edge_type, var = var) %>%
+    as.data.frame() %>%
+    std_ci_names() %>%
+    mutate(
+      per_kt           = per,
+      ratio_per_change = exp(.data[[paste0(var, ".trend")]] * per),
+      ratio_lower      = exp(lower.CL * per),
+      ratio_upper      = exp(upper.CL * per)
+    )
+}
+
+# Predicted Flux across the observed wind range, by edge type, for a
+# typical location and phase (random effects at 0)
+predict_wind_curve <- function(model, var, raw_var, data, n = 60) {
+  grid <- seq(min(data[[var]]), max(data[[var]]), length.out = n)
+  emmeans(model, as.formula(paste("~ marsh_edge_type |", var)),
+          at = setNames(list(grid), var), type = "response") %>%
+    as.data.frame() %>%
+    std_ci_names() %>%
+    mutate(wind_kt = .data[[var]] + wind_centers[[raw_var]])
+}
+
+plot_wind_curve <- function(curve, data, raw_var, x_lab, title) {
+  obs <- data %>% distinct(Study.Phase, Site, .data[[raw_var]])
+  ggplot(curve, aes(x = wind_kt, y = emmean, color = marsh_edge_type, fill = marsh_edge_type)) +
+    geom_ribbon(aes(ymin = lower.CL, ymax = upper.CL), alpha = 0.15, color = NA) +
+    geom_line(linewidth = 1) +
+    geom_rug(data = obs, aes(x = .data[[raw_var]]), inherit.aes = FALSE, sides = "b") +
+    scale_color_manual(values = marsh_edge_colors) +
+    scale_fill_manual(values = marsh_edge_colors) +
+    labs(title = str_wrap(title, width = 45),
+         subtitle = "Rug marks = observed wind values",
+         x = x_lab, y = "Estimated Flux", color = "Edge Type", fill = "Edge Type") +
+    theme_bw()
+}
+```
+
+```{r, ADDED averaged companion for continuous wind glmms}
+phase_base_wind_cont_glmm_avg <- glmmTMB(
+  Flux ~ marsh_edge_type + (1|Study.Phase) + (1|Site) + (1|Loc_ID),
+  family = Gamma(link = "log"),
+  data = wind_cont_avg
+)
+
+mean_wind_model_glmm_avg <- glmmTMB(
+  Flux ~ marsh_edge_type * mean_wind_c + (1|Study.Phase) + (1|Site) + (1|Loc_ID),
+  family = Gamma(link = "log"),
+  data = wind_cont_avg
+)
+summary(mean_wind_model_glmm_avg)
+Anova(mean_wind_model_glmm_avg, type = "II")
+
+gust_model_glmm_avg <- glmmTMB(
+  Flux ~ marsh_edge_type * max_gust_c + (1|Study.Phase) + (1|Site) + (1|Loc_ID),
+  family = Gamma(link = "log"),
+  data = wind_cont_avg
+)
+summary(gust_model_glmm_avg)
+Anova(gust_model_glmm_avg, type = "II")
+
+cat(sprintf("Study.Phase variance: %.3f with no wind | %.3f with mean wind (%.0f%% explained) | %.3f with max gust (%.0f%% explained)\n",
+            phase_var(phase_base_wind_cont_glmm_avg),
+            phase_var(mean_wind_model_glmm_avg),
+            100 * (1 - phase_var(mean_wind_model_glmm_avg) / phase_var(phase_base_wind_cont_glmm_avg)),
+            phase_var(gust_model_glmm_avg),
+            100 * (1 - phase_var(gust_model_glmm_avg) / phase_var(phase_base_wind_cont_glmm_avg))))
+
+AIC(phase_base_wind_cont_glmm_avg, mean_wind_model_glmm_avg, gust_model_glmm_avg)
+
+sim_res_mean_wind_avg <- run_dharma(
+  mean_wind_model_glmm_avg, wind_cont_avg,
+  label      = "mean_wind_model_glmm (averaged)",
+  predictors = c("marsh_edge_type", "mean_wind_speed_kt", "Month", "Dist_f")
+)
+sim_res_gust_avg <- run_dharma(
+  gust_model_glmm_avg, wind_cont_avg,
+  label      = "gust_model_glmm (averaged)",
+  predictors = c("marsh_edge_type", "max_gust_kt", "Month", "Dist_f")
+)
+
+mean_wind_trends_avg <- wind_trend_table(mean_wind_model_glmm_avg, "mean_wind_c", per = 5)
+gust_trends_avg      <- wind_trend_table(gust_model_glmm_avg,      "max_gust_c",  per = 5)
+mean_wind_trends_avg
+gust_trends_avg
+
+mean_wind_curve_plot_avg <- plot_wind_curve(
+  predict_wind_curve(mean_wind_model_glmm_avg, "mean_wind_c", "mean_wind_speed_kt", wind_cont_avg),
+  wind_cont_avg, "mean_wind_speed_kt", "Mean Wind Speed (kt)",
+  "Predicted Flux vs. Mean Wind Speed by Marsh Edge Type (Averaged)"
+)
+mean_wind_curve_plot_avg
+ggsave(file.path(rq1_img_dir, "mean_wind_curve_avg.png"),
+       plot = mean_wind_curve_plot_avg, width = 8, height = 5, dpi = 300, limitsize = FALSE)
+
+gust_curve_plot_avg <- plot_wind_curve(
+  predict_wind_curve(gust_model_glmm_avg, "max_gust_c", "max_gust_kt", wind_cont_avg),
+  wind_cont_avg, "max_gust_kt", "Maximum Gust (kt)",
+  "Predicted Flux vs. Maximum Gust by Marsh Edge Type (Averaged)"
+)
+gust_curve_plot_avg
+ggsave(file.path(rq1_img_dir, "gust_curve_avg.png"),
+       plot = gust_curve_plot_avg, width = 8, height = 5, dpi = 300, limitsize = FALSE)
+```
+
+### Wind category: Beaufort scale (ADDED)
+
+`Wind_cat` bins `mean_wind_speed_kt` using the Beaufort scale, so each category corresponds to a physically defined wind condition rather than a relative share of the study year. The Beaufort boundaries in knots are: force 0 (calm) below 1 kt, 1 (light air) 1-3, 2 (light breeze) 4-6, 3 (gentle breeze) 7-10, 4 (moderate breeze) 11-16, 5 (fresh breeze) 17-21, 6 (strong breeze) 22-27, and higher forces above that.
+
+Because `mean_wind_speed_kt` is averaged over a whole deployment (calm nights included), the means are compressed into a narrow range and will span only a few Beaufort forces. The chunk below first assigns each deployment window its full Beaufort force and prints how many windows fall in each, then groups them into three categories for the model. The default grouping is:
+
+- **Light**: below 7 kt (Beaufort 0-2, light breeze or calmer)
+- **Gentle**: 7 to under 11 kt (Beaufort 3, gentle breeze)
+- **Moderate+**: 11 kt and above (Beaufort 4 or stronger)
+
+Two things to keep in mind when reporting this. First, a category describes the *average* wind over a deployment, not the conditions during any single event; "Gentle" means the deployment averaged a gentle breeze, and it may still have included stronger episodes (which `max_gust_kt` captures). Second, unlike terciles, fixed boundaries don't guarantee balanced groups. If the printed counts show a category with very few deployment windows, its estimate will be imprecise, and a category with none can't be estimated at all. In that case, change `beaufort_group_breaks` to merge forces differently (for example `c(11)` with labels `c("Light-Gentle", "Moderate+")` for two groups split at the Beaufort 4 boundary), keeping the cut points on Beaufort boundaries so the groups stay physically meaningful. The chunk drops empty categories and warns about sparse ones.
+
+```{r, ADDED wind category}
+# Standard Beaufort force boundaries (knots). Force = number of these
+# boundaries at or below the wind speed, e.g. 8 kt -> force 3.
+beaufort_kt <- c(1, 4, 7, 11, 17, 22, 28, 34, 41, 48, 56, 64)
+beaufort_names <- c("Calm", "Light air", "Light breeze", "Gentle breeze", "Moderate breeze",
+                    "Fresh breeze", "Strong breeze", "Near gale", "Gale", "Strong gale",
+                    "Storm", "Violent storm", "Hurricane force")
+
+# Grouping used in the models: interior cut points (kt) and one label per
+# group. Default: < 7 | 7 to < 11 | >= 11 (Beaufort 0-2 | 3 | 4+).
+beaufort_group_breaks <- c(7, 11)
+beaufort_group_labels <- c("Light", "Gentle", "Moderate+")
+stopifnot(length(beaufort_group_labels) == length(beaufort_group_breaks) + 1)
+
+# Minimum deployment windows per category before warning that it's sparse
+min_windows_per_cat <- 3
+
+wind_windows <- wind_cont_byrep %>%
+  distinct(Site, Date.placed.in.field, Date.removed.from.field, mean_wind_speed_kt)
+nrow(wind_windows)   # distinct deployment windows
+
+# Full Beaufort force of each deployment window's mean wind speed
+wind_windows %>%
+  mutate(beaufort_force = findInterval(mean_wind_speed_kt, beaufort_kt),
+         beaufort_name  = beaufort_names[beaufort_force + 1]) %>%
+  count(beaufort_force, beaufort_name, name = "n_windows")
+
+add_wind_cat <- function(df) {
+  df %>% mutate(
+    Wind_cat = cut(mean_wind_speed_kt,
+                   breaks = c(-Inf, beaufort_group_breaks, Inf),
+                   labels = beaufort_group_labels,
+                   right = FALSE)   # each group includes its lower bound: exactly 7 kt is Gentle
+  )
+}
+
+wind_cont_byrep <- add_wind_cat(wind_cont_byrep)
+wind_cont_avg   <- add_wind_cat(wind_cont_avg)
+
+# Speed range and number of deployment windows in each category
+wind_cat_summary <- wind_cont_byrep %>%
+  distinct(Site, Date.placed.in.field, Date.removed.from.field, mean_wind_speed_kt, Wind_cat) %>%
+  group_by(Wind_cat, .drop = FALSE) %>%
+  summarise(n_windows = n(),
+            min_kt = if (n() > 0) min(mean_wind_speed_kt) else NA_real_,
+            max_kt = if (n() > 0) max(mean_wind_speed_kt) else NA_real_,
+            .groups = "drop")
+wind_cat_summary
+
+empty_cats  <- as.character(wind_cat_summary$Wind_cat[wind_cat_summary$n_windows == 0])
+sparse_cats <- as.character(wind_cat_summary$Wind_cat[wind_cat_summary$n_windows > 0 &
+                                                        wind_cat_summary$n_windows < min_windows_per_cat])
+if (length(empty_cats) > 0) {
+  warning("No deployment windows in: ", paste(empty_cats, collapse = ", "),
+          ". Dropped from the model; consider changing beaufort_group_breaks.")
+}
+if (length(sparse_cats) > 0) {
+  warning("Fewer than ", min_windows_per_cat, " deployment windows in: ",
+          paste(sparse_cats, collapse = ", "),
+          ". Estimates for these categories will be imprecise; consider merging them.")
+}
+
+# Drop any empty category so the model doesn't try to estimate it
+wind_cont_byrep <- wind_cont_byrep %>% mutate(Wind_cat = droplevels(Wind_cat))
+wind_cont_avg   <- wind_cont_avg   %>% mutate(Wind_cat = factor(Wind_cat, levels = levels(wind_cont_byrep$Wind_cat)))
+wind_cat_summary <- wind_cat_summary %>% filter(n_windows > 0)
+
+# Which months fall in which category
+table(wind_cont_byrep$Wind_cat, wind_cont_byrep$Month)
+
+# x-axis labels for the wind category plots (category + observed kt range)
+wind_cat_labels <- with(wind_cat_summary,
+                        setNames(sprintf("%s\n(%.1f-%.1f kt)", Wind_cat, min_kt, max_kt), Wind_cat))
+```
+
+```{r, ADDED averaged companion for wind category glmm}
+wind_cat_model_glmm_avg <- glmmTMB(
+  Flux ~ marsh_edge_type * Wind_cat + (1|Study.Phase) + (1|Site) + (1|Loc_ID),
+  family = Gamma(link = "log"),
+  data = wind_cont_avg
+)
+summary(wind_cat_model_glmm_avg)
+Anova(wind_cat_model_glmm_avg, type = "II")
+
+cat(sprintf("Study.Phase variance: %.3f with no wind | %.3f with wind category (%.0f%% explained)\n",
+            phase_var(phase_base_wind_cont_glmm_avg),
+            phase_var(wind_cat_model_glmm_avg),
+            100 * (1 - phase_var(wind_cat_model_glmm_avg) / phase_var(phase_base_wind_cont_glmm_avg))))
+
+AIC(phase_base_wind_cont_glmm_avg, wind_cat_model_glmm_avg, mean_wind_model_glmm_avg, gust_model_glmm_avg)
+
+sim_res_wind_cat_avg <- run_dharma(
+  wind_cat_model_glmm_avg, wind_cont_avg,
+  label      = "wind_cat_model_glmm (averaged)",
+  predictors = c("marsh_edge_type", "Wind_cat", "Month", "Dist_f")
+)
+
+emm_wind_cat_avg <- emmeans(wind_cat_model_glmm_avg, ~ marsh_edge_type * Wind_cat, type = "response") %>%
+  as.data.frame() %>%
+  std_ci_names()
+emm_wind_cat_avg
+
+emmeans(wind_cat_model_glmm_avg, pairwise ~ marsh_edge_type | Wind_cat, type = "response")
+
+emm_wind_cat_plot_avg <- ggplot(emm_wind_cat_avg, aes(x = Wind_cat, y = emmean,
+                                                      color = marsh_edge_type, group = marsh_edge_type)) +
+  geom_point(size = 3, position = position_dodge(0.3)) +
+  geom_errorbar(aes(ymin = lower.CL, ymax = upper.CL), width = 0.2, position = position_dodge(0.3)) +
+  scale_x_discrete(labels = wind_cat_labels) +
+  scale_color_manual(values = marsh_edge_colors) +
+  labs(
+    title = str_wrap("Estimated Marginal Means of Flux by Marsh Edge Type and Beaufort Wind Category (Averaged)", width = 40),
+    y = "Estimated Flux", x = "Beaufort Category (Deployment Mean Wind Speed)", color = "Edge Type"
+  ) +
+  theme_bw()
+emm_wind_cat_plot_avg
+
+ggsave(file.path(rq1_img_dir, "emm_wind_cat_avg.png"),
+       plot = emm_wind_cat_plot_avg, width = 8, height = 5, dpi = 300, limitsize = FALSE)
+```
+
+```{r, ADDED averaged companion for the December sensitivity section}
+# Same three scenarios as the byrep chunks above, on master_tier5 (the
+# averaged tier). december_phases, exclude_site_phase and flagged_phases
+# come from the shared long-interval chunk -- deployment/removal dates are the
+# same in both tiers, so the December deployment-dates table has no _avg
+# twin (it isn't Flux data).
+
+master_tier5_sensitivity <- master_tier5 %>%
+  filter(!(Study.Phase %in% december_phases))
+
+master_tier5_sensitivity_all <- master_tier5 %>%
+  anti_join(exclude_site_phase, by = c("Site", "Study.Phase"))
+
+general_with_avg    <- make_flux_table(master_tier5,                 title = "Including December (Averaged)")
+general_without_avg <- make_flux_table(master_tier5_sensitivity,     title = "Excluding December (Averaged)")
+general_all_avg     <- make_flux_table(master_tier5_sensitivity_all, title = "Excluding all flagged long intervals (Averaged)")
+
+phase_with_avg    <- make_flux_table(master_tier5, group_vars = "Study.Phase",
+                                     title = "By Study Phase — including December (Averaged)",
+                                     group_labels = list(Study.Phase = "Study Phase"))
+phase_without_avg <- make_flux_table(master_tier5_sensitivity, group_vars = "Study.Phase",
+                                     title = "By Study Phase — excluding December (Averaged)",
+                                     group_labels = list(Study.Phase = "Study Phase"))
+phase_all_avg     <- make_flux_table(master_tier5_sensitivity_all, group_vars = "Study.Phase",
+                                     title = "By Study Phase — excluding all flagged long intervals (Averaged)",
+                                     group_labels = list(Study.Phase = "Study Phase"))
+
+overall_comparison_3way_avg <- bind_rows(
+  general_with_avg$data    %>% mutate(Scenario = "Including all",                   .before = 1),
+  general_without_avg$data %>% mutate(Scenario = "Excluding December only",         .before = 1),
+  general_all_avg$data     %>% mutate(Scenario = "Excluding all flagged intervals", .before = 1)
+)
+
+phase_comparison_3way_avg <- bind_rows(
+  phase_with_avg$data %>% mutate(Scenario = "Including all", .before = 1),
+  phase_without_avg$data %>%
+    filter(Study.Phase %in% december_phases) %>%
+    mutate(Scenario = "Excluding December only", .before = 1),
+  phase_all_avg$data %>%
+    filter(Study.Phase %in% flagged_phases) %>%
+    mutate(Scenario = "Excluding all flagged intervals", .before = 1)) %>%
+  mutate(Study.Phase = factor(Study.Phase, levels = paste0("M", 1:12), ordered = TRUE)) %>%
+  arrange(Study.Phase, Scenario)
+
+overall_comparison_3way_avg_table <- overall_comparison_3way_avg %>%
+  gt() %>%
+  tab_header(title = "Overall Flux Comparison Across December-Exclusion Scenarios (Averaged)") %>%
+  fmt_number(columns = where(is.numeric), decimals = 2)
+
+phase_comparison_3way_avg_table <- phase_comparison_3way_avg %>%
+  gt() %>%
+  tab_header(title = "Flux by Study Phase Across Study Phases with Long Intervals > 35 Days (Averaged)") %>%
+  fmt_number(columns = where(is.numeric), decimals = 2)
+
+gtsave(overall_comparison_3way_avg_table,
+       filename = file.path(knitr::opts_knit$get("root.dir"), "overall_comparison_3way_avg.png"))
+gtsave(phase_comparison_3way_avg_table,
+       filename = file.path(knitr::opts_knit$get("root.dir"), "phase_comparison_3way_avg.png"))
+
+phase_flux_by_scenario_avg <- bind_rows(
+  master_tier5                 %>% mutate(Scenario = "Including December"),
+  master_tier5_sensitivity     %>% mutate(Scenario = "Excluding December only"),
+  master_tier5_sensitivity_all %>% mutate(Scenario = "Excluding all flagged intervals")
+) %>%
+  mutate(
+    Scenario = factor(Scenario, levels = c("Including December",
+                                            "Excluding December only",
+                                            "Excluding all flagged intervals")),
+    Study.Phase = factor(Study.Phase, levels = paste0("M", 1:12))
+  )
+
+phase_flux_boxplot_dodged_avg <- ggplot(phase_flux_by_scenario_avg,
+                                         aes(x = Study.Phase, y = Flux, fill = Scenario)) +
+  geom_boxplot(alpha = 0.7, outlier.shape = NA, position = position_dodge(width = 0.8)) +
+  scale_y_log10() +
+  theme_minimal(base_size = 14) +
+  theme(legend.position = "bottom",
+        axis.text.x = element_text(angle = 45, hjust = 1)) +
+  labs(x = "Study Phase (Month)", y = expression(Log[10]~Flux~(g/m^2/day)),
+       title = "Flux by Study Phase Across Data-Exclusion Scenarios (Averaged)",
+       fill = "Scenario")
+phase_flux_boxplot_dodged_avg
+
+ggsave(file.path(knitr::opts_knit$get("root.dir"), "phase_flux_by_scenario_dodged_avg.png"),
+       plot = phase_flux_boxplot_dodged_avg,
+       width = 13, height = 7, dpi = 300, limitsize = FALSE)
+
+site_point_plot_grid_avg <- ggplot(phase_flux_by_scenario_avg,
+                                    aes(x = Study.Phase, y = Flux, color = Site)) +
+  geom_point(alpha = 0.5, size = 1.5, position = position_jitter(width = 0.2)) +
+  scale_y_log10(labels = label_number(accuracy = 1)) +
+  scale_color_brewer(palette = "Dark2") +
+  facet_grid(Scenario ~ Site) +
+  theme_minimal(base_size = 12) +
+  theme(legend.position = "none",
+        axis.text.x = element_text(angle = 45, hjust = 1, size = 9),
+        strip.text.y = element_text(face = "bold", size = 10, angle = 0),
+        strip.text.x = element_text(face = "bold", size = 11),
+        panel.grid.minor = element_blank()) +
+  labs(x = "Study Phase (Month)", y = expression(Log[10]~Flux~(g/m^2/day)),
+       title = "Flux by Study Phase and Site\nAcross Data-Exclusion Scenarios (Averaged)")
+site_point_plot_grid_avg
+
+ggsave(file.path(knitr::opts_knit$get("root.dir"), "site_point_grid_avg.png"),
+       plot = site_point_plot_grid_avg,
+       width = 15, height = 11, dpi = 300, limitsize = FALSE)
+```
+
+## Edge-type GLMM sensitivity refits (ADDED)
+
+Each model in this section refits the edge-type x `Cal_Season` Gamma GLMM with exactly one thing changed, and the table at the end lines up the `Anova()` p-values across all of them. If the conclusions hold across every row, that's a strong robustness statement for the defense; if one row flips a result, that tells you exactly which decision the result depends on. `Cal_Season` is the base because it's the coarsest grain and the most stable fit; swap in the `Month` formula if that ends up being the grain you lead with.
+
+```{r, SHARED sensitivity helpers}
+# SHARED (both tier files): scenario definitions and helpers for the
+# sensitivity refits below.
+#
+#   _tran   adds (1|Site:Tran): does flux vary between the two transects
+#           within a site beyond what Loc_ID captures? Edge type is
+#           assigned per SITE (both transects at a site share it), so the
+#           site, not the transect, is the replicate for edge type. A
+#           small Site:Tran variance means the transect term isn't needed.
+#   _disp   lets the Gamma dispersion differ by season (dispformula).
+#           Follows up the DHARMa dispersion ratio of ~1.8.
+#   _noGM   Gamma version of the no-GiantMarsh check (the existing
+#           edge_time_model_noGM is Gaussian only).
+#   _noDec  drops the December phases (deployment-interval issue).
+#   _noFlag drops every Site x Study.Phase flagged as a long interval.
+#   (No Site-as-fixed-effect refit: edge type is nested in site, so
+#   Site and edge type can't both be fixed effects. The model drops one
+#   Site column and the "edge type" coefficient becomes a single
+#   site-vs-site difference. See the "Site differences" section instead.)
+#   _interval adds deployment length (Interval_c, days from the median
+#           deployment) as a covariate: an alternative to dropping long
+#           deployments. Flux is already per day, so a clear Interval_c
+#           effect means longer deployments bias per-day flux (e.g. trap
+#           saturation or resuspension), not just that they collect more.
+#           exp(coef) = multiplicative change in Flux per extra day.
+#
+# _tran and _disp use the same rows as edge_season_model_glmm, so
+# AIC() against it is valid (_interval too, if no rows have a missing
+# interval -- compare the n column in the table). _noGM / _noDec / _noFlag use fewer rows, so AIC is
+# NOT comparable for them -- compare their Anova() results in the table.
+#
+# december_phases and exclude_site_phase come from the shared
+# long-interval chunk near the top; the filters are applied to the _clean tiers
+# here (not to master_tier5_byrep_sensitivity) so the factor levels and
+# distance variables match the primary model exactly.
+
+edge_season_formula <- Flux ~ marsh_edge_type * Cal_Season + (1|Site) + (1|Loc_ID)
+
+flag_keys <- paste(exclude_site_phase$Site, exclude_site_phase$Study.Phase)
+
+make_sensitivity_tiers <- function(df) {
+  list(
+    noGM   = df %>% filter(Site != "GiantMarsh") %>% droplevels(),
+    noDec  = df %>% filter(!(Study.Phase %in% december_phases)) %>% droplevels(),
+    noFlag = df %>% filter(!(paste(Site, Study.Phase) %in% flag_keys)) %>% droplevels()
+  )
+}
+
+anova_long <- function(model, scenario) {
+  a <- as.data.frame(Anova(model, type = "II"))
+  data.frame(Scenario = scenario, n = nobs(model), Term = rownames(a),
+             p = a[["Pr(>Chisq)"]], row.names = NULL)
+}
+
+sens_predictors <- c("marsh_edge_type", "Cal_Season", "Dist_f")
+```
+
+```{r, ADDED averaged companion for edge season GLMM sensitivity refits}
+tiers_avg <- make_sensitivity_tiers(master_tier5_clean)
+sapply(tiers_avg, nrow)
+table(master_tier5_clean$Site, master_tier5_clean$marsh_edge_type)
+
+edge_season_model_glmm_tran_avg <- glmmTMB(
+  Flux ~ marsh_edge_type * Cal_Season + (1|Site) + (1|Site:Tran) + (1|Loc_ID),
+  family = Gamma(link = "log"), data = master_tier5_clean
+)
+edge_season_model_glmm_disp_avg <- glmmTMB(
+  edge_season_formula, dispformula = ~ Cal_Season,
+  family = Gamma(link = "log"), data = master_tier5_clean
+)
+edge_season_model_glmm_noGM_avg <- glmmTMB(
+  edge_season_formula, family = Gamma(link = "log"), data = tiers_avg$noGM
+)
+edge_season_model_glmm_noDec_avg <- glmmTMB(
+  edge_season_formula, family = Gamma(link = "log"), data = tiers_avg$noDec
+)
+edge_season_model_glmm_noFlag_avg <- glmmTMB(
+  edge_season_formula, family = Gamma(link = "log"), data = tiers_avg$noFlag
+)
+interval_avg <- master_tier5_clean %>% filter(!is.na(Interval_c))
+edge_season_model_glmm_interval_avg <- glmmTMB(
+  Flux ~ marsh_edge_type * Cal_Season + Interval_c + (1|Site) + (1|Loc_ID),
+  family = Gamma(link = "log"), data = interval_avg
+)
+
+VarCorr(edge_season_model_glmm_tran_avg)
+summary(edge_season_model_glmm_disp_avg)
+summary(edge_season_model_glmm_interval_avg)   # Interval_c row = effect per extra deployment day
+AIC(edge_season_model_glmm_avg, edge_season_model_glmm_tran_avg, edge_season_model_glmm_disp_avg)
+
+run_dharma(edge_season_model_glmm_tran_avg,   master_tier5_clean, "edge_season_model_glmm_tran (averaged)",   sens_predictors)
+run_dharma(edge_season_model_glmm_disp_avg,   master_tier5_clean, "edge_season_model_glmm_disp (averaged)",   sens_predictors)
+run_dharma(edge_season_model_glmm_noGM_avg,   tiers_avg$noGM,     "edge_season_model_glmm_noGM (averaged)",   sens_predictors)
+run_dharma(edge_season_model_glmm_noDec_avg,  tiers_avg$noDec,    "edge_season_model_glmm_noDec (averaged)",  sens_predictors)
+run_dharma(edge_season_model_glmm_noFlag_avg, tiers_avg$noFlag,   "edge_season_model_glmm_noFlag (averaged)", sens_predictors)
+run_dharma(edge_season_model_glmm_interval_avg, interval_avg, "edge_season_model_glmm_interval (averaged)", sens_predictors)
+
+edge_season_sensitivity_avg <- bind_rows(
+  anova_long(edge_season_model_glmm_avg,        "Primary (all data)"),
+  anova_long(edge_season_model_glmm_tran_avg,   "+ transect random effect"),
+  anova_long(edge_season_model_glmm_disp_avg,   "Seasonal dispersion"),
+  anova_long(edge_season_model_glmm_noGM_avg,   "Excluding GiantMarsh"),
+  anova_long(edge_season_model_glmm_noDec_avg,  "Excluding December"),
+  anova_long(edge_season_model_glmm_noFlag_avg, "Excluding flagged long intervals"),
+  anova_long(edge_season_model_glmm_interval_avg, "+ deployment length covariate")
+) %>%
+  tidyr::pivot_wider(names_from = Term, values_from = p)
+edge_season_sensitivity_avg
+
+edge_season_sensitivity_avg_table <- edge_season_sensitivity_avg %>%
+  gt() %>%
+  tab_header(title = "Edge Type x Calendar Season GLMM: Sensitivity of Type II Wald p-values",
+             subtitle = "Averaged data") %>%
+  fmt_number(columns = -c(Scenario, n), decimals = 3)
+edge_season_sensitivity_avg_table
+
+gtsave(edge_season_sensitivity_avg_table,
+       filename = file.path(rq1_img_dir, "edge_season_sensitivity_avg.png"))
+```
+
+## Site differences (ADDED)
+
+Edge type is nested in site: Giant Marsh and Corte Madera are scarped, San Pablo and Buck's Landing are ramped, and no site has both. So Site and edge type can't both be fixed effects. Once the model knows which site an observation came from, it already knows the edge type, and one Site coefficient is dropped as redundant. Edge-type comparisons therefore have to treat Site as a random effect, as the primary models do, and the effective sample size for edge type is two sites per type.
+
+What Site as a fixed effect *can* answer is a different question: how do the four sites differ from each other, including the two sites within each edge type? That's `site_season_model_glmm` below, with no edge-type term. Its pairwise contrasts are the test behind statements like "median deposition differed between sites," and the within-type contrasts (Giant Marsh vs. Corte Madera, San Pablo vs. Buck's Landing) show how much sites of the same edge type differ, which puts the between-type difference in context.
+
+```{r, ADDED averaged companion for site season glmm}
+site_season_model_glmm_avg <- glmmTMB(
+  Flux ~ Site * Cal_Season + (1|Loc_ID),
+  family = Gamma(link = "log"),
+  data = master_tier5_clean
+)
+summary(site_season_model_glmm_avg)
+Anova(site_season_model_glmm_avg, type = "II")
+
+sim_res_site_season_avg <- run_dharma(
+  site_season_model_glmm_avg, master_tier5_clean,
+  label      = "site_season_model_glmm (averaged)",
+  predictors = c("Site", "Cal_Season", "Dist_f")
+)
+
+emmeans(site_season_model_glmm_avg, pairwise ~ Site, type = "response")
+emmeans(site_season_model_glmm_avg, pairwise ~ Site | Cal_Season, type = "response")
+```
+
+## Output tables (ADDED)
+
+```{r, per-site study phase stats tables}
+# Study-phase version of the per-site distance tables in RQ1-spatial: one
+# table per site, same columns as tier5_dist_site_stats (n, Mean, SD, SE,
+# Median, Min, Max, Skewness, Kurtosis, Shapiro_p). Same rows as every
+# temporal model here (Flux > 0, Dist = 48 EXCLUDED).
+# Output: phase_stats_<Site>_avg.png
+
+phase_site_tables_avg <- save_site_split_tables(
+  master_tier5_clean, group_var = "Study.Phase", group_label = "Study Phase",
+  file_stub = "phase_stats", tier = "avg", out_dir = rq1_img_dir
+)
+```
+
+```{r, save fitted models}
+# The GLMM output-table images need BOTH tiers of each model, which now
+# live in separate files. So each tier file saves its fitted models here,
+# and RQ1-temporal_tables.qmd reads both files and makes the images --
+# no refitting, so that file renders in seconds.
+# Run this file (and RQ1-temporal_byrep.qmd) before RQ1-temporal_tables.qmd.
+# Any model that wasn't fit (e.g. a chunk you skipped) is saved as NULL
+# and skipped by the tables file.
+
+rq1_model_names_avg <- c(
+  "edge_time_model_glmm_avg",
+  "edge_time_model_glmm_ar1_avg",
+  "edge_phenperiod_model_glmm_avg",
+  "edge_season_model_glmm_avg",
+  "dist_time_model_glmm_avg",
+  "dist_season_model_glmm_avg",
+  "dist_season_model_glmm_factor_avg",
+  "edge_dist_season_model_glmm_avg",
+  "edge_season_model_glmm_tran_avg",
+  "edge_season_model_glmm_disp_avg",
+  "edge_season_model_glmm_noGM_avg",
+  "edge_season_model_glmm_noDec_avg",
+  "edge_season_model_glmm_noFlag_avg",
+  "edge_season_model_glmm_interval_avg",
+  "site_season_model_glmm_avg",
+  "phase_base_wind_cont_glmm_avg",
+  "mean_wind_model_glmm_avg",
+  "gust_model_glmm_avg",
+  "wind_cat_model_glmm_avg",
+  "edge_time_gam_avg"
+)
+rq1_models_avg <- mget(rq1_model_names_avg, ifnotfound = list(NULL))
+
+saveRDS(rq1_models_avg,
+        file.path(knitr::opts_knit$get("root.dir"), "rq1_temporal_models_avg.rds"))
+
+# Which models were saved (FALSE = not found, will be skipped)
+sapply(rq1_models_avg, Negate(is.null))
+```
+
+```{r, quick site dist season glmm avg}
+
+# QUICK STANDALONE RUN (averaged data only): site x distance x season GLMM.
+# Needs only the packages chunk and the data-loading chunks at the top.
+# Distance is raw meters; slopes are reported as % change in flux per meter.
+
+dat_avg <- master_tier5_clean %>%
+  filter(!is.na(Dist), !is.na(Cal_Season), !is.na(Study.Phase)) %>%
+  droplevels()
+
+site_dist_season_quick_avg <- glmmTMB(
+  Flux ~ Site * Dist * Cal_Season + (1|Loc_ID) + (1|Study.Phase),
+  family = Gamma(link = "log"),
+  data = dat_avg
+)
+summary(site_dist_season_quick_avg)
+
+# Key tests: Site:Dist:Cal_Season (do sites' distance gradients change
+# differently by season?) and Site:Dist (do sites have different gradients?)
+Anova(site_dist_season_quick_avg, type = "II")
+
+# Quick diagnostics (250 simulations, no quantile curves -- fast)
+sim_quick_avg <- simulateResiduals(site_dist_season_quick_avg, n = 250)
+plot(sim_quick_avg, quantreg = FALSE)
+testDispersion(sim_quick_avg)
+
+# Distance slope for each site in each season, as % change in flux per meter
+# (negative = flux declines moving away from the edge)
+slopes_avg <- as.data.frame(emtrends(site_dist_season_quick_avg, ~ Site | Cal_Season, var = "Dist"))
+lcl <- intersect(c("asymp.LCL", "lower.CL"), names(slopes_avg))[1]
+ucl <- intersect(c("asymp.UCL", "upper.CL"), names(slopes_avg))[1]
+slopes_avg <- slopes_avg %>%
+  mutate(
+    pct_per_m = 100 * (exp(Dist.trend) - 1),
+    pct_lower = 100 * (exp(.data[[lcl]]) - 1),
+    pct_upper = 100 * (exp(.data[[ucl]]) - 1)
+  )
+slopes_avg %>% select(Site, Cal_Season, pct_per_m, pct_lower, pct_upper)
+
+# Does each site's distance slope differ between seasons? (one test per site)
+emtrends(site_dist_season_quick_avg, pairwise ~ Cal_Season | Site, var = "Dist")
+
+site_dist_season_quick_plot_avg <- ggplot(slopes_avg, aes(x = Cal_Season, y = pct_per_m,
+                                                          color = Site, group = Site)) +
+  geom_hline(yintercept = 0, linetype = "dashed", color = "grey50") +
+  geom_point(size = 3, position = position_dodge(0.4)) +
+  geom_errorbar(aes(ymin = pct_lower, ymax = pct_upper),
+                width = 0.2, position = position_dodge(0.4)) +
+  (if (exists("site_colors")) scale_color_manual(values = site_colors)) +
+  labs(title = "Change in Flux per Meter from Marsh Edge, by Site and Season (Averaged)",
+       x = "Calendar Season", y = "% change in flux per meter\n(< 0 = declines away from edge)",
+       color = "Site") +
+  theme_bw()
+site_dist_season_quick_plot_avg
+
+ggsave(
+  file.path(if (exists("rq1_img_dir")) rq1_img_dir else getwd(), "site_dist_season_slopes_quick_avg.png"),
+  plot = site_dist_season_quick_plot_avg, width = 8, height = 5, dpi = 300
+)
+`
+```
+
+```{r, quick site dist season glmm avg tables}
+
+# Formal tables for site_dist_season_quick_avg (run the model chunk above first).
+#   Table A: Type II Wald chi-square test for each term
+#   Table B: distance slope (% change in flux per meter) by site and season
+#   Table C: ramped vs. scarped seasonal shift (supplementary / Discussion)
+# Saved as PNG (for the figures list) and RTF (opens and edits in Word).
+
+out_dir <- if (exists("rq1_img_dir")) rq1_img_dir else getwd()
+
+# p-values in results-table style: "< .001", otherwise 3 decimals, no leading zero
+fmt_p <- function(p) ifelse(p < .001, "< .001", sub("^0", "", formatC(p, format = "f", digits = 3)))
+
+# Readable term names
+label_terms <- function(x) {
+  x <- gsub("Cal_Season", "Season", x)
+  x <- gsub("\\bDist\\b", "Distance (m)", x)
+  gsub(":", " \u00D7 ", x)
+}
+
+# Random-effect variances, sample sizes and fit, for the table notes
+vc_avg <- sapply(VarCorr(site_dist_season_quick_avg)$cond, function(v) v[1, 1])
+note_re <- paste0(
+  "Random intercepts: location (variance = ", formatC(vc_avg[["Loc_ID"]], format = "f", digits = 3),
+  ", ", n_distinct(dat_avg$Loc_ID), " locations); study phase (variance = ",
+  formatC(vc_avg[["Study.Phase"]], format = "f", digits = 3), ", ",
+  n_distinct(dat_avg$Study.Phase), " phases)."
+)
+note_fit <- paste0("N = ", nobs(site_dist_season_quick_avg), " observations; AIC = ",
+                   formatC(AIC(site_dist_season_quick_avg), format = "f", digits = 1), ".")
+note_model <- paste0("Gamma GLMM (log link): Flux ~ Site \u00D7 Distance \u00D7 Season + ",
+                     "(1 | Location) + (1 | Study Phase). Averaged data.")
+
+apa_style <- function(tab) {
+  tab %>%
+    tab_options(
+      heading.align = "left",
+      table.border.top.color = "black", table.border.bottom.color = "black",
+      heading.border.bottom.color = "black",
+      column_labels.border.top.color = "black", column_labels.border.bottom.color = "black",
+      table_body.border.bottom.color = "black", table_body.hlines.color = "white",
+      row_group.border.top.color = "white", row_group.border.bottom.color = "white",
+      table.font.size = px(13), source_notes.font.size = px(11)
+    )
+}
+
+# ---- Table A: tests for each term ----------------------------------------
+tests_avg <- as.data.frame(Anova(site_dist_season_quick_avg, type = "II"))
+tests_avg <- data.frame(
+  Term  = label_terms(rownames(tests_avg)),
+  Chisq = tests_avg$Chisq,
+  df    = tests_avg$Df,
+  p     = fmt_p(tests_avg[["Pr(>Chisq)"]])
+)
+
+table_tests_avg <- tests_avg %>%
+  gt() %>%
+  tab_header(
+    title    = md("**Table X**"),
+    subtitle = md("*Effects of Site, Distance from Marsh Edge, and Season on Sediment Flux*")
+  ) %>%
+  cols_label(Term = "Term", Chisq = md("*\u03C7*\u00B2"), df = md("*df*"), p = md("*p*")) %>%
+  fmt_number(columns = Chisq, decimals = 2) %>%
+  cols_align(align = "left", columns = Term) %>%
+  cols_align(align = "center", columns = c(Chisq, df, p)) %>%
+  tab_source_note(md(paste0("*Note.* Type II Wald \u03C7\u00B2 tests. ", note_model))) %>%
+  tab_source_note(note_re) %>%
+  tab_source_note(note_fit) %>%
+  apa_style()
+table_tests_avg
+
+gtsave(table_tests_avg, file.path(out_dir, "table_site_dist_season_tests_avg.png"))
+gtsave(table_tests_avg, file.path(out_dir, "table_site_dist_season_tests_avg.rtf"))
+
+# ---- Table B: distance slopes by site and season -------------------------
+slopes_table_avg <- slopes_avg %>%
+  transmute(
+    Site   = as.character(Site),
+    Season = as.character(Cal_Season),
+    pct    = pct_per_m,
+    CI     = paste0("[", formatC(pct_lower, format = "f", digits = 2), ", ",
+                    formatC(pct_upper, format = "f", digits = 2), "]")
+  )
+
+table_slopes_avg <- slopes_table_avg %>%
+  gt(groupname_col = "Site") %>%
+  tab_header(
+    title    = md("**Table X**"),
+    subtitle = md("*Change in Sediment Flux per Meter from the Marsh Edge, by Site and Season*")
+  ) %>%
+  cols_label(Season = "Season", pct = "% change per m", CI = "95% CI") %>%
+  fmt_number(columns = pct, decimals = 2) %>%
+  cols_align(align = "left", columns = Season) %>%
+  cols_align(align = "center", columns = c(pct, CI)) %>%
+  tab_style(style = cell_text(weight = "bold"), locations = cells_row_groups()) %>%
+  tab_source_note(md(paste0(
+    "*Note.* Estimated % change in flux for each additional meter from the marsh edge, ",
+    "for a typical location (random effects at zero). Negative values = flux declines moving ",
+    "into the marsh. Confidence intervals that include 0 indicate no detectable distance effect. ",
+    note_model))) %>%
+  tab_source_note(note_fit) %>%
+  apa_style()
+table_slopes_avg
+
+gtsave(table_slopes_avg, file.path(out_dir, "table_site_dist_season_slopes_avg.png"))
+gtsave(table_slopes_avg, file.path(out_dir, "table_site_dist_season_slopes_avg.rtf"))
+
+# ---- Table C: ramped vs. scarped seasonal shift (supplementary / Discussion) ----
+# Does the summer-to-winter shift in distance slope differ between ramped
+# and scarped sites? Estimate = average ramped shift minus average scarped
+# shift, on the model's log scale (per meter).
+
+tr_avg <- emtrends(site_dist_season_quick_avg, ~ Cal_Season * Site, var = "Dist")
+grid   <- as.data.frame(tr_avg)[, c("Cal_Season", "Site")]
+w <- with(grid,
+          ifelse(Cal_Season == "Winter", 1, -1) *
+            ifelse(Site %in% c("SanPablo", "Buck'sLanding"), 0.5, -0.5))
+
+shift_contrast_avg <- contrast(tr_avg, list(ramped_minus_scarped_shift = w))
+shift_contrast_avg   # printed result, for reference
+
+ct  <- as.data.frame(summary(shift_contrast_avg, infer = c(TRUE, TRUE)))
+lcl <- intersect(c("asymp.LCL", "lower.CL"), names(ct))[1]
+ucl <- intersect(c("asymp.UCL", "upper.CL"), names(ct))[1]
+
+shift_table_avg <- data.frame(
+  Comparison = "Ramped \u2212 scarped: summer-to-winter shift in distance slope",
+  Estimate   = ct$estimate,
+  SE         = ct$SE,
+  CI         = paste0("[", formatC(ct[[lcl]], format = "f", digits = 3), ", ",
+                      formatC(ct[[ucl]], format = "f", digits = 3), "]"),
+  z          = ct$z.ratio,
+  p          = fmt_p(ct$p.value),
+  pct        = 100 * (exp(ct$estimate) - 1)
+)
+
+table_shift_avg <- shift_table_avg %>%
+  gt() %>%
+  tab_header(
+    title    = md("**Table SX**"),
+    subtitle = md("*Difference Between Ramped and Scarped Sites in the Seasonal Shift of Distance Gradients*")
+  ) %>%
+  cols_label(Comparison = "Comparison", Estimate = "Estimate", SE = md("*SE*"),
+             CI = "95% CI", z = md("*z*"), p = md("*p*"),
+             pct = "Difference (% per m)") %>%
+  fmt_number(columns = c(Estimate, SE), decimals = 3) %>%
+  fmt_number(columns = c(z, pct), decimals = 2) %>%
+  cols_align(align = "left", columns = Comparison) %>%
+  cols_align(align = "center", columns = c(Estimate, SE, CI, z, p, pct)) %>%
+  tab_source_note(md(paste0(
+    "*Note.* Planned contrast from the site \u00D7 distance \u00D7 season model: the average ",
+    "summer-to-winter change in distance slope at the two ramped sites (San Pablo, Buck's Landing) ",
+    "minus that at the two scarped sites (Giant Marsh, Corte Madera). Estimate and CI are on the ",
+    "model's log scale per meter; the last column expresses the difference as a percentage ",
+    "per meter. Positive values = larger winter shift toward higher inland flux at ramped sites. ",
+    "With two sites per edge type, this compares these four marshes, not edge types in general."))) %>%
+  tab_source_note(note_fit) %>%
+  apa_style()
+table_shift_avg
+
+gtsave(table_shift_avg, file.path(out_dir, "table_site_dist_season_shift_contrast_avg.png"))
+gtsave(table_shift_avg, file.path(out_dir, "table_site_dist_season_shift_contrast_avg.rtf"))
+```

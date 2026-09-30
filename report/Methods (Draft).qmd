@@ -60,12 +60,9 @@ Within each transect onsite, sediment traps were placed in a parallel orientatio
 
 Each tile represented a replicate sample for collection of sediment deposition. On each tile, a pre-weighed, labeled, borosillicate filter paper of 9 diameters was attached to each tile with two rubber bands of set dimensions (#33 size used). Each tile was secured to the marsh platform from two diagonal landscape pins anchoring the corners to the platform. These filters were left on the tiles on average 28-30 days, and each individual filter was collected in a pre-weighed, labeled Ziploc bag. Once a filter was collected, another pre-weighed, labeled filter waas placed on the tile with rubber bands to begin an additional sediment collection period.
 
-Once collected, samples of ssediment with pre-weighed filters, and pre-weighed collection Ziploc bags were dried in a drying oven for approximately 24 hours at 65 degrees Celsius. After drying, samples with filters and Ziploc bags were weighed on a high precision scale in a tared container to derive the mass post drying. This mass was recorded and the pre-field masses of the Ziploc collection bag and the filter paper were subtracted from this mass to determine the total mass of sediment deposited on that tile during the period of deployment. 
-Additionally, one small core 4 cm sample was collected in alignment with each sampling area across each of the eight transects to measure differences in sediment grain size between marsh edge transects. Intermediate data resulted in observable significant amounts of sediment of a sand grain size, leading to inquiry if grain size differed across marsh edges and marsh sites over time. 
-Collections of sediment completed in 2022-2023 by the U.S. Geological Survey that measured Corte Madera and San Pablo marsh in both channel and bay transects.
+Once collected, samples of ssediment with pre-weighed filters, and pre-weighed collection Ziploc bags were dried in a drying oven for approximately 24 hours at 65 degrees Celsius. After drying, samples with filters and Ziploc bags were weighed on a high precision scale in a tared container to derive the mass post drying. This mass was recorded and the pre-field masses of the Ziploc collection bag and the filter paper were subtracted from this mass to determine the total mass of sediment deposited on that tile during the period of deployment. Additionally, one small core 4 cm sample was collected in alignment with each sampling area across each of the eight transects to measure differences in sediment grain size between marsh edge transects. Intermediate data resulted in observable significant amounts of sediment of a sand grain size, leading to inquiry if grain size differed across marsh edges and marsh sites over time. Collections of sediment completed in 2022-2023 by the U.S. Geological Survey that measured Corte Madera and San Pablo marsh in both channel and bay transects.
 
 - This study repeated the same methodology of the USGS study at those same sites from the bay transects, and added the Buck's Landing (ramped) and Giant Marsh (scarped) sites.
-
 
 - Show a diagram and a table that shows the deployment distances, the replicates, and the number of samples per month total
 
@@ -73,13 +70,11 @@ Collections of sediment completed in 2022-2023 by the U.S. Geological Survey tha
 
 #### 2.3 RTK Elevation Measurements for Horizontal Marsh Edge Profiles of 2025-2026 Study
 
-Real-Time Kinematic (RTK) surveys were completed of the elevation profile for scoping of the site prior to study start in June 2025. These elevation profiles were used to decide two transects per each site that had similar marsh edge profile shapes, as well as similar elevations across the transect. 
+Real-Time Kinematic (RTK) surveys were completed of the elevation profile for scoping of the site prior to study start in June 2025. These elevation profiles were used to decide two transects per each site that had similar marsh edge profile shapes, as well as similar elevations across the transect.
 
-Additionally, for the 2025-2026 study, surveys of the elevation profile, the locations of the replicate tiles, and the locations of the sediment cores were taken to confirm that elevation was consistent across each of the replicate tiles within the same distance from the marsh edge in a given transect at one site. 
+Additionally, for the 2025-2026 study, surveys of the elevation profile, the locations of the replicate tiles, and the locations of the sediment cores were taken to confirm that elevation was consistent across each of the replicate tiles within the same distance from the marsh edge in a given transect at one site.
 
-Elevation data from the RTK surveys was processed and incorporated into deriving a z* value based from the data available on the BCDC Database with projections of MSL and MHHW. z* was used as a proxy for tidal elevation to consider inundation of the marsh as it relates to it's elevation measured. 
-
-
+Elevation data from the RTK surveys was processed and incorporated into deriving a z\* value based from the data available on the BCDC Database with projections of MSL and MHHW. z\* was used as a proxy for tidal elevation to consider inundation of the marsh as it relates to it's elevation measured.
 
 - Have a table that includes the timing of monitoring and a photo of the elevations being taken
 

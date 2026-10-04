@@ -98,7 +98,43 @@ editor: visual
 
 #### 4.2 Sediment Deposition Rates Across Years in One Ramped and One Scarped Edge Marsh
 
+*Study Dataset Comparison Across Ramped (San Pablo Marsh) and Scarped Edge (Corte Madera Marsh) Sites*
+
+![](C:/Users/savan/OneDrive%20-%20San%20Francisco%20State%20University/ProjectData/GitHub/DepositionSFB/images/rq_2/basic_rq2_avg.png)
+
+![](C:/Users/savan/OneDrive%20-%20San%20Francisco%20State%20University/ProjectData/GitHub/DepositionSFB/images/rq_2\site_stats_usgs_avg.png)
+
+*Spatially*
+
+![](C:/Users/savan/OneDrive%20-%20San%20Francisco%20State%20University/ProjectData/GitHub/DepositionSFB/images/rq_2/rq2s_dist_shape_avg.png)
+
+![](C:/Users/savan/OneDrive%20-%20San%20Francisco%20State%20University/ProjectData/GitHub/DepositionSFB/images/rq_2/rq2s_box_avg.png)
+
+![](C:/Users/savan/OneDrive%20-%20San%20Francisco%20State%20University/ProjectData/GitHub/DepositionSFB/images/rq_2/rq2s_flux_zstation_avg.png)
+
+*Temporally*
+
+![](C:/Users/savan/OneDrive%20-%20San%20Francisco%20State%20University/ProjectData/GitHub/DepositionSFB/images/rq_2/rq2t_phase_box_1_avg.png)
+
+![](C:/Users/savan/OneDrive%20-%20San%20Francisco%20State%20University/ProjectData/GitHub/DepositionSFB/images/rq_2/rq2t_phase_box_2_avg.png)
+
+![](C:/Users/savan/OneDrive%20-%20San%20Francisco%20State%20University/ProjectData/GitHub/DepositionSFB/images/rq_2/rq2t_phase_box_3_avg.png)
+
 #### 4.3 Sediment Deposition in Relation to Intra-Marsh Geomorphic Factors
+
+*Intra-Marsh Geomorphic Factor Comparison*
+
+![](C:/Users/savan/OneDrive%20-%20San%20Francisco%20State%20University/ProjectData/GitHub/DepositionSFB/images/rq_3/lasso_plot_avg.png)
+
+*Elevation and Distance from Marsh Edge*
+
+![](C:/Users/savan/OneDrive%20-%20San%20Francisco%20State%20University/ProjectData/GitHub/DepositionSFB/images/rq_3/rq3_station_level_summary.png)
+
+![](C:/Users/savan/OneDrive%20-%20San%20Francisco%20State%20University/ProjectData/GitHub/DepositionSFB/images/rq_3/rq3_variance_partition_by_site_avg.png)
+
+![](C:/Users/savan/OneDrive%20-%20San%20Francisco%20State%20University/ProjectData/GitHub/DepositionSFB/images/rq_3/rq3_zstar_flux_stacked_avg.png)
+
+![](C:/Users/savan/OneDrive%20-%20San%20Francisco%20State%20University/ProjectData/GitHub/DepositionSFB/images/rq_3/rq3_station_phase_heatmap.png)
 
 ### 5. Discussion
 

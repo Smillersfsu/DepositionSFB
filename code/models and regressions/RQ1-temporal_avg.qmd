@@ -2100,7 +2100,7 @@ ggsave(
   file.path(if (exists("rq1_img_dir")) rq1_img_dir else getwd(), "site_dist_season_slopes_quick_avg.png"),
   plot = site_dist_season_quick_plot_avg, width = 8, height = 5, dpi = 300
 )
-`
+
 ```
 
 ```{r, quick site dist season glmm avg tables}

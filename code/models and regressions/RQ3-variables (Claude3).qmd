@@ -1,0 +1,1667 @@
+---
+title: "RQ3 - Variables (Predictors of Sediment Flux) (Claude)"
+format: docx
+editor: visual
+---
+
+```{=html}
+<!--
+Rebuilt this session. The previous version of this file was still the
+default Quarto template ("Quarto enables you to weave together...",
+"Running Code" placeholder headers) with real analysis code dropped in
+underneath it -- cleaned that scaffolding out.
+
+Also fixed a real bug: every chunk referenced `master_tier5_byrep_clean`
+without this file ever loading it. That only "worked" if RQ1-spatial.Rmd
+had already been run earlier in the same R session and left the object
+behind -- the same session-leftover-object problem
+Research_question_2_FIXED.qmd's own header notes fixing for
+usgs_thesis_merge.qmd. Fixed the same way here: load master_tier5_byrep.csv
+directly in this file instead of assuming it's already in memory.
+
+Resolves the TODO left in the original rq3_model_glmm chunk ("make a
+transect per edge type category column and add this here as a random
+effect") -- that's marsh_edgeID, added to step1_master_analysis_cleanup.Rmd.
+See the "marsh_edgeID comparison" section below for how it's used here,
+and the caveat on what it does and doesn't buy you statistically.
+-->
+```
+
+```{=html}
+<!--
+STATISTICAL TOOLS USED IN THIS FILE
+(full definitions in statistical_tools_glossary (Claude).R)
+
+- lmer() [lme4] -- Gaussian mixed model; SENSITIVITY check version of
+  rq3_model_glmm (Rule 2).
+- glmmTMB() [glmmTMB] -- PRIMARY model fitter, Gamma(link = "log"),
+  for both rq3_model_glmm and the marsh_edgeID comparison model.
+- Anova() [car] -- Type II significance test on fixed effects.
+- AIC() -- compares rq3_model_glmm against rq3_model_glmm_edgeID (the
+  marsh_edgeID vs. Site/Tran comparison), non-nested models.
+- simulateResiduals() / testDispersion() [DHARMa] -- simulation-based
+  residual diagnostics appropriate for a Gamma GLMM.
+- cv.glmnet() / glmnet() [glmnet] -- LASSO variable selection with
+  cross-validated penalty strength; cross-checks that the predictors
+  kept in rq3_model_glmm survive automatic selection.
+- VarCorr() + trigamma(1/sigma^2) -- variance partitioning on the
+  log-link scale (focused section): share of variance at the Site,
+  transect, location, time, deployment and trap levels.
+- Marginal R² (Nakagawa) -- variance explained by fixed effects; split
+  into unique-between, unique-within and shared parts.
+- anova(m0, m1) -- likelihood-ratio tests: Site given within-marsh
+  predictors, and within-marsh predictors given Site.
+-->
+```
+
+```{r, load packages and data}
+source("C:\\Users\\savan\\OneDrive - San Francisco State University\\ProjectData\\GitHub\\DepositionSFB\\code\\R\\setup.R")
+source("C:\\Users\\savan\\OneDrive - San Francisco State University\\ProjectData\\GitHub\\DepositionSFB\\code\\R\\plotting.R")
+
+# Shared fixed/random-effects rule, family decision, and naming
+# convention -- see that file's header before editing any model below.
+source("C:\\Users\\savan\\OneDrive - San Francisco State University\\ProjectData\\GitHub\\DepositionSFB\\code\\R\\modeling_conventions (Claude).R")
+
+# Definitions for every statistical function used in this file -- see
+# the "Statistical Tools Used in This File" note below, or
+# statistical_tools_glossary (Claude).R for the fuller version.
+source("C:\\Users\\savan\\OneDrive - San Francisco State University\\ProjectData\\GitHub\\DepositionSFB\\code\\R\\statistical_tools_glossary (Claude).R")
+
+knitr::opts_chunk$set(echo = TRUE)
+knitr::opts_knit$set(root.dir = 'C:/Users/savan/OneDrive - San Francisco State University/ProjectData/GitHub/DepositionSFB/data')
+
+# FIX: load master_tier5_byrep_clean directly rather than relying on it
+# already being in memory from another file's session.
+master_tier5_byrep <- readr::read_csv(
+  file.path(knitr::opts_knit$get("root.dir"), "master_tier5_byrep.csv")
+)
+
+master_tier5_byrep_clean <- master_tier5_byrep %>%
+  filter(Flux > 0, Dist != 48) %>%
+  mutate(
+    Site = as.factor(Site),
+    Tran = as.factor(Tran),
+    marsh_edge_type = factor(marsh_edge_type, levels = c("Scarped", "Ramped")),
+    marsh_edgeID = factor(marsh_edgeID,
+                           levels = c("R-1","R-2","R-3","R-4","S-1","S-2","S-3","S-4")),
+    Phen_Period = factor(Phen_Period,
+                          levels = c("Late_Dry\n(Months 1-3)", "Tran\n(Months 4-6)",
+                                     "Wet\n(Months 7-9)", "Growth\n(Months 10-12)")),
+    Cal_Season = factor(Cal_Season, levels = c("Winter", "Summer"))   # Lacy et al. (2019)
+  )
+
+usgs_thesis <- readr::read_csv(
+  file.path(knitr::opts_knit$get("root.dir"), "usgs_thesis_byrep.csv")
+)
+# FIX: this was reading the AVERAGED usgs_thesis.csv, while every model
+# in this file (rq3_model_glmm and its variants) is now fit on
+# master_tier5_byrep_clean. Unlike RQ1-spatial's equivalent fix, this
+# one is a real analytical step, not just diagnostics -- the LASSO
+# section below uses usgs_thesis to cross-check which predictors
+# rq3_model_glmm is justified in keeping, so it needs to be evaluated
+# on the same grain as the model it's validating.
+```
+
+```{r, ADDED averaged companion data load and prep}
+# Same filter/factor steps as the byrep load above, applied to
+# master_tier5.csv (the averaged tier) instead.
+
+master_tier5 <- readr::read_csv(
+  file.path(knitr::opts_knit$get("root.dir"), "master_tier5.csv")
+)
+
+master_tier5_clean <- master_tier5 %>%
+  filter(Flux > 0, Dist != 48) %>%
+  mutate(
+    Site = as.factor(Site),
+    Tran = as.factor(Tran),
+    marsh_edge_type = factor(marsh_edge_type, levels = c("Scarped", "Ramped")),
+    marsh_edgeID = factor(marsh_edgeID,
+                           levels = c("R-1","R-2","R-3","R-4","S-1","S-2","S-3","S-4")),
+    Phen_Period = factor(Phen_Period,
+                          levels = c("Late_Dry\n(Months 1-3)", "Tran\n(Months 4-6)",
+                                     "Wet\n(Months 7-9)", "Growth\n(Months 10-12)")),
+    Cal_Season = factor(Cal_Season, levels = c("Winter", "Summer"))
+  )
+
+# Averaged companion to usgs_thesis, for the LASSO section's averaged
+# companion below -- same grain (averaged) as master_tier5_clean, to
+# stay consistent with what it's validating.
+usgs_thesis_avg <- readr::read_csv(
+  file.path(knitr::opts_knit$get("root.dir"), "usgs_thesis.csv")
+)
+```
+
+## Base model: z\*, local slope, and marsh edge type
+
+```{r, rq3 base model}
+# SENSITIVITY check (Rule 2) -- rq3_model_glmm below is primary. Site as
+# random is correct here per Rule 1b: this model uses all 4 thesis
+# sites and isn't testing site identity itself.
+
+rq3_model <- lmer(log(Flux) ~ z_star + local_slope + marsh_edge_type +
+                    (1 | Site) + (1|Loc_ID), data = master_tier5_byrep_clean)
+summary(rq3_model)
+```
+
+```{r, ADDED averaged companion for rq3 base model}
+rq3_model_avg <- lmer(log(Flux) ~ z_star + local_slope + marsh_edge_type +
+                    (1 | Site) + (1|Loc_ID), data = master_tier5_clean)
+summary(rq3_model_avg)
+```
+
+```{r, rq3 base model glmm}
+# PRIMARY model for this section (Rule 2: Gamma GLMM on raw Flux).
+# (1 | Site/Tran) is the correct nesting (Rule 1a) -- Site is not a
+# fixed effect in this formula, so Tran needs to be nested under it,
+# not left bare.
+
+rq3_model_glmm <- glmmTMB(
+  Flux ~ z_star + local_slope + marsh_edge_type + Dist + (1 | Site/Tran) + (1|Loc_ID),
+  family = Gamma(link = "log"),
+  data = master_tier5_byrep_clean
+)
+summary(rq3_model_glmm)
+Anova(rq3_model_glmm, type = "II")
+
+sim_res_rq3 <- simulateResiduals(rq3_model_glmm)
+plot(sim_res_rq3)
+testDispersion(sim_res_rq3)
+```
+
+```{r, ADDED averaged companion for rq3 base model glmm}
+rq3_model_glmm_avg <- glmmTMB(
+  Flux ~ z_star + local_slope + marsh_edge_type + Dist + (1 | Site/Tran) + (1|Loc_ID),
+  family = Gamma(link = "log"),
+  data = master_tier5_clean
+)
+summary(rq3_model_glmm_avg)
+Anova(rq3_model_glmm_avg, type = "II")
+
+sim_res_rq3_avg <- simulateResiduals(rq3_model_glmm_avg)
+plot(sim_res_rq3_avg)
+testDispersion(sim_res_rq3_avg)
+```
+
+## marsh_edgeID comparison
+
+The original version of this chunk had a TODO: *"make a transect per edge type category column and add this here as a random effect"* -- that's `marsh_edgeID` (added in `step1_master_analysis_cleanup.Rmd`, 4 transect-level units per edge type, not tied to a specific Site).
+
+This is run as an explicit **model comparison**, not a silent swap-in, because `marsh_edgeID` is still one level per real Site x Tran combination -- it's `interaction(Site, Tran)` relabeled, not additional independent replication. Comparing the two tells you whether attributing transect-level variation to Site changes the marsh_edge_type conclusion; it does not mean `marsh_edgeID` provides more statistical power than `(1|Site/Tran)`.
+
+```{r, marsh_edgeID comparison}
+rq3_model_glmm_edgeID <- glmmTMB(
+  Flux ~ z_star + local_slope + marsh_edge_type + Dist + (1 | marsh_edgeID) + (1|Loc_ID),
+  family = Gamma(link = "log"),
+  data = master_tier5_byrep_clean
+)
+summary(rq3_model_glmm_edgeID)
+
+# Compare fixed-effect estimates and significance for marsh_edge_type
+# side by side -- this is the actual question ("does it matter whether
+# transect variation is attributed to Site"), not which AIC is lower.
+summary(rq3_model_glmm)$coefficients$cond["marsh_edge_typeRamped", ]
+summary(rq3_model_glmm_edgeID)$coefficients$cond["marsh_edge_typeRamped", ]
+
+AIC(rq3_model_glmm, rq3_model_glmm_edgeID)
+```
+
+```{r, ADDED averaged companion for marsh_edgeID comparison}
+rq3_model_glmm_edgeID_avg <- glmmTMB(
+  Flux ~ z_star + local_slope + marsh_edge_type + Dist + (1 | marsh_edgeID) + (1|Loc_ID),
+  family = Gamma(link = "log"),
+  data = master_tier5_clean
+)
+summary(rq3_model_glmm_edgeID_avg)
+
+summary(rq3_model_glmm_avg)$coefficients$cond["marsh_edge_typeRamped", ]
+summary(rq3_model_glmm_edgeID_avg)$coefficients$cond["marsh_edge_typeRamped", ]
+
+AIC(rq3_model_glmm_avg, rq3_model_glmm_edgeID_avg)
+```
+
+## Adding temporal grouping as a predictor: Phen_Period and Cal_Season
+
+`rq3_model_glmm` above doesn't include any temporal term. These two models add `Phen_Period` and `Cal_Season` (Lacy et al. 2019) separately, each as its own explicit comparison against the base model -- not combined into one formula together, since `Phen_Period` and `Cal_Season` are two different groupings of the same underlying time variable and including both at once would be hard to interpret (and likely highly collinear, since both are ultimately derived from Month).
+
+```{r, rq3 phen period comparison}
+rq3_model_glmm_phenperiod <- glmmTMB(
+  Flux ~ z_star + local_slope + marsh_edge_type + Dist + Phen_Period + (1 | Site/Tran) + (1|Loc_ID),
+  family = Gamma(link = "log"),
+  data = master_tier5_byrep_clean
+)
+summary(rq3_model_glmm_phenperiod)
+Anova(rq3_model_glmm_phenperiod, type = "II")
+
+sim_res_rq3_phenperiod <- simulateResiduals(rq3_model_glmm_phenperiod)
+plot(sim_res_rq3_phenperiod)
+testDispersion(sim_res_rq3_phenperiod)
+
+# Same N as rq3_model_glmm (both on master_tier5_byrep_clean), so AIC is a
+# valid comparison here -- tells you whether Phen_Period adds
+# meaningful explanatory power over the base spatial predictors alone.
+AIC(rq3_model_glmm, rq3_model_glmm_phenperiod)
+```
+
+```{r, ADDED averaged companion for rq3 phen period comparison}
+rq3_model_glmm_phenperiod_avg <- glmmTMB(
+  Flux ~ z_star + local_slope + marsh_edge_type + Dist + Phen_Period + (1 | Site/Tran) + (1|Loc_ID),
+  family = Gamma(link = "log"),
+  data = master_tier5_clean
+)
+summary(rq3_model_glmm_phenperiod_avg)
+Anova(rq3_model_glmm_phenperiod_avg, type = "II")
+
+sim_res_rq3_phenperiod_avg <- simulateResiduals(rq3_model_glmm_phenperiod_avg)
+plot(sim_res_rq3_phenperiod_avg)
+testDispersion(sim_res_rq3_phenperiod_avg)
+
+AIC(rq3_model_glmm_avg, rq3_model_glmm_phenperiod_avg)
+```
+
+```{r, rq3 season comparison}
+rq3_model_glmm_season <- glmmTMB(
+  Flux ~ z_star + local_slope + marsh_edge_type + Dist + Cal_Season + (1 | Site/Tran) + (1|Loc_ID),
+  family = Gamma(link = "log"),
+  data = master_tier5_byrep_clean
+)
+summary(rq3_model_glmm_season)
+Anova(rq3_model_glmm_season, type = "II")
+
+sim_res_rq3_season <- simulateResiduals(rq3_model_glmm_season)
+plot(sim_res_rq3_season)
+testDispersion(sim_res_rq3_season)
+
+AIC(rq3_model_glmm, rq3_model_glmm_phenperiod, rq3_model_glmm_season)
+```
+
+```{r, ADDED averaged companion for rq3 season comparison}
+rq3_model_glmm_season_avg <- glmmTMB(
+  Flux ~ z_star + local_slope + marsh_edge_type + Dist + Cal_Season + (1 | Site/Tran) + (1|Loc_ID),
+  family = Gamma(link = "log"),
+  data = master_tier5_clean
+)
+summary(rq3_model_glmm_season_avg)
+Anova(rq3_model_glmm_season_avg, type = "II")
+
+sim_res_rq3_season_avg <- simulateResiduals(rq3_model_glmm_season_avg)
+plot(sim_res_rq3_season_avg)
+testDispersion(sim_res_rq3_season_avg)
+
+AIC(rq3_model_glmm_avg, rq3_model_glmm_phenperiod_avg, rq3_model_glmm_season_avg)
+```
+
+The three-way `AIC()` at the end compares the base model against both temporal additions on equal footing (same N throughout) -- whichever comes out lowest is evidence for which temporal grouping, if any, is worth keeping as a predictor of Flux alongside the spatial variables, separate from the marsh_edge_type x time interaction question already being tested in `RQ1-temporal (Claude).qmd`.
+
+## LASSO variable selection
+
+Standardized LASSO on the thesis subset, used to cross-check which predictors the `rq3_model_glmm` fixed effects above are actually justified in keeping.
+
+```{r, lasso regression}
+
+#install.packages("glmnet")
+library(glmnet)
+
+lasso_data <- usgs_thesis %>%
+  filter(Study.Dataset == "Thesis") %>%   
+  select(Flux, z_star, local_slope, mean_wind_speed_kt, slope_fitted_elevation_m,
+         max_gust_kt, Dist) %>%
+  mutate(Dist = as.numeric(Dist)) %>%
+  drop_na() %>%
+  mutate(across(where(is.character), as.factor))
+  
+
+# standardize all numeric predictors (mean 0, SD 1) so coefficients are comparable
+lasso_data_scaled <- lasso_data %>%
+  mutate(across(where(is.numeric) & !all_of("Flux"), ~ as.numeric(scale(.))))
+
+x_scaled <- model.matrix(Flux ~ . - 1, data = lasso_data_scaled)
+y <- lasso_data_scaled$Flux
+
+set.seed(42)
+cv_lasso_scaled <- cv.glmnet(x_scaled, y, alpha = 1)
+plot(cv_lasso_scaled)
+
+best_lambda_scaled <- cv_lasso_scaled$lambda.min
+lasso_final_scaled <- glmnet(x_scaled, y, alpha = 1, lambda = best_lambda_scaled)
+coef(lasso_final_scaled)
+
+
+library(broom)   # for tidy() -- cleanly extracts glmnet coefficients into a data frame
+
+# Extract standardized LASSO coefficients into a plotting-ready data frame
+lasso_coefs <- coef(lasso_final_scaled) %>%
+  as.matrix() %>%
+  as.data.frame() %>%
+  rownames_to_column("predictor") %>%
+  rename(coefficient = s0) %>%
+  filter(predictor != "(Intercept)") %>%   # drop the intercept -- not a predictor effect
+  filter(coefficient != 0) %>%              # LASSO's whole point: keep only surviving (non-zero) predictors
+  mutate(
+    direction = ifelse(coefficient > 0, "Positive", "Negative"),
+    predictor = fct_reorder(predictor, abs(coefficient))  # order bars by magnitude, weakest to strongest
+  )
+
+# Thorne-style standardized coefficient bar plot
+lasso_plot <- ggplot(lasso_coefs, aes(x = predictor, y = coefficient, fill = direction)) +
+  geom_col(width = 0.6) +
+  geom_hline(yintercept = 0, color = "gray30", linewidth = 0.4) +
+  coord_flip() +   # horizontal bars -- easier to read predictor names, matches the Thorne-style layout
+  scale_fill_manual(values = c("Positive" = "#2166AC", "Negative" = "#B2182B")) +
+  labs(
+    title = stringr::str_wrap("Standardized LASSO Coefficients for Predictors of Daily Rates of Sediment Flux (g/m²/day)", width = 35),
+    x = NULL,
+    y = "Standardized Regression Coefficient",
+    fill = NULL
+  ) +
+  theme_minimal(base_size = 14) +
+  theme(
+    legend.position = "bottom",
+    panel.grid.minor = element_blank(),
+    axis.text.y = element_text(size = 12)
+  )
+
+lasso_plot
+
+ggsave("C:\\Users\\savan\\OneDrive - San Francisco State University\\ProjectData\\GitHub\\DepositionSFB\\images\\rq_3\\lasso_plot.png", 
+       plot = lasso_plot,
+       width = 8, 
+       height = 5, 
+       dpi = 300,
+       limitsize = FALSE)
+```
+
+```{r, ADDED averaged companion for LASSO}
+
+lasso_data_avg <- usgs_thesis_avg %>%
+  filter(Study.Dataset == "Thesis") %>%   
+  select(Flux, z_star, local_slope, mean_wind_speed_kt, slope_fitted_elevation_m,
+         max_gust_kt, Dist) %>%
+  mutate(Dist = as.numeric(Dist)) %>%
+  drop_na() %>%
+  mutate(across(where(is.character), as.factor))
+
+lasso_data_scaled_avg <- lasso_data_avg %>%
+  mutate(across(where(is.numeric) & !all_of("Flux"), ~ as.numeric(scale(.))))
+
+x_scaled_avg <- model.matrix(Flux ~ . - 1, data = lasso_data_scaled_avg)
+y_avg <- lasso_data_scaled_avg$Flux
+
+set.seed(42)
+cv_lasso_scaled_avg <- cv.glmnet(x_scaled_avg, y_avg, alpha = 1)
+plot(cv_lasso_scaled_avg)
+
+best_lambda_scaled_avg <- cv_lasso_scaled_avg$lambda.min
+lasso_final_scaled_avg <- glmnet(x_scaled_avg, y_avg, alpha = 1, lambda = best_lambda_scaled_avg)
+coef(lasso_final_scaled_avg)
+
+lasso_coefs_avg <- coef(lasso_final_scaled_avg) %>%
+  as.matrix() %>%
+  as.data.frame() %>%
+  rownames_to_column("predictor") %>%
+  rename(coefficient = s0) %>%
+  filter(predictor != "(Intercept)") %>%
+  filter(coefficient != 0) %>%
+  mutate(
+    direction = ifelse(coefficient > 0, "Positive", "Negative"),
+    predictor = fct_reorder(predictor, abs(coefficient))
+  )
+
+lasso_plot_avg <- ggplot(lasso_coefs_avg, aes(x = predictor, y = coefficient, fill = direction)) +
+  geom_col(width = 0.6) +
+  geom_hline(yintercept = 0, color = "gray30", linewidth = 0.4) +
+  coord_flip() +
+  scale_fill_manual(values = c("Positive" = "#2166AC", "Negative" = "#B2182B")) +
+  labs(
+    title = stringr::str_wrap("Standardized LASSO Coefficients for Predictors of Daily Rates of Sediment Flux (g/m²/day) (Averaged)", width = 35),
+    x = NULL,
+    y = "Standardized Regression Coefficient",
+    fill = NULL
+  ) +
+  theme_minimal(base_size = 14) +
+  theme(
+    legend.position = "bottom",
+    panel.grid.minor = element_blank(),
+    axis.text.y = element_text(size = 12)
+  )
+
+lasso_plot_avg
+
+ggsave("C:\\Users\\savan\\OneDrive - San Francisco State University\\ProjectData\\GitHub\\DepositionSFB\\images\\rq_3\\lasso_plot_avg.png", 
+       plot = lasso_plot_avg,
+       width = 8, 
+       height = 5, 
+       dpi = 300,
+       limitsize = FALSE)
+```
+
+## Exploratory: Flux vs. wind and slope
+
+```{r, flux vs wind}
+
+ggplot(master_tier5_byrep_clean, aes(x = mean_wind_speed_kt, y = Flux, color = Tran)) +
+  geom_point(alpha = 0.4) +
+  facet_wrap(~ Site) +
+  scale_fill_manual(values = transect_colors) + 
+  scale_color_manual(values = transect_colors) + 
+  labs(
+    title = "Flux vs. Mean Wind Speed by Site and Transect",
+    x = "Mean Wind Speed (kt)", y = "Flux", color = "Transect"
+  ) +
+  theme_bw()
+```
+
+```{r, ADDED averaged companion for flux vs wind}
+ggplot(master_tier5_clean, aes(x = mean_wind_speed_kt, y = Flux, color = Tran)) +
+  geom_point(alpha = 0.4) +
+  facet_wrap(~ Site) +
+  scale_fill_manual(values = transect_colors) + 
+  scale_color_manual(values = transect_colors) + 
+  labs(
+    title = "Flux vs. Mean Wind Speed by Site and Transect (Averaged)",
+    x = "Mean Wind Speed (kt)", y = "Flux", color = "Transect"
+  ) +
+  theme_bw()
+```
+
+```{r, flux vs wind and slope no Giant Marsh}
+
+# Flux vs. Wind, excluding Giant Marsh
+ggplot(master_tier5_byrep_clean %>% filter(Site != "GiantMarsh"), 
+       aes(x = mean_wind_speed_kt, y = Flux, color = Tran)) +
+  geom_point(alpha = 0.4) +
+  facet_wrap(~ Site) +
+  scale_fill_manual(values = transect_colors) + 
+  scale_color_manual(values = transect_colors) + 
+  labs(
+    title = "Flux vs. Mean Wind Speed by Site and Transect (Excluding Giant Marsh)",
+    x = "Mean Wind Speed (kt)", y = "Flux", color = "Transect"
+  ) +
+  theme_bw()
+
+# Flux vs. Slope, excluding Giant Marsh
+ggplot(master_tier5_byrep_clean %>% filter(Site != "GiantMarsh"), 
+       aes(x = local_slope, y = Flux, color = Tran)) +
+  geom_point(alpha = 0.4) +
+  scale_fill_manual(values = transect_colors) + 
+  scale_color_manual(values = transect_colors) + 
+  facet_wrap(~ Site) +
+  labs(
+    title = "Flux vs. Local Slope by Site and Transect (Excluding Giant Marsh)",
+    x = "Local Slope", y = "Flux", color = "Transect"
+  ) +
+  theme_bw()
+```
+
+```{r, ADDED averaged companion for flux vs wind and slope no Giant Marsh}
+
+ggplot(master_tier5_clean %>% filter(Site != "GiantMarsh"), 
+       aes(x = mean_wind_speed_kt, y = Flux, color = Tran)) +
+  geom_point(alpha = 0.4) +
+  facet_wrap(~ Site) +
+  scale_fill_manual(values = transect_colors) + 
+  scale_color_manual(values = transect_colors) + 
+  labs(
+    title = "Flux vs. Mean Wind Speed by Site and Transect (Excluding Giant Marsh) (Averaged)",
+    x = "Mean Wind Speed (kt)", y = "Flux", color = "Transect"
+  ) +
+  theme_bw()
+
+ggplot(master_tier5_clean %>% filter(Site != "GiantMarsh"), 
+       aes(x = local_slope, y = Flux, color = Tran)) +
+  geom_point(alpha = 0.4) +
+  scale_fill_manual(values = transect_colors) + 
+  scale_color_manual(values = transect_colors) + 
+  facet_wrap(~ Site) +
+  labs(
+    title = "Flux vs. Local Slope by Site and Transect (Excluding Giant Marsh) (Averaged)",
+    x = "Local Slope", y = "Flux", color = "Transect"
+  ) +
+  theme_bw()
+```
+
+```{r, flux vs slope}
+ggplot(master_tier5_byrep_clean, 
+       aes(x = local_slope, y = Flux, color = Tran)) +
+  geom_point(alpha = 0.4) +
+  facet_wrap(~ Site) +
+  scale_fill_manual(values = transect_colors) + 
+  scale_color_manual(values = transect_colors) + 
+  labs(
+    title = "Flux vs. Local Slope by Site and Transect",
+    x = "Local Slope", y = "Flux", color = "Transect"
+  ) +
+  theme_bw()
+```
+
+```{r, ADDED averaged companion for flux vs slope}
+ggplot(master_tier5_clean, 
+       aes(x = local_slope, y = Flux, color = Tran)) +
+  geom_point(alpha = 0.4) +
+  facet_wrap(~ Site) +
+  scale_fill_manual(values = transect_colors) + 
+  scale_color_manual(values = transect_colors) + 
+  labs(
+    title = "Flux vs. Local Slope by Site and Transect (Averaged)",
+    x = "Local Slope", y = "Flux", color = "Transect"
+  ) +
+  theme_bw()
+```
+
+## Focused models: is within-marsh variation larger than between-marsh variation?
+
+ADDED this session. Everything above is kept as-is. RQ3 asks whether differences *within* a marsh (transect, trap position, elevation, slope, edge type) account for more of the variation in flux than differences *between* marshes. That's answered here in two complementary ways, each fit on both the replicate-level and averaged data from their own model-prep blocks:
+
+1.  **Variance partitioning (no predictors).** An intercept-only Gamma GLMM with a random intercept at every level of the sampling design -- Site, transect, trap location, time, and (replicate data only) deployment -- then reports what share of the total variation sits at each level. This is the most direct answer: "X% of the variation is between marshes, Y% is between transects and locations within a marsh." Shares are on the model's log (latent) scale, using the trigamma residual variance for the Gamma log link (Nakagawa et al. 2017).
+2.  **Predictor comparison.** Four models with identical random effects: null, between-marsh only (Site), within-marsh only (z\*, slope, distance, and edge type if it varies within sites), and both. Likelihood-ratio tests say whether each set adds anything beyond the other, and marginal R² says how much each set explains alone and uniquely.
+
+Every model gets DHARMa residual diagnostics.
+
+CAVEAT worth stating in the thesis: there are only 4 sites, so the Site-level variance is estimated from 4 numbers and its interval is wide. The partition is still the right tool, but phrase conclusions as "within-marsh variation was N times larger than between-marsh variation in these four marshes," not as a general law. The predictor comparison (part 2) treats Site as fixed and doesn't have this estimation problem, which is why both are reported.
+
+```{r, rq3 focused - helper functions}
+library(DHARMa)
+
+# ---- check_dharma(): one-call DHARMa diagnostics ----
+# Same helper as in Research_question_2_FIXED -- defined here too so this
+# file runs on its own. `data` must be the exact data frame the model
+# was fit on. With thousands of rows the KS test flags trivial
+# deviations; read the plots first.
+check_dharma <- function(model, data, label,
+                         factor_vars = NULL, numeric_vars = NULL,
+                         group_var = NULL, time_var = NULL,
+                         n_sim = 250, seed = 42) {
+  set.seed(seed)
+  sim <- simulateResiduals(model, n = n_sim)
+  plot(sim, title = paste("DHARMa:", label))
+
+  unif <- testUniformity(sim, plot = FALSE)
+  disp <- testDispersion(sim, plot = FALSE)
+  outl <- testOutliers(sim, plot = FALSE)
+
+  for (v in c(factor_vars, numeric_vars)) {
+    plotResiduals(sim, form = data[[v]], xlab = v,
+                  main = paste(label, "- residuals vs", v))
+  }
+
+  grp_p <- NA_real_
+  if (!is.null(group_var)) {
+    gf <- droplevels(as.factor(data[[group_var]]))
+    if (nlevels(gf) < 2) {
+      message(label, ": '", group_var, "' has only ", nlevels(gf),
+              " level -- grouped dispersion test skipped.")
+    } else {
+      sim_g <- recalculateResiduals(sim, group = gf)
+      grp_p <- testDispersion(sim_g, plot = FALSE)$p.value
+    }
+  }
+
+  ac_p <- NA_real_
+  if (!is.null(time_var)) {
+    tf <- droplevels(as.factor(data[[time_var]]))
+    # recalculateResiduals() fails with "argument is of length zero" if
+    # the grouping has a single level, so check first
+    if (nlevels(tf) < 3) {
+      message(label, ": '", time_var, "' has only ", nlevels(tf),
+              " level(s) -- temporal autocorrelation test skipped.")
+    } else {
+      sim_t <- recalculateResiduals(sim, group = tf)
+      ac_p <- testTemporalAutocorrelation(sim_t, time = seq_along(levels(tf)),
+                                          plot = FALSE)$p.value
+    }
+  }
+
+  out <- tibble::tibble(
+    Model                = label,
+    Uniformity_KS_p      = unif$p.value,
+    Dispersion_p         = disp$p.value,
+    Outliers_p           = outl$p.value,
+    Grouped_dispersion_p = grp_p,
+    Temporal_autocorr_p  = ac_p
+  )
+  print(out)
+  invisible(list(sim = sim, summary = out))
+}
+
+# ---- latent_variances(): variance components on the log-link scale ----
+# fixed  = variance of the fixed-effect linear predictor
+# random = one variance per random intercept
+# resid  = Gamma/log-link observation-level variance, trigamma(shape);
+#          glmmTMB's sigma() for Gamma is the CV, so shape = 1/sigma^2
+latent_variances <- function(m) {
+  vc <- VarCorr(m)$cond
+  list(
+    fixed  = var(as.vector(predict(m, re.form = NA, type = "link"))),
+    random = vapply(vc, function(x) as.numeric(x[1, 1]), numeric(1)),
+    resid  = trigamma(1 / sigma(m)^2)
+  )
+}
+
+# ---- r2_latent(): Nakagawa marginal / conditional R² ----
+r2_latent <- function(m) {
+  v   <- latent_variances(m)
+  tot <- v$fixed + sum(v$random) + v$resid
+  c(R2_marginal = v$fixed / tot,
+    R2_conditional = (v$fixed + sum(v$random)) / tot)
+}
+
+# ---- variance_partition(): share of total variance at each level ----
+# Only meaningful for an intercept-only model (no fixed predictors).
+variance_partition <- function(m, grain, resid_label) {
+  v <- latent_variances(m)
+  tibble::tibble(
+    Component = c(names(v$random), "Residual"),
+    Variance  = c(v$random, v$resid)
+  ) %>%
+    mutate(
+      Level = dplyr::recode(Component,
+        "Site"      = "Between marsh (Site)",
+        "Site:Tran" = "Within marsh: transect",
+        "Tran"      = "Within marsh: transect",   # per-site models (Part 1b)
+        "Loc_ID"    = "Within marsh: trap location",
+        "Time_ID"   = "Time (shared by all marshes)",
+        "Deploy_ID" = "Location x time (deployment)",
+        "Residual"  = resid_label
+      ),
+      Share = Variance / sum(Variance),
+      Grain = grain
+    ) %>%
+    select(Grain, Level, Component, Variance, Share)
+}
+```
+
+### Model prep: replicate-level data
+
+```{r, rq3 focused - prep replicate-level data}
+# Starts from master_tier5_byrep_clean (loaded at the top of this file:
+# Flux > 0, Dist != 48, factors set).
+
+# Time grouping: Month if the file has it, otherwise the next-best
+# deployment identifier. Printed so you can see which one was used.
+#
+# FIX: master_tier5 stores Month as "Jul", "Aug", ... (see RQ1-temporal),
+# but this used full names ("July", ...). Every month except "May" (the
+# same in both spellings) became NA and was dropped, so the models ran on
+# May only and Time_ID had one level -- which is what made DHARMa's
+# recalculateResiduals() fail. Months are now matched on their first
+# three letters, so either spelling works.
+rq3_month_levels <- c("Jul", "Aug", "Sep", "Oct", "Nov", "Dec",
+                      "Jan", "Feb", "Mar", "Apr", "May", "Jun")
+pick_time_var <- function(df) {
+  cands <- c("Month", "Study.Phase", "Date.removed.from.field")
+  hit <- cands[cands %in% names(df)]
+  if (length(hit) == 0) stop("No Month / Study.Phase / Date.removed.from.field column found -- add one of these before running the focused RQ3 models.")
+  hit[1]
+}
+make_time_factor <- function(x, var) {
+  if (var == "Month") {
+    key <- tolower(substr(trimws(as.character(x)), 1, 3))
+    key <- paste0(toupper(substr(key, 1, 1)), substr(key, 2, 3))   # "jul"/"JULY" -> "Jul"
+    return(factor(key, levels = rq3_month_levels))
+  }
+  if (var == "Study.Phase") {
+    key <- trimws(as.character(x))
+    key <- ifelse(grepl("^[0-9]+$", key), paste0("M", key), key)   # 1 -> "M1"
+    return(factor(key, levels = paste0("M", 1:12)))
+  }
+  factor(as.character(x), levels = as.character(sort(unique(x))))   # dates, in time order
+}
+
+# Stops the file if the time grouping is broken, instead of quietly
+# fitting on a subset. Called right after each prep block below.
+check_time_prep <- function(prepped, original, time_var, label) {
+  cat(label, ": ", nrow(original), " rows in, ", nrow(prepped), " rows kept\n", sep = "")
+  print(table(prepped$Time_ID, useNA = "ifany"))
+  lost_to_time <- sum(is.na(make_time_factor(original[[time_var]], time_var)))
+  if (lost_to_time > 0) {
+    cat("Rows whose", time_var, "value didn't match:", lost_to_time, "\n")
+    print(head(sort(unique(as.character(
+      original[[time_var]][is.na(make_time_factor(original[[time_var]], time_var))]))), 20))
+  }
+  if (nlevels(droplevels(prepped$Time_ID)) < 3) {
+    stop(label, ": Time_ID has fewer than 3 levels -- the ", time_var,
+         " values aren't being matched (see the unmatched values above).")
+  }
+}
+
+rq3_time_var <- pick_time_var(master_tier5_byrep_clean)
+rq3_time_var
+
+rq3_rep <- master_tier5_byrep_clean
+if (!"Loc_ID" %in% names(rq3_rep)) {
+  rq3_rep$Loc_ID <- interaction(rq3_rep$Site, rq3_rep$Tran, rq3_rep$Dist, drop = TRUE)
+}
+
+rq3_rep <- rq3_rep %>%
+  mutate(
+    Site    = as.factor(as.character(Site)),
+    Tran    = as.factor(as.character(Tran)),
+    Loc_ID  = as.factor(as.character(Loc_ID)),
+    Time_ID = make_time_factor(.data[[rq3_time_var]], rq3_time_var),
+    Dist_m  = as.numeric(as.character(Dist))
+  ) %>%
+  tidyr::drop_na(Flux, Site, Tran, Loc_ID, Time_ID,
+                 z_star, local_slope, Dist_m, marsh_edge_type) %>%
+  mutate(
+    # one level per trap location x deployment; replicate traps share it
+    Deploy_ID = interaction(Loc_ID, Time_ID, drop = TRUE),
+    # standardized (mean 0, SD 1) so effects are comparable "per SD"
+    z_star_s = as.numeric(scale(z_star)),
+    slope_s  = as.numeric(scale(local_slope)),
+    Dist_s   = as.numeric(scale(Dist_m))
+  ) %>%
+  droplevels()
+
+check_time_prep(rq3_rep, master_tier5_byrep_clean, rq3_time_var, "rq3_rep")
+table(rq3_rep$Site)
+rq3_rep %>% count(Deploy_ID) %>%
+  summarise(min = min(n), median = median(n), max = max(n))   # replicates per deployment
+
+# IMPORTANT CHECK: does edge type vary WITHIN sites, or is each site one
+# edge type? If each site is all-Scarped or all-Ramped, edge type is a
+# between-marsh variable (it can't be separated from Site), and it's
+# moved to the between-marsh side automatically below.
+table(rq3_rep$Site, rq3_rep$marsh_edge_type)
+rq3_edge_within <- rq3_rep %>%
+  group_by(Site) %>%
+  summarise(k = n_distinct(marsh_edge_type)) %>%
+  pull(k) %>% max() > 1
+rq3_edge_within
+```
+
+### Model prep: averaged data
+
+```{r, rq3 focused - prep averaged data}
+# Starts from master_tier5_clean (averaged tier, same filters).
+rq3_time_var_avg <- pick_time_var(master_tier5_clean)
+rq3_time_var_avg
+
+rq3_avg <- master_tier5_clean
+if (!"Loc_ID" %in% names(rq3_avg)) {
+  rq3_avg$Loc_ID <- interaction(rq3_avg$Site, rq3_avg$Tran, rq3_avg$Dist, drop = TRUE)
+}
+
+rq3_avg <- rq3_avg %>%
+  mutate(
+    Site    = as.factor(as.character(Site)),
+    Tran    = as.factor(as.character(Tran)),
+    Loc_ID  = as.factor(as.character(Loc_ID)),
+    Time_ID = make_time_factor(.data[[rq3_time_var_avg]], rq3_time_var_avg),
+    Dist_m  = as.numeric(as.character(Dist))
+  ) %>%
+  tidyr::drop_na(Flux, Site, Tran, Loc_ID, Time_ID,
+                 z_star, local_slope, Dist_m, marsh_edge_type) %>%
+  mutate(
+    z_star_s = as.numeric(scale(z_star)),
+    slope_s  = as.numeric(scale(local_slope)),
+    Dist_s   = as.numeric(scale(Dist_m))
+  ) %>%
+  droplevels()
+
+check_time_prep(rq3_avg, master_tier5_clean, rq3_time_var_avg, "rq3_avg")
+table(rq3_avg$Site)
+
+# Should return 0 rows (one averaged row per location x deployment). If
+# not, the averaged models need (1|Deploy_ID) like the replicate ones.
+rq3_avg %>% count(Loc_ID, Time_ID) %>% filter(n > 1)
+```
+
+### Part 1: variance partitioning
+
+```{r, rq3 variance partition - replicate}
+rq3_vp_rep <- glmmTMB(
+  Flux ~ 1 + (1|Site) + (1|Site:Tran) + (1|Loc_ID) + (1|Time_ID) + (1|Deploy_ID),
+  family = Gamma(link = "log"), data = rq3_rep
+)
+summary(rq3_vp_rep)
+
+rq3_vp_table_rep <- variance_partition(rq3_vp_rep, "Replicate",
+                                       resid_label = "Trap-to-trap (replicates)")
+rq3_vp_table_rep
+
+# Is there any detectable between-marsh variance at all? Compare against
+# the same model without (1|Site). The variance can't go below 0, so the
+# usual p-value is conservative -- halve it (Self & Liang 1987).
+rq3_vp_rep_noSite <- glmmTMB(
+  Flux ~ 1 + (1|Site:Tran) + (1|Loc_ID) + (1|Time_ID) + (1|Deploy_ID),
+  family = Gamma(link = "log"), data = rq3_rep
+)
+rq3_site_lrt_rep <- anova(rq3_vp_rep_noSite, rq3_vp_rep)
+rq3_site_lrt_rep
+rq3_site_lrt_rep$`Pr(>Chisq)`[2] / 2
+
+rq3_vp_dharma_rep <- check_dharma(
+  rq3_vp_rep, rq3_rep, "RQ3 variance partition (replicate)",
+  factor_vars = c("Site", "marsh_edge_type"),
+  group_var   = "Loc_ID",
+  time_var    = "Time_ID"
+)
+```
+
+```{r, rq3 variance partition - averaged}
+# No (1|Deploy_ID): one row per location x deployment, so that level is
+# the residual here.
+rq3_vp_avg <- glmmTMB(
+  Flux ~ 1 + (1|Site) + (1|Site:Tran) + (1|Loc_ID) + (1|Time_ID),
+  family = Gamma(link = "log"), data = rq3_avg
+)
+summary(rq3_vp_avg)
+
+rq3_vp_table_avg <- variance_partition(rq3_vp_avg, "Averaged",
+                                       resid_label = "Location x time (deployment, residual)")
+rq3_vp_table_avg
+
+rq3_vp_avg_noSite <- glmmTMB(
+  Flux ~ 1 + (1|Site:Tran) + (1|Loc_ID) + (1|Time_ID),
+  family = Gamma(link = "log"), data = rq3_avg
+)
+rq3_site_lrt_avg <- anova(rq3_vp_avg_noSite, rq3_vp_avg)
+rq3_site_lrt_avg
+rq3_site_lrt_avg$`Pr(>Chisq)`[2] / 2
+
+rq3_vp_dharma_avg <- check_dharma(
+  rq3_vp_avg, rq3_avg, "RQ3 variance partition (averaged)",
+  factor_vars = c("Site", "marsh_edge_type"),
+  group_var   = "Loc_ID",
+  time_var    = "Time_ID"
+)
+```
+
+```{r, rq3 variance partition - summary and plot}
+rq3_vp_table <- bind_rows(rq3_vp_table_rep, rq3_vp_table_avg)
+
+# The headline numbers. "Spatial within-marsh" = transect + trap
+# location only (the cleanest comparison against Site). "All within-marsh"
+# also counts deployment-level and trap-to-trap variation, which happen
+# inside a marsh but mix in time and sampling noise.
+rq3_vp_headline <- rq3_vp_table %>%
+  group_by(Grain) %>%
+  summarise(
+    between_marsh          = sum(Share[Component == "Site"]),
+    within_marsh_spatial   = sum(Share[Component %in% c("Site:Tran", "Loc_ID")]),
+    within_marsh_all       = sum(Share[Component %in% c("Site:Tran", "Loc_ID", "Deploy_ID", "Residual")]),
+    time_shared            = sum(Share[Component == "Time_ID"]),
+    .groups = "drop"
+  ) %>%
+  # NA when Site variance is essentially zero -- dividing by ~0 gives a
+  # meaningless huge number; in that case just report "between-marsh
+  # variance was negligible".
+  mutate(spatial_within_to_between = ifelse(between_marsh < 0.001, NA,
+                                            within_marsh_spatial / between_marsh))
+rq3_vp_headline
+
+rq3_vp_plot <- rq3_vp_table %>%
+  mutate(Level = factor(Level, levels = rev(c(
+    "Between marsh (Site)", "Within marsh: transect", "Within marsh: trap location",
+    "Time (shared by all marshes)", "Location x time (deployment)",
+    "Location x time (deployment, residual)", "Trap-to-trap (replicates)")))) %>%
+  ggplot(aes(x = Grain, y = Share, fill = Level)) +
+  geom_col(width = 0.6, color = "white") +
+  geom_text(aes(label = ifelse(Share >= 0.03, scales::percent(Share, accuracy = 1), "")),
+            position = position_stack(vjust = 0.5), size = 3.5) +
+  coord_flip() +
+  scale_y_continuous(labels = scales::percent) +
+  scale_fill_manual(values = c(
+    "Between marsh (Site)"                   = "#B2182B",
+    "Within marsh: transect"                 = "#2166AC",
+    "Within marsh: trap location"            = "#67A9CF",
+    "Time (shared by all marshes)"           = "#F4A582",
+    "Location x time (deployment)"           = "#D1E5F0",
+    "Location x time (deployment, residual)" = "#D1E5F0",
+    "Trap-to-trap (replicates)"              = "#BDBDBD"
+  ), drop = TRUE) +
+  labs(
+    title = stringr::str_wrap("Where Does the Variation in Sediment Flux Come From?", width = 45),
+    subtitle = "Share of total (log-scale) variance, intercept-only Gamma GLMM",
+    x = NULL, y = "Share of total variance", fill = NULL
+  ) +
+  theme_bw() +
+  theme(legend.position = "bottom") +
+  guides(fill = guide_legend(ncol = 2, reverse = TRUE))
+rq3_vp_plot
+
+ggsave("C:\\Users\\savan\\OneDrive - San Francisco State University\\ProjectData\\GitHub\\DepositionSFB\\images\\rq_3\\rq3_variance_partition.png",
+       plot = rq3_vp_plot, width = 9, height = 5, dpi = 300, limitsize = FALSE)
+```
+
+### Part 1b: variance partitioning within each site
+
+ADDED. The same intercept-only partition as Part 1, fit separately for each marsh, so each site can be looked at on its own terms: is that marsh's variation mostly between its transects, between trap locations along a transect, month to month, or trap to trap? Site drops out of the model (each fit is one site), and transect becomes `(1|Tran)` instead of `(1|Site:Tran)`.
+
+Two things to keep in mind when reading these:
+
+- **Shares are relative to each site's own total.** Two sites can both show "60% trap location" while one is far more variable overall. The `total_variance` column in the headline table gives the absolute size, so compare sites on both.
+- **Transect variance comes from very few transects per site.** With 2 transects in a site, the transect share is estimated from two numbers and will often come out at or near 0 (a singular fit). That doesn't mean transects are identical, only that two transects can't pin it down. The `pdHess` column flags fits where glmmTMB couldn't compute standard errors; treat those sites' shares as rough. If a site has only one transect, the transect term is dropped automatically.
+
+The pooled Part 1 result is shown in the same plot as an "All sites (pooled)" row for reference. It's the only row with a between-marsh share, since every other row is a single marsh.
+
+```{r, rq3 site variance partition - helper}
+# Fits the Part 1 intercept-only partition for ONE site.
+# include_deploy = TRUE for replicate data, FALSE for averaged data
+# (same reason as Part 1: in averaged data the deployment level is the
+# residual).
+fit_site_vp <- function(data, site, grain, include_deploy, resid_label) {
+  d <- data %>% filter(Site == site) %>% droplevels()
+
+  re_terms <- c(
+    if (nlevels(d$Tran) > 1) "(1|Tran)",   # dropped if the site has 1 transect
+    "(1|Loc_ID)",
+    "(1|Time_ID)",
+    if (include_deploy) "(1|Deploy_ID)"
+  )
+  f <- as.formula(paste("Flux ~ 1 +", paste(re_terms, collapse = " + ")))
+
+  m <- tryCatch(
+    glmmTMB(f, family = Gamma(link = "log"), data = d),
+    error = function(e) {
+      message("Site ", site, " (", grain, ") failed to fit: ", conditionMessage(e))
+      NULL
+    }
+  )
+  if (is.null(m)) return(NULL)
+
+  tbl <- variance_partition(m, grain, resid_label) %>%
+    mutate(Level  = dplyr::recode(Level,   # within one site, time isn't "shared"
+                    "Time (shared by all marshes)" = "Time (month to month)"),
+           Site   = site,
+           n_obs  = nrow(d),
+           n_tran = nlevels(d$Tran),
+           pdHess = isTRUE(m$sdr$pdHess))   # FALSE = unreliable fit
+  list(model = m, data = d, formula = f, table = tbl)
+}
+
+# DHARMa for one site's fit. Factor checks only use variables that
+# actually vary within that site (edge type may be constant).
+dharma_site_vp <- function(fit, label) {
+  if (is.null(fit)) return(NULL)
+  fvars <- c("Tran", "marsh_edge_type")
+  fvars <- fvars[vapply(fvars, function(v)
+    dplyr::n_distinct(fit$data[[v]]) > 1, logical(1))]
+  check_dharma(
+    fit$model, fit$data, label,
+    factor_vars  = if (length(fvars)) fvars else NULL,
+    numeric_vars = c("z_star", "local_slope", "Dist_m"),
+    group_var    = "Loc_ID",
+    time_var     = "Time_ID"
+  )
+}
+
+rq3_sites <- levels(rq3_rep$Site)
+rq3_sites
+```
+
+```{r, rq3 site variance partition - replicate}
+rq3_vp_site_rep <- lapply(rq3_sites, function(s)
+  fit_site_vp(rq3_rep, s, "Replicate", include_deploy = TRUE,
+              resid_label = "Trap-to-trap (replicates)"))
+names(rq3_vp_site_rep) <- rq3_sites
+
+# Model summaries, one per site
+for (s in rq3_sites) {
+  cat("\n==========", s, "(replicate) ==========\n")
+  if (!is.null(rq3_vp_site_rep[[s]])) print(summary(rq3_vp_site_rep[[s]]$model))
+}
+
+rq3_vp_site_table_rep <- bind_rows(lapply(rq3_vp_site_rep, `[[`, "table"))
+rq3_vp_site_table_rep
+
+# DHARMa, one per site. Residuals vs z*, slope and distance are the
+# "factors associated with" each site: a trend in any of those panels
+# means that variable explains flux at that site beyond the random
+# effects -- a lead for the per-site story.
+rq3_vp_site_dharma_rep <- lapply(rq3_sites, function(s)
+  dharma_site_vp(rq3_vp_site_rep[[s]], paste("RQ3 site partition (replicate):", s)))
+names(rq3_vp_site_dharma_rep) <- rq3_sites
+```
+
+```{r, rq3 site variance partition - averaged}
+rq3_vp_site_avg <- lapply(rq3_sites, function(s)
+  fit_site_vp(rq3_avg, s, "Averaged", include_deploy = FALSE,
+              resid_label = "Location x time (deployment, residual)"))
+names(rq3_vp_site_avg) <- rq3_sites
+
+for (s in rq3_sites) {
+  cat("\n==========", s, "(averaged) ==========\n")
+  if (!is.null(rq3_vp_site_avg[[s]])) print(summary(rq3_vp_site_avg[[s]]$model))
+}
+
+rq3_vp_site_table_avg <- bind_rows(lapply(rq3_vp_site_avg, `[[`, "table"))
+rq3_vp_site_table_avg
+
+rq3_vp_site_dharma_avg <- lapply(rq3_sites, function(s)
+  dharma_site_vp(rq3_vp_site_avg[[s]], paste("RQ3 site partition (averaged):", s)))
+names(rq3_vp_site_dharma_avg) <- rq3_sites
+```
+
+```{r, rq3 site variance partition - summary and plot}
+rq3_vp_site_table <- bind_rows(rq3_vp_site_table_rep, rq3_vp_site_table_avg)
+
+# One row per site x grain. total_variance = that site's total
+# (log-scale) variance, so sites can be compared in absolute terms,
+# not just by share.
+rq3_vp_site_headline <- rq3_vp_site_table %>%
+  group_by(Grain, Site) %>%
+  summarise(
+    n_obs            = first(n_obs),
+    n_tran           = first(n_tran),
+    pdHess           = first(pdHess),
+    total_variance   = sum(Variance),
+    transect         = sum(Share[Component == "Tran"]),
+    trap_location    = sum(Share[Component == "Loc_ID"]),
+    spatial_within   = transect + trap_location,
+    time             = sum(Share[Component == "Time_ID"]),
+    deployment       = sum(Share[Component == "Deploy_ID"]),
+    residual         = sum(Share[Component == "Residual"]),
+    .groups = "drop"
+  ) %>%
+  mutate(across(where(is.double), ~ round(.x, 3))) %>%
+  arrange(Grain, Site)
+rq3_vp_site_headline
+
+rq3_vp_site_dharma_summary <- bind_rows(
+  bind_rows(lapply(rq3_vp_site_dharma_rep, `[[`, "summary")),
+  bind_rows(lapply(rq3_vp_site_dharma_avg, `[[`, "summary"))
+)
+rq3_vp_site_dharma_summary
+
+# Plot: each site's partition, with the pooled Part 1 result on top for
+# reference. Same colors as the Part 1 plot.
+rq3_vp_level_order <- c(
+  "Between marsh (Site)", "Within marsh: transect", "Within marsh: trap location",
+  "Time (shared by all marshes)", "Time (month to month)",
+  "Location x time (deployment)",
+  "Location x time (deployment, residual)", "Trap-to-trap (replicates)")
+
+rq3_vp_site_plot <- bind_rows(
+  rq3_vp_table %>% mutate(Site = "All sites (pooled)"),
+  rq3_vp_site_table
+) %>%
+  mutate(
+    Level = factor(Level, levels = rev(rq3_vp_level_order)),
+    Site  = factor(Site, levels = rev(c("All sites (pooled)", rq3_sites))),
+    Grain = factor(Grain, levels = c("Replicate", "Averaged"))
+  ) %>%
+  ggplot(aes(x = Site, y = Share, fill = Level)) +
+  geom_col(width = 0.65, color = "white") +
+  geom_text(aes(label = ifelse(Share >= 0.05, scales::percent(Share, accuracy = 1), "")),
+            position = position_stack(vjust = 0.5), size = 3) +
+  coord_flip() +
+  facet_wrap(~ Grain, ncol = 1) +
+  scale_y_continuous(labels = scales::percent) +
+  scale_fill_manual(values = c(
+    "Between marsh (Site)"                   = "#B2182B",
+    "Within marsh: transect"                 = "#2166AC",
+    "Within marsh: trap location"            = "#67A9CF",
+    "Time (shared by all marshes)"           = "#F4A582",
+    "Time (month to month)"                  = "#FDDBC7",
+    "Location x time (deployment)"           = "#D1E5F0",
+    "Location x time (deployment, residual)" = "#D1E5F0",
+    "Trap-to-trap (replicates)"              = "#BDBDBD"
+  ), drop = TRUE) +
+  labs(
+    title = stringr::str_wrap("Where Does the Variation in Sediment Flux Come From, Within Each Marsh?", width = 45),
+    subtitle = "Share of each site's total (log-scale) variance, intercept-only Gamma GLMM",
+    x = NULL, y = "Share of total variance", fill = NULL
+  ) +
+  theme_bw() +
+  theme(legend.position = "bottom", strip.text = element_text(face = "bold")) +
+  guides(fill = guide_legend(ncol = 2, reverse = TRUE))
+rq3_vp_site_plot
+
+ggsave("C:\\Users\\savan\\OneDrive - San Francisco State University\\ProjectData\\GitHub\\DepositionSFB\\images\\rq_3\\rq3_variance_partition_by_site.png",
+       plot = rq3_vp_site_plot, width = 9, height = 8, dpi = 300, limitsize = FALSE)
+```
+
+### Part 2: between-marsh vs within-marsh predictors
+
+All four models share the same random effects, so they're nested and directly comparable. Site is FIXED here (it's the between-marsh variable being tested, not a nuisance grouping). `(1|Time_ID)` stays in every model so seasonal swings don't get credited to either side.
+
+How to read the output:
+
+- **`anova(within, both)`** -- does knowing *which marsh* still help once you know the within-marsh conditions? A small p means yes.
+- **`anova(between, both)`** -- do the within-marsh conditions still help once you know which marsh? A small p means yes.
+- **Unique R²** -- how much each set explains that the other can't. If the within-marsh unique R² is larger, within-marsh factors account for more of the differences.
+- **Shared R²** -- explained by either set; this is where site differences *are* within-marsh differences (e.g., one marsh is simply higher).
+
+```{r, rq3 predictor comparison - term sets}
+# Within-marsh predictors: vary from point to point inside a marsh.
+rq3_within_terms <- c("z_star_s", "slope_s", "Dist_s")
+# Edge type goes on the within-marsh side only if it actually varies
+# within sites (see the prep check). If every site is a single edge
+# type, edge type and Site are the same split of the data -- Site
+# already carries it, so it's left out rather than double-counted.
+rq3_between_terms <- "Site"
+if (rq3_edge_within) {
+  rq3_within_terms <- c(rq3_within_terms, "marsh_edge_type")
+} else {
+  message("marsh_edge_type is constant within every site, so it can't be ",
+          "separated from Site -- its effect is carried by the Site term.")
+}
+rq3_within_terms
+rq3_between_terms
+
+rq3_re_rep <- "(1|Site:Tran) + (1|Loc_ID) + (1|Time_ID) + (1|Deploy_ID)"
+rq3_re_avg <- "(1|Site:Tran) + (1|Loc_ID) + (1|Time_ID)"
+
+rq3_formula <- function(fixed_terms, re) {
+  rhs <- if (length(fixed_terms) == 0) "1" else paste(fixed_terms, collapse = " + ")
+  as.formula(paste("Flux ~", rhs, "+", re))
+}
+
+# Runs the four-model comparison for one data grain and returns
+# everything needed for the summary below.
+rq3_compare_sets <- function(data, re, grain) {
+  fit <- function(terms) glmmTMB(rq3_formula(terms, re),
+                                 family = Gamma(link = "log"), data = data)
+  m <- list(
+    null    = fit(character(0)),
+    between = fit(rq3_between_terms),
+    within  = fit(rq3_within_terms),
+    both    = fit(c(rq3_between_terms, rq3_within_terms))
+  )
+  r2 <- sapply(m, function(x) r2_latent(x)["R2_marginal"])
+  names(r2) <- names(m)
+
+  lrt_site   <- anova(m$within,  m$both)   # Site, given within-marsh
+  lrt_within <- anova(m$between, m$both)   # within-marsh, given Site
+
+  summary_tbl <- tibble::tibble(
+    Grain                       = grain,
+    R2m_between_only            = r2["between"],
+    R2m_within_only             = r2["within"],
+    R2m_both                    = r2["both"],
+    Unique_between              = r2["both"] - r2["within"],
+    Unique_within               = r2["both"] - r2["between"],
+    Shared                      = r2["between"] + r2["within"] - r2["both"],
+    p_Site_given_within         = lrt_site$`Pr(>Chisq)`[2],
+    p_within_given_Site         = lrt_within$`Pr(>Chisq)`[2],
+    AIC_null = AIC(m$null), AIC_between = AIC(m$between),
+    AIC_within = AIC(m$within), AIC_both = AIC(m$both)
+  )
+  list(models = m, lrt_site = lrt_site, lrt_within = lrt_within, summary = summary_tbl)
+}
+```
+
+```{r, rq3 predictor comparison - replicate}
+rq3_cmp_rep <- rq3_compare_sets(rq3_rep, rq3_re_rep, "Replicate")
+
+summary(rq3_cmp_rep$models$both)
+Anova(rq3_cmp_rep$models$both, type = "II")   # which individual predictors matter
+
+rq3_cmp_rep$lrt_site     # does Site help beyond within-marsh predictors?
+rq3_cmp_rep$lrt_within   # do within-marsh predictors help beyond Site?
+rq3_cmp_rep$summary
+
+rq3_cmp_dharma_rep <- check_dharma(
+  rq3_cmp_rep$models$both, rq3_rep, "RQ3 both-sets model (replicate)",
+  factor_vars  = c("Site", "marsh_edge_type"),
+  numeric_vars = c("z_star", "local_slope", "Dist_m"),
+  group_var    = "Loc_ID",
+  time_var     = "Time_ID"
+)
+
+# SENSITIVITY (Rule 2): Gaussian on log(Flux), same structure. Site vs
+# within-marsh LRTs should point the same way as the Gamma versions.
+rq3_both_rep_lmer    <- lmer(update(rq3_formula(c(rq3_between_terms, rq3_within_terms), rq3_re_rep), log(Flux) ~ .), data = rq3_rep, REML = FALSE)
+rq3_within_rep_lmer  <- lmer(update(rq3_formula(rq3_within_terms,  rq3_re_rep), log(Flux) ~ .), data = rq3_rep, REML = FALSE)
+rq3_between_rep_lmer <- lmer(update(rq3_formula(rq3_between_terms, rq3_re_rep), log(Flux) ~ .), data = rq3_rep, REML = FALSE)
+anova(rq3_within_rep_lmer,  rq3_both_rep_lmer)
+anova(rq3_between_rep_lmer, rq3_both_rep_lmer)
+```
+
+```{r, rq3 predictor comparison - averaged}
+rq3_cmp_avg <- rq3_compare_sets(rq3_avg, rq3_re_avg, "Averaged")
+
+summary(rq3_cmp_avg$models$both)
+Anova(rq3_cmp_avg$models$both, type = "II")
+
+rq3_cmp_avg$lrt_site
+rq3_cmp_avg$lrt_within
+rq3_cmp_avg$summary
+
+rq3_cmp_dharma_avg <- check_dharma(
+  rq3_cmp_avg$models$both, rq3_avg, "RQ3 both-sets model (averaged)",
+  factor_vars  = c("Site", "marsh_edge_type"),
+  numeric_vars = c("z_star", "local_slope", "Dist_m"),
+  group_var    = "Loc_ID",
+  time_var     = "Time_ID"
+)
+
+rq3_both_avg_lmer    <- lmer(update(rq3_formula(c(rq3_between_terms, rq3_within_terms), rq3_re_avg), log(Flux) ~ .), data = rq3_avg, REML = FALSE)
+rq3_within_avg_lmer  <- lmer(update(rq3_formula(rq3_within_terms,  rq3_re_avg), log(Flux) ~ .), data = rq3_avg, REML = FALSE)
+rq3_between_avg_lmer <- lmer(update(rq3_formula(rq3_between_terms, rq3_re_avg), log(Flux) ~ .), data = rq3_avg, REML = FALSE)
+anova(rq3_within_avg_lmer,  rq3_both_avg_lmer)
+anova(rq3_between_avg_lmer, rq3_both_avg_lmer)
+```
+
+### Summary: replicate vs averaged, side by side
+
+```{r, rq3 focused - summary table and plot}
+rq3_r2_summary <- bind_rows(rq3_cmp_rep$summary, rq3_cmp_avg$summary) %>%
+  mutate(across(starts_with(c("R2m", "Unique", "Shared")), ~ round(.x, 3)),
+         across(starts_with("p_"), ~ signif(.x, 3)),
+         across(starts_with("AIC"), ~ round(.x, 1)))
+rq3_r2_summary
+
+rq3_dharma_summary <- bind_rows(
+  rq3_vp_dharma_rep$summary,  rq3_vp_dharma_avg$summary,
+  rq3_cmp_dharma_rep$summary, rq3_cmp_dharma_avg$summary
+)
+rq3_dharma_summary
+
+rq3_r2_plot <- rq3_r2_summary %>%
+  select(Grain, `Between marsh only (unique)` = Unique_between,
+         `Within marsh only (unique)` = Unique_within, Shared) %>%
+  tidyr::pivot_longer(-Grain, names_to = "Part", values_to = "R2") %>%
+  mutate(R2 = pmax(R2, 0),   # tiny negatives from rounding/suppression -> 0
+         Part = factor(Part, levels = c("Shared", "Between marsh only (unique)",
+                                        "Within marsh only (unique)"))) %>%
+  ggplot(aes(x = Grain, y = R2, fill = Part)) +
+  geom_col(width = 0.6, color = "white") +
+  coord_flip() +
+  scale_y_continuous(labels = scales::percent) +
+  scale_fill_manual(values = c("Between marsh only (unique)" = "#B2182B",
+                               "Within marsh only (unique)"  = "#2166AC",
+                               "Shared"                      = "#BDBDBD")) +
+  labs(
+    title = stringr::str_wrap("Variation in Sediment Flux Explained by Between- vs Within-Marsh Predictors", width = 45),
+    subtitle = "Marginal R² (Gamma GLMM), split into unique and shared parts",
+    x = NULL, y = "Marginal R²", fill = NULL
+  ) +
+  theme_bw() +
+  theme(legend.position = "bottom")
+rq3_r2_plot
+
+ggsave("C:\\Users\\savan\\OneDrive - San Francisco State University\\ProjectData\\GitHub\\DepositionSFB\\images\\rq_3\\rq3_r2_partition.png",
+       plot = rq3_r2_plot, width = 9, height = 5, dpi = 300, limitsize = FALSE)
+```
+
+```{r}
+# Elevation (z*) and sediment flux along the transect, one panel per site.
+#   left axis  = z*: elevation profile of each transect (one z* per
+#                station, averaged over deployments), drawn as terrain
+#   right axis = flux: geometric mean flux at each distance (point) with
+#                the middle 50% of deployments (bar), log scale
+# ggplot's second axis must be ONE fixed transformation of the first, so
+# all panels share the same z* scale and flux is mapped onto it with one
+# formula -- elevation profiles are therefore directly comparable across
+# sites. Distance is linear metres from the marsh edge.
+
+rq3_elev_col <- "grey20"     # elevation profile + left axis
+rq3_flux_col <- "#2b8cbe"    # flux points + right axis
+rq3_site_order <- c("GiantMarsh", "CorteMadera", "SanPablo", "Buck'sLanding")  # scarped | ramped
+
+make_zstar_flux_plot <- function(df, title) {
+  d <- df %>%
+    filter(Flux > 0, !is.na(Dist), !is.na(z_star)) %>%
+    mutate(Site = factor(as.character(Site), levels = rq3_site_order),
+           Tran = factor(Tran))
+  
+  # elevation profile: one z* per station (site x transect x distance)
+  elev <- d %>%
+    group_by(Site, Tran, Dist) %>%
+    summarise(z = mean(z_star), .groups = "drop")
+  
+  # flux at each distance (both transects pooled): geometric mean + IQR
+  flux <- d %>%
+    group_by(Site, Dist) %>%
+    summarise(gm  = exp(mean(log(Flux))),
+              q25 = quantile(Flux, 0.25),
+              q75 = quantile(Flux, 0.75),
+              .groups = "drop")
+  
+  # map log10(flux) onto the z* range: z = a + b * log10(flux)
+  z_rng <- range(elev$z)
+  f_rng <- range(log10(c(flux$q25, flux$q75)))
+  b <- diff(z_rng) / diff(f_rng)
+  a <- z_rng[1] - b * f_rng[1]
+  to_z    <- function(f) a + b * log10(f)
+  to_flux <- function(z) 10^((z - a) / b)
+  
+  flux <- flux %>% mutate(y = to_z(gm), ylo = to_z(q25), yhi = to_z(q75))
+  
+  ggplot() +
+    # elevation profile (left axis)
+    geom_line(data = elev, aes(x = Dist, y = z, group = Tran, linetype = Tran),
+              color = rq3_elev_col, linewidth = 0.8) +
+    geom_point(data = elev, aes(x = Dist, y = z, shape = Tran),
+               color = rq3_elev_col, size = 2) +
+    # flux (right axis), nudged right so it doesn't sit on the profile points
+    geom_errorbar(data = flux, aes(x = Dist + 0.6, ymin = ylo, ymax = yhi),
+                  color = rq3_flux_col, width = 0.8, linewidth = 0.7) +
+    geom_point(data = flux, aes(x = Dist + 0.6, y = y),
+               color = rq3_flux_col, fill = "white", shape = 21, size = 2.8, stroke = 1.2) +
+    facet_wrap(~ Site, ncol = 2) +
+    scale_x_continuous(breaks = c(0.5, 2, 6, 12, 18, 24),
+                       labels = function(x) as.character(x)) +
+    scale_y_continuous(
+      name = "Elevation (z*)",
+      sec.axis = sec_axis(to_flux, name = expression(Flux~(g/m^2/day)~", log scale"),
+                          breaks = 10^(-3:3),
+                          labels = function(x) format(x, scientific = FALSE,
+                                                      drop0trailing = TRUE, trim = TRUE))
+    ) +
+    labs(title = stringr::str_wrap(title, width = 70),
+         subtitle = "Grey lines = transect elevation profiles (left axis); blue = geometric mean flux with middle 50% of deployments (right axis)",
+         x = "Distance from marsh edge (m)",
+         linetype = "Transect", shape = "Transect") +
+    theme_bw(base_size = 13) +
+    theme(strip.text = element_text(face = "bold"),
+          axis.title.y.left  = element_text(color = rq3_elev_col),
+          axis.text.y.left   = element_text(color = rq3_elev_col),
+          axis.title.y.right = element_text(color = rq3_flux_col),
+          axis.text.y.right  = element_text(color = rq3_flux_col),
+          plot.subtitle = element_text(size = 10),
+          legend.position = "bottom")
+}
+
+rq3_zstar_flux <- make_zstar_flux_plot(
+  master_tier5_byrep_clean, "Elevation and Sediment Flux Along the Marsh Transect, by Site")
+print(rq3_zstar_flux)
+ggsave("C:\\Users\\savan\\OneDrive - San Francisco State University\\ProjectData\\GitHub\\DepositionSFB\\images\\rq_3\\rq3_zstar_flux_byrep.png",
+       plot = rq3_zstar_flux, width = 11, height = 8, dpi = 300, limitsize = FALSE)
+
+rq3_zstar_flux_avg <- make_zstar_flux_plot(
+  master_tier5_clean, "Elevation and Sediment Flux Along the Marsh Transect, by Site (Averaged)")
+print(rq3_zstar_flux_avg)
+ggsave("C:\\Users\\savan\\OneDrive - San Francisco State University\\ProjectData\\GitHub\\DepositionSFB\\images\\rq_3\\rq3_zstar_flux_avg.png",
+       plot = rq3_zstar_flux_avg, width = 11, height = 8, dpi = 300, limitsize = FALSE)
+```
+
+```{r}
+
+# Fallback to the dual-axis figure: elevation and flux in two ALIGNED
+# rows that share the distance axis, one column per site. Top row =
+# elevation profile of each transect (z*); bottom row = flux at each
+# distance (all deployments as faint points, geometric mean + middle 50%
+# as the summary). Each quantity has its own real axis, so there is no
+# arbitrary scaling between them. Both rows use one y scale across sites,
+# so sites compare directly. Colours = site_colors (same as RQ1/RQ3);
+# transects are told apart by line type and point shape.
+
+rq3_site_order <- c("GiantMarsh", "CorteMadera", "SanPablo", "Buck'sLanding")  # scarped | ramped
+
+make_zstar_flux_stacked <- function(df, title) {
+  d <- df %>%
+    filter(Flux > 0, !is.na(Dist), !is.na(z_star)) %>%
+    mutate(Site = factor(as.character(Site), levels = rq3_site_order),
+           Tran = factor(Tran))
+  
+  elev <- d %>%
+    group_by(Site, Tran, Dist) %>%
+    summarise(z = mean(z_star), .groups = "drop")
+  
+  flux <- d %>%
+    group_by(Site, Dist) %>%
+    summarise(gm  = exp(mean(log(Flux))),
+              q25 = quantile(Flux, 0.25),
+              q75 = quantile(Flux, 0.75),
+              .groups = "drop")
+  
+  x_scale <- scale_x_continuous(breaks = c(0.5, 6, 12, 18, 24),   # 2 m left unlabelled so it does not collide with 0.5
+                                labels = function(x) as.character(x))
+  base_theme <- theme_bw(base_size = 12) +
+    theme(strip.text = element_text(face = "bold"),
+          panel.spacing.x = unit(0.8, "lines"))
+  
+  # top row: elevation profiles
+  p_elev <- ggplot(elev, aes(x = Dist, y = z, group = Tran, color = Site)) +
+    geom_line(aes(linetype = Tran), linewidth = 0.9) +
+    geom_point(aes(shape = Tran), size = 2.2) +
+    facet_wrap(~ Site, nrow = 1) +
+    x_scale +
+    scale_color_manual(values = site_colors, guide = "none") +   # strips name the site
+    labs(x = NULL, y = "Elevation (z*)", linetype = "Transect", shape = "Transect") +
+    base_theme +
+    theme(axis.text.x = element_blank(), axis.ticks.x = element_blank(),
+          legend.position = "right")
+  
+  # bottom row: flux (no strips -- the column above names the site)
+  p_flux <- ggplot() +
+    geom_jitter(data = d, aes(x = Dist, y = Flux, color = Site),
+                alpha = 0.2, size = 0.9, width = 0.4, height = 0) +
+    geom_errorbar(data = flux, aes(x = Dist, ymin = q25, ymax = q75, color = Site),
+                  width = 1, linewidth = 0.8) +
+    geom_point(data = flux, aes(x = Dist, y = gm, color = Site),
+               fill = "white", shape = 21, size = 2.8, stroke = 1.2) +
+    facet_wrap(~ Site, nrow = 1) +
+    x_scale +
+    scale_y_log10(labels = function(x) format(x, scientific = FALSE,
+                                              drop0trailing = TRUE, trim = TRUE)) +
+    scale_color_manual(values = site_colors, guide = "none") +
+    labs(x = "Distance from marsh edge (m)",
+         y = expression(Flux~(g/m^2/day))) +
+    base_theme +
+    theme(strip.text = element_blank(), strip.background = element_blank())
+  
+  patchwork::wrap_plots(p_elev, p_flux, ncol = 1, heights = c(1, 1.3), guides = "collect") +
+    patchwork::plot_annotation(
+      title = stringr::str_wrap(title, width = 80),
+      subtitle = stringr::str_wrap("Top: transect elevation profiles. Bottom: flux at each distance (faint points = deployments; open circle = geometric mean; bar = middle 50%)", width = 110)
+    ) &
+    theme(plot.subtitle = element_text(size = 10))
+}
+
+rq3_zstar_flux_stacked <- make_zstar_flux_stacked(
+  master_tier5_byrep_clean, "Elevation and Sediment Flux Along the Marsh Transect, by Site")
+print(rq3_zstar_flux_stacked)
+ggsave("C:\\Users\\savan\\OneDrive - San Francisco State University\\ProjectData\\GitHub\\DepositionSFB\\images\\rq_3\\rq3_zstar_flux_stacked_byrep.png",
+       plot = rq3_zstar_flux_stacked, width = 14, height = 7, dpi = 300, limitsize = FALSE)
+
+rq3_zstar_flux_stacked_avg <- make_zstar_flux_stacked(
+  master_tier5_clean, "Elevation and Sediment Flux Along the Marsh Transect, by Site (Averaged)")
+print(rq3_zstar_flux_stacked_avg)
+ggsave("C:\\Users\\savan\\OneDrive - San Francisco State University\\ProjectData\\GitHub\\DepositionSFB\\images\\rq_3\\rq3_zstar_flux_stacked_avg.png",
+       plot = rq3_zstar_flux_stacked_avg, width = 14, height = 7, dpi = 300, limitsize = FALSE)
+```
+
+```{r}
+
+## Additional views of the RQ3 data (ADDED)
+
+# Uses rq3_avg from "rq3 focused - prep averaged data" (one row per trap
+# location x deployment; Loc_ID, Time_ID, Dist_m, z_star, local_slope,
+# marsh_edge_type) and site_colors from plotting.R.
+
+rq3_img <- function(f) file.path("C:\\Users\\savan\\OneDrive - San Francisco State University\\ProjectData\\GitHub\\DepositionSFB\\images\\rq_3", f)
+rq3_site_order <- intersect(c("GiantMarsh", "CorteMadera", "SanPablo", "Buck'sLanding"),
+                            levels(rq3_avg$Site))   # scarped | ramped
+# ==== 1. Station x study phase heatmaps ===================================
+# One panel per site (2 x 2), rows = distance from the marsh edge (edge at
+# the top), columns = study phases M1–M12. The two transects at each
+# site are combined (geometric mean of their values) to keep the figure
+# readable; set rq3_heat_by_transect <- TRUE to show them separately.
+#   1a. Raw flux in sediment browns (light = little, dark = a lot);
+#       colour limits = 5th–95th percentile, extremes clamped.
+#   1b. Flux RELATIVE to each site's typical value (brown = above,
+#       blue = below): persistently high/low rows = trap location,
+#       columns that shift = time, isolated cells = location x time.
+
+rq3_heat_by_transect <- FALSE
+
+rq3_phase_levels <- paste0("M", 1:12)
+# Column labels -- M5–M12 from the RQ1 phase figures; CHECK M1–M4.
+rq3_phase_labels <- c(M1 = "M1\nJul",       M2 = "M2\nAug",       M3 = "M3\nSep",
+                      M4 = "M4\nOct",       M5 = "M5\nNov",       M6 = "M6\nDec-\nJan",
+                      M7 = "M7\nJan-\nFeb",  M8 = "M8\nFeb-\nMar",  M9 = "M9\nMar-\nApr",
+                      M10 = "M10\nApr-\nMay", M11 = "M11\nMay",     M12 = "M12\nJun")
+
+rq3_sediment_cols <- c("#f7f0e3", "#e6cfa5", "#c99a5b", "#9a6331", "#5c3816", "#2e1b0b")
+
+rq3_heat <- rq3_avg %>%
+  mutate(Phase = trimws(as.character(Study.Phase)),
+         Phase = ifelse(grepl("^[0-9]+$", Phase), paste0("M", Phase), Phase),   # 1 -> "M1"
+         Phase = factor(Phase, levels = rq3_phase_levels),
+         Panel = if (rq3_heat_by_transect) paste0(Site, "  ·  ", Tran) else as.character(Site)) %>%
+  filter(!is.na(Phase)) %>%
+  group_by(Site, Panel, Dist_m, Phase) %>%
+  summarise(gm = exp(mean(log(Flux))), .groups = "drop") %>%
+  tidyr::complete(tidyr::nesting(Site, Panel, Dist_m), Phase) %>%
+  mutate(Site  = factor(as.character(Site), levels = rq3_site_order),
+         Panel = factor(Panel, levels = unique(Panel[order(Site, Panel)])),
+         # edge (smallest distance) at the top
+         Dist_lab = factor(paste(Dist_m, "m"),
+                           levels = paste(sort(unique(Dist_m), decreasing = TRUE), "m")),
+         log10_gm = log10(gm)) %>%
+  # deviation from the site's typical (median) flux, log10 units:
+  # 0 = typical, +1 = 10x higher, -1 = 10x lower
+  group_by(Site) %>%
+  mutate(anom = log10_gm - median(log10_gm, na.rm = TRUE)) %>%
+  ungroup()
+
+table(rq3_heat$Phase, is.na(rq3_heat$gm))   # CHECK: cells sampled (FALSE) vs not (TRUE) per phase
+
+# shared layout for both versions
+rq3_heat_base <- function(fill_var) {
+  ggplot(rq3_heat, aes(x = Phase, y = Dist_lab, fill = .data[[fill_var]])) +
+    geom_tile(color = "white", linewidth = 0.6) +
+    facet_wrap(~ Panel, ncol = 2) +
+    scale_x_discrete(labels = rq3_phase_labels, drop = FALSE) +
+    labs(x = NULL, y = "Distance from marsh edge") +
+    theme_minimal(base_size = 12) +
+    theme(strip.text = element_text(face = "bold", size = 12),
+          panel.grid = element_blank(),
+          panel.spacing = unit(1, "lines"),
+          axis.text.x = element_text(size = 8, lineheight = 0.9, vjust = 1),
+          axis.text.y = element_text(size = 9),
+          plot.caption = element_text(size = 9, hjust = 0, color = "grey30"),
+          legend.position = "right")
+}
+
+# ---- 1a. Raw flux, colour limits at the 5th–95th percentile ----
+rq3_heat_lims <- quantile(rq3_heat$log10_gm, c(0.05, 0.95), na.rm = TRUE)
+rq3_heat_lims   # the colour range used (log10 flux)
+
+rq3_heatmap <- rq3_heat_base("log10_gm") +
+  scale_fill_gradientn(colours = rq3_sediment_cols, na.value = "#cfd8dc",
+                       limits = rq3_heat_lims, oob = scales::squish,
+                       name = expression(log[10]~Flux),
+                       labels = function(x) format(round(x, 1), drop0trailing = TRUE)) +
+  labs(title = "Sediment Flux by Distance from the Marsh Edge and Study Phase",
+       caption = "Darker = more deposition. Colour scale limited to the 5th–95th percentile. Blue-grey = not sampled.")
+print(rq3_heatmap)
+ggsave(rq3_img("rq3_station_phase_heatmap.png"),
+       plot = rq3_heatmap, width = 12, height = 7, dpi = 300, limitsize = FALSE)
+
+# ---- 1b. Flux relative to each site's typical value ----
+rq3_heatmap_anom <- rq3_heat_base("anom") +
+  # unsampled cells: white with a small x, so they can't be mistaken for
+  # the pale colours near "typical"
+  geom_point(data = rq3_heat %>% filter(is.na(gm)), aes(x = Phase, y = Dist_lab),
+             inherit.aes = FALSE, shape = 4, size = 1.5, color = "grey55") +
+  scale_fill_gradient2(low = "#3b6e8f", mid = "#f7f0e3", high = "#5c3816",
+                       midpoint = 0, limits = c(-1, 1), oob = scales::squish,
+                       na.value = "white",
+                       name = "Flux vs. site's\ntypical value",
+                       breaks = c(-1, -0.5, 0, 0.5, 1),
+                       labels = c("10× lower", "3× lower", "typical", "3× higher", "10× higher")) +
+  labs(title = "Sediment Flux Relative to Each Site's Typical Value",
+       caption = "Brown = above the site's median flux, blue = below. Values beyond 10× shown at the end colours. × = not sampled.")
+print(rq3_heatmap_anom)
+ggsave(rq3_img("rq3_station_phase_heatmap_relative.png"),
+       plot = rq3_heatmap_anom, width = 12, height = 7, dpi = 300, limitsize = FALSE)
+
+
+# ==== 2. Station-level summaries (the true unit of replication) ===========
+# Distance and z* have one value per station, so for those variables each
+# STATION is one observation. Each station is summarised to its typical
+# flux (geometric mean) and its variability (SD of log flux across
+# deployments: 1 = flux typically varies by a factor of ~2.7 around the
+# station's typical value). local_slope is kept in the summary table for
+# the PCA (section 3) but not plotted here.
+
+rq3_station <- rq3_avg %>%
+  group_by(Site, Tran, Loc_ID, marsh_edge_type) %>%
+  summarise(n_deploy    = n(),
+            geo_mean    = exp(mean(log(Flux))),
+            sd_log      = sd(log(Flux)),
+            Dist_m      = first(Dist_m),
+            z_star      = mean(z_star),
+            local_slope = mean(local_slope),
+            .groups = "drop") %>%
+  mutate(Site = factor(as.character(Site), levels = rq3_site_order))
+rq3_station %>% count(Site)   # stations per site
+min(rq3_station$n_deploy)     # fewest deployments behind any station's summary
+
+# Long format: one panel per (metric x station variable). Typical flux is
+# shown as log10 (facet rows can't have different axis transforms, so
+# the log is taken here and the strip label says so).
+rq3_station_long <- rq3_station %>%
+  mutate(log10_gm = log10(geo_mean)) %>%
+  tidyr::pivot_longer(c(Dist_m, z_star),
+                      names_to = "Predictor", values_to = "x") %>%
+  tidyr::pivot_longer(c(log10_gm, sd_log),
+                      names_to = "Metric", values_to = "y") %>%
+  mutate(
+    Predictor = factor(Predictor, levels = c("Dist_m", "z_star"),
+                       labels = c("Distance from edge (m)", "Elevation (z*)")),
+    Metric    = factor(Metric, levels = c("log10_gm", "sd_log"),
+                       labels = c("Typical flux\n(log10 g/m²/day)",
+                                  "Variability\n(SD of log flux)"))
+  )
+
+rq3_station_plot <- ggplot(rq3_station_long, aes(x = x, y = y, color = Site)) +
+  geom_point(size = 2.6, alpha = 0.85) +
+  facet_grid(Metric ~ Predictor, scales = "free", switch = "both") +
+  scale_color_manual(values = site_colors) +
+  labs(title = stringr::str_wrap("Station-Level Flux and Variability vs. Distance and Elevation", width = 60),
+       subtitle = "One point per trap station (averaged data)",
+       x = NULL, y = NULL, color = "Site") +
+  theme_bw(base_size = 12) +
+  theme(strip.placement = "outside",
+        strip.background = element_blank(),
+        strip.text = element_text(face = "bold"),
+        panel.spacing = unit(0.8, "lines"),
+        legend.position = "bottom")
+print(rq3_station_plot)
+ggsave(rq3_img("rq3_station_level_summary.png"),
+       plot = rq3_station_plot, width = 9, height = 7, dpi = 300, limitsize = FALSE)
+
+
+# ==== 3. PCA of station characteristics ===================================
+# How the stations (and marshes) differ in their conditions, and which
+# variables travel together. Variables are standardised. Add any other
+# numeric station variables from your LASSO to rq3_pca_vars -- only
+# columns that exist and have no missing values are used.
+
+rq3_pca_vars <- c("Dist_m", "z_star", "local_slope")
+
+rq3_pca_data <- rq3_station %>%
+  select(Site, Loc_ID, geo_mean, any_of(rq3_pca_vars)) %>%
+  tidyr::drop_na()
+rq3_pca <- prcomp(rq3_pca_data %>% select(any_of(rq3_pca_vars)), scale. = TRUE)
+
+summary(rq3_pca)          # variance explained by each component
+round(rq3_pca$rotation, 2) # loadings: how each variable contributes
+
+rq3_pca_scores <- bind_cols(rq3_pca_data, as.data.frame(rq3_pca$x[, 1:2]))
+rq3_pca_load   <- as.data.frame(rq3_pca$rotation[, 1:2]) %>%
+  tibble::rownames_to_column("Variable")
+rq3_pca_mult   <- 0.8 * max(abs(rq3_pca_scores[, c("PC1", "PC2")])) /
+  max(abs(rq3_pca_load[, c("PC1", "PC2")]))   # arrow length to fit the plot
+rq3_pca_pct    <- round(100 * summary(rq3_pca)$importance[2, 1:2])
+
+rq3_pca_plot <- ggplot(rq3_pca_scores, aes(PC1, PC2)) +
+  geom_hline(yintercept = 0, color = "grey85") +
+  geom_vline(xintercept = 0, color = "grey85") +
+  geom_point(aes(color = Site, size = geo_mean), alpha = 0.8) +
+  geom_segment(data = rq3_pca_load,
+               aes(x = 0, y = 0, xend = PC1 * rq3_pca_mult, yend = PC2 * rq3_pca_mult),
+               arrow = arrow(length = unit(0.2, "cm")), color = "grey30") +
+  geom_text(data = rq3_pca_load,
+            aes(x = PC1 * rq3_pca_mult * 1.12, y = PC2 * rq3_pca_mult * 1.12, label = Variable),
+            color = "grey20", size = 3.8) +
+  scale_color_manual(values = site_colors) +
+  scale_size_continuous(name = "Typical flux\n(g/m²/day)", range = c(1.5, 6)) +
+  labs(title = stringr::str_wrap("Station Characteristics: How the Marshes Differ in Their Conditions", width = 60),
+       subtitle = "PCA of standardised station variables; arrows = variable loadings; point size = typical flux",
+       x = paste0("PC1 (", rq3_pca_pct[1], "% of variation)"),
+       y = paste0("PC2 (", rq3_pca_pct[2], "% of variation)"),
+       color = "Site") +
+  coord_equal() +
+  theme_bw(base_size = 12) +
+  theme(legend.position = "right")
+print(rq3_pca_plot)
+ggsave(rq3_img("rq3_station_pca.png"),
+       plot = rq3_pca_plot, width = 9, height = 7, dpi = 300, limitsize = FALSE)
+```

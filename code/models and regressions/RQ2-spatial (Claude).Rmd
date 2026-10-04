@@ -1,0 +1,1209 @@
+---
+title: "RQ2 - Spatial (Claude)"
+author: "Savannah K. Miller"
+output: html_document
+---
+
+<!--
+NEW this session. Companion to RQ2-temporal (Claude).qmd, mirroring the
+RQ1-spatial / RQ1-temporal split. Research_question_2_FIXED (Claude3).qmd
+is kept unchanged as the generalized RQ2 file; this one and the temporal
+one are the focused versions.
+
+RQ2: did marsh sedimentation change between 2022–2023 (USGS) and
+2025–2026 (Thesis)? THIS file asks the spatial half of that:
+  -> Was the change the same at both marshes? In Edge and Platform?
+     At each station position along the transect? Did the relationship
+     between flux and elevation (z*) change?
+
+What's different from RQ1-spatial and from the general RQ2 file:
+
+1. PAIRED STATIONS via the marsh area crosswalk. Both datasets sampled
+   the same grid along the same transects, slightly offset. Station_ID
+   (crosswalk position x crosswalked transect) is the same physical spot
+   in both periods and replaces Loc_ID in every model, so each station
+   is compared with itself.
+
+2. NO RAW DISTANCE. The offset makes Dist non-comparable between
+   datasets (at San Pablo, USGS Dist = 24 and Thesis Dist = 0.5 are the
+   same Edge position -- see marsh_area_crosswalk.R). RQ1-spatial's
+   distance models therefore have no RQ2 equivalent. The spatial axes
+   here are Site, Marsh_Area (Edge/Platform), crosswalk position (the
+   finest shared grid), and station-level z*.
+
+3. ELEVATION ALIGNED TO THE CROSSWALK. z* enters as ONE value per
+   station, used for both periods, so it describes the place rather than
+   the survey. By default that's the thesis survey's z* at the station
+   (rq2s_z_source); stations with only a USGS value fall back to it. A
+   USGS-vs-thesis z* comparison per station is printed first -- large
+   disagreements flag stations where the offset matters.
+
+4. THE QUESTION IS THE INTERACTION: Study.Dataset x (spatial variable),
+   tested by likelihood-ratio test and reported as 2025–2026 / 2022–2023
+   flux ratios per site, area, or position. Month is adjusted for in
+   every model, and (1|Round_ID) (one month in one period) keeps traps
+   sampled in the same month from counting as independent.
+
+5. Replicate (rq2_rep) and averaged (rq2_avg) model-prep blocks, every
+   model fit on both, DHARMa on every primary model. Naming follows RQ1:
+   byrep model = name, averaged = name_avg.
+
+Caveat to state in the thesis: each period is ONE sampling year, so this
+shows that these two years differed in space, not a long-term trend.
+-->
+
+<!--
+STATISTICAL TOOLS USED IN THIS FILE
+(full definitions in statistical_tools_glossary (Claude).R)
+
+- glmmTMB() [glmmTMB] -- PRIMARY model fitter, Gamma(link = "log").
+- lmer() [lme4] -- Gaussian log(Flux) SENSITIVITY versions (Rule 2).
+- anova(m0, m1) -- likelihood-ratio test between nested models: the
+  main test for every question in this file.
+- Anova() [car] -- Type II Wald tests on a single model's terms.
+- emmeans() + pairs(reverse = TRUE) [emmeans] -- model-predicted flux
+  per period, and the 2025–2026 / 2022–2023 ratio with CI.
+- emtrends() [emmeans] -- the flux-z* slope in each period (log scale;
+  exp() gives the multiplicative change per 1 SD of z*).
+- simulateResiduals() / testUniformity() / testDispersion() /
+  testOutliers() / plotResiduals() / recalculateResiduals() /
+  testTemporalAutocorrelation() [DHARMa] -- residual diagnostics,
+  wrapped in check_dharma().
+- make_flux_table() [flux_summary.R] -- descriptive tables.
+-->
+
+```{r, load packages and working directory}
+
+source("C:\\Users\\savan\\OneDrive - San Francisco State University\\ProjectData\\GitHub\\DepositionSFB\\code\\R\\setup.R")
+source("C:\\Users\\savan\\OneDrive - San Francisco State University\\ProjectData\\GitHub\\DepositionSFB\\code\\R\\plotting.R")
+source("C:\\Users\\savan\\OneDrive - San Francisco State University\\ProjectData\\GitHub\\DepositionSFB\\code\\R\\flux_summary.R")
+
+# Shared fixed/random-effects rule, family decision, and naming
+# convention -- see that file's header before editing any model below.
+source("C:\\Users\\savan\\OneDrive - San Francisco State University\\ProjectData\\GitHub\\DepositionSFB\\code\\R\\modeling_conventions (Claude).R")
+
+# Definitions for every statistical function used in this file -- see
+# the "Statistical Tools Used in This File" note below, or
+# statistical_tools_glossary (Claude).R for the fuller version.
+source("C:\\Users\\savan\\OneDrive - San Francisco State University\\ProjectData\\GitHub\\DepositionSFB\\code\\R\\statistical_tools_glossary (Claude).R")
+
+# build_marsh_area_crosswalk() -- the USGS <-> Thesis station match guide.
+# ADJUST THIS PATH if marsh_area_crosswalk.R is saved somewhere else.
+source("C:\\Users\\savan\\OneDrive - San Francisco State University\\ProjectData\\GitHub\\DepositionSFB\\code\\R\\marsh_area_crosswalk.R")
+
+library(DHARMa)
+library(emmeans)
+
+knitr::opts_chunk$set(echo = TRUE)
+knitr::opts_knit$set(root.dir = 'C:/Users/savan/OneDrive - San Francisco State University/ProjectData/GitHub/DepositionSFB/data')
+
+rq2_img_dir <- "C:/Users/savan/OneDrive - San Francisco State University/ProjectData/GitHub/DepositionSFB/images/rq_2"
+
+# usgs_thesis uses FULL month names (same as Research_question_2_FIXED),
+# unlike master_tier5's "Jul"/"Aug" abbreviations in RQ1.
+month_levels <- c("July", "August", "September", "October", "November", "December",
+                  "January", "February", "March", "April", "May", "June")
+
+# Same Late_Dry-first order as RQ1. Set explicitly: left alphabetical,
+# Growth becomes the reference level (that's what happened in the
+# general RQ2 file's Phen_Period model output).
+phen_levels <- c("Late_Dry\n(Months 1-3)", "Tran\n(Months 4-6)",
+                 "Wet\n(Months 7-9)", "Growth\n(Months 10-12)")
+
+period_levels <- c("2022–2023", "2025–2026")
+```
+
+```{r, transect crosswalk -- VERIFY BEFORE RUNNING}
+# The marsh area crosswalk pairs DISTANCES between the two datasets, but
+# not TRANSECT LABELS -- USGS and thesis name the same physical transects
+# differently, which is why the general RQ2 file ends up with 8 Site:Tran
+# groups for 2 sites (each dataset's transects counted separately).
+#
+# This table says which USGS transect is the same physical transect as
+# which thesis transect. The USGS labels below (A/B) are a PLACEHOLDER
+# based on the bay-facing "Tran A/B" note in Research_question_2_FIXED --
+# check them against your field notes, fix any that are wrong, then set
+# tran_crosswalk_verified <- TRUE. The file stops at the next chunk until
+# you do, because a wrong match here silently pairs the wrong stations.
+#
+# Run this first to see the actual labels in the data:
+#   readRDS(".../usgs_thesis_byrep.rds") %>% count(Site, Study.Dataset, Tran)
+
+tran_crosswalk_verified <- TRUE
+
+tran_crosswalk <- tibble::tribble(
+  ~Site,         ~Study.Dataset, ~Tran, ~Tran_X,
+  "CorteMadera", "USGS",         "A",   "T1",
+  "CorteMadera", "USGS",         "B",   "T2",
+  "CorteMadera", "Thesis",       "T1",  "T1",
+  "CorteMadera", "Thesis",       "T2",  "T2",
+  "SanPablo",    "USGS",         "A",   "T1",
+  "SanPablo",    "USGS",         "B",   "T2",
+  "SanPablo",    "Thesis",       "T1",  "T1",
+  "SanPablo",    "Thesis",       "T2",  "T2"
+)
+
+if (!tran_crosswalk_verified) {
+  stop("Check tran_crosswalk against the real Tran labels and your field notes, ",
+       "then set tran_crosswalk_verified <- TRUE (chunk: 'transect crosswalk').")
+}
+```
+
+```{r, build station crosswalk}
+# Turns the marsh area crosswalk into STATION IDs shared by both datasets.
+#
+# Each row of the crosswalk's $wide table is one physical sampling
+# position: the USGS Dist and the Thesis Dist that sampled it. Those rows
+# become crosswalk positions (Xwalk_Pos = P1, P2, ... per site, ordered
+# Edge -> Platform -> inland by distance). If one dataset's Dist appears
+# on more than one row (one USGS trap matched to two thesis distances,
+# or vice versa), those rows are merged into a single position, so every
+# Dist maps to exactly one position.
+#
+# Station_ID = Site x crosswalked transect x crosswalk position = the same
+# physical spot in both periods. It replaces Loc_ID (Site x Tran x Dist),
+# which can't pair the periods: the offset gives the same spot two
+# different Dist values, and the transects have different labels.
+
+xw <- build_marsh_area_crosswalk()
+
+xw_wide <- xw$wide %>%
+  mutate(
+    Site        = as.character(Site),
+    Marsh_Area  = as.character(Marsh_Area),
+    USGS_Dist   = suppressWarnings(as.numeric(as.character(USGS_Dist))),
+    Thesis_Dist = suppressWarnings(as.numeric(as.character(Thesis_Dist)))
+  ) %>%
+  arrange(Site,
+          factor(Marsh_Area, levels = c("Intertidal", "Edge", "Platform", "Upland")),
+          dplyr::coalesce(Thesis_Dist, Inf), dplyr::coalesce(USGS_Dist, Inf))
+
+# Merge rows that share a USGS_Dist or a Thesis_Dist (repeats until
+# stable, so chains like A~B, B~C all end up in one position).
+assign_positions <- function(d) {
+  pos <- seq_len(nrow(d))
+  repeat {
+    old <- pos
+    for (col in c("USGS_Dist", "Thesis_Dist")) {
+      v <- d[[col]]
+      for (val in unique(v[!is.na(v)])) {
+        idx <- which(v == val)
+        pos[idx] <- min(pos[idx])
+      }
+    }
+    if (identical(pos, old)) break
+  }
+  as.integer(factor(pos, levels = sort(unique(pos))))   # dense 1..k, in order
+}
+
+xw_pos <- xw_wide %>%
+  group_by(Site) %>%
+  group_modify(~ mutate(.x, Xwalk_Pos = assign_positions(.x))) %>%
+  ungroup()
+
+# One row per position: its marsh area and the Dist values each dataset used
+xw_pos_info <- xw_pos %>%
+  group_by(Site, Xwalk_Pos) %>%
+  summarise(
+    Xwalk_Area  = first(Marsh_Area),
+    n_areas     = n_distinct(Marsh_Area),
+    USGS_Dists   = paste(sort(unique(na.omit(USGS_Dist))), collapse = "/"),
+    Thesis_Dists = paste(sort(unique(na.omit(Thesis_Dist))), collapse = "/"),
+    .groups = "drop"
+  ) %>%
+  mutate(Xwalk_Label = paste0("P", Xwalk_Pos, " ", Xwalk_Area,
+                              "\n(USGS ", ifelse(USGS_Dists == "", "-", USGS_Dists),
+                              " m / Thesis ", ifelse(Thesis_Dists == "", "-", Thesis_Dists), " m)"))
+
+xw_pos_info          # the station grid -- check it against the match guide
+xw_pos_info %>% filter(n_areas > 1)   # should be 0 rows (a merged position spanning two marsh areas)
+
+# Dist -> position lookup, one row per (Site, dataset, Dist)
+xw_lookup <- bind_rows(
+  xw_pos %>% filter(!is.na(USGS_Dist)) %>%
+    transmute(Site, Study.Dataset = "USGS", Dist_key = round(USGS_Dist, 3), Xwalk_Pos),
+  xw_pos %>% filter(!is.na(Thesis_Dist)) %>%
+    transmute(Site, Study.Dataset = "Thesis", Dist_key = round(Thesis_Dist, 3), Xwalk_Pos)
+) %>%
+  distinct()
+stopifnot(!anyDuplicated(xw_lookup[c("Site", "Study.Dataset", "Dist_key")]))
+
+# Attaches crosswalk position + crosswalked transect to a usgs_thesis
+# tier. Same restriction as the general RQ2 file: Corte Madera + San
+# Pablo only, Edge/Platform only, Flux > 0.
+attach_crosswalk <- function(df) {
+  df %>%
+    mutate(Site = as.character(Site),
+           Study.Dataset = as.character(Study.Dataset),
+           Tran = as.character(Tran),
+           Marsh_Area = as.character(Marsh_Area)) %>%
+    filter(Site %in% c("CorteMadera", "SanPablo"),
+           Marsh_Area %in% c("Edge", "Platform"),
+           Flux > 0) %>%
+    mutate(Dist_key = round(as.numeric(as.character(Dist)), 3)) %>%
+    left_join(xw_lookup, by = c("Site", "Study.Dataset", "Dist_key"),
+              relationship = "many-to-one") %>%
+    left_join(tran_crosswalk, by = c("Site", "Study.Dataset", "Tran"),
+              relationship = "many-to-one") %>%
+    left_join(xw_pos_info %>% select(Site, Xwalk_Pos, Xwalk_Area, Xwalk_Label),
+              by = c("Site", "Xwalk_Pos"))
+}
+
+# Turns the attached data into model-ready factors and IDs.
+finalize_rq2 <- function(df) {
+  df %>%
+    filter(!is.na(Xwalk_Pos), !is.na(Tran_X)) %>%
+    mutate(
+      # 2022–2023 is the reference level: every ratio reads
+      # "2025–2026 relative to 2022–2023"
+      Study.Dataset = factor(dplyr::recode(Study.Dataset,
+                                           "USGS" = "2022–2023", "Thesis" = "2025–2026"),
+                             levels = period_levels),
+      Site        = factor(Site, levels = c("CorteMadera", "SanPablo")),
+      Tran_X      = factor(Tran_X),
+      Marsh_Area  = factor(Marsh_Area, levels = c("Edge", "Platform")),
+      Month       = factor(as.character(Month), levels = month_levels),
+      # keep the file's Phen_Period; derive from Month only where missing
+      Phen_Period = dplyr::coalesce(
+        as.character(Phen_Period),
+        phen_levels[ceiling(match(as.character(Month), month_levels) / 3)]
+      ),
+      Phen_Period = factor(Phen_Period, levels = phen_levels),
+      Xwalk_Pos   = factor(Xwalk_Pos),
+      Pos_Site    = interaction(Site, Xwalk_Pos, sep = "_", drop = TRUE),
+      Station_ID  = interaction(Site, Tran_X, Xwalk_Pos, sep = "_", drop = TRUE),
+      # one sampling round = one month in one period, shared by every
+      # trap in the marsh. Levels in time order (all 2022–2023 months,
+      # then all 2025–2026 months) so DHARMa's temporal test reads them
+      # in sequence.
+      Round_ID    = factor(paste(Study.Dataset, Month),
+                           levels = as.vector(outer(month_levels, period_levels,
+                                                    function(m, d) paste(d, m))))
+    ) %>%
+    filter(!is.na(Month)) %>%
+    droplevels()
+}
+```
+
+```{r, load data and attach crosswalk}
+usgs_thesis <- readRDS("C:\\Users\\savan\\OneDrive - San Francisco State University\\ProjectData\\GitHub\\DepositionSFB\\data\\usgs_thesis_byrep.rds")
+usgs_thesis_avg <- readRDS("C:\\Users\\savan\\OneDrive - San Francisco State University\\ProjectData\\GitHub\\DepositionSFB\\data\\usgs_thesis.rds")
+
+rq2_rep_attached <- attach_crosswalk(usgs_thesis)
+rq2_avg_attached <- attach_crosswalk(usgs_thesis_avg)
+
+# Rows that didn't match the crosswalk (a Dist not in the match guide) or
+# the transect table. Should be 0 or close to it -- anything listed here
+# is dropped from every model below, so look at what it is.
+rq2_rep_attached %>% filter(is.na(Xwalk_Pos) | is.na(Tran_X)) %>%
+  count(Site, Study.Dataset, Tran, Dist)
+
+# Does each file's own Marsh_Area agree with the crosswalk's? (The
+# crosswalk header says both derivations already agree -- this checks.)
+rq2_rep_attached %>% filter(!is.na(Xwalk_Area), Marsh_Area != Xwalk_Area) %>%
+  count(Site, Study.Dataset, Dist, Marsh_Area, Xwalk_Area)
+```
+
+### Model prep: replicate-level data
+
+```{r, model prep - replicate}
+rq2_rep <- rq2_rep_attached %>%
+  finalize_rq2() %>%
+  # one level per station x sampling round -- the replicate traps in a
+  # level are the pseudo-replicates this term accounts for
+  mutate(Deploy_ID = interaction(Station_ID, Round_ID, drop = TRUE))
+
+nrow(rq2_rep)
+table(rq2_rep$Study.Dataset, rq2_rep$Site)
+
+# THE PAIRING CHECK: stations sampled in BOTH periods. This should be
+# most or all of them -- if it's near 0, the transect table or the
+# crosswalk join is off, and the models below are not paired.
+rq2_station_periods <- rq2_rep %>%
+  distinct(Site, Station_ID, Study.Dataset) %>%
+  count(Site, Station_ID, name = "n_periods")
+table(rq2_station_periods$Site, rq2_station_periods$n_periods)
+
+# Months sampled in each period (both columns > 0 = a fair comparison
+# for that month)
+table(rq2_rep$Month, rq2_rep$Study.Dataset)
+
+# Replicate traps per deployment
+rq2_rep %>% count(Deploy_ID) %>%
+  summarise(min = min(n), median = median(n), max = max(n))
+```
+
+### Model prep: averaged data
+
+```{r, model prep - averaged}
+# One row per station x sampling round. If two raw Dist values merged
+# into one crosswalk position, the averaged tier can have two rows for
+# that station in a round -- they're averaged together here, which is
+# what the averaged tier means. (z_star is carried along for the
+# spatial file's elevation section.)
+rq2_avg0 <- finalize_rq2(rq2_avg_attached)
+if (!"z_star" %in% names(rq2_avg0)) rq2_avg0$z_star <- NA_real_
+
+rq2_avg <- rq2_avg0 %>%
+  group_by(Site, Study.Dataset, Tran_X, Xwalk_Pos, Xwalk_Label, Xwalk_Area,
+           Pos_Site, Station_ID, Month, Phen_Period, Round_ID) %>%
+  summarise(
+    Flux       = mean(Flux),
+    Marsh_Area = first(Marsh_Area),
+    z_star     = if (all(is.na(z_star))) NA_real_ else mean(z_star, na.rm = TRUE),
+    n_merged   = n(),
+    .groups = "drop"
+  )
+
+nrow(rq2_avg)
+sum(rq2_avg$n_merged > 1)   # station-rounds that combined >1 averaged row
+table(rq2_avg$Study.Dataset, rq2_avg$Site)
+table(rq2_avg$Month, rq2_avg$Study.Dataset)
+```
+
+```{r, helper functions}
+# ---- check_dharma(): one-call DHARMa diagnostics ----
+# `data` MUST be the exact data frame the model was fit on. With a few
+# thousand rows the KS uniformity test flags even trivial deviations --
+# read the QQ and residual-vs-predicted panels first and treat p-values
+# as a prompt to look, not a verdict.
+check_dharma <- function(model, data, label,
+                         factor_vars = NULL, numeric_vars = NULL,
+                         group_var = NULL, time_var = NULL,
+                         n_sim = 250, seed = 42) {
+  set.seed(seed)
+  sim <- simulateResiduals(model, n = n_sim)
+  plot(sim, title = paste("DHARMa:", label))
+
+  unif <- testUniformity(sim, plot = FALSE)
+  disp <- testDispersion(sim, plot = FALSE)
+  outl <- testOutliers(sim, plot = FALSE)
+
+  # residuals against each predictor -- a pattern means the model is
+  # missing structure in that variable
+  for (v in c(factor_vars, numeric_vars)) {
+    plotResiduals(sim, form = data[[v]], xlab = v,
+                  main = paste(label, "- residuals vs", v))
+  }
+
+  # residuals summed per station: over-dispersion here means
+  # (1|Station_ID) hasn't absorbed station-level clustering
+  grp_p <- NA_real_
+  if (!is.null(group_var)) {
+    sim_g <- recalculateResiduals(sim, group = data[[group_var]])
+    grp_p <- testDispersion(sim_g, plot = FALSE)$p.value
+  }
+
+  # residuals summed per sampling round, tested for autocorrelation
+  # (time_var must be a factor with levels in time order)
+  ac_p <- NA_real_
+  if (!is.null(time_var)) {
+    tf <- droplevels(as.factor(data[[time_var]]))
+    sim_t <- recalculateResiduals(sim, group = tf)
+    ac_p <- testTemporalAutocorrelation(sim_t, time = seq_along(levels(tf)),
+                                        plot = FALSE)$p.value
+  }
+
+  out <- tibble::tibble(
+    Model                = label,
+    Uniformity_KS_p      = unif$p.value,
+    Dispersion_p         = disp$p.value,
+    Outliers_p           = outl$p.value,
+    Station_dispersion_p = grp_p,
+    Temporal_autocorr_p  = ac_p
+  )
+  print(out)
+  invisible(list(sim = sim, summary = out))
+}
+
+# ---- ratio_table(): 2025–2026 / 2022–2023 flux ratio with 95% CI ----
+# emm_grid comes from emmeans(model, ~ Study.Dataset [| by], type = "response");
+# `by` can be one variable or several (e.g. c("Marsh_Area", "Site")).
+# ratio < 1 = less flux in 2025–2026; 0.5 = halved; 2 = doubled.
+# Cells one period never sampled come back NA and are dropped.
+ratio_table <- function(emm_grid, grain, by = NULL) {
+  ctr <- pairs(emm_grid, reverse = TRUE)        # later / earlier
+  ci  <- as.data.frame(confint(ctr))
+  pv  <- as.data.frame(test(ctr))$p.value
+  names(ci)[names(ci) %in% c("lower.CL", "asymp.LCL")] <- "lower"
+  names(ci)[names(ci) %in% c("upper.CL", "asymp.UCL")] <- "upper"
+  ci %>%
+    mutate(
+      Grain      = grain,
+      Split      = if (is.null(by)) "Overall" else paste(by, collapse = " x "),
+      Group      = if (is.null(by)) "Overall" else
+                     do.call(paste, c(lapply(by, function(b) as.character(ci[[b]])), sep = " / ")),
+      pct_change = 100 * (ratio - 1),
+      p.value    = pv
+    ) %>%
+    filter(!is.na(ratio)) %>%
+    select(Grain, Split, Group, ratio, lower, upper, pct_change, p.value)
+}
+
+# ---- lrt_p(): p-value from anova(smaller, larger) ----
+lrt_p <- function(m0, m1) anova(m0, m1)$`Pr(>Chisq)`[2]
+
+# ---- save_flux_table_image(): same as the general RQ2 file ----
+save_flux_table_image <- function(flux_result, caption, filename) {
+  ft <- flux_result$data %>%
+    select(-Shapiro_p) %>%
+    rename(Shapiro_p = Shapiro_p_display) %>%
+    flextable() %>%
+    set_caption(caption) %>%
+    colformat_double(digits = 3) %>%
+    autofit()
+  save_as_image(ft, path = file.path(rq2_img_dir, filename))
+  ft
+}
+```
+
+## Descriptive: flux by site, marsh area, and station position, by study period
+
+```{r, descriptive tables}
+site_area_stats_byrep <- make_flux_table(
+  rq2_rep, group_vars = c("Study.Dataset", "Site", "Marsh_Area"),
+  title = "Sediment Flux by Study Period, Site, and Marsh Area",
+  subtitle = "Flux measured in g/m²/day; paired crosswalk stations"
+)
+pos_stats_byrep <- make_flux_table(
+  rq2_rep, group_vars = c("Study.Dataset", "Site", "Xwalk_Pos"),
+  title = "Sediment Flux by Study Period and Crosswalk Position",
+  subtitle = "Flux measured in g/m²/day; positions from marsh_area_crosswalk"
+)
+site_area_stats_avg <- make_flux_table(
+  rq2_avg, group_vars = c("Study.Dataset", "Site", "Marsh_Area"),
+  title = "Sediment Flux by Study Period, Site, and Marsh Area (Averaged)",
+  subtitle = "Flux measured in g/m²/day; paired crosswalk stations"
+)
+pos_stats_avg <- make_flux_table(
+  rq2_avg, group_vars = c("Study.Dataset", "Site", "Xwalk_Pos"),
+  title = "Sediment Flux by Study Period and Crosswalk Position (Averaged)",
+  subtitle = "Flux measured in g/m²/day; positions from marsh_area_crosswalk"
+)
+
+save_flux_table_image(site_area_stats_byrep, "Sediment Flux by Study Period, Site, and Marsh Area", "rq2s_site_area_stats_byrep.png")
+save_flux_table_image(pos_stats_byrep,       "Sediment Flux by Study Period and Crosswalk Position", "rq2s_pos_stats_byrep.png")
+save_flux_table_image(site_area_stats_avg,   "Sediment Flux by Study Period, Site, and Marsh Area (Averaged)", "rq2s_site_area_stats_avg.png")
+save_flux_table_image(pos_stats_avg,         "Sediment Flux by Study Period and Crosswalk Position (Averaged)", "rq2s_pos_stats_avg.png")
+```
+
+```{r, site x marsh area boxplot}
+rq2s_box <- ggplot(rq2_rep, aes(x = Marsh_Area, y = Flux, fill = Study.Dataset)) +
+  geom_boxplot(alpha = 0.5, outlier.shape = NA) +
+  geom_jitter(aes(color = Study.Dataset), alpha = 0.3, size = 0.8,
+              position = position_jitterdodge(jitter.width = 0.15, dodge.width = 0.75)) +
+  facet_wrap(~ Site) +
+  scale_y_log10() +
+  scale_fill_manual(values = year_colors) +
+  scale_color_manual(values = year_colors) +
+  labs(title = "Sediment Flux by Marsh Area, Site, and Study Period (Paired Stations)",
+       y = "Flux (g/m²/day)", x = "Marsh Area",
+       fill = "Study Period", color = "Study Period") +
+  theme_bw() +
+  theme(plot.title = element_text(hjust = 0.5),
+        strip.text = element_text(face = "bold"), legend.position = "bottom")
+rq2s_box
+
+ggsave(file.path(rq2_img_dir, "rq2s_box_byrep.png"),
+       plot = rq2s_box, width = 8, height = 5, dpi = 300, limitsize = FALSE)
+```
+
+```{r, ADDED averaged companion for site x marsh area boxplot}
+rq2s_box_avg <- ggplot(rq2_avg, aes(x = Marsh_Area, y = Flux, fill = Study.Dataset)) +
+  geom_boxplot(alpha = 0.5, outlier.shape = NA) +
+  geom_jitter(aes(color = Study.Dataset), alpha = 0.3, size = 0.8,
+              position = position_jitterdodge(jitter.width = 0.15, dodge.width = 0.75)) +
+  facet_wrap(~ Site) +
+  scale_y_log10() +
+  scale_fill_manual(values = year_colors) +
+  scale_color_manual(values = year_colors) +
+  labs(title = "Sediment Flux by Marsh Area, Site, and Study Period (Paired Stations, Averaged)",
+       y = "Flux (g/m²/day)", x = "Marsh Area",
+       fill = "Study Period", color = "Study Period") +
+  theme_bw() +
+  theme(plot.title = element_text(hjust = 0.5),
+        strip.text = element_text(face = "bold"), legend.position = "bottom")
+rq2s_box_avg
+
+ggsave(file.path(rq2_img_dir, "rq2s_box_avg.png"),
+       plot = rq2s_box_avg, width = 8, height = 5, dpi = 300, limitsize = FALSE)
+```
+
+```{r, paired station plot}
+# The paired design, drawn: one line per station joining its typical
+# (geometric-mean) flux in 2022–2023 to the same station in 2025–2026.
+rq2s_paired <- rq2_rep %>%
+  group_by(Site, Marsh_Area, Station_ID, Study.Dataset) %>%
+  summarise(geo_mean_flux = exp(mean(log(Flux))), .groups = "drop") %>%
+  group_by(Station_ID) %>%
+  filter(n_distinct(Study.Dataset) == 2) %>%
+  ungroup()
+
+rq2s_paired_plot <- ggplot(rq2s_paired,
+                           aes(x = Study.Dataset, y = geo_mean_flux, group = Station_ID)) +
+  geom_line(aes(color = Marsh_Area), alpha = 0.6) +
+  geom_point(aes(color = Marsh_Area), size = 1.8) +
+  facet_wrap(~ Site) +
+  scale_y_log10() +
+  labs(title = stringr::str_wrap("Station-Level Change in Flux Between Study Periods", width = 45),
+       y = "Station geometric-mean flux (g/m²/day), log scale", x = NULL, color = "Marsh Area") +
+  theme_bw() +
+  theme(strip.text = element_text(face = "bold"), legend.position = "bottom")
+rq2s_paired_plot
+
+ggsave(file.path(rq2_img_dir, "rq2s_paired_plot_byrep.png"),
+       plot = rq2s_paired_plot, width = 8, height = 5, dpi = 300, limitsize = FALSE)
+```
+
+```{r, ADDED averaged companion for paired station plot}
+rq2s_paired_avg <- rq2_avg %>%
+  group_by(Site, Marsh_Area, Station_ID, Study.Dataset) %>%
+  summarise(geo_mean_flux = exp(mean(log(Flux))), .groups = "drop") %>%
+  group_by(Station_ID) %>%
+  filter(n_distinct(Study.Dataset) == 2) %>%
+  ungroup()
+
+rq2s_paired_plot_avg <- ggplot(rq2s_paired_avg,
+                               aes(x = Study.Dataset, y = geo_mean_flux, group = Station_ID)) +
+  geom_line(aes(color = Marsh_Area), alpha = 0.6) +
+  geom_point(aes(color = Marsh_Area), size = 1.8) +
+  facet_wrap(~ Site) +
+  scale_y_log10() +
+  labs(title = stringr::str_wrap("Station-Level Change in Flux Between Study Periods (Averaged)", width = 45),
+       y = "Station geometric-mean flux (g/m²/day), log scale", x = NULL, color = "Marsh Area") +
+  theme_bw() +
+  theme(strip.text = element_text(face = "bold"), legend.position = "bottom")
+rq2s_paired_plot_avg
+
+ggsave(file.path(rq2_img_dir, "rq2s_paired_plot_avg.png"),
+       plot = rq2s_paired_plot_avg, width = 8, height = 5, dpi = 300, limitsize = FALSE)
+```
+
+## Step 1: was the change the same at both marshes?
+
+`rq2s_base_glmm` is the shared starting point for Steps 1–3: the period effect is one number for everywhere, adjusted for Site, Marsh_Area and Month. Each step adds one interaction and tests it against this base.
+
+```{r, step 1 site}
+rq2s_base_glmm <- glmmTMB(
+  Flux ~ Study.Dataset + Site + Marsh_Area + Month +
+    (1|Site:Tran_X) + (1|Station_ID) + (1|Round_ID) + (1|Deploy_ID),
+  family = Gamma(link = "log"), data = rq2_rep
+)
+summary(rq2s_base_glmm)
+
+rq2s_site_glmm <- glmmTMB(
+  Flux ~ Study.Dataset * Site + Marsh_Area + Month +
+    (1|Site:Tran_X) + (1|Station_ID) + (1|Round_ID) + (1|Deploy_ID),
+  family = Gamma(link = "log"), data = rq2_rep
+)
+summary(rq2s_site_glmm)
+Anova(rq2s_site_glmm, type = "II")
+
+# THE TEST: does the change differ between marshes?
+anova(rq2s_base_glmm, rq2s_site_glmm)
+
+rq2s_overall_ratio <- emmeans(rq2s_base_glmm, ~ Study.Dataset, type = "response") %>%
+  ratio_table(grain = "Replicate")
+rq2s_site_ratio <- emmeans(rq2s_site_glmm, ~ Study.Dataset | Site, type = "response") %>%
+  ratio_table(grain = "Replicate", by = "Site")
+rq2s_overall_ratio
+rq2s_site_ratio
+
+rq2s_site_dharma <- check_dharma(
+  rq2s_site_glmm, rq2_rep, "RQ2-S Site model (replicate)",
+  factor_vars = c("Study.Dataset", "Site", "Marsh_Area", "Month"),
+  group_var   = "Station_ID",
+  time_var    = "Round_ID"
+)
+```
+
+```{r, ADDED averaged companion for step 1}
+rq2s_base_glmm_avg <- glmmTMB(
+  Flux ~ Study.Dataset + Site + Marsh_Area + Month +
+    (1|Site:Tran_X) + (1|Station_ID) + (1|Round_ID),
+  family = Gamma(link = "log"), data = rq2_avg
+)
+summary(rq2s_base_glmm_avg)
+
+rq2s_site_glmm_avg <- glmmTMB(
+  Flux ~ Study.Dataset * Site + Marsh_Area + Month +
+    (1|Site:Tran_X) + (1|Station_ID) + (1|Round_ID),
+  family = Gamma(link = "log"), data = rq2_avg
+)
+summary(rq2s_site_glmm_avg)
+Anova(rq2s_site_glmm_avg, type = "II")
+
+anova(rq2s_base_glmm_avg, rq2s_site_glmm_avg)
+
+rq2s_overall_ratio_avg <- emmeans(rq2s_base_glmm_avg, ~ Study.Dataset, type = "response") %>%
+  ratio_table(grain = "Averaged")
+rq2s_site_ratio_avg <- emmeans(rq2s_site_glmm_avg, ~ Study.Dataset | Site, type = "response") %>%
+  ratio_table(grain = "Averaged", by = "Site")
+rq2s_overall_ratio_avg
+rq2s_site_ratio_avg
+
+rq2s_site_dharma_avg <- check_dharma(
+  rq2s_site_glmm_avg, rq2_avg, "RQ2-S Site model (averaged)",
+  factor_vars = c("Study.Dataset", "Site", "Marsh_Area", "Month"),
+  group_var   = "Station_ID",
+  time_var    = "Round_ID"
+)
+```
+
+## Step 2: was the change the same at the Edge and on the Platform?
+
+```{r, step 2 marsh area}
+rq2s_area_glmm <- glmmTMB(
+  Flux ~ Study.Dataset * Marsh_Area + Site + Month +
+    (1|Site:Tran_X) + (1|Station_ID) + (1|Round_ID) + (1|Deploy_ID),
+  family = Gamma(link = "log"), data = rq2_rep
+)
+summary(rq2s_area_glmm)
+Anova(rq2s_area_glmm, type = "II")
+
+anova(rq2s_base_glmm, rq2s_area_glmm)
+
+rq2s_area_ratio <- emmeans(rq2s_area_glmm, ~ Study.Dataset | Marsh_Area, type = "response") %>%
+  ratio_table(grain = "Replicate", by = "Marsh_Area")
+rq2s_area_ratio
+
+rq2s_area_dharma <- check_dharma(
+  rq2s_area_glmm, rq2_rep, "RQ2-S Marsh_Area model (replicate)",
+  factor_vars = c("Study.Dataset", "Site", "Marsh_Area", "Month"),
+  group_var   = "Station_ID",
+  time_var    = "Round_ID"
+)
+```
+
+```{r, ADDED averaged companion for step 2}
+rq2s_area_glmm_avg <- glmmTMB(
+  Flux ~ Study.Dataset * Marsh_Area + Site + Month +
+    (1|Site:Tran_X) + (1|Station_ID) + (1|Round_ID),
+  family = Gamma(link = "log"), data = rq2_avg
+)
+summary(rq2s_area_glmm_avg)
+Anova(rq2s_area_glmm_avg, type = "II")
+
+anova(rq2s_base_glmm_avg, rq2s_area_glmm_avg)
+
+rq2s_area_ratio_avg <- emmeans(rq2s_area_glmm_avg, ~ Study.Dataset | Marsh_Area, type = "response") %>%
+  ratio_table(grain = "Averaged", by = "Marsh_Area")
+rq2s_area_ratio_avg
+
+rq2s_area_dharma_avg <- check_dharma(
+  rq2s_area_glmm_avg, rq2_avg, "RQ2-S Marsh_Area model (averaged)",
+  factor_vars = c("Study.Dataset", "Site", "Marsh_Area", "Month"),
+  group_var   = "Station_ID",
+  time_var    = "Round_ID"
+)
+```
+
+```{r, steps 1-2 sensitivity - lmer}
+# SENSITIVITY (Rule 2): Gaussian on log(Flux). The site and marsh-area
+# ratios should land close to the Gamma ones.
+rq2s_site_lmer <- lmer(
+  log(Flux) ~ Study.Dataset * Site + Marsh_Area + Month +
+    (1|Site:Tran_X) + (1|Station_ID) + (1|Round_ID) + (1|Deploy_ID),
+  data = rq2_rep
+)
+rq2s_area_lmer <- lmer(
+  log(Flux) ~ Study.Dataset * Marsh_Area + Site + Month +
+    (1|Site:Tran_X) + (1|Station_ID) + (1|Round_ID) + (1|Deploy_ID),
+  data = rq2_rep
+)
+rq2s_site_lmer_avg <- lmer(
+  log(Flux) ~ Study.Dataset * Site + Marsh_Area + Month +
+    (1|Site:Tran_X) + (1|Station_ID) + (1|Round_ID),
+  data = rq2_avg
+)
+rq2s_area_lmer_avg <- lmer(
+  log(Flux) ~ Study.Dataset * Marsh_Area + Site + Month +
+    (1|Site:Tran_X) + (1|Station_ID) + (1|Round_ID),
+  data = rq2_avg
+)
+
+rq2s_lmer_ratio <- bind_rows(
+  emmeans(rq2s_site_lmer, ~ Study.Dataset | Site, type = "response") %>%
+    ratio_table(grain = "Replicate (lmer)", by = "Site"),
+  emmeans(rq2s_area_lmer, ~ Study.Dataset | Marsh_Area, type = "response") %>%
+    ratio_table(grain = "Replicate (lmer)", by = "Marsh_Area"),
+  emmeans(rq2s_site_lmer_avg, ~ Study.Dataset | Site, type = "response") %>%
+    ratio_table(grain = "Averaged (lmer)", by = "Site"),
+  emmeans(rq2s_area_lmer_avg, ~ Study.Dataset | Marsh_Area, type = "response") %>%
+    ratio_table(grain = "Averaged (lmer)", by = "Marsh_Area")
+)
+rq2s_lmer_ratio
+```
+
+## Step 3: Edge vs Platform within each marsh
+
+Lets the Edge/Platform change differ by marsh (the three-way interaction), tested against a model with both two-way interactions. With paired stations this is 8 well-filled cells. If the test is weak, report Steps 1–2 as the result and treat the per-site, per-area ratios as descriptive.
+
+```{r, step 3 site x marsh area}
+rq2s_site_area2_glmm <- glmmTMB(
+  Flux ~ Study.Dataset * Site + Study.Dataset * Marsh_Area + Month +
+    (1|Site:Tran_X) + (1|Station_ID) + (1|Round_ID) + (1|Deploy_ID),
+  family = Gamma(link = "log"), data = rq2_rep
+)
+
+rq2s_site_area_glmm <- glmmTMB(
+  Flux ~ Study.Dataset * Site * Marsh_Area + Month +
+    (1|Site:Tran_X) + (1|Station_ID) + (1|Round_ID) + (1|Deploy_ID),
+  family = Gamma(link = "log"), data = rq2_rep
+)
+summary(rq2s_site_area_glmm)
+
+anova(rq2s_site_area2_glmm, rq2s_site_area_glmm)
+
+rq2s_site_area_ratio <- emmeans(rq2s_site_area_glmm, ~ Study.Dataset | Marsh_Area * Site,
+                                type = "response") %>%
+  ratio_table(grain = "Replicate", by = c("Marsh_Area", "Site"))
+rq2s_site_area_ratio
+
+rq2s_site_area_dharma <- check_dharma(
+  rq2s_site_area_glmm, rq2_rep, "RQ2-S Site x Marsh_Area model (replicate)",
+  factor_vars = c("Study.Dataset", "Site", "Marsh_Area", "Month"),
+  group_var   = "Station_ID",
+  time_var    = "Round_ID"
+)
+```
+
+```{r, ADDED averaged companion for step 3}
+rq2s_site_area2_glmm_avg <- glmmTMB(
+  Flux ~ Study.Dataset * Site + Study.Dataset * Marsh_Area + Month +
+    (1|Site:Tran_X) + (1|Station_ID) + (1|Round_ID),
+  family = Gamma(link = "log"), data = rq2_avg
+)
+
+rq2s_site_area_glmm_avg <- glmmTMB(
+  Flux ~ Study.Dataset * Site * Marsh_Area + Month +
+    (1|Site:Tran_X) + (1|Station_ID) + (1|Round_ID),
+  family = Gamma(link = "log"), data = rq2_avg
+)
+summary(rq2s_site_area_glmm_avg)
+
+anova(rq2s_site_area2_glmm_avg, rq2s_site_area_glmm_avg)
+
+rq2s_site_area_ratio_avg <- emmeans(rq2s_site_area_glmm_avg, ~ Study.Dataset | Marsh_Area * Site,
+                                    type = "response") %>%
+  ratio_table(grain = "Averaged", by = c("Marsh_Area", "Site"))
+rq2s_site_area_ratio_avg
+
+rq2s_site_area_dharma_avg <- check_dharma(
+  rq2s_site_area_glmm_avg, rq2_avg, "RQ2-S Site x Marsh_Area model (averaged)",
+  factor_vars = c("Study.Dataset", "Site", "Marsh_Area", "Month"),
+  group_var   = "Station_ID",
+  time_var    = "Round_ID"
+)
+```
+
+## Step 4: crosswalk positions (the finest shared grid)
+
+The closest RQ2 gets to RQ1-spatial's distance models. Instead of raw Dist, each crosswalk position (P1, P2, ... per site, ordered from the edge inland) is the same physical spot in both datasets. `Pos_Site` replaces Site and Marsh_Area here, since each position belongs to one site and one marsh area. Only positions sampled in both periods are used, so every position has a ratio.
+
+```{r, step 4 position prep}
+rq2s_both_pos <- rq2_rep %>%
+  distinct(Pos_Site, Study.Dataset) %>%
+  count(Pos_Site) %>% filter(n == 2) %>% pull(Pos_Site)
+
+rq2_rep_pos <- rq2_rep %>% filter(Pos_Site %in% rq2s_both_pos) %>% droplevels()
+rq2_avg_pos <- rq2_avg %>% filter(Pos_Site %in% rq2s_both_pos) %>% droplevels()
+
+# positions kept (both periods) vs. dropped (one period only)
+xw_pos_info %>%
+  mutate(Pos_Site = paste(Site, Xwalk_Pos, sep = "_"),
+         kept = Pos_Site %in% rq2s_both_pos) %>%
+  select(Site, Xwalk_Pos, Xwalk_Area, USGS_Dists, Thesis_Dists, kept)
+```
+
+```{r, step 4 position models}
+rq2s_pos_add_glmm <- glmmTMB(
+  Flux ~ Study.Dataset + Pos_Site + Month +
+    (1|Site:Tran_X) + (1|Station_ID) + (1|Round_ID) + (1|Deploy_ID),
+  family = Gamma(link = "log"), data = rq2_rep_pos
+)
+
+rq2s_pos_glmm <- glmmTMB(
+  Flux ~ Study.Dataset * Pos_Site + Month +
+    (1|Site:Tran_X) + (1|Station_ID) + (1|Round_ID) + (1|Deploy_ID),
+  family = Gamma(link = "log"), data = rq2_rep_pos
+)
+summary(rq2s_pos_glmm)
+
+anova(rq2s_pos_add_glmm, rq2s_pos_glmm)
+
+rq2s_pos_ratio <- emmeans(rq2s_pos_glmm, ~ Study.Dataset | Pos_Site, type = "response") %>%
+  ratio_table(grain = "Replicate", by = "Pos_Site")
+rq2s_pos_ratio
+
+rq2s_pos_dharma <- check_dharma(
+  rq2s_pos_glmm, rq2_rep_pos, "RQ2-S Position model (replicate)",
+  factor_vars = c("Study.Dataset", "Pos_Site", "Month"),
+  group_var   = "Station_ID",
+  time_var    = "Round_ID"
+)
+```
+
+```{r, ADDED averaged companion for step 4 position models}
+rq2s_pos_add_glmm_avg <- glmmTMB(
+  Flux ~ Study.Dataset + Pos_Site + Month +
+    (1|Site:Tran_X) + (1|Station_ID) + (1|Round_ID),
+  family = Gamma(link = "log"), data = rq2_avg_pos
+)
+
+rq2s_pos_glmm_avg <- glmmTMB(
+  Flux ~ Study.Dataset * Pos_Site + Month +
+    (1|Site:Tran_X) + (1|Station_ID) + (1|Round_ID),
+  family = Gamma(link = "log"), data = rq2_avg_pos
+)
+summary(rq2s_pos_glmm_avg)
+
+anova(rq2s_pos_add_glmm_avg, rq2s_pos_glmm_avg)
+
+rq2s_pos_ratio_avg <- emmeans(rq2s_pos_glmm_avg, ~ Study.Dataset | Pos_Site, type = "response") %>%
+  ratio_table(grain = "Averaged", by = "Pos_Site")
+rq2s_pos_ratio_avg
+
+rq2s_pos_dharma_avg <- check_dharma(
+  rq2s_pos_glmm_avg, rq2_avg_pos, "RQ2-S Position model (averaged)",
+  factor_vars = c("Study.Dataset", "Pos_Site", "Month"),
+  group_var   = "Station_ID",
+  time_var    = "Round_ID"
+)
+```
+
+```{r, step 4 position ratio plot}
+rq2s_pos_plot_df <- bind_rows(rq2s_pos_ratio, rq2s_pos_ratio_avg) %>%
+  left_join(xw_pos_info %>% mutate(Group = paste(Site, Xwalk_Pos, sep = "_")),
+            by = "Group") %>%
+  mutate(Grain = factor(Grain, levels = c("Replicate", "Averaged")),
+         Xwalk_Label = forcats::fct_reorder(Xwalk_Label, Xwalk_Pos))
+
+rq2s_pos_plot <- ggplot(rq2s_pos_plot_df,
+                        aes(x = Xwalk_Label, y = ratio, color = Grain)) +
+  geom_hline(yintercept = 1, linetype = "dashed", color = "gray40") +
+  geom_pointrange(aes(ymin = lower, ymax = upper), position = position_dodge(width = 0.5)) +
+  facet_wrap(~ Site, scales = "free_x") +
+  scale_y_log10() +
+  labs(title = stringr::str_wrap("Change in Sediment Flux at Each Crosswalk Position: 2025–2026 Relative to 2022–2023", width = 50),
+       subtitle = "Edge to inland, left to right; Gamma GLMM; 1 = no change",
+       x = "Crosswalk position (each dataset's distance in brackets)",
+       y = "Flux ratio, log scale", color = "Data grain") +
+  theme_bw() +
+  theme(axis.text.x = element_text(size = 8),
+        strip.text = element_text(face = "bold"), legend.position = "bottom")
+rq2s_pos_plot
+
+ggsave(file.path(rq2_img_dir, "rq2s_pos_ratio_plot.png"),
+       plot = rq2s_pos_plot, width = 11, height = 5.5, dpi = 300, limitsize = FALSE)
+```
+
+## Step 5: elevation (z\*), aligned to the crosswalk
+
+First, the station elevation table. Each station gets one z\* used for both periods (`rq2s_z_source`, default the thesis survey), so the elevation term describes the place, not the survey. The USGS-vs-thesis comparison is a check: stations near the top of the `abs_diff` list are where the offset between the two datasets' traps changes the elevation most, and those are the stations to look at if the elevation result looks odd.
+
+If z\* isn't available for enough stations, the elevation models are skipped automatically (`rq2s_has_z`).
+
+```{r, step 5 station elevation}
+rq2s_z_source <- "2025–2026"   # thesis survey; set to "2022–2023" to use USGS z*
+
+if (!"z_star" %in% names(rq2_rep)) rq2_rep$z_star <- NA_real_
+
+rq2s_station_z_both <- rq2_rep %>%
+  group_by(Site, Station_ID, Xwalk_Pos, Xwalk_Area, Study.Dataset) %>%
+  summarise(z = if (all(is.na(z_star))) NA_real_ else mean(z_star, na.rm = TRUE),
+            .groups = "drop") %>%
+  tidyr::pivot_wider(names_from = Study.Dataset, values_from = z)
+
+# make sure both period columns exist even if one has no z* at all
+for (p in period_levels) if (!p %in% names(rq2s_station_z_both)) rq2s_station_z_both[[p]] <- NA_real_
+
+rq2s_other_source <- setdiff(period_levels, rq2s_z_source)
+
+rq2s_station_z <- rq2s_station_z_both %>%
+  mutate(
+    z_station   = dplyr::coalesce(.data[[rq2s_z_source]], .data[[rq2s_other_source]]),
+    z_from      = dplyr::case_when(!is.na(.data[[rq2s_z_source]])     ~ rq2s_z_source,
+                                   !is.na(.data[[rq2s_other_source]]) ~ rq2s_other_source,
+                                   TRUE ~ NA_character_),
+    abs_diff    = abs(.data[["2025–2026"]] - .data[["2022–2023"]])
+  )
+
+# The USGS-vs-thesis check, largest disagreements first
+rq2s_station_z %>% arrange(desc(abs_diff))
+table(rq2s_station_z$z_from, useNA = "ifany")
+
+rq2s_has_z <- sum(!is.na(rq2s_station_z$z_station)) >= 6
+rq2s_has_z
+```
+
+```{r, step 5 z comparison plot, eval = rq2s_has_z}
+rq2s_zcomp_plot <- rq2s_station_z %>%
+  filter(!is.na(`2022–2023`), !is.na(`2025–2026`)) %>%
+  ggplot(aes(x = `2022–2023`, y = `2025–2026`, color = Xwalk_Area)) +
+  geom_abline(slope = 1, intercept = 0, linetype = "dashed", color = "gray40") +
+  geom_point(size = 2.5) +
+  facet_wrap(~ Site) +
+  labs(title = stringr::str_wrap("Station z*: USGS Survey vs. Thesis Survey at the Same Crosswalk Station", width = 45),
+       subtitle = "Dashed line = perfect agreement",
+       x = "z* (2022–2023, USGS)", y = "z* (2025–2026, Thesis)", color = "Marsh Area") +
+  theme_bw() +
+  theme(strip.text = element_text(face = "bold"), legend.position = "bottom")
+rq2s_zcomp_plot
+
+ggsave(file.path(rq2_img_dir, "rq2s_z_comparison.png"),
+       plot = rq2s_zcomp_plot, width = 8, height = 5, dpi = 300, limitsize = FALSE)
+```
+
+```{r, step 5 elevation model prep, eval = rq2s_has_z}
+# Standardized ACROSS STATIONS (one value per station), not across rows,
+# so stations with more traps don't pull the mean/SD.
+rq2s_z_mean <- mean(rq2s_station_z$z_station, na.rm = TRUE)
+rq2s_z_sd   <- sd(rq2s_station_z$z_station, na.rm = TRUE)
+
+rq2s_station_z_join <- rq2s_station_z %>%
+  transmute(Station_ID, z_station, z_s = (z_station - rq2s_z_mean) / rq2s_z_sd)
+
+rq2_rep_z <- rq2_rep %>% select(-any_of(c("z_station", "z_s"))) %>%
+  left_join(rq2s_station_z_join, by = "Station_ID") %>%
+  filter(!is.na(z_s)) %>% droplevels()
+rq2_avg_z <- rq2_avg %>% select(-any_of(c("z_station", "z_s"))) %>%
+  left_join(rq2s_station_z_join, by = "Station_ID") %>%
+  filter(!is.na(z_s)) %>% droplevels()
+
+nrow(rq2_rep_z); nrow(rq2_avg_z)
+```
+
+z\* replaces Marsh_Area in these models (the two describe the same gradient, so including both would split one effect between them). `anova(add, z)` tests whether the flux–elevation relationship changed between periods. `emtrends` gives the slope in each period; `exp(slope)` is the multiplicative change in flux per 1 SD of z\*.
+
+```{r, step 5 elevation models, eval = rq2s_has_z}
+rq2s_z_add_glmm <- glmmTMB(
+  Flux ~ Study.Dataset + z_s + Site + Month +
+    (1|Site:Tran_X) + (1|Station_ID) + (1|Round_ID) + (1|Deploy_ID),
+  family = Gamma(link = "log"), data = rq2_rep_z
+)
+
+rq2s_z_glmm <- glmmTMB(
+  Flux ~ Study.Dataset * z_s + Site + Month +
+    (1|Site:Tran_X) + (1|Station_ID) + (1|Round_ID) + (1|Deploy_ID),
+  family = Gamma(link = "log"), data = rq2_rep_z
+)
+summary(rq2s_z_glmm)
+
+# THE TEST: did the flux-elevation relationship change?
+anova(rq2s_z_add_glmm, rq2s_z_glmm)
+
+# Slope per period: log-scale, and as flux multiplier per 1 SD of z*
+rq2s_z_trends <- emtrends(rq2s_z_glmm, ~ Study.Dataset, var = "z_s") %>%
+  confint() %>% as.data.frame() %>%
+  rename(lower = any_of(c("asymp.LCL", "lower.CL")), upper = any_of(c("asymp.UCL", "upper.CL"))) %>%
+  mutate(Grain = "Replicate",
+         multiplier_per_SD = exp(z_s.trend),
+         mult_lower = exp(lower), mult_upper = exp(upper))
+rq2s_z_trends
+
+# Period ratio at low / middle / high stations (-1, 0, +1 SD of z*)
+rq2s_z_ratio <- emmeans(rq2s_z_glmm, ~ Study.Dataset | z_s,
+                        at = list(z_s = c(-1, 0, 1)), type = "response") %>%
+  ratio_table(grain = "Replicate", by = "z_s") %>%
+  mutate(Group = paste0("z* ", c("-1 SD (low)", "mean", "+1 SD (high)"))[match(Group, c("-1", "0", "1"))])
+rq2s_z_ratio
+
+rq2s_z_dharma <- check_dharma(
+  rq2s_z_glmm, rq2_rep_z, "RQ2-S Elevation model (replicate)",
+  factor_vars  = c("Study.Dataset", "Site", "Month"),
+  numeric_vars = "z_station",
+  group_var    = "Station_ID",
+  time_var     = "Round_ID"
+)
+
+# SENSITIVITY (Rule 2)
+rq2s_z_lmer <- lmer(
+  log(Flux) ~ Study.Dataset * z_s + Site + Month +
+    (1|Site:Tran_X) + (1|Station_ID) + (1|Round_ID) + (1|Deploy_ID),
+  data = rq2_rep_z
+)
+emtrends(rq2s_z_lmer, ~ Study.Dataset, var = "z_s")
+```
+
+```{r, ADDED averaged companion for step 5 elevation models, eval = rq2s_has_z}
+rq2s_z_add_glmm_avg <- glmmTMB(
+  Flux ~ Study.Dataset + z_s + Site + Month +
+    (1|Site:Tran_X) + (1|Station_ID) + (1|Round_ID),
+  family = Gamma(link = "log"), data = rq2_avg_z
+)
+
+rq2s_z_glmm_avg <- glmmTMB(
+  Flux ~ Study.Dataset * z_s + Site + Month +
+    (1|Site:Tran_X) + (1|Station_ID) + (1|Round_ID),
+  family = Gamma(link = "log"), data = rq2_avg_z
+)
+summary(rq2s_z_glmm_avg)
+
+anova(rq2s_z_add_glmm_avg, rq2s_z_glmm_avg)
+
+rq2s_z_trends_avg <- emtrends(rq2s_z_glmm_avg, ~ Study.Dataset, var = "z_s") %>%
+  confint() %>% as.data.frame() %>%
+  rename(lower = any_of(c("asymp.LCL", "lower.CL")), upper = any_of(c("asymp.UCL", "upper.CL"))) %>%
+  mutate(Grain = "Averaged",
+         multiplier_per_SD = exp(z_s.trend),
+         mult_lower = exp(lower), mult_upper = exp(upper))
+rq2s_z_trends_avg
+
+rq2s_z_ratio_avg <- emmeans(rq2s_z_glmm_avg, ~ Study.Dataset | z_s,
+                            at = list(z_s = c(-1, 0, 1)), type = "response") %>%
+  ratio_table(grain = "Averaged", by = "z_s") %>%
+  mutate(Group = paste0("z* ", c("-1 SD (low)", "mean", "+1 SD (high)"))[match(Group, c("-1", "0", "1"))])
+rq2s_z_ratio_avg
+
+rq2s_z_dharma_avg <- check_dharma(
+  rq2s_z_glmm_avg, rq2_avg_z, "RQ2-S Elevation model (averaged)",
+  factor_vars  = c("Study.Dataset", "Site", "Month"),
+  numeric_vars = "z_station",
+  group_var    = "Station_ID",
+  time_var     = "Round_ID"
+)
+
+rq2s_z_lmer_avg <- lmer(
+  log(Flux) ~ Study.Dataset * z_s + Site + Month +
+    (1|Site:Tran_X) + (1|Station_ID) + (1|Round_ID),
+  data = rq2_avg_z
+)
+emtrends(rq2s_z_lmer_avg, ~ Study.Dataset, var = "z_s")
+```
+
+```{r, step 5 elevation prediction plot, eval = rq2s_has_z}
+# Model-predicted flux across the observed z* range, each period, both
+# grains -- the RQ2 version of RQ1-spatial's z* ggpredict plot.
+rq2s_z_grid <- seq(min(rq2s_station_z_join$z_s, na.rm = TRUE),
+                   max(rq2s_station_z_join$z_s, na.rm = TRUE), length.out = 30)
+
+rq2s_z_pred <- bind_rows(
+  as.data.frame(emmeans(rq2s_z_glmm, ~ Study.Dataset | z_s,
+                        at = list(z_s = rq2s_z_grid), type = "response")) %>%
+    mutate(Grain = "Replicate"),
+  as.data.frame(emmeans(rq2s_z_glmm_avg, ~ Study.Dataset | z_s,
+                        at = list(z_s = rq2s_z_grid), type = "response")) %>%
+    mutate(Grain = "Averaged")
+) %>%
+  rename(lower = any_of(c("asymp.LCL", "lower.CL")), upper = any_of(c("asymp.UCL", "upper.CL"))) %>%
+  mutate(z_star = z_s * rq2s_z_sd + rq2s_z_mean,
+         Grain = factor(Grain, levels = c("Replicate", "Averaged")))
+
+rq2s_z_plot <- ggplot(rq2s_z_pred, aes(x = z_star, y = response,
+                                       color = Study.Dataset, fill = Study.Dataset)) +
+  geom_ribbon(aes(ymin = lower, ymax = upper), alpha = 0.15, color = NA) +
+  geom_line(linewidth = 1.1) +
+  geom_rug(data = rq2s_station_z_join, aes(x = z_station), inherit.aes = FALSE,
+           sides = "b", alpha = 0.5) +
+  facet_wrap(~ Grain) +
+  scale_y_log10() +
+  scale_color_manual(values = year_colors) +
+  scale_fill_manual(values = year_colors) +
+  labs(title = stringr::str_wrap("Predicted Sediment Flux Across Station Elevation, 2022–2023 vs. 2025–2026", width = 45),
+       subtitle = "Gamma GLMM, averaged over site and month; rug = station z* values",
+       x = "Relative elevation (z*)", y = "Predicted flux (g/m²/day), log scale",
+       color = "Study Period", fill = "Study Period") +
+  theme_bw() +
+  theme(strip.text = element_text(face = "bold"), legend.position = "bottom")
+rq2s_z_plot
+
+ggsave(file.path(rq2_img_dir, "rq2s_z_prediction_plot.png"),
+       plot = rq2s_z_plot, width = 10, height = 5, dpi = 300, limitsize = FALSE)
+```
+
+## Summary: replicate vs averaged, side by side
+
+```{r, summary tables}
+rq2s_ratio_summary <- bind_rows(
+  rq2s_overall_ratio, rq2s_overall_ratio_avg,
+  rq2s_site_ratio, rq2s_site_ratio_avg,
+  rq2s_area_ratio, rq2s_area_ratio_avg,
+  rq2s_lmer_ratio,
+  rq2s_site_area_ratio, rq2s_site_area_ratio_avg,
+  rq2s_pos_ratio, rq2s_pos_ratio_avg,
+  if (rq2s_has_z) bind_rows(rq2s_z_ratio, rq2s_z_ratio_avg)
+) %>%
+  mutate(across(c(ratio, lower, upper), ~ round(.x, 2)),
+         pct_change = round(pct_change, 1),
+         p.value    = signif(p.value, 3))
+rq2s_ratio_summary
+
+rq2s_lrt_summary <- tibble::tibble(
+  Question = c("Did the change differ between marshes? (Step 1)",
+               "Did the change differ between Edge and Platform? (Step 2)",
+               "Did the Edge/Platform change differ by marsh? (Step 3)",
+               "Did the change differ among crosswalk positions? (Step 4)"),
+  Replicate_p = c(lrt_p(rq2s_base_glmm, rq2s_site_glmm),
+                  lrt_p(rq2s_base_glmm, rq2s_area_glmm),
+                  lrt_p(rq2s_site_area2_glmm, rq2s_site_area_glmm),
+                  lrt_p(rq2s_pos_add_glmm, rq2s_pos_glmm)),
+  Averaged_p  = c(lrt_p(rq2s_base_glmm_avg, rq2s_site_glmm_avg),
+                  lrt_p(rq2s_base_glmm_avg, rq2s_area_glmm_avg),
+                  lrt_p(rq2s_site_area2_glmm_avg, rq2s_site_area_glmm_avg),
+                  lrt_p(rq2s_pos_add_glmm_avg, rq2s_pos_glmm_avg))
+)
+if (rq2s_has_z) {
+  rq2s_lrt_summary <- bind_rows(rq2s_lrt_summary, tibble::tibble(
+    Question    = "Did the flux-elevation relationship change? (Step 5)",
+    Replicate_p = lrt_p(rq2s_z_add_glmm, rq2s_z_glmm),
+    Averaged_p  = lrt_p(rq2s_z_add_glmm_avg, rq2s_z_glmm_avg)
+  ))
+}
+rq2s_lrt_summary <- rq2s_lrt_summary %>% mutate(across(ends_with("_p"), ~ signif(.x, 3)))
+rq2s_lrt_summary
+
+rq2s_dharma_summary <- bind_rows(
+  rq2s_site_dharma$summary, rq2s_site_dharma_avg$summary,
+  rq2s_area_dharma$summary, rq2s_area_dharma_avg$summary,
+  rq2s_site_area_dharma$summary, rq2s_site_area_dharma_avg$summary,
+  rq2s_pos_dharma$summary, rq2s_pos_dharma_avg$summary,
+  if (rq2s_has_z) bind_rows(rq2s_z_dharma$summary, rq2s_z_dharma_avg$summary)
+)
+rq2s_dharma_summary
+```
+
+```{r, ratio plot}
+rq2s_ratio_plot <- bind_rows(
+  rq2s_overall_ratio, rq2s_overall_ratio_avg,
+  rq2s_site_ratio, rq2s_site_ratio_avg,
+  rq2s_area_ratio, rq2s_area_ratio_avg,
+  if (rq2s_has_z) bind_rows(rq2s_z_ratio, rq2s_z_ratio_avg)
+) %>%
+  mutate(Split = factor(dplyr::recode(Split, "z_s" = "Elevation"),
+                        levels = c("Overall", "Site", "Marsh_Area", "Elevation")),
+         Grain = factor(Grain, levels = c("Replicate", "Averaged"))) %>%
+  ggplot(aes(x = ratio, y = Group, color = Grain)) +
+  geom_vline(xintercept = 1, linetype = "dashed", color = "gray40") +
+  geom_pointrange(aes(xmin = lower, xmax = upper), position = position_dodge(width = 0.5)) +
+  facet_grid(Split ~ ., scales = "free_y", space = "free_y") +
+  scale_x_log10() +
+  labs(title = stringr::str_wrap("Where Did Sediment Flux Change? 2025–2026 Relative to 2022–2023", width = 45),
+       subtitle = "Ratio of model-predicted flux (Gamma GLMM), paired stations; 1 = no change",
+       x = "Flux ratio (2025–2026 / 2022–2023), log scale", y = NULL, color = "Data grain") +
+  theme_bw() +
+  theme(strip.text = element_text(face = "bold"), legend.position = "bottom")
+rq2s_ratio_plot
+
+ggsave(file.path(rq2_img_dir, "rq2s_ratio_plot.png"),
+       plot = rq2s_ratio_plot, width = 8, height = 7, dpi = 300, limitsize = FALSE)
+```
+
+## Output tables (ADDED)
+
+```{r, GLMM output tables}
+# One image per GLMM, for both tiers: <model>_byrep.png and <model>_avg.png
+# (same save_glmm_tables() as RQ1; it looks up <name> and <name>_avg, and
+# lists any that don't exist -- e.g. the z* models when skipped -- as NOT FOUND).
+
+rq2_spatial_glmms <- list(
+  rq2s_base_glmm      = "Flux ~ study period + site + marsh area + month (paired stations)",
+  rq2s_site_glmm      = "Flux ~ study period x site + marsh area + month",
+  rq2s_area_glmm      = "Flux ~ study period x marsh area + site + month",
+  rq2s_site_area_glmm = "Flux ~ study period x site x marsh area + month",
+  rq2s_pos_glmm       = "Flux ~ study period x crosswalk position + month",
+  rq2s_z_glmm         = "Flux ~ study period x station z* + site + month"
+)
+
+save_glmm_tables(rq2_spatial_glmms, out_dir = rq2_img_dir)
+```

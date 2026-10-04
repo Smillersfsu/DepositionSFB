@@ -1,0 +1,1451 @@
+---
+title: "RQ2 - Temporal (Claude)"
+format: pdf
+editor: visual
+---
+
+```{=html}
+<!--
+NEW this session. Companion to RQ2-spatial (Claude).Rmd, mirroring the
+RQ1-temporal / RQ1-spatial split. Research_question_2_FIXED (Claude3).qmd
+is kept unchanged as the generalized RQ2 file; this one and the spatial
+one are the focused versions.
+
+RQ2: did marsh sedimentation change between 2022–2023 (USGS) and
+2025–2026 (Thesis)? THIS file asks the temporal half of that:
+  -> Did flux change overall, and did the change depend on the time
+     of year (phenological period, month)? Did that seasonal change
+     differ between the two marshes?
+
+What's different from RQ1-temporal and from the general RQ2 file:
+
+1. PAIRED STATIONS. Both datasets sampled the same grid along the same
+   transects, slightly offset. The offset gives the same spot different
+   Dist values in each dataset, and the transects carry different
+   labels, so Loc_ID (Site x Tran x Dist) treated every station as two
+   unrelated locations. Station_ID is built here from the marsh area
+   crosswalk (position) + a transect crosswalk (label), so each station
+   is compared with itself across periods. (1|Station_ID) replaces
+   (1|Loc_ID) everywhere. Raw Dist is not used anywhere in this file.
+
+2. THE QUESTION IS THE INTERACTION. RQ1-temporal asks "does flux vary
+   with time of year?". Here every model's key term is
+   Study.Dataset x (time grouping): "is the seasonal pattern the same in
+   both periods?". Each is tested with a likelihood-ratio test against
+   the same model without the interaction, and reported as a ratio
+   (2025–2026 flux / 2022–2023 flux) per period or month.
+
+3. SAMPLING ROUND as a random effect. (1|Round_ID) = one month in one
+   period, shared by every trap in both marshes. Every trap in a stormy
+   month shares that month's weather; without this term those traps
+   count as independent evidence about the season, and seasonal
+   differences look more certain than they are. With it, a
+   period x season comparison rests on the ~3 months per cell -- which is
+   the honest amount of information. Expect wider CIs than the general
+   RQ2 file; that's the point.
+
+4. Replicate (rq2_rep) and averaged (rq2_avg) model-prep blocks, every
+   model fit on both, DHARMa on every primary model. Model naming follows
+   RQ1: byrep model = name, averaged = name_avg (save_glmm_tables()
+   relies on that).
+
+5. ADDED: a Month vs Phen_Period vs Cal_Season grain comparison
+   (mirrors RQ1-temporal's), with the 4 study groups (Site x period)
+   compared in each grain and drawn as one three-panel figure.
+
+Caveat to state in the thesis: each period is ONE sampling year, so this
+shows that these two years differed, not a long-term trend. 2022–2023
+included an exceptionally stormy winter.
+-->
+```
+
+```{=html}
+<!--
+STATISTICAL TOOLS USED IN THIS FILE
+(full definitions in statistical_tools_glossary (Claude).R)
+
+- glmmTMB() [glmmTMB] -- PRIMARY model fitter, Gamma(link = "log").
+  Includes ar1() in the autocorrelation sensitivity check.
+- lmer() [lme4] -- Gaussian log(Flux) SENSITIVITY version of the
+  primary Phen_Period model (Rule 2).
+- anova(m0, m1) -- likelihood-ratio test between nested models: the
+  main test for every question in this file.
+- Anova() [car] -- Type II Wald tests on a single model's terms.
+- AIC() -- compares the primary model with its AR1 version (non-nested).
+- emmeans() + pairs(reverse = TRUE) [emmeans] -- model-predicted flux
+  per period, and the 2025–2026 / 2022–2023 ratio with CI.
+- simulateResiduals() / testUniformity() / testDispersion() /
+  testOutliers() / plotResiduals() / recalculateResiduals() /
+  testTemporalAutocorrelation() [DHARMa] -- residual diagnostics,
+  wrapped in check_dharma().
+- make_flux_table() [flux_summary.R] -- descriptive tables.
+-->
+```
+
+```{r, load packages and working directory}
+
+source("C:\\Users\\savan\\OneDrive - San Francisco State University\\ProjectData\\GitHub\\DepositionSFB\\code\\R\\setup.R")
+source("C:\\Users\\savan\\OneDrive - San Francisco State University\\ProjectData\\GitHub\\DepositionSFB\\code\\R\\plotting.R")
+source("C:\\Users\\savan\\OneDrive - San Francisco State University\\ProjectData\\GitHub\\DepositionSFB\\code\\R\\flux_summary.R")
+
+# Shared fixed/random-effects rule, family decision, and naming
+# convention -- see that file's header before editing any model below.
+source("C:\\Users\\savan\\OneDrive - San Francisco State University\\ProjectData\\GitHub\\DepositionSFB\\code\\R\\modeling_conventions (Claude).R")
+
+# Definitions for every statistical function used in this file -- see
+# the "Statistical Tools Used in This File" note below, or
+# statistical_tools_glossary (Claude).R for the fuller version.
+source("C:\\Users\\savan\\OneDrive - San Francisco State University\\ProjectData\\GitHub\\DepositionSFB\\code\\R\\statistical_tools_glossary (Claude).R")
+
+# build_marsh_area_crosswalk() -- the USGS <-> Thesis station match guide.
+# ADJUST THIS PATH if marsh_area_crosswalk.R is saved somewhere else.
+source("C:\\Users\\savan\\OneDrive - San Francisco State University\\ProjectData\\GitHub\\DepositionSFB\\code\\R\\marsh_area_crosswalk.R")
+
+library(DHARMa)
+library(emmeans)
+
+knitr::opts_chunk$set(echo = TRUE)
+knitr::opts_knit$set(root.dir = 'C:/Users/savan/OneDrive - San Francisco State University/ProjectData/GitHub/DepositionSFB/data')
+
+rq2_img_dir <- "C:/Users/savan/OneDrive - San Francisco State University/ProjectData/GitHub/DepositionSFB/images/rq_2"
+
+# usgs_thesis uses FULL month names (same as Research_question_2_FIXED),
+# unlike master_tier5's "Jul"/"Aug" abbreviations in RQ1.
+month_levels <- c("July", "August", "September", "October", "November", "December",
+                  "January", "February", "March", "April", "May", "June")
+
+# Same Late_Dry-first order as RQ1. Set explicitly: left alphabetical,
+# Growth becomes the reference level (that's what happened in the
+# general RQ2 file's Phen_Period model output).
+phen_levels <- c("Late_Dry\n(Months 1-3)", "Tran\n(Months 4-6)",
+                 "Wet\n(Months 7-9)", "Growth\n(Months 10-12)")
+
+period_levels <- c("2022–2023", "2025–2026")
+```
+
+```{r, transect crosswalk -- VERIFY BEFORE RUNNING}
+# The marsh area crosswalk pairs DISTANCES between the two datasets, but
+# not TRANSECT LABELS -- USGS and thesis name the same physical transects
+# differently, which is why the general RQ2 file ends up with 8 Site:Tran
+# groups for 2 sites (each dataset's transects counted separately).
+#
+# This table says which USGS transect is the same physical transect as
+# which thesis transect. The USGS labels below (A/B) are a PLACEHOLDER
+# based on the bay-facing "Tran A/B" note in Research_question_2_FIXED --
+# check them against your field notes, fix any that are wrong, then set
+# tran_crosswalk_verified <- TRUE. The file stops at the next chunk until
+# you do, because a wrong match here silently pairs the wrong stations.
+#
+# Run this first to see the actual labels in the data:
+#   readRDS(".../usgs_thesis_byrep.rds") %>% count(Site, Study.Dataset, Tran)
+
+tran_crosswalk_verified <- TRUE
+
+tran_crosswalk <- tibble::tribble(
+  ~Site,         ~Study.Dataset, ~Tran, ~Tran_X,
+  "CorteMadera", "USGS",         "A",   "T1",
+  "CorteMadera", "USGS",         "B",   "T2",
+  "CorteMadera", "Thesis",       "T1",  "T1",
+  "CorteMadera", "Thesis",       "T2",  "T2",
+  "SanPablo",    "USGS",         "A",   "T1",
+  "SanPablo",    "USGS",         "B",   "T2",
+  "SanPablo",    "Thesis",       "T1",  "T1",
+  "SanPablo",    "Thesis",       "T2",  "T2"
+)
+
+if (!tran_crosswalk_verified) {
+  stop("Check tran_crosswalk against the real Tran labels and your field notes, ",
+       "then set tran_crosswalk_verified <- TRUE (chunk: 'transect crosswalk').")
+}
+```
+
+```{r, build station crosswalk}
+# Turns the marsh area crosswalk into STATION IDs shared by both datasets.
+#
+# Each row of the crosswalk's $wide table is one physical sampling
+# position: the USGS Dist and the Thesis Dist that sampled it. Those rows
+# become crosswalk positions (Xwalk_Pos = P1, P2, ... per site, ordered
+# Edge -> Platform -> inland by distance). If one dataset's Dist appears
+# on more than one row (one USGS trap matched to two thesis distances,
+# or vice versa), those rows are merged into a single position, so every
+# Dist maps to exactly one position.
+#
+# Station_ID = Site x crosswalked transect x crosswalk position = the same
+# physical spot in both periods. It replaces Loc_ID (Site x Tran x Dist),
+# which can't pair the periods: the offset gives the same spot two
+# different Dist values, and the transects have different labels.
+
+xw <- build_marsh_area_crosswalk()
+
+xw_wide <- xw$wide %>%
+  mutate(
+    Site        = as.character(Site),
+    Marsh_Area  = as.character(Marsh_Area),
+    USGS_Dist   = suppressWarnings(as.numeric(as.character(USGS_Dist))),
+    Thesis_Dist = suppressWarnings(as.numeric(as.character(Thesis_Dist)))
+  ) %>%
+  arrange(Site,
+          factor(Marsh_Area, levels = c("Intertidal", "Edge", "Platform", "Upland")),
+          dplyr::coalesce(Thesis_Dist, Inf), dplyr::coalesce(USGS_Dist, Inf))
+
+# Merge rows that share a USGS_Dist or a Thesis_Dist (repeats until
+# stable, so chains like A~B, B~C all end up in one position).
+assign_positions <- function(d) {
+  pos <- seq_len(nrow(d))
+  repeat {
+    old <- pos
+    for (col in c("USGS_Dist", "Thesis_Dist")) {
+      v <- d[[col]]
+      for (val in unique(v[!is.na(v)])) {
+        idx <- which(v == val)
+        pos[idx] <- min(pos[idx])
+      }
+    }
+    if (identical(pos, old)) break
+  }
+  as.integer(factor(pos, levels = sort(unique(pos))))   # dense 1..k, in order
+}
+
+xw_pos <- xw_wide %>%
+  group_by(Site) %>%
+  group_modify(~ mutate(.x, Xwalk_Pos = assign_positions(.x))) %>%
+  ungroup()
+
+# One row per position: its marsh area and the Dist values each dataset used
+xw_pos_info <- xw_pos %>%
+  group_by(Site, Xwalk_Pos) %>%
+  summarise(
+    Xwalk_Area  = first(Marsh_Area),
+    n_areas     = n_distinct(Marsh_Area),
+    USGS_Dists   = paste(sort(unique(na.omit(USGS_Dist))), collapse = "/"),
+    Thesis_Dists = paste(sort(unique(na.omit(Thesis_Dist))), collapse = "/"),
+    .groups = "drop"
+  ) %>%
+  mutate(Xwalk_Label = paste0("P", Xwalk_Pos, " ", Xwalk_Area,
+                              "\n(USGS ", ifelse(USGS_Dists == "", "-", USGS_Dists),
+                              " m / Thesis ", ifelse(Thesis_Dists == "", "-", Thesis_Dists), " m)"))
+
+xw_pos_info          # the station grid -- check it against the match guide
+xw_pos_info %>% filter(n_areas > 1)   # should be 0 rows (a merged position spanning two marsh areas)
+
+# Dist -> position lookup, one row per (Site, dataset, Dist)
+xw_lookup <- bind_rows(
+  xw_pos %>% filter(!is.na(USGS_Dist)) %>%
+    transmute(Site, Study.Dataset = "USGS", Dist_key = round(USGS_Dist, 3), Xwalk_Pos),
+  xw_pos %>% filter(!is.na(Thesis_Dist)) %>%
+    transmute(Site, Study.Dataset = "Thesis", Dist_key = round(Thesis_Dist, 3), Xwalk_Pos)
+) %>%
+  distinct()
+stopifnot(!anyDuplicated(xw_lookup[c("Site", "Study.Dataset", "Dist_key")]))
+
+# Attaches crosswalk position + crosswalked transect to a usgs_thesis
+# tier. Same restriction as the general RQ2 file: Corte Madera + San
+# Pablo only, Edge/Platform only, Flux > 0.
+attach_crosswalk <- function(df) {
+  df %>%
+    mutate(Site = as.character(Site),
+           Study.Dataset = as.character(Study.Dataset),
+           Tran = as.character(Tran),
+           Marsh_Area = as.character(Marsh_Area)) %>%
+    filter(Site %in% c("CorteMadera", "SanPablo"),
+           Marsh_Area %in% c("Edge", "Platform"),
+           Flux > 0) %>%
+    mutate(Dist_key = round(as.numeric(as.character(Dist)), 3)) %>%
+    left_join(xw_lookup, by = c("Site", "Study.Dataset", "Dist_key"),
+              relationship = "many-to-one") %>%
+    left_join(tran_crosswalk, by = c("Site", "Study.Dataset", "Tran"),
+              relationship = "many-to-one") %>%
+    left_join(xw_pos_info %>% select(Site, Xwalk_Pos, Xwalk_Area, Xwalk_Label),
+              by = c("Site", "Xwalk_Pos"))
+}
+
+# Turns the attached data into model-ready factors and IDs.
+finalize_rq2 <- function(df) {
+  df %>%
+    filter(!is.na(Xwalk_Pos), !is.na(Tran_X)) %>%
+    mutate(
+      # 2022–2023 is the reference level: every ratio reads
+      # "2025–2026 relative to 2022–2023"
+      Study.Dataset = factor(dplyr::recode(Study.Dataset,
+                                           "USGS" = "2022–2023", "Thesis" = "2025–2026"),
+                             levels = period_levels),
+      Site        = factor(Site, levels = c("CorteMadera", "SanPablo")),
+      Tran_X      = factor(Tran_X),
+      Marsh_Area  = factor(Marsh_Area, levels = c("Edge", "Platform")),
+      Month       = factor(as.character(Month), levels = month_levels),
+      # keep the file's Phen_Period; derive from Month only where missing
+      Phen_Period = dplyr::coalesce(
+        as.character(Phen_Period),
+        phen_levels[ceiling(match(as.character(Month), month_levels) / 3)]
+      ),
+      Phen_Period = factor(Phen_Period, levels = phen_levels),
+      Xwalk_Pos   = factor(Xwalk_Pos),
+      Pos_Site    = interaction(Site, Xwalk_Pos, sep = "_", drop = TRUE),
+      Station_ID  = interaction(Site, Tran_X, Xwalk_Pos, sep = "_", drop = TRUE),
+      # one sampling round = one month in one period, shared by every
+      # trap in the marsh. Levels in time order (all 2022–2023 months,
+      # then all 2025–2026 months) so DHARMa's temporal test reads them
+      # in sequence.
+      Round_ID    = factor(paste(Study.Dataset, Month),
+                           levels = as.vector(outer(month_levels, period_levels,
+                                                    function(m, d) paste(d, m))))
+    ) %>%
+    filter(!is.na(Month)) %>%
+    droplevels()
+}
+```
+
+```{r, load data and attach crosswalk}
+usgs_thesis <- readRDS("C:\\Users\\savan\\OneDrive - San Francisco State University\\ProjectData\\GitHub\\DepositionSFB\\data\\usgs_thesis_byrep.rds")
+usgs_thesis_avg <- readRDS("C:\\Users\\savan\\OneDrive - San Francisco State University\\ProjectData\\GitHub\\DepositionSFB\\data\\usgs_thesis.rds")
+
+rq2_rep_attached <- attach_crosswalk(usgs_thesis)
+rq2_avg_attached <- attach_crosswalk(usgs_thesis_avg)
+
+# Rows that didn't match the crosswalk (a Dist not in the match guide) or
+# the transect table. Should be 0 or close to it -- anything listed here
+# is dropped from every model below, so look at what it is.
+rq2_rep_attached %>% filter(is.na(Xwalk_Pos) | is.na(Tran_X)) %>%
+  count(Site, Study.Dataset, Tran, Dist)
+
+# Does each file's own Marsh_Area agree with the crosswalk's? (The
+# crosswalk header says both derivations already agree -- this checks.)
+rq2_rep_attached %>% filter(!is.na(Xwalk_Area), Marsh_Area != Xwalk_Area) %>%
+  count(Site, Study.Dataset, Dist, Marsh_Area, Xwalk_Area)
+```
+
+### Model prep: replicate-level data
+
+```{r, model prep - replicate}
+rq2_rep <- rq2_rep_attached %>%
+  finalize_rq2() %>%
+  # one level per station x sampling round -- the replicate traps in a
+  # level are the pseudo-replicates this term accounts for
+  mutate(Deploy_ID = interaction(Station_ID, Round_ID, drop = TRUE))
+
+nrow(rq2_rep)
+table(rq2_rep$Study.Dataset, rq2_rep$Site)
+
+# THE PAIRING CHECK: stations sampled in BOTH periods. This should be
+# most or all of them -- if it's near 0, the transect table or the
+# crosswalk join is off, and the models below are not paired.
+rq2_station_periods <- rq2_rep %>%
+  distinct(Site, Station_ID, Study.Dataset) %>%
+  count(Site, Station_ID, name = "n_periods")
+table(rq2_station_periods$Site, rq2_station_periods$n_periods)
+
+# Months sampled in each period (both columns > 0 = a fair comparison
+# for that month)
+table(rq2_rep$Month, rq2_rep$Study.Dataset)
+
+# Replicate traps per deployment
+rq2_rep %>% count(Deploy_ID) %>%
+  summarise(min = min(n), median = median(n), max = max(n))
+```
+
+### Model prep: averaged data
+
+```{r, model prep - averaged}
+# One row per station x sampling round. If two raw Dist values merged
+# into one crosswalk position, the averaged tier can have two rows for
+# that station in a round -- they're averaged together here, which is
+# what the averaged tier means. (z_star is carried along for the
+# spatial file's elevation section.)
+rq2_avg0 <- finalize_rq2(rq2_avg_attached)
+if (!"z_star" %in% names(rq2_avg0)) rq2_avg0$z_star <- NA_real_
+
+rq2_avg <- rq2_avg0 %>%
+  group_by(Site, Study.Dataset, Tran_X, Xwalk_Pos, Xwalk_Label, Xwalk_Area,
+           Pos_Site, Station_ID, Month, Phen_Period, Round_ID) %>%
+  summarise(
+    Flux       = mean(Flux),
+    Marsh_Area = first(Marsh_Area),
+    z_star     = if (all(is.na(z_star))) NA_real_ else mean(z_star, na.rm = TRUE),
+    n_merged   = n(),
+    .groups = "drop"
+  )
+
+nrow(rq2_avg)
+sum(rq2_avg$n_merged > 1)   # station-rounds that combined >1 averaged row
+table(rq2_avg$Study.Dataset, rq2_avg$Site)
+table(rq2_avg$Month, rq2_avg$Study.Dataset)
+```
+
+```{r, helper functions}
+# ---- check_dharma(): one-call DHARMa diagnostics ----
+# `data` MUST be the exact data frame the model was fit on. With a few
+# thousand rows the KS uniformity test flags even trivial deviations --
+# read the QQ and residual-vs-predicted panels first and treat p-values
+# as a prompt to look, not a verdict.
+check_dharma <- function(model, data, label,
+                         factor_vars = NULL, numeric_vars = NULL,
+                         group_var = NULL, time_var = NULL,
+                         n_sim = 250, seed = 42) {
+  set.seed(seed)
+  sim <- simulateResiduals(model, n = n_sim)
+  plot(sim, title = paste("DHARMa:", label))
+
+  unif <- testUniformity(sim, plot = FALSE)
+  disp <- testDispersion(sim, plot = FALSE)
+  outl <- testOutliers(sim, plot = FALSE)
+
+  # residuals against each predictor -- a pattern means the model is
+  # missing structure in that variable
+  for (v in c(factor_vars, numeric_vars)) {
+    plotResiduals(sim, form = data[[v]], xlab = v,
+                  main = paste(label, "- residuals vs", v))
+  }
+
+  # residuals summed per station: over-dispersion here means
+  # (1|Station_ID) hasn't absorbed station-level clustering
+  grp_p <- NA_real_
+  if (!is.null(group_var)) {
+    sim_g <- recalculateResiduals(sim, group = data[[group_var]])
+    grp_p <- testDispersion(sim_g, plot = FALSE)$p.value
+  }
+
+  # residuals summed per sampling round, tested for autocorrelation
+  # (time_var must be a factor with levels in time order)
+  ac_p <- NA_real_
+  if (!is.null(time_var)) {
+    tf <- droplevels(as.factor(data[[time_var]]))
+    sim_t <- recalculateResiduals(sim, group = tf)
+    ac_p <- testTemporalAutocorrelation(sim_t, time = seq_along(levels(tf)),
+                                        plot = FALSE)$p.value
+  }
+
+  out <- tibble::tibble(
+    Model                = label,
+    Uniformity_KS_p      = unif$p.value,
+    Dispersion_p         = disp$p.value,
+    Outliers_p           = outl$p.value,
+    Station_dispersion_p = grp_p,
+    Temporal_autocorr_p  = ac_p
+  )
+  print(out)
+  invisible(list(sim = sim, summary = out))
+}
+
+# ---- ratio_table(): 2025–2026 / 2022–2023 flux ratio with 95% CI ----
+# emm_grid comes from emmeans(model, ~ Study.Dataset [| by], type = "response");
+# `by` can be one variable or several (e.g. c("Marsh_Area", "Site")).
+# ratio < 1 = less flux in 2025–2026; 0.5 = halved; 2 = doubled.
+# Cells one period never sampled come back NA and are dropped.
+ratio_table <- function(emm_grid, grain, by = NULL) {
+  ctr <- pairs(emm_grid, reverse = TRUE)        # later / earlier
+  ci  <- as.data.frame(confint(ctr))
+  pv  <- as.data.frame(test(ctr))$p.value
+  names(ci)[names(ci) %in% c("lower.CL", "asymp.LCL")] <- "lower"
+  names(ci)[names(ci) %in% c("upper.CL", "asymp.UCL")] <- "upper"
+  ci %>%
+    mutate(
+      Grain      = grain,
+      Split      = if (is.null(by)) "Overall" else paste(by, collapse = " x "),
+      Group      = if (is.null(by)) "Overall" else
+                     do.call(paste, c(lapply(by, function(b) as.character(ci[[b]])), sep = " / ")),
+      pct_change = 100 * (ratio - 1),
+      p.value    = pv
+    ) %>%
+    filter(!is.na(ratio)) %>%
+    select(Grain, Split, Group, ratio, lower, upper, pct_change, p.value)
+}
+
+# ---- lrt_p(): p-value from anova(smaller, larger) ----
+lrt_p <- function(m0, m1) anova(m0, m1)$`Pr(>Chisq)`[2]
+
+# ---- save_flux_table_image(): same as the general RQ2 file ----
+save_flux_table_image <- function(flux_result, caption, filename) {
+  ft <- flux_result$data %>%
+    select(-Shapiro_p) %>%
+    rename(Shapiro_p = Shapiro_p_display) %>%
+    flextable() %>%
+    set_caption(caption) %>%
+    colformat_double(digits = 3) %>%
+    autofit()
+  save_as_image(ft, path = file.path(rq2_img_dir, filename))
+  ft
+}
+```
+
+## Descriptive: flux across months and phenological periods, by study period
+
+```{r, descriptive tables}
+phen_stats_byrep <- make_flux_table(
+  rq2_rep, group_vars = c("Study.Dataset", "Phen_Period"),
+  title = "Sediment Flux by Study Period and Phenological Period",
+  subtitle = "Flux measured in g/m²/day"
+)
+month_stats_byrep <- make_flux_table(
+  rq2_rep, group_vars = c("Study.Dataset", "Month"),
+  title = "Sediment Flux by Study Period and Month",
+  subtitle = "Flux measured in g/m²/day"
+)
+phen_stats_avg <- make_flux_table(
+  rq2_avg, group_vars = c("Study.Dataset", "Phen_Period"),
+  title = "Sediment Flux by Study Period and Phenological Period (Averaged)",
+  subtitle = "Flux measured in g/m²/day"
+)
+month_stats_avg <- make_flux_table(
+  rq2_avg, group_vars = c("Study.Dataset", "Month"),
+  title = "Sediment Flux by Study Period and Month (Averaged)",
+  subtitle = "Flux measured in g/m²/day"
+)
+
+save_flux_table_image(phen_stats_byrep,  "Sediment Flux by Study Period and Phenological Period", "rq2t_phen_stats_byrep.png")
+save_flux_table_image(month_stats_byrep, "Sediment Flux by Study Period and Month", "rq2t_month_stats_byrep.png")
+save_flux_table_image(phen_stats_avg,    "Sediment Flux by Study Period and Phenological Period (Averaged)", "rq2t_phen_stats_avg.png")
+save_flux_table_image(month_stats_avg,   "Sediment Flux by Study Period and Month (Averaged)", "rq2t_month_stats_avg.png")
+```
+
+```{r, monthly flux by period}
+rq2t_month_summary <- rq2_rep %>%
+  group_by(Site, Study.Dataset, Month) %>%
+  summarise(mean_log_flux = mean(log(Flux)),
+            se_log_flux   = sd(log(Flux)) / sqrt(n()),
+            .groups = "drop")
+
+rq2t_month_plot <- ggplot(rq2t_month_summary,
+                          aes(x = Month, y = mean_log_flux,
+                              color = Study.Dataset, group = Study.Dataset)) +
+  geom_line() +
+  geom_point(size = 2) +
+  geom_errorbar(aes(ymin = mean_log_flux - se_log_flux,
+                    ymax = mean_log_flux + se_log_flux), width = 0.2) +
+  facet_wrap(~ Site, ncol = 1) +
+  scale_color_manual(values = year_colors) +
+  labs(title = stringr::str_wrap("Monthly Sediment Flux, 2022–2023 vs. 2025–2026, at the Same Stations", width = 45),
+       y = "Mean log(Flux (g/m²/day)) ± SE", x = "Month", color = "Study Period") +
+  theme_bw() +
+  theme(axis.text.x = element_text(angle = 45, hjust = 1),
+        strip.text = element_text(face = "bold"), legend.position = "bottom")
+rq2t_month_plot
+
+ggsave(file.path(rq2_img_dir, "rq2t_month_plot_byrep.png"),
+       plot = rq2t_month_plot, width = 8, height = 7, dpi = 300, limitsize = FALSE)
+```
+
+```{r, ADDED averaged companion for monthly flux by period}
+rq2t_month_summary_avg <- rq2_avg %>%
+  group_by(Site, Study.Dataset, Month) %>%
+  summarise(mean_log_flux = mean(log(Flux)),
+            se_log_flux   = sd(log(Flux)) / sqrt(n()),
+            .groups = "drop")
+
+rq2t_month_plot_avg <- ggplot(rq2t_month_summary_avg,
+                              aes(x = Month, y = mean_log_flux,
+                                  color = Study.Dataset, group = Study.Dataset)) +
+  geom_line() +
+  geom_point(size = 2) +
+  geom_errorbar(aes(ymin = mean_log_flux - se_log_flux,
+                    ymax = mean_log_flux + se_log_flux), width = 0.2) +
+  facet_wrap(~ Site, ncol = 1) +
+  scale_color_manual(values = year_colors) +
+  labs(title = stringr::str_wrap("Monthly Sediment Flux, 2022–2023 vs. 2025–2026, at the Same Stations (Averaged)", width = 45),
+       y = "Mean log(Flux (g/m²/day)) ± SE", x = "Month", color = "Study Period") +
+  theme_bw() +
+  theme(axis.text.x = element_text(angle = 45, hjust = 1),
+        strip.text = element_text(face = "bold"), legend.position = "bottom")
+rq2t_month_plot_avg
+
+ggsave(file.path(rq2_img_dir, "rq2t_month_plot_avg.png"),
+       plot = rq2t_month_plot_avg, width = 8, height = 7, dpi = 300, limitsize = FALSE)
+```
+
+```{r, paired station plot by phenological period}
+# The paired design, drawn: one line per station, joining its typical
+# (geometric-mean) flux in 2022–2023 to the same station in 2025–2026,
+# within each phenological period. Mostly-downward lines in a panel =
+# that season's flux dropped at most stations.
+rq2t_paired <- rq2_rep %>%
+  group_by(Site, Station_ID, Phen_Period, Study.Dataset) %>%
+  summarise(geo_mean_flux = exp(mean(log(Flux))), .groups = "drop") %>%
+  group_by(Station_ID, Phen_Period) %>%
+  filter(n_distinct(Study.Dataset) == 2) %>%   # stations sampled in both periods
+  ungroup()
+
+rq2t_paired_plot <- ggplot(rq2t_paired,
+                           aes(x = Study.Dataset, y = geo_mean_flux, group = Station_ID)) +
+  geom_line(aes(color = Site), alpha = 0.5) +
+  geom_point(aes(color = Site), size = 1.5) +
+  facet_wrap(~ Phen_Period, nrow = 1) +
+  scale_y_log10() +
+  labs(title = stringr::str_wrap("Station-Level Change in Flux Between Study Periods, by Phenological Period", width = 50),
+       y = "Station geometric-mean flux (g/m²/day), log scale", x = NULL, color = "Site") +
+  theme_bw() +
+  theme(strip.text = element_text(face = "bold"), legend.position = "bottom")
+rq2t_paired_plot
+
+ggsave(file.path(rq2_img_dir, "rq2t_paired_plot_byrep.png"),
+       plot = rq2t_paired_plot, width = 10, height = 5, dpi = 300, limitsize = FALSE)
+```
+
+```{r, ADDED averaged companion for paired station plot}
+rq2t_paired_avg <- rq2_avg %>%
+  group_by(Site, Station_ID, Phen_Period, Study.Dataset) %>%
+  summarise(geo_mean_flux = exp(mean(log(Flux))), .groups = "drop") %>%
+  group_by(Station_ID, Phen_Period) %>%
+  filter(n_distinct(Study.Dataset) == 2) %>%
+  ungroup()
+
+rq2t_paired_plot_avg <- ggplot(rq2t_paired_avg,
+                               aes(x = Study.Dataset, y = geo_mean_flux, group = Station_ID)) +
+  geom_line(aes(color = Site), alpha = 0.5) +
+  geom_point(aes(color = Site), size = 1.5) +
+  facet_wrap(~ Phen_Period, nrow = 1) +
+  scale_y_log10() +
+  labs(title = stringr::str_wrap("Station-Level Change in Flux Between Study Periods, by Phenological Period (Averaged)", width = 50),
+       y = "Station geometric-mean flux (g/m²/day), log scale", x = NULL, color = "Site") +
+  theme_bw() +
+  theme(strip.text = element_text(face = "bold"), legend.position = "bottom")
+rq2t_paired_plot_avg
+
+ggsave(file.path(rq2_img_dir, "rq2t_paired_plot_avg.png"),
+       plot = rq2t_paired_plot_avg, width = 10, height = 5, dpi = 300, limitsize = FALSE)
+```
+
+## Step 1: did flux change at all?
+
+Same random effects in both models; the only difference is whether Study.Dataset is in. Phen_Period and Site are adjusted for so the comparison isn't driven by when or where traps were out.
+
+```{r, step 1 overall change}
+rq2t_null_glmm <- glmmTMB(
+  Flux ~ Phen_Period + Site +
+    (1|Site:Tran_X) + (1|Station_ID) + (1|Round_ID) + (1|Deploy_ID),
+  family = Gamma(link = "log"), data = rq2_rep
+)
+
+rq2t_add_glmm <- glmmTMB(
+  Flux ~ Study.Dataset + Phen_Period + Site +
+    (1|Site:Tran_X) + (1|Station_ID) + (1|Round_ID) + (1|Deploy_ID),
+  family = Gamma(link = "log"), data = rq2_rep
+)
+summary(rq2t_add_glmm)
+
+# THE TEST: does knowing the study period improve the model?
+anova(rq2t_null_glmm, rq2t_add_glmm)
+
+# THE EFFECT SIZE
+rq2t_overall_ratio <- emmeans(rq2t_add_glmm, ~ Study.Dataset, type = "response") %>%
+  ratio_table(grain = "Replicate")
+rq2t_overall_ratio
+```
+
+```{r, ADDED averaged companion for step 1}
+rq2t_null_glmm_avg <- glmmTMB(
+  Flux ~ Phen_Period + Site +
+    (1|Site:Tran_X) + (1|Station_ID) + (1|Round_ID),
+  family = Gamma(link = "log"), data = rq2_avg
+)
+
+rq2t_add_glmm_avg <- glmmTMB(
+  Flux ~ Study.Dataset + Phen_Period + Site +
+    (1|Site:Tran_X) + (1|Station_ID) + (1|Round_ID),
+  family = Gamma(link = "log"), data = rq2_avg
+)
+summary(rq2t_add_glmm_avg)
+
+anova(rq2t_null_glmm_avg, rq2t_add_glmm_avg)
+
+rq2t_overall_ratio_avg <- emmeans(rq2t_add_glmm_avg, ~ Study.Dataset, type = "response") %>%
+  ratio_table(grain = "Averaged")
+rq2t_overall_ratio_avg
+```
+
+## Step 2: did the change depend on the phenological period? (PRIMARY)
+
+`anova(add, phen)` asks whether letting the period effect differ by season improves the fit. The ratios then say how much flux changed in each season. In the general RQ2 file this pattern ran in opposite directions (higher in Late Dry, much lower in Wet); this re-tests it with paired stations and the sampling-round term.
+
+```{r, step 2 phen period x study period}
+rq2t_phen_glmm <- glmmTMB(
+  Flux ~ Study.Dataset * Phen_Period + Site +
+    (1|Site:Tran_X) + (1|Station_ID) + (1|Round_ID) + (1|Deploy_ID),
+  family = Gamma(link = "log"), data = rq2_rep
+)
+summary(rq2t_phen_glmm)
+Anova(rq2t_phen_glmm, type = "II")
+
+# THE TEST: is the change the same in every season?
+anova(rq2t_add_glmm, rq2t_phen_glmm)
+
+rq2t_phen_ratio <- emmeans(rq2t_phen_glmm, ~ Study.Dataset | Phen_Period, type = "response") %>%
+  ratio_table(grain = "Replicate", by = "Phen_Period")
+rq2t_phen_ratio
+
+rq2t_phen_dharma <- check_dharma(
+  rq2t_phen_glmm, rq2_rep, "RQ2-T Phen_Period model (replicate)",
+  factor_vars = c("Study.Dataset", "Phen_Period", "Site", "Month"),
+  group_var   = "Station_ID",
+  time_var    = "Round_ID"
+)
+```
+
+```{r, ADDED averaged companion for step 2}
+rq2t_phen_glmm_avg <- glmmTMB(
+  Flux ~ Study.Dataset * Phen_Period + Site +
+    (1|Site:Tran_X) + (1|Station_ID) + (1|Round_ID),
+  family = Gamma(link = "log"), data = rq2_avg
+)
+summary(rq2t_phen_glmm_avg)
+Anova(rq2t_phen_glmm_avg, type = "II")
+
+anova(rq2t_add_glmm_avg, rq2t_phen_glmm_avg)
+
+rq2t_phen_ratio_avg <- emmeans(rq2t_phen_glmm_avg, ~ Study.Dataset | Phen_Period, type = "response") %>%
+  ratio_table(grain = "Averaged", by = "Phen_Period")
+rq2t_phen_ratio_avg
+
+rq2t_phen_dharma_avg <- check_dharma(
+  rq2t_phen_glmm_avg, rq2_avg, "RQ2-T Phen_Period model (averaged)",
+  factor_vars = c("Study.Dataset", "Phen_Period", "Site", "Month"),
+  group_var   = "Station_ID",
+  time_var    = "Round_ID"
+)
+```
+
+```{r, step 2 sensitivity - lmer}
+# SENSITIVITY (Rule 2): Gaussian on log(Flux), same structure. The
+# per-season ratios should land close to the Gamma ones.
+rq2t_phen_lmer <- lmer(
+  log(Flux) ~ Study.Dataset * Phen_Period + Site +
+    (1|Site:Tran_X) + (1|Station_ID) + (1|Round_ID) + (1|Deploy_ID),
+  data = rq2_rep
+)
+rq2t_phen_lmer_ratio <- emmeans(rq2t_phen_lmer, ~ Study.Dataset | Phen_Period, type = "response") %>%
+  ratio_table(grain = "Replicate (lmer)", by = "Phen_Period")
+rq2t_phen_lmer_ratio
+
+rq2t_phen_lmer_avg <- lmer(
+  log(Flux) ~ Study.Dataset * Phen_Period + Site +
+    (1|Site:Tran_X) + (1|Station_ID) + (1|Round_ID),
+  data = rq2_avg
+)
+rq2t_phen_lmer_ratio_avg <- emmeans(rq2t_phen_lmer_avg, ~ Study.Dataset | Phen_Period, type = "response") %>%
+  ratio_table(grain = "Averaged (lmer)", by = "Phen_Period")
+rq2t_phen_lmer_ratio_avg
+```
+
+```{r, step 2 emm plot}
+# Model-predicted flux per phenological period in each study period --
+# the RQ1-temporal emm plot, with Study Period in place of edge type.
+rq2t_phen_emm_df <- bind_rows(
+  as.data.frame(emmeans(rq2t_phen_glmm, ~ Study.Dataset * Phen_Period, type = "response")) %>%
+    mutate(Grain = "Replicate"),
+  as.data.frame(emmeans(rq2t_phen_glmm_avg, ~ Study.Dataset * Phen_Period, type = "response")) %>%
+    mutate(Grain = "Averaged")
+) %>%
+  rename(emmean = response, lower.CL = asymp.LCL, upper.CL = asymp.UCL) %>%
+  mutate(Grain = factor(Grain, levels = c("Replicate", "Averaged")))
+
+rq2t_phen_emm_plot <- ggplot(rq2t_phen_emm_df,
+                             aes(x = Phen_Period, y = emmean,
+                                 color = Study.Dataset, group = Study.Dataset)) +
+  geom_point(size = 3, position = position_dodge(0.3)) +
+  geom_line(position = position_dodge(0.3)) +
+  geom_errorbar(aes(ymin = lower.CL, ymax = upper.CL),
+                width = 0.2, position = position_dodge(0.3)) +
+  facet_wrap(~ Grain) +
+  scale_color_manual(values = year_colors) +
+  labs(title = stringr::str_wrap("Estimated Marginal Means of Flux by Phenological Period, 2022–2023 vs. 2025–2026", width = 45),
+       y = "Estimated Flux (g/m²/day)", x = "Phenological Period", color = "Study Period") +
+  theme_bw() +
+  theme(strip.text = element_text(face = "bold"), legend.position = "bottom")
+rq2t_phen_emm_plot
+
+ggsave(file.path(rq2_img_dir, "rq2t_phen_emm_plot.png"),
+       plot = rq2t_phen_emm_plot, width = 10, height = 5, dpi = 300, limitsize = FALSE)
+```
+
+## Step 3: month resolution
+
+The same question at monthly grain. `(1|Round_ID)` is left out here: with `Study.Dataset x Month` as a fixed effect, each round is already its own fixed cell, so the random term would duplicate it. This version has less averaging behind each estimate than Step 2 -- read it as the detailed picture behind the Phen_Period result, not a competing headline. Months only one period sampled drop out of the ratio table.
+
+```{r, step 3 month x study period}
+rq2t_month_add_glmm <- glmmTMB(
+  Flux ~ Study.Dataset + Month + Site +
+    (1|Site:Tran_X) + (1|Station_ID) + (1|Deploy_ID),
+  family = Gamma(link = "log"), data = rq2_rep
+)
+
+rq2t_month_glmm <- glmmTMB(
+  Flux ~ Study.Dataset * Month + Site +
+    (1|Site:Tran_X) + (1|Station_ID) + (1|Deploy_ID),
+  family = Gamma(link = "log"), data = rq2_rep
+)
+summary(rq2t_month_glmm)
+
+anova(rq2t_month_add_glmm, rq2t_month_glmm)
+
+rq2t_month_ratio <- emmeans(rq2t_month_glmm, ~ Study.Dataset | Month, type = "response") %>%
+  ratio_table(grain = "Replicate", by = "Month")
+rq2t_month_ratio
+
+rq2t_month_dharma <- check_dharma(
+  rq2t_month_glmm, rq2_rep, "RQ2-T Month model (replicate)",
+  factor_vars = c("Study.Dataset", "Month", "Site"),
+  group_var   = "Station_ID",
+  time_var    = "Round_ID"
+)
+```
+
+```{r, ADDED averaged companion for step 3}
+rq2t_month_add_glmm_avg <- glmmTMB(
+  Flux ~ Study.Dataset + Month + Site +
+    (1|Site:Tran_X) + (1|Station_ID),
+  family = Gamma(link = "log"), data = rq2_avg
+)
+
+rq2t_month_glmm_avg <- glmmTMB(
+  Flux ~ Study.Dataset * Month + Site +
+    (1|Site:Tran_X) + (1|Station_ID),
+  family = Gamma(link = "log"), data = rq2_avg
+)
+summary(rq2t_month_glmm_avg)
+
+anova(rq2t_month_add_glmm_avg, rq2t_month_glmm_avg)
+
+rq2t_month_ratio_avg <- emmeans(rq2t_month_glmm_avg, ~ Study.Dataset | Month, type = "response") %>%
+  ratio_table(grain = "Averaged", by = "Month")
+rq2t_month_ratio_avg
+
+rq2t_month_dharma_avg <- check_dharma(
+  rq2t_month_glmm_avg, rq2_avg, "RQ2-T Month model (averaged)",
+  factor_vars = c("Study.Dataset", "Month", "Site"),
+  group_var   = "Station_ID",
+  time_var    = "Round_ID"
+)
+```
+
+## Step 4: did the seasonal change differ between the two marshes?
+
+The general RQ2 file's Month model hinted that Corte Madera dropped and San Pablo didn't (interaction p = 0.18 there, so not established). This adds `Site` to the Step 2 interaction and tests whether that improves the fit. If it does, the per-site ratios below are the ones to write up for each marsh; if not, Step 2's pooled ratios are the result and the per-site numbers are descriptive only.
+
+```{r, step 4 phen period x study period x site}
+rq2t_phen_site_glmm <- glmmTMB(
+  Flux ~ Study.Dataset * Phen_Period * Site +
+    (1|Site:Tran_X) + (1|Station_ID) + (1|Round_ID) + (1|Deploy_ID),
+  family = Gamma(link = "log"), data = rq2_rep
+)
+summary(rq2t_phen_site_glmm)
+
+anova(rq2t_phen_glmm, rq2t_phen_site_glmm)
+
+rq2t_phen_site_ratio <- bind_rows(lapply(levels(rq2_rep$Site), function(s) {
+  emmeans(rq2t_phen_site_glmm, ~ Study.Dataset | Phen_Period,
+          at = list(Site = s), type = "response") %>%
+    ratio_table(grain = "Replicate", by = "Phen_Period") %>%
+    mutate(Site = s)
+}))
+rq2t_phen_site_ratio
+
+rq2t_phen_site_dharma <- check_dharma(
+  rq2t_phen_site_glmm, rq2_rep, "RQ2-T Phen_Period x Site model (replicate)",
+  factor_vars = c("Study.Dataset", "Phen_Period", "Site"),
+  group_var   = "Station_ID",
+  time_var    = "Round_ID"
+)
+```
+
+```{r, ADDED averaged companion for step 4}
+rq2t_phen_site_glmm_avg <- glmmTMB(
+  Flux ~ Study.Dataset * Phen_Period * Site +
+    (1|Site:Tran_X) + (1|Station_ID) + (1|Round_ID),
+  family = Gamma(link = "log"), data = rq2_avg
+)
+summary(rq2t_phen_site_glmm_avg)
+
+anova(rq2t_phen_glmm_avg, rq2t_phen_site_glmm_avg)
+
+rq2t_phen_site_ratio_avg <- bind_rows(lapply(levels(rq2_avg$Site), function(s) {
+  emmeans(rq2t_phen_site_glmm_avg, ~ Study.Dataset | Phen_Period,
+          at = list(Site = s), type = "response") %>%
+    ratio_table(grain = "Averaged", by = "Phen_Period") %>%
+    mutate(Site = s)
+}))
+rq2t_phen_site_ratio_avg
+
+rq2t_phen_site_dharma_avg <- check_dharma(
+  rq2t_phen_site_glmm_avg, rq2_avg, "RQ2-T Phen_Period x Site model (averaged)",
+  factor_vars = c("Study.Dataset", "Phen_Period", "Site"),
+  group_var   = "Station_ID",
+  time_var    = "Round_ID"
+)
+```
+
+## Step 5: autocorrelation sensitivity (AR1)
+
+Same idea as RQ1-temporal's `edge_time_model_glmm_ar1`: consecutive months at a station may be correlated beyond what the random intercepts capture. `ar1(Month + 0 | Station_Period)` lets each station's months be correlated *within* a study period (the two periods are 2+ years apart, so they aren't chained together). This replaces `(1|Deploy_ID)`, since the AR1 term already gives every station-month its own value. Compared on AIC, and the per-season ratios are checked for whether they hold. AR1 GLMMs can fail to converge; if one does, it's reported and skipped rather than stopping the file.
+
+```{r, step 5 AR1 sensitivity}
+rq2_rep_ar <- rq2_rep %>%
+  mutate(Station_Period = interaction(Station_ID, Study.Dataset, drop = TRUE))
+
+rq2t_phen_glmm_ar1 <- tryCatch(
+  glmmTMB(
+    Flux ~ Study.Dataset * Phen_Period + Site +
+      (1|Site:Tran_X) + (1|Station_ID) + (1|Round_ID) + ar1(Month + 0 | Station_Period),
+    family = Gamma(link = "log"), data = rq2_rep_ar
+  ),
+  error = function(e) { message("AR1 (replicate) failed: ", conditionMessage(e)); NULL }
+)
+
+if (!is.null(rq2t_phen_glmm_ar1) && !isTRUE(rq2t_phen_glmm_ar1$sdr$pdHess)) {
+  message("AR1 (replicate) fit has a non-positive-definite Hessian -- usually the ",
+          "autocorrelation is ~0 or not identifiable. Ratios below have no CIs; ",
+          "read this as 'AR1 isn't supported by the data', and keep the primary model.")
+}
+if (!is.null(rq2t_phen_glmm_ar1)) {
+  print(summary(rq2t_phen_glmm_ar1))
+  print(AIC(rq2t_phen_glmm, rq2t_phen_glmm_ar1))
+  rq2t_phen_ratio_ar1 <- emmeans(rq2t_phen_glmm_ar1, ~ Study.Dataset | Phen_Period, type = "response") %>%
+    ratio_table(grain = "Replicate (AR1)", by = "Phen_Period")
+  print(rq2t_phen_ratio_ar1)
+}
+```
+
+```{r, ADDED averaged companion for step 5}
+rq2_avg_ar <- rq2_avg %>%
+  mutate(Station_Period = interaction(Station_ID, Study.Dataset, drop = TRUE))
+
+rq2t_phen_glmm_ar1_avg <- tryCatch(
+  glmmTMB(
+    Flux ~ Study.Dataset * Phen_Period + Site +
+      (1|Site:Tran_X) + (1|Station_ID) + (1|Round_ID) + ar1(Month + 0 | Station_Period),
+    family = Gamma(link = "log"), data = rq2_avg_ar
+  ),
+  error = function(e) { message("AR1 (averaged) failed: ", conditionMessage(e)); NULL }
+)
+
+if (!is.null(rq2t_phen_glmm_ar1_avg) && !isTRUE(rq2t_phen_glmm_ar1_avg$sdr$pdHess)) {
+  message("AR1 (averaged) fit has a non-positive-definite Hessian -- usually the ",
+          "autocorrelation is ~0 or not identifiable. Ratios below have no CIs; ",
+          "read this as 'AR1 isn't supported by the data', and keep the primary model.")
+}
+if (!is.null(rq2t_phen_glmm_ar1_avg)) {
+  print(summary(rq2t_phen_glmm_ar1_avg))
+  print(AIC(rq2t_phen_glmm_avg, rq2t_phen_glmm_ar1_avg))
+  rq2t_phen_ratio_ar1_avg <- emmeans(rq2t_phen_glmm_ar1_avg, ~ Study.Dataset | Phen_Period, type = "response") %>%
+    ratio_table(grain = "Averaged (AR1)", by = "Phen_Period")
+  print(rq2t_phen_ratio_ar1_avg)
+}
+```
+
+## Temporal grain comparison by study group: Month vs. Phen_Period vs. Cal_Season (ADDED)
+
+The RQ1-temporal grain comparison (`edge_time_model_glmm` / `edge_phenperiod_model_glmm` / `edge_season_model_glmm` and their emm plots), rebuilt for RQ2. In RQ1 each emm plot compared the two edge types; here each compares the **4 study groups** (Site x study period: Corte Madera 2022–2023, Corte Madera 2025–2026, San Pablo 2022–2023, San Pablo 2025–2026), and the three time groupings are drawn as **three panels of one figure**.
+
+Each grain gets one Gamma GLMM with the full `Study.Dataset x Site x time` interaction, so every study group has its own seasonal curve. Random effects follow the rest of this file: `(1|Round_ID)` is in the Phen_Period and Cal_Season models but not the Month model, for the reason given in Step 3 (with period x month fixed, each round is already its own cell).
+
+**Same data for all three.** Months that aren't sampled in all 4 study groups are dropped first (listed below), for two reasons: the Month model can't estimate a group in a month it never sampled, and AIC across the three grains is only a fair comparison on identical rows. AIC then says which way of grouping time the data support best, as in RQ1-temporal.
+
+`Cal_Season` (Lacy et al. 2019: Nov–Feb Winter, Mar–Oct Summer) is derived from Month here, the same definition RQ1 uses.
+
+```{r, ADDED grain comparison data prep}
+season_levels <- c("Winter", "Summer")
+cal_season_from_month <- function(m) {
+  factor(ifelse(as.character(m) %in% c("November", "December", "January", "February"),
+                "Winter", "Summer"),
+         levels = season_levels)
+}
+
+# Study group = Site x study period (the 4 "datasets" being compared).
+# Order: CM 2022–2023, CM 2025–2026, SP 2022–2023, SP 2025–2026.
+rq2_group_levels <- as.vector(t(outer(levels(rq2_rep$Site), period_levels, paste)))
+
+add_study_group <- function(df) {
+  df %>% mutate(Study_Group = factor(paste(Site, Study.Dataset), levels = rq2_group_levels))
+}
+
+# Uses a palette from plotting.R if it has a colour for every level,
+# otherwise falls back to ggplot's default hues.
+pal_or_default <- function(pal_name, lv) {
+  lv <- as.character(lv)
+  if (exists(pal_name) && all(lv %in% names(get(pal_name)))) {
+    get(pal_name)[lv]
+  } else {
+    setNames(scales::hue_pal()(length(lv)), lv)
+  }
+}
+
+# 4-colour study group palette: each site's colour, light for
+# 2022–2023 and full strength for 2025–2026.
+rq2_group_colors <- local({
+  site_pal <- pal_or_default("site_colors", levels(rq2_rep$Site))
+  out <- character(0)
+  for (s in names(site_pal)) {
+    out[paste(s, period_levels[1])] <- grDevices::colorRampPalette(c("white", site_pal[[s]]))(10)[6]
+    out[paste(s, period_levels[2])] <- site_pal[[s]]
+  }
+  out[rq2_group_levels]
+})
+
+# Months sampled in every study group
+rq2t_group_month_table <- rq2_rep %>%
+  add_study_group() %>%
+  count(Month, Study_Group) %>%
+  tidyr::pivot_wider(names_from = Study_Group, values_from = n, values_fill = 0)
+rq2t_group_month_table
+
+rq2t_complete_months <- rq2_rep %>%
+  add_study_group() %>%
+  distinct(Month, Study_Group) %>%
+  count(Month) %>%
+  filter(n == length(rq2_group_levels)) %>%
+  pull(Month) %>%
+  as.character()
+
+setdiff(month_levels, rq2t_complete_months)   # months DROPPED from this section
+
+prep_grain_data <- function(df) {
+  df %>%
+    filter(as.character(Month) %in% rq2t_complete_months) %>%
+    mutate(Cal_Season = cal_season_from_month(Month)) %>%
+    add_study_group() %>%
+    droplevels()
+}
+
+rq2_rep_g <- prep_grain_data(rq2_rep)
+rq2_avg_g <- prep_grain_data(rq2_avg)
+
+nrow(rq2_rep_g); nrow(rq2_rep)
+table(rq2_rep_g$Phen_Period, rq2_rep_g$Study_Group)
+table(rq2_rep_g$Cal_Season, rq2_rep_g$Study_Group)
+```
+
+```{r, ADDED grain comparison models}
+# Full model = Study.Dataset x Site x time. The "2-way" version keeps
+# every pairwise interaction but drops the 3-way term; the LRT between
+# them asks "did the period change follow a different seasonal pattern
+# at the two marshes?" at that grain.
+rq2t_re_round   <- "(1|Site:Tran_X) + (1|Station_ID) + (1|Round_ID) + (1|Deploy_ID)"
+rq2t_re_noround <- "(1|Site:Tran_X) + (1|Station_ID) + (1|Deploy_ID)"
+
+fit_grain <- function(time_var, re, data, two_way = FALSE) {
+  fixed <- if (two_way) {
+    paste0("(Study.Dataset + Site + ", time_var, ")^2")
+  } else {
+    paste0("Study.Dataset * Site * ", time_var)
+  }
+  f <- as.formula(paste("Flux ~", fixed, "+", re))
+  dname <- substitute(data)
+  # bquote() writes the real formula and data name into the model call,
+  # so summary() is readable and emmeans can find the data again
+  eval(bquote(glmmTMB(.(f), family = Gamma(link = "log"), data = .(dname))))
+}
+
+rq2t_month3_glmm   <- fit_grain("Month",       rq2t_re_noround, rq2_rep_g)
+rq2t_month3_2w     <- fit_grain("Month",       rq2t_re_noround, rq2_rep_g, two_way = TRUE)
+rq2t_phen3_glmm    <- fit_grain("Phen_Period", rq2t_re_round,   rq2_rep_g)
+rq2t_phen3_2w      <- fit_grain("Phen_Period", rq2t_re_round,   rq2_rep_g, two_way = TRUE)
+rq2t_season3_glmm  <- fit_grain("Cal_Season",  rq2t_re_round,   rq2_rep_g)
+rq2t_season3_2w    <- fit_grain("Cal_Season",  rq2t_re_round,   rq2_rep_g, two_way = TRUE)
+
+summary(rq2t_month3_glmm)
+summary(rq2t_phen3_glmm)
+summary(rq2t_season3_glmm)
+Anova(rq2t_month3_glmm,  type = "II")
+Anova(rq2t_phen3_glmm,   type = "II")
+Anova(rq2t_season3_glmm, type = "II")
+
+# THE TESTS: does the seasonal change differ between marshes, at each grain?
+anova(rq2t_month3_2w,  rq2t_month3_glmm)
+anova(rq2t_phen3_2w,   rq2t_phen3_glmm)
+anova(rq2t_season3_2w, rq2t_season3_glmm)
+
+# Which time grouping fits best? Same rows in all three, so AIC is valid.
+AIC(rq2t_month3_glmm, rq2t_phen3_glmm, rq2t_season3_glmm)
+
+rq2t_month3_dharma <- check_dharma(
+  rq2t_month3_glmm, rq2_rep_g, "RQ2-T Month x group model (replicate)",
+  factor_vars = c("Study.Dataset", "Site", "Month"),
+  group_var = "Station_ID", time_var = "Round_ID"
+)
+rq2t_phen3_dharma <- check_dharma(
+  rq2t_phen3_glmm, rq2_rep_g, "RQ2-T Phen_Period x group model (replicate)",
+  factor_vars = c("Study.Dataset", "Site", "Phen_Period"),
+  group_var = "Station_ID", time_var = "Round_ID"
+)
+rq2t_season3_dharma <- check_dharma(
+  rq2t_season3_glmm, rq2_rep_g, "RQ2-T Cal_Season x group model (replicate)",
+  factor_vars = c("Study.Dataset", "Site", "Cal_Season"),
+  group_var = "Station_ID", time_var = "Round_ID"
+)
+```
+
+```{r, ADDED averaged companion for grain comparison models}
+rq2t_re_round_avg   <- "(1|Site:Tran_X) + (1|Station_ID) + (1|Round_ID)"
+rq2t_re_noround_avg <- "(1|Site:Tran_X) + (1|Station_ID)"
+
+rq2t_month3_glmm_avg  <- fit_grain("Month",       rq2t_re_noround_avg, rq2_avg_g)
+rq2t_month3_2w_avg    <- fit_grain("Month",       rq2t_re_noround_avg, rq2_avg_g, two_way = TRUE)
+rq2t_phen3_glmm_avg   <- fit_grain("Phen_Period", rq2t_re_round_avg,   rq2_avg_g)
+rq2t_phen3_2w_avg     <- fit_grain("Phen_Period", rq2t_re_round_avg,   rq2_avg_g, two_way = TRUE)
+rq2t_season3_glmm_avg <- fit_grain("Cal_Season",  rq2t_re_round_avg,   rq2_avg_g)
+rq2t_season3_2w_avg   <- fit_grain("Cal_Season",  rq2t_re_round_avg,   rq2_avg_g, two_way = TRUE)
+
+summary(rq2t_month3_glmm_avg)
+summary(rq2t_phen3_glmm_avg)
+summary(rq2t_season3_glmm_avg)
+Anova(rq2t_month3_glmm_avg,  type = "II")
+Anova(rq2t_phen3_glmm_avg,   type = "II")
+Anova(rq2t_season3_glmm_avg, type = "II")
+
+anova(rq2t_month3_2w_avg,  rq2t_month3_glmm_avg)
+anova(rq2t_phen3_2w_avg,   rq2t_phen3_glmm_avg)
+anova(rq2t_season3_2w_avg, rq2t_season3_glmm_avg)
+
+AIC(rq2t_month3_glmm_avg, rq2t_phen3_glmm_avg, rq2t_season3_glmm_avg)
+
+rq2t_month3_dharma_avg <- check_dharma(
+  rq2t_month3_glmm_avg, rq2_avg_g, "RQ2-T Month x group model (averaged)",
+  factor_vars = c("Study.Dataset", "Site", "Month"),
+  group_var = "Station_ID", time_var = "Round_ID"
+)
+rq2t_phen3_dharma_avg <- check_dharma(
+  rq2t_phen3_glmm_avg, rq2_avg_g, "RQ2-T Phen_Period x group model (averaged)",
+  factor_vars = c("Study.Dataset", "Site", "Phen_Period"),
+  group_var = "Station_ID", time_var = "Round_ID"
+)
+rq2t_season3_dharma_avg <- check_dharma(
+  rq2t_season3_glmm_avg, rq2_avg_g, "RQ2-T Cal_Season x group model (averaged)",
+  factor_vars = c("Study.Dataset", "Site", "Cal_Season"),
+  group_var = "Station_ID", time_var = "Round_ID"
+)
+```
+
+```{r, ADDED grain comparison emmeans and pairwise comparisons}
+rq2t_grain_labels <- c(Month       = "Month",
+                       Phen_Period = "Phenological Period",
+                       Cal_Season  = "Calendar Season\n(Lacy et al. 2019)")
+
+# Model-predicted flux for each study group at each level of one grain
+grain_emm_df <- function(model, time_var) {
+  df <- as.data.frame(emmeans(model, as.formula(paste("~ Study.Dataset * Site |", time_var)),
+                              type = "response"))
+  names(df)[names(df) %in% c("response", "emmean")]    <- "emmean"
+  names(df)[names(df) %in% c("lower.CL", "asymp.LCL")] <- "lower.CL"
+  names(df)[names(df) %in% c("upper.CL", "asymp.UCL")] <- "upper.CL"
+  df %>%
+    mutate(Time_Level = as.character(.data[[time_var]]),
+           Time_Grain = rq2t_grain_labels[[time_var]]) %>%
+    add_study_group() %>%
+    select(Time_Grain, Time_Level, Study_Group, Site, Study.Dataset, emmean, lower.CL, upper.CL)
+}
+
+# Every pair of study groups compared within each time level: 6 pairs
+# per level, as a flux ratio (first group named / second), Tukey-adjusted
+# within each level. reverse = TRUE puts the later group first, so the
+# within-marsh rows read "2025–2026 Site / 2022–2023 Site" -- the same
+# direction as every other ratio in this file. Cross-site rows compare
+# the marshes.
+grain_pairs_df <- function(model, time_var, grain) {
+  emm <- emmeans(model, as.formula(paste("~ Study.Dataset * Site |", time_var)), type = "response")
+  ctr <- pairs(emm, reverse = TRUE)
+  ci  <- as.data.frame(confint(ctr))
+  names(ci)[names(ci) %in% c("lower.CL", "asymp.LCL")] <- "lower"
+  names(ci)[names(ci) %in% c("upper.CL", "asymp.UCL")] <- "upper"
+  ci %>%
+    mutate(p.value    = as.data.frame(test(ctr))$p.value,
+           Grain      = grain,
+           Time_Grain = rq2t_grain_labels[[time_var]],
+           Time_Level = as.character(.data[[time_var]])) %>%
+    filter(!is.na(ratio)) %>%
+    select(Grain, Time_Grain, Time_Level, contrast, ratio, lower, upper, p.value)
+}
+
+rq2t_grain_models <- list(
+  Replicate = list(Month = rq2t_month3_glmm,     Phen_Period = rq2t_phen3_glmm,     Cal_Season = rq2t_season3_glmm),
+  Averaged  = list(Month = rq2t_month3_glmm_avg, Phen_Period = rq2t_phen3_glmm_avg, Cal_Season = rq2t_season3_glmm_avg)
+)
+
+rq2t_grain_emm <- lapply(names(rq2t_grain_models), function(g) {
+  bind_rows(lapply(names(rq2t_grain_models[[g]]), function(tv)
+    grain_emm_df(rq2t_grain_models[[g]][[tv]], tv))) %>%
+    mutate(Time_Grain = factor(Time_Grain, levels = unname(rq2t_grain_labels)),
+           Time_Level = factor(Time_Level, levels = c(month_levels, phen_levels, season_levels)))
+})
+names(rq2t_grain_emm) <- names(rq2t_grain_models)
+
+rq2t_grain_pairs <- bind_rows(lapply(names(rq2t_grain_models), function(g) {
+  bind_rows(lapply(names(rq2t_grain_models[[g]]), function(tv)
+    grain_pairs_df(rq2t_grain_models[[g]][[tv]], tv, g)))
+})) %>%
+  mutate(across(c(ratio, lower, upper), ~ round(.x, 2)),
+         p.value = signif(p.value, 3))
+rq2t_grain_pairs
+
+readr::write_csv(rq2t_grain_pairs %>% mutate(Time_Level = gsub("\n", " ", Time_Level)),
+                 file.path(rq2_img_dir, "rq2t_grain_pairwise_groups.csv"))
+
+# One place for the three grains: the site-difference test and AIC
+rq2t_grain_summary <- tibble::tibble(
+  Grain_of_time = unname(rq2t_grain_labels),
+  Site_diff_LRT_p_Replicate = c(lrt_p(rq2t_month3_2w,  rq2t_month3_glmm),
+                                lrt_p(rq2t_phen3_2w,   rq2t_phen3_glmm),
+                                lrt_p(rq2t_season3_2w, rq2t_season3_glmm)),
+  Site_diff_LRT_p_Averaged  = c(lrt_p(rq2t_month3_2w_avg,  rq2t_month3_glmm_avg),
+                                lrt_p(rq2t_phen3_2w_avg,   rq2t_phen3_glmm_avg),
+                                lrt_p(rq2t_season3_2w_avg, rq2t_season3_glmm_avg)),
+  AIC_Replicate = c(AIC(rq2t_month3_glmm), AIC(rq2t_phen3_glmm), AIC(rq2t_season3_glmm)),
+  AIC_Averaged  = c(AIC(rq2t_month3_glmm_avg), AIC(rq2t_phen3_glmm_avg), AIC(rq2t_season3_glmm_avg))
+) %>%
+  mutate(across(contains("_p_"), ~ signif(.x, 3)),
+         across(starts_with("AIC"), ~ round(.x, 1)))
+rq2t_grain_summary
+```
+
+```{r, ADDED three-panel grain comparison plot}
+# One row of three panels (Month | Phenological Period | Calendar Season),
+# 4 study groups in each. Panel widths follow the number of levels, so
+# the 12-month panel is widest. Log y: Gamma CIs are multiplicative, and
+# seasonal flux spans an order of magnitude.
+make_grain_plot <- function(emm_df, title) {
+  ggplot(emm_df, aes(x = Time_Level, y = emmean, color = Study_Group, group = Study_Group)) +
+    geom_line(position = position_dodge(0.6), alpha = 0.5) +
+    geom_errorbar(aes(ymin = lower.CL, ymax = upper.CL),
+                  width = 0.3, position = position_dodge(0.6)) +
+    geom_point(aes(shape = Study_Group), size = 3, stroke = 1.1,
+               position = position_dodge(0.6)) +
+    facet_grid(. ~ Time_Grain, scales = "free_x", space = "free_x") +
+    scale_y_log10() +
+    scale_color_manual(values = rq2_group_colors, drop = FALSE) +
+    # open = 2022–2023, filled = 2025–2026 (reads in grayscale too)
+    scale_shape_manual(values = setNames(rep(c(1, 19), length.out = length(rq2_group_levels)),
+                                         rq2_group_levels), drop = FALSE) +
+    labs(title = stringr::str_wrap(title, width = 70),
+         subtitle = "Gamma GLMM (study period x site x time), 95% CI; months sampled by all four groups",
+         y = "Estimated Flux (g/m²/day), log scale", x = NULL, color = "Study group", shape = "Study group") +
+    theme_bw(base_size = 14) +
+    theme(axis.text.x = element_text(angle = 45, hjust = 1),
+          strip.text = element_text(face = "bold"),
+          legend.position = "bottom")
+}
+
+rq2t_grain_plot <- make_grain_plot(
+  rq2t_grain_emm$Replicate,
+  "Estimated Marginal Means of Flux by Study Group Across Month, Phenological Period, and Calendar Season"
+)
+rq2t_grain_plot
+
+ggsave(file.path(rq2_img_dir, "rq2t_grain_emm_plot_byrep.png"),
+       plot = rq2t_grain_plot, width = 16, height = 6.5, dpi = 300, limitsize = FALSE)
+```
+
+```{r, ADDED averaged companion for three-panel grain comparison plot}
+rq2t_grain_plot_avg <- make_grain_plot(
+  rq2t_grain_emm$Averaged,
+  "Estimated Marginal Means of Flux by Study Group Across Month, Phenological Period, and Calendar Season (Averaged)"
+)
+rq2t_grain_plot_avg
+
+ggsave(file.path(rq2_img_dir, "rq2t_grain_emm_plot_avg.png"),
+       plot = rq2t_grain_plot_avg, width = 16, height = 6.5, dpi = 300, limitsize = FALSE)
+```
+
+## Summary: replicate vs averaged, side by side
+
+If the replicate and averaged rows tell the same story, the conclusion doesn't depend on how replicates were handled. Replicate intervals should not be much narrower than averaged ones; if they are, `(1|Deploy_ID)` isn't doing its job.
+
+```{r, summary tables}
+rq2t_ratio_summary <- bind_rows(
+  rq2t_overall_ratio, rq2t_overall_ratio_avg,
+  rq2t_phen_ratio, rq2t_phen_ratio_avg,
+  rq2t_phen_lmer_ratio, rq2t_phen_lmer_ratio_avg,
+  rq2t_month_ratio, rq2t_month_ratio_avg
+) %>%
+  mutate(across(c(ratio, lower, upper), ~ round(.x, 2)),
+         pct_change = round(pct_change, 1),
+         p.value    = signif(p.value, 3))
+rq2t_ratio_summary
+
+rq2t_site_ratio_summary <- bind_rows(rq2t_phen_site_ratio, rq2t_phen_site_ratio_avg) %>%
+  mutate(across(c(ratio, lower, upper), ~ round(.x, 2)),
+         pct_change = round(pct_change, 1),
+         p.value    = signif(p.value, 3))
+rq2t_site_ratio_summary
+
+# Every likelihood-ratio test in this file, one place
+rq2t_lrt_summary <- tibble::tibble(
+  Question = c("Did flux change at all? (Step 1)",
+               "Does the change depend on phenological period? (Step 2)",
+               "Does the change depend on month? (Step 3)",
+               "Does the seasonal change differ by site? (Step 4)"),
+  Replicate_p = c(lrt_p(rq2t_null_glmm, rq2t_add_glmm),
+                  lrt_p(rq2t_add_glmm, rq2t_phen_glmm),
+                  lrt_p(rq2t_month_add_glmm, rq2t_month_glmm),
+                  lrt_p(rq2t_phen_glmm, rq2t_phen_site_glmm)),
+  Averaged_p  = c(lrt_p(rq2t_null_glmm_avg, rq2t_add_glmm_avg),
+                  lrt_p(rq2t_add_glmm_avg, rq2t_phen_glmm_avg),
+                  lrt_p(rq2t_month_add_glmm_avg, rq2t_month_glmm_avg),
+                  lrt_p(rq2t_phen_glmm_avg, rq2t_phen_site_glmm_avg))
+) %>%
+  mutate(across(ends_with("_p"), ~ signif(.x, 3)))
+rq2t_lrt_summary
+
+rq2t_dharma_summary <- bind_rows(
+  rq2t_phen_dharma$summary, rq2t_phen_dharma_avg$summary,
+  rq2t_month_dharma$summary, rq2t_month_dharma_avg$summary,
+  rq2t_phen_site_dharma$summary, rq2t_phen_site_dharma_avg$summary
+)
+rq2t_dharma_summary
+```
+
+```{r, ratio plots}
+# Phenological-period ratios (Gamma, both grains, plus overall)
+rq2t_phen_ratio_plot <- bind_rows(
+  rq2t_overall_ratio, rq2t_overall_ratio_avg,
+  rq2t_phen_ratio, rq2t_phen_ratio_avg
+) %>%
+  mutate(Group = factor(Group, levels = rev(c("Overall", phen_levels))),
+         Grain = factor(Grain, levels = c("Replicate", "Averaged"))) %>%
+  ggplot(aes(x = ratio, y = Group, color = Grain)) +
+  geom_vline(xintercept = 1, linetype = "dashed", color = "gray40") +
+  geom_pointrange(aes(xmin = lower, xmax = upper), position = position_dodge(width = 0.5)) +
+  scale_x_log10() +
+  labs(title = stringr::str_wrap("Change in Sediment Flux by Phenological Period: 2025–2026 Relative to 2022–2023", width = 45),
+       subtitle = "Ratio of model-predicted flux (Gamma GLMM), paired stations; 1 = no change",
+       x = "Flux ratio (2025–2026 / 2022–2023), log scale", y = NULL, color = "Data grain") +
+  theme_bw() +
+  theme(legend.position = "bottom")
+rq2t_phen_ratio_plot
+
+ggsave(file.path(rq2_img_dir, "rq2t_phen_ratio_plot.png"),
+       plot = rq2t_phen_ratio_plot, width = 8, height = 5, dpi = 300, limitsize = FALSE)
+
+# Per-site phenological-period ratios (Step 4)
+rq2t_site_ratio_plot <- rq2t_site_ratio_summary %>%
+  mutate(Group = factor(Group, levels = rev(phen_levels)),
+         Grain = factor(Grain, levels = c("Replicate", "Averaged"))) %>%
+  ggplot(aes(x = ratio, y = Group, color = Grain)) +
+  geom_vline(xintercept = 1, linetype = "dashed", color = "gray40") +
+  geom_pointrange(aes(xmin = lower, xmax = upper), position = position_dodge(width = 0.5)) +
+  facet_wrap(~ Site) +
+  scale_x_log10() +
+  labs(title = stringr::str_wrap("Change in Sediment Flux by Phenological Period at Each Marsh", width = 45),
+       subtitle = "2025–2026 / 2022–2023, Gamma GLMM; 1 = no change",
+       x = "Flux ratio, log scale", y = NULL, color = "Data grain") +
+  theme_bw() +
+  theme(legend.position = "bottom", strip.text = element_text(face = "bold"))
+rq2t_site_ratio_plot
+
+ggsave(file.path(rq2_img_dir, "rq2t_site_ratio_plot.png"),
+       plot = rq2t_site_ratio_plot, width = 9, height = 5, dpi = 300, limitsize = FALSE)
+
+# Monthly ratios (Step 3)
+rq2t_month_ratio_plot <- bind_rows(rq2t_month_ratio, rq2t_month_ratio_avg) %>%
+  mutate(Group = factor(Group, levels = month_levels),
+         Grain = factor(Grain, levels = c("Replicate", "Averaged"))) %>%
+  ggplot(aes(x = Group, y = ratio, color = Grain)) +
+  geom_hline(yintercept = 1, linetype = "dashed", color = "gray40") +
+  geom_pointrange(aes(ymin = lower, ymax = upper), position = position_dodge(width = 0.5)) +
+  scale_y_log10() +
+  labs(title = stringr::str_wrap("Change in Sediment Flux by Month: 2025–2026 Relative to 2022–2023", width = 45),
+       x = "Month", y = "Flux ratio, log scale", color = "Data grain") +
+  theme_bw() +
+  theme(axis.text.x = element_text(angle = 45, hjust = 1), legend.position = "bottom")
+rq2t_month_ratio_plot
+
+ggsave(file.path(rq2_img_dir, "rq2t_month_ratio_plot.png"),
+       plot = rq2t_month_ratio_plot, width = 9, height = 5, dpi = 300, limitsize = FALSE)
+```
+
+## Output tables (ADDED)
+
+```{r, GLMM output tables}
+# One image per GLMM, for both tiers: <model>_byrep.png and <model>_avg.png
+# (same save_glmm_tables() as RQ1; it looks up <name> and <name>_avg).
+# The lmer() SENSITIVITY versions are left out, as in RQ1.
+
+rq2_temporal_glmms <- list(
+  rq2t_add_glmm       = "Flux ~ study period + phenological period + site (paired stations)",
+  rq2t_phen_glmm      = "Flux ~ study period x phenological period + site (paired stations)",
+  rq2t_month_glmm     = "Flux ~ study period x month + site (paired stations)",
+  rq2t_phen_site_glmm = "Flux ~ study period x phenological period x site (paired stations)",
+  rq2t_phen_glmm_ar1  = "Flux ~ study period x phenological period + site, AR1 within station-period",
+  rq2t_month3_glmm    = "Flux ~ study period x site x month (study groups; complete months)",
+  rq2t_phen3_glmm     = "Flux ~ study period x site x phenological period (study groups; complete months)",
+  rq2t_season3_glmm   = "Flux ~ study period x site x calendar season (study groups; complete months)"
+)
+
+save_glmm_tables(rq2_temporal_glmms, out_dir = rq2_img_dir)
+```
+
+```{r}
+# Flux by STUDY PHASE and site, 2022–2023 vs. 2025–2026, in the style of
+# the RQ1 phase figures: one panel per phase (four per figure), boxplots +
+# jittered points on log flux, dashed line dividing the sites
+# (Corte Madera = scarped | San Pablo = ramped). Colour = study period.
+# Both datasets use their OWN Study.Phase, so every deployment stays in
+# the phase it was assigned (e.g. M10 Apr–May and M11 May kept separate).
+
+phase_levels <- paste0("M", 1:12)
+
+# Panel labels -- M5–M12 copied from the RQ1 figures. CHECK M1–M4
+# against your RQ1 labels and edit if they differ.
+phase_labels <- c(M1 = "M1 (Jul)",      M2 = "M2 (Aug)",      M3 = "M3 (Sep)",
+                  M4 = "M4 (Oct)",      M5 = "M5 (Nov)",      M6 = "M6 (Dec-Jan)",
+                  M7 = "M7 (Jan-Feb)",  M8 = "M8 (Feb-Mar)",  M9 = "M9 (Mar-Apr)",
+                  M10 = "M10 (Apr-May)", M11 = "M11 (May)",    M12 = "M12 (Jun)")
+
+make_phase_plot <- function(df, phases, title, ylim) {
+  d <- df %>%
+    filter(as.character(Study.Phase) %in% phases, Flux > 0) %>%
+    mutate(Phase = factor(as.character(Study.Phase), levels = phases,
+                          labels = phase_labels[phases]),
+           Site = factor(as.character(Site), levels = c("CorteMadera", "SanPablo")),
+           Study.Dataset = factor(Study.Dataset, levels = period_levels))
+  
+  ggplot(d, aes(x = Site, y = log(Flux), fill = Study.Dataset, color = Study.Dataset)) +
+    geom_vline(xintercept = 1.5, linetype = "dashed", color = "grey50", linewidth = 0.4) +
+    geom_boxplot(alpha = 0.45, outlier.shape = NA, width = 0.7,
+                 position = position_dodge2(preserve = "single", padding = 0.15)) +
+    geom_point(position = position_jitterdodge(jitter.width = 0.15, dodge.width = 0.7),
+               size = 1, alpha = 0.35, show.legend = FALSE) +
+    facet_wrap(~ Phase, nrow = 1, drop = FALSE) +
+    scale_x_discrete(drop = FALSE) +
+    scale_y_continuous(limits = ylim) +
+    scale_fill_manual(values = year_colors, drop = FALSE) +
+    scale_color_manual(values = year_colors, drop = FALSE) +
+    labs(title = title, x = NULL, y = "Log Flux (g/m^2/day)",
+         fill = "Study Period", color = "Study Period") +
+    theme_classic(base_size = 12) +
+    theme(strip.background = element_rect(color = "black", fill = "white"),
+          strip.text = element_text(size = 10),
+          panel.spacing.x = unit(0.6, "lines"),
+          axis.text.x = element_text(size = 9),
+          legend.position = "bottom")
+}
+
+# ---- Build ----
+# rq2_avg drops Study.Phase when it averages, so the averaged figures use
+# rq2_avg0 (the averaged tier before that step -- same deployments).
+stopifnot("Study.Phase" %in% names(rq2_rep), "Study.Phase" %in% names(rq2_avg0))
+
+# CHECK: the same phase number should cover the same months in both
+# datasets (e.g. M5 = November in each). If they don't line up, the
+# panels compare different times of year.
+rq2_rep %>%
+  count(Study.Dataset, Study.Phase, Month) %>%
+  arrange(Study.Dataset, factor(Study.Phase, levels = phase_levels)) %>%
+  print(n = Inf)
+
+# three figures of four phases, same as RQ1 (M1–M4, M5–M8, M9–M12)
+rq2t_phase_groups <- split(phase_levels, ceiling(seq_along(phase_levels) / 4))
+rq2t_phase_titles <- c("Sediment Flux by Study Phase, M1–M4: 2022–2023 vs. 2025–2026",
+                       "Sediment Flux by Study Phase, M5–M8: 2022–2023 vs. 2025–2026",
+                       "Sediment Flux by Study Phase, M9–M12: 2022–2023 vs. 2025–2026")
+
+for (grain in c("byrep", "avg")) {
+  dat <- (if (grain == "byrep") rq2_rep else rq2_avg0) %>%
+    filter(!is.na(Study.Phase))
+  # one shared y range across all three figures, so they compare directly
+  ylim <- range(log(dat$Flux[dat$Flux > 0]))
+  for (i in seq_along(rq2t_phase_groups)) {
+    ttl <- rq2t_phase_titles[i]
+    if (grain == "avg") ttl <- paste(ttl, "(Averaged)")
+    p <- make_phase_plot(dat, rq2t_phase_groups[[i]], ttl, ylim)
+    print(p)
+    ggsave(file.path(rq2_img_dir, paste0("rq2t_phase_box_", i, "_", grain, ".png")),
+           plot = p, width = 10, height = 4.5, dpi = 300, limitsize = FALSE)
+  }
+}
+```

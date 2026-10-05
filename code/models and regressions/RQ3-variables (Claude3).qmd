@@ -375,8 +375,7 @@ ggsave("C:\\Users\\savan\\OneDrive - San Francisco State University\\ProjectData
 
 lasso_data_avg <- usgs_thesis_avg %>%
   filter(Study.Dataset == "Thesis") %>%   
-  select(Flux, z_star, local_slope, mean_wind_speed_kt, slope_fitted_elevation_m,
-         max_gust_kt, Dist) %>%
+  select(Flux, z_star, Dist) %>%
   mutate(Dist = as.numeric(Dist)) %>%
   drop_na() %>%
   mutate(across(where(is.character), as.factor))
@@ -922,6 +921,48 @@ rq3_vp_plot
 
 ggsave("C:\\Users\\savan\\OneDrive - San Francisco State University\\ProjectData\\GitHub\\DepositionSFB\\images\\rq_3\\rq3_variance_partition.png",
        plot = rq3_vp_plot, width = 9, height = 5, dpi = 300, limitsize = FALSE)
+```
+
+```{r}
+# Averaged-data version of the by-site variance partition: same models,
+# same colours, no Replicate panel and no "Averaged" strip. Uses the
+# tables already built by Part 1 (rq3_vp_table_avg) and Part 1b
+# (rq3_vp_site_table_avg) -- nothing is refit.
+
+rq3_vp_site_plot_avg <- bind_rows(
+  rq3_vp_table_avg %>% mutate(Site = "All sites (pooled)"),
+  rq3_vp_site_table_avg
+) %>%
+  mutate(
+    Level = factor(Level, levels = rev(rq3_vp_level_order)),
+    Site  = factor(Site, levels = rev(c("All sites (pooled)", rq3_sites)))
+  ) %>%
+  ggplot(aes(x = Site, y = Share, fill = Level)) +
+  geom_col(width = 0.65, color = "white") +
+  geom_text(aes(label = ifelse(Share >= 0.05, scales::percent(Share, accuracy = 1), "")),
+            position = position_stack(vjust = 0.5), size = 3.5) +
+  coord_flip() +
+  scale_y_continuous(labels = scales::percent) +
+  scale_fill_manual(values = c(
+    "Between marsh (Site)"                   = "#B2182B",
+    "Within marsh: transect"                 = "#2166AC",
+    "Within marsh: trap location"            = "#67A9CF",
+    "Time (shared by all marshes)"           = "#F4A582",
+    "Time (month to month)"                  = "#FDDBC7",
+    "Location x time (deployment, residual)" = "#D1E5F0"
+  ), drop = TRUE) +
+  labs(
+    title = stringr::str_wrap("Where Does the Variation in Sediment Flux Come From, Within Each Marsh?", width = 45),
+    subtitle = "Share of each site's total (log-scale) variance, intercept-only Gamma GLMM",
+    x = NULL, y = "Share of total variance", fill = NULL
+  ) +
+  theme_bw() +
+  theme(legend.position = "bottom") +
+  guides(fill = guide_legend(ncol = 2, reverse = TRUE))
+rq3_vp_site_plot_avg
+
+ggsave("C:\\Users\\savan\\OneDrive - San Francisco State University\\ProjectData\\GitHub\\DepositionSFB\\images\\rq_3\\rq3_variance_partition_by_site_avg.png",
+       plot = rq3_vp_site_plot_avg, width = 9, height = 5, dpi = 300, limitsize = FALSE)
 ```
 
 ### Part 1b: variance partitioning within each site
@@ -1664,4 +1705,239 @@ rq3_pca_plot <- ggplot(rq3_pca_scores, aes(PC1, PC2)) +
 print(rq3_pca_plot)
 ggsave(rq3_img("rq3_station_pca.png"),
        plot = rq3_pca_plot, width = 9, height = 7, dpi = 300, limitsize = FALSE)
+```
+
+```{r}
+
+# Corte Madera: flux by distance from the edge and study phase,
+# 2022–2023 vs. 2025–2026, in the style of the RQ3 heatmap.
+#   Panels 1–2: each period's flux in sediment browns, on ONE shared
+#               colour scale (5th–95th percentile of both periods), so
+#               the same shade = the same flux in both years.
+#   Panel 3:    the change at each distance and phase,
+#               log10(2025–2026 / 2022–2023): brown = higher in
+#               2025–2026, blue = lower.
+# Both datasets use their own Study.Phase. Rows are the THESIS distance
+# of each crosswalk position (identical at Corte Madera), so a row is the
+# same station in both periods. Transects are combined (geometric mean).
+# Uses rq2_avg0 (averaged data, keeps Study.Phase).
+
+cm_site <- "CorteMadera"
+
+cm_phase_levels <- paste0("M", 1:12)
+# Column labels -- M5–M12 from the RQ1 phase figures; CHECK M1–M4.
+cm_phase_labels <- c(M1 = "M1\nJul",       M2 = "M2\nAug",       M3 = "M3\nSep",
+                     M4 = "M4\nOct",       M5 = "M5\nNov",       M6 = "M6\nDec-\nJan",
+                     M7 = "M7\nJan-\nFeb",  M8 = "M8\nFeb-\nMar",  M9 = "M9\nMar-\nApr",
+                     M10 = "M10\nApr-\nMay", M11 = "M11\nMay",     M12 = "M12\nJun")
+cm_sediment_cols <- c("#f7f0e3", "#e6cfa5", "#c99a5b", "#9a6331", "#5c3816", "#2e1b0b")
+
+# thesis distance for each crosswalk position, taken from the thesis rows
+cm_pos_dist <- rq2_avg0 %>%
+  filter(as.character(Site) == cm_site, Study.Dataset == period_levels[2]) %>%
+  distinct(Xwalk_Pos, Dist_key) %>%
+  group_by(Xwalk_Pos) %>%
+  summarise(Dist_lab = paste(sort(unique(Dist_key)), collapse = "/"),
+            Dist_ord = mean(Dist_key), .groups = "drop")
+
+cm_heat <- rq2_avg0 %>%
+  filter(as.character(Site) == cm_site, Flux > 0) %>%
+  mutate(Phase = trimws(as.character(Study.Phase)),
+         Phase = ifelse(grepl("^[0-9]+$", Phase), paste0("M", Phase), Phase),   # 1 -> "M1"
+         Phase = factor(Phase, levels = cm_phase_levels)) %>%
+  filter(!is.na(Phase)) %>%
+  inner_join(cm_pos_dist, by = "Xwalk_Pos") %>%
+  group_by(Study.Dataset, Dist_lab, Dist_ord, Phase) %>%
+  summarise(gm = exp(mean(log(Flux))), .groups = "drop") %>%
+  tidyr::complete(Study.Dataset, tidyr::nesting(Dist_lab, Dist_ord), Phase) %>%
+  mutate(Study.Dataset = factor(Study.Dataset, levels = period_levels),
+         log10_gm = log10(gm))
+
+cm_dist_levels <- cm_heat %>% distinct(Dist_lab, Dist_ord) %>%
+  arrange(desc(Dist_ord)) %>% pull(Dist_lab)                       # edge at the top
+cm_heat <- cm_heat %>%
+  mutate(Dist_lab = factor(paste(Dist_lab, "m"), levels = paste(cm_dist_levels, "m")))
+
+# CHECK: cells sampled per phase in each period (FALSE = sampled)
+table(cm_heat$Phase, is.na(cm_heat$gm), cm_heat$Study.Dataset)
+
+cm_theme <- theme_minimal(base_size = 12) +
+  theme(strip.text = element_text(face = "bold", size = 12),
+        panel.grid = element_blank(),
+        panel.spacing = unit(1, "lines"),
+        axis.text.x = element_text(size = 8, lineheight = 0.9, vjust = 1),
+        axis.text.y = element_text(size = 9),
+        plot.caption = element_text(size = 9, hjust = 0, color = "grey30"),
+        legend.position = "right")
+
+# ---- Panels 1–2: both periods, one shared colour scale ----
+cm_lims <- quantile(cm_heat$log10_gm, c(0.05, 0.95), na.rm = TRUE)
+
+cm_heatmap <- ggplot(cm_heat, aes(x = Phase, y = Dist_lab, fill = log10_gm)) +
+  geom_tile(color = "white", linewidth = 0.6) +
+  facet_wrap(~ Study.Dataset, ncol = 1) +
+  scale_x_discrete(labels = cm_phase_labels, drop = FALSE) +
+  scale_fill_gradientn(colours = cm_sediment_cols, na.value = "#cfd8dc",
+                       limits = cm_lims, oob = scales::squish,
+                       name = expression(log[10]~Flux),
+                       labels = function(x) format(round(x, 1), drop0trailing = TRUE)) +
+  labs(title = stringr::str_wrap("Corte Madera: Sediment Flux by Distance from the Edge and Study Phase", width = 55),
+       x = NULL, y = "Distance from marsh edge",
+       caption = stringr::str_wrap("Darker = more deposition. One colour scale for both periods, limited to the 5th–95th percentile. Blue-grey = not sampled.", width = 110)) +
+  cm_theme
+print(cm_heatmap)
+ggsave(file.path(rq2_img_dir, "rq2_CM_phase_heatmap.png"),
+       plot = cm_heatmap, width = 9, height = 8, dpi = 300, limitsize = FALSE)
+
+# ---- Panel 3: change between periods ----
+cm_diff <- cm_heat %>%
+  select(Study.Dataset, Dist_lab, Phase, log10_gm) %>%
+  tidyr::pivot_wider(names_from = Study.Dataset, values_from = log10_gm) %>%
+  mutate(change = .data[[period_levels[2]]] - .data[[period_levels[1]]])   # + = higher in 2025–2026
+
+cm_diff_map <- ggplot(cm_diff, aes(x = Phase, y = Dist_lab, fill = change)) +
+  geom_tile(color = "white", linewidth = 0.6) +
+  geom_point(data = cm_diff %>% filter(is.na(change)), aes(x = Phase, y = Dist_lab),
+             inherit.aes = FALSE, shape = 4, size = 1.5, color = "grey55") +
+  scale_x_discrete(labels = cm_phase_labels, drop = FALSE) +
+  scale_fill_gradient2(low = "#3b6e8f", mid = "#f7f0e3", high = "#5c3816",
+                       midpoint = 0, limits = c(-1, 1), oob = scales::squish,
+                       na.value = "white",
+                       name = "2025–2026 vs.\n2022–2023",
+                       breaks = c(-1, -0.5, 0, 0.5, 1),
+                       labels = c("10× lower", "3× lower", "no change", "3× higher", "10× higher")) +
+  labs(title = "Corte Madera: Change in Sediment Flux Between Study Periods",
+       x = NULL, y = "Distance from marsh edge",
+       caption = stringr::str_wrap("Brown = higher in 2025–2026, blue = lower. Values beyond 10× shown at the end colours. × = not sampled in one or both periods.", width = 110)) +
+  cm_theme
+print(cm_diff_map)
+ggsave(file.path(rq2_img_dir, "rq2_CM_phase_heatmap_change.png"),
+       plot = cm_diff_map, width = 9, height = 4.5, dpi = 300, limitsize = FALSE)
+```
+
+```{r}
+
+## Does the distance–flux relationship change over time? (ADDED)
+
+# Builds on section 1 (rq3_heat: one value per site x distance x phase,
+# transects combined) and uses rq3_avg, rq3_img(), rq3_site_order,
+# rq3_phase_levels and rq3_phase_labels from the blocks above.
+
+# ==== T1. Within-phase distance pattern ("shape-only" heatmap) ===========
+# Each cell = flux at that distance relative to the AVERAGE of all
+# distances in that same phase at that site (log10). The seasonal level
+# is removed, so each column shows only the distance pattern that phase:
+# brown = above that phase's average, blue = below. A column that looks
+# like its neighbours = a stable pattern; columns that flip = a pattern
+# that changes over time.
+
+rq3_shape <- rq3_heat %>%
+  group_by(Panel, Phase) %>%
+  mutate(shape = log10_gm - mean(log10_gm, na.rm = TRUE)) %>%
+  ungroup()
+
+rq3_shape_map <- ggplot(rq3_shape, aes(x = Phase, y = Dist_lab, fill = shape)) +
+  geom_tile(color = "white", linewidth = 0.6) +
+  geom_point(data = rq3_shape %>% filter(is.na(shape)), aes(x = Phase, y = Dist_lab),
+             inherit.aes = FALSE, shape = 4, size = 1.5, color = "grey55") +
+  facet_wrap(~ Panel, ncol = 2) +
+  scale_x_discrete(labels = rq3_phase_labels, drop = FALSE) +
+  scale_fill_gradient2(low = "#3b6e8f", mid = "#f7f0e3", high = "#5c3816",
+                       midpoint = 0, limits = c(-1, 1), oob = scales::squish,
+                       na.value = "white",
+                       name = "Flux vs. that\nphase's average",
+                       breaks = c(-1, -0.5, 0, 0.5, 1),
+                       labels = c("10× lower", "3× lower", "average", "3× higher", "10× higher")) +
+  labs(title = "Distance Pattern in Sediment Flux Within Each Study Phase",
+       x = NULL, y = "Distance from marsh edge",
+       caption = stringr::str_wrap("Each column is compared with its own phase average, so seasonal differences in overall flux are removed and only the distance pattern remains. Brown = above that phase's average, blue = below. × = not sampled.", width = 120)) +
+  theme_minimal(base_size = 12) +
+  theme(strip.text = element_text(face = "bold", size = 12),
+        panel.grid = element_blank(),
+        panel.spacing = unit(1, "lines"),
+        axis.text.x = element_text(size = 8, lineheight = 0.9, vjust = 1),
+        axis.text.y = element_text(size = 9),
+        plot.caption = element_text(size = 9, hjust = 0, color = "grey30"),
+        legend.position = "right")
+print(rq3_shape_map)
+ggsave(rq3_img("rq3_distance_pattern_by_phase.png"),
+       plot = rq3_shape_map, width = 12, height = 7, dpi = 300, limitsize = FALSE)
+
+
+# ==== T2. Edge vs. interior contrast through the year =====================
+# One number per site per phase: mean log10 flux at the edge (<= 2 m)
+# minus mean log10 flux in the interior (>= 12 m). Above 0 = edge higher
+# than interior that phase; below 0 = edge lower. The line connects
+# successive phases of the same quantity (time series), so a line is
+# appropriate here.
+
+rq3_edge_max <- 2      # edge = stations at or within this distance (m)
+rq3_int_min  <- 12     # interior = stations at or beyond this distance (m)
+
+rq3_contrast <- rq3_heat %>%
+  filter(!is.na(log10_gm)) %>%
+  mutate(Zone = case_when(Dist_m <= rq3_edge_max ~ "Edge",
+                          Dist_m >= rq3_int_min  ~ "Interior",
+                          TRUE ~ NA_character_)) %>%
+  filter(!is.na(Zone)) %>%
+  group_by(Site, Phase, Zone) %>%
+  summarise(m = mean(log10_gm), .groups = "drop") %>%
+  tidyr::pivot_wider(names_from = Zone, values_from = m) %>%
+  mutate(contrast = Edge - Interior,
+         Phase_num = as.integer(Phase))
+
+rq3_contrast_plot <- ggplot(rq3_contrast %>% filter(!is.na(contrast)),
+                            aes(x = Phase_num, y = contrast, color = Site)) +
+  geom_hline(yintercept = 0, linetype = "dashed", color = "grey50") +
+  geom_line(linewidth = 0.9) +
+  geom_point(size = 2.4) +
+  facet_wrap(~ Site, ncol = 2) +
+  scale_x_continuous(breaks = seq_along(rq3_phase_levels),
+                     labels = rq3_phase_labels[rq3_phase_levels]) +
+  scale_y_continuous(breaks = c(-1, -0.5, 0, 0.5, 1),
+                     labels = c("10× lower", "3× lower", "equal", "3× higher", "10× higher")) +
+  scale_color_manual(values = site_colors, guide = "none") +
+  labs(title = "Edge vs. Interior Sediment Flux Through the Study Year",
+       subtitle = paste0("Edge = stations within ", rq3_edge_max, " m of the marsh edge; interior = ",
+                         rq3_int_min, " m and beyond"),
+       x = NULL, y = "Edge flux relative to interior") +
+  theme_bw(base_size = 12) +
+  theme(strip.text = element_text(face = "bold"),
+        axis.text.x = element_text(size = 8, lineheight = 0.9, vjust = 1))
+print(rq3_contrast_plot)
+ggsave(rq3_img("rq3_edge_interior_by_phase.png"),
+       plot = rq3_contrast_plot, width = 11, height = 7, dpi = 300, limitsize = FALSE)
+
+
+# ==== T3. Formal test: does the distance relationship change by phase? ===
+# Per marsh, Gamma GLMM on the averaged data:
+#   same     : Flux ~ log distance + Phase              (one distance slope all year)
+#   changing : Flux ~ log distance * Phase              (slope allowed to differ by phase)
+# LRT between them = does the distance–flux relationship change over time?
+# log distance because the edge effect is concentrated in the first few metres.
+
+rq3_avg <- rq3_avg %>%
+  mutate(Phase = trimws(as.character(Study.Phase)),
+         Phase = ifelse(grepl("^[0-9]+$", Phase), paste0("M", Phase), Phase),
+         Phase = factor(Phase, levels = rq3_phase_levels),
+         log_dist_s = as.numeric(scale(log(Dist_m))))
+
+rq3_dist_time_test <- function(site) {
+  d <- rq3_avg %>% filter(as.character(Site) == site, !is.na(Phase), Flux > 0) %>% droplevels()
+  re <- if (n_distinct(d$Tran) > 1) "(1|Tran) + (1|Loc_ID)" else "(1|Loc_ID)"
+  m_same <- glmmTMB(as.formula(paste("Flux ~ log_dist_s + Phase +", re)),
+                    family = Gamma(link = "log"), data = d)
+  m_chg  <- glmmTMB(as.formula(paste("Flux ~ log_dist_s * Phase +", re)),
+                    family = Gamma(link = "log"), data = d)
+  a <- anova(m_same, m_chg)
+  tibble::tibble(Site = site,
+                 n_phases = nlevels(d$Phase),
+                 Chisq = round(a$Chisq[2], 2),
+                 df    = a$`Chi Df`[2],
+                 p     = signif(a$`Pr(>Chisq)`[2], 3),
+                 converged = isTRUE(m_chg$sdr$pdHess))
+}
+
+rq3_dist_time_table <- bind_rows(lapply(rq3_site_order, rq3_dist_time_test))
+rq3_dist_time_table   # small p = the distance–flux relationship differs among phases
 ```

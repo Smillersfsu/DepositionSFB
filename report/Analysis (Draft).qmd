@@ -4,30 +4,24 @@ format: docx
 editor: visual
 ---
 
-## 
+## 3. Analysis 
 
-Sediment deposition was approximated as a rate from the original grams measurement, divided by the number of days deployed, multiplied by 1000 to go from a cm to a meter rate at each replicate tile per distance along the transect to result in a daily rate of sediment deposition per tile. Surface area was calculated from the surface area of the filter placed ( ) subtracted by the surface area of the rubber band used ( ). Each replicate tile was averaged together as a group of three into one distance measurement. Elevation at each replicate tile was also averaged into one distance metric.
+### 3.1 Data Preparation
 
-Modeling for all testing factors driving sediment deposition were within a comparable general linear mixed models using a Gamma family distribution due to the positive, skewed distribution of the data. Transect was considered a replicate of Site level variance, and when appropriate was nested with Site within models. A factor of "Loc_ID" were used in addition to each entry that encompassed detail of the samples Replicate, Distance from Edge, Transect, and Site so as to avoid Pseudoreplication within the models.
+Sediment deposition was approximated as a rate from the original grams measurement, divided by the number of days deployed, multiplied by 1000 to go from a cm to a meter rate at each replicate tile per distance along the transect to result in a daily rate of sediment deposition per tile. Surface area was calculated from the filter surface after of 63.62 cm^2^ subtracted by the surface area of the rubber band used 5.31 cm^2^ using #33 brand dimension rubber bands. Each replicate tile was averaged together as a group of three into one distance measurement. Elevation at each replicate tile was also averaged into one distance metric.
 
-Initially to test marsh edge type across rates of sediment deposition, we compared the distribution of data and the statistical traits. Additionally to test the effect of marsh edge type on rates of sediment deposition, we ran general linear mixed models at the Site level, with Transect as a nested effect within the Site level. We also incorporated added fixed and random effects of California Seasonality as per Lacy et al 2019's designation (will make a table), Distance from marsh edge, and z\* (Elevation relative to tidal inundation).
+Modeling for all testing factors driving sediment deposition were within a comparable generalized linear mixed models using a Gamma family distribution due to the positive, skewed distribution of the data. Transect was considered a replicate of Site level variance, and when appropriate was nested with Site within models. A factor of "Loc_ID" were used in addition to each entry that encompassed detail of the samples Replicate, Distance from Edge, Transect, and Site so as to avoid Pseudoreplication within the models.
 
-With the combined dataset between 2022-2023 and 2025-2026 collection between Corte Madera and San Pablo, the marsh edge general linear mixed model was repeated. In addition, Year was added as a fixed effect to test if the sediment deposition changed over time across each marsh.
+Locations of collections of sediment deposition were consistent across Distance measurements within the Corte Madera site between Study Datasets of 2022/2023 vs. 2025/2026. However, the San Pablo site had different starting points of the "edge" based on different criteria, with the 2022/2023 dataset starting with their distance from edge further bayward than the 2025/2026 dataset. Therefore, only two distance measurements from the 2022/2023 dataset were analyzed to compare against the 2025/2026 dataset (will put a table here from the Methods-0.5 meters 2025/2026 dataset align with 24 meters from the 2022/2023 dataset, 24 meters aligns 2025/2026 dataset align with 48 from the 2022/2023 dataset).
 
-Within the 2025-2026 collection, Distance and z\* were used in a generalized linear model with Least Absolute Shrinkage and Selection Operator (LASSO) regression to determine if intra-marsh features had a greater significance as a factor for sediment deposition than marsh edge type.
+### 3.2 Modeling
 
-### Typos / grammar
+When results were analyzed using a Generalized Linear Mixed Model (GLMM) testing Transect nested within Site in conjunction with response variable of flux, Transect did not differ significantly from within Site, as much as between site variance did (Table 3). Therefore, for future GLMMs, Transect was nested as a replicate within Site.
 
-### Clarity / phrasing
+Initially to test marsh edge type across rates of sediment deposition, we compared the distribution of data and the statistical traits. Additionally to test the effect of marsh edge type on rates of sediment deposition, we ran generalized linear mixed models at the Site level. We also incorporated random effect of California Seasonality as per Lacy et al 2019's designation (will make a table), fixed effect of Distance from marsh edge, and fixed effect of z\* (Elevation relative to tidal inundation).
 
-- [ ] "compared the distribution of data and the statistical traits" — name the actual tests used (e.g., Shapiro-Wilk, Levene's)
-- [ ] "at the Site level, with Transect as a nested effect within the Site level" — trim redundant "Site level"
-- [ ] "incorporated added fixed and random effects" — redundant wording; explicitly state which variables are fixed vs. random
-- [ ] "With the combined dataset between 2022-2023 and 2025-2026 collection between Corte Madera and San Pablo" — reword; "between...and" doing double duty is confusing
-- [ ] Combine/tighten the two averaging sentences (replicate tile sediment + elevation)
-- [ ] "had a greater significance as a factor for" → "were stronger predictors of"
+Corte Madera marsh and San Pablo Marsh were compared across Study datasets from 2022/2023 collection to 2025/2026 collection using generalized linear mixed model. In addition, Year was added as a fixed effect to test if the sediment deposition changed over time across each marsh (have not included in results, but will if San Pablo is still considered a good representation to test across years despite smaller comparable sample size in 2022/2023).
 
-### Structure/consistency check
+Within the 2025-2026 collection, Distance and z\* were used in a generalized linear model with Least Absolute Shrinkage and Selection Operator (LASSO) regression to determine if intra-marsh features were stronger predictors of sediment deposition than marsh edge type.
 
-- [ ] Consider a subheading break between rate-calculation methods and statistical modeling paragraphs
-- [ ] Confirm "general linear mixed models" (early) vs. "generalized linear model" (LASSO section) distinction is intentional, not a slip
+### 

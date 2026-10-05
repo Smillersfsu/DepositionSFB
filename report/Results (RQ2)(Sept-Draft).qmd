@@ -1,5 +1,5 @@
 ---
-title: "Results (RQ2)(Sept-Draft)"
+title: "Results (RQ 1-3)(Draft)"
 format: docx
 editor: visual
 ---
@@ -8,4 +8,50 @@ editor: visual
 
 ## Results
 
+#### 4.1 Sediment Deposition Across Ramped and Scarped Marsh Edges
+
+Sediment deposition was quantified as a daily rate referred to as "flux" (g/m^2^/day).
+
+Median sediment deposition differed between all sites, and generally scarped marsh edge sites showed a higher median value than the ramped marsh edge sites (Scarped: Giant Marsh = 3.671 g/m^2^/ day vs. Corte Madera = 2.082 g/m^2^/day; Ramped: San Pablo =1.811 g/m^2^/ day vs. Buck's Landing = 1.675 g/m^2^/ day ; Table 2). Skewness and kurtosis between the sites was not similar across marsh edge types, as San Pablo shared greater similarity to Giant Marsh than to Buck's Landing, and vice versa. (Giant Marsh: Skewness: 4.156, Kurtosis = 19.546 vs. San Pablo: Skewness: 3.914, Kurtosis = 20.404, Table 2).
+
+*Spatially*
+
+Distance from marsh edge appears to have generally a negative effect on flux values on all four marshes, though its effect appear to differ between each of the four sites when considering the statistical representations (Tables 5-8). Specifically, the closer the distance to the edge of the marsh, the greater the variability in sediment deposition appears to have between all four marsh sites measured (Figure 11).
+
+Elevation along each transect was measured at each replicate tile where sediment was collected. From surveys of elevation, Scarped sites differ in their elevation relative to each other, while the two ramped sites hold similar ranges of elevation through their slope of the edge (Figures 6 and 7). When plotted with z\* and sediment deposition, it appears that each site behaves differently to elevation to sediment deposition, with each site having a different pattern of sediment deposition along elevation differences within the transect (Figure 10). The two scarped sites did not have overlap in their z\* values, and represented different ranges of values, one on the lowest end of the z\* elevation range, and one on the highest end of the z\* elevation range. Both of the ramped sites had majority overlap in elevations measured within the transects. The scarped sites, Corte Madera and Giant Marsh, occupied opposite ends of the elevation range. Corte Madera has the lowest z\* range value ( \~0.75-0.85), while Giant Marsh has the highest z\* range value (\~1.05-1.2). In contrast, the ramped sites, San Pablo and Buck's landing, overlapped substantially to each other with their z\* value ranges (Figures 6-7). Elevation profiles also differed in shape between Scarped sites: Corte Madera's highest elevation point was measured at 24 m from the marsh edge, versus Giant Marsh's highest elevation point was measured 2 meters from the marsh edge. The relationship between flux and z\* differed among all four sites (Figure 10, Table 4).
+
+*Temporally*
+
+Throughout the months monitored from July 2025 through June 2026, generally July 2025-October 2025, and May-June 2026 had higher rates of sediment deposition between all four sites overall (Figures 12-14; Tables 9-12). Between sites, the scale of the Summer season (March-October) and Winter season (November-February) as proposed by Lacy et. al 2019, showed statistically significant differences in how sites responded individually to Season (Table 13). This differed by site, the only Site x Season interaction was significant at the San Pablo site (Table 13, p = 0.010) versus the other three sites did not have a statistically significant interaction when modeled.
+
 #### 4.2 Sediment Deposition Rates Across Years in One Ramped and One Scarped Edge Marsh
+
+Data comparison across Study Dataset for the San Pablo site should be taken as descriptive of the Year-to-Year characteristics (Methods).
+
+Median sediment deposition overall was higher within Corte Madera, the scarped marsh edge site, across Study Datasets when compared to San Pablo, the ramped marsh edge site (2022/2023: Corte Madera = 2.968 g/m^2^/ day vs. San Pablo = 1.917 g/m^2^/day; 2025/2026: Corte Madera =2.082 g/m^2^/ day vs. San Pablo = 1.811 g/m^2^/ day ; Table 14). Skewness and kurtosis within sites was not similar across Study Datasets, as Corte Madera Skewness and Kurtosis decreased from 2022/2023 to 2025/2026 dataset, whereas San Pablo Skewness and Kurtosis increased from 2022/2023 to 2025/2026. (2022/2023: Corte Madera: Skewness: 2.674, Kurtosis = 11.114 vs. San Pablo: Skewness: 2.148, Kurtosis = 7.310, (2025/2026: Corte Madera: Skewness: 1.518, Kurtosis = 6.308 vs. San Pablo: Skewness: 3.914, Kurtosis = 20.404,Table 14).
+
+*Spatially*
+
+Distance from marsh edge appears to have generally a negative effect on across time for both marshes, with responses varying across space. Considering San Pablo site can only be comparable at the 0.5 meters and 24 meters of the 2022/2023 dataset to the 2025/2026 dataset, there is limited range in observing how flux can change in the intermediate distances between the marsh edge and the further upland points of the transect (Figure 16).
+
+Within the Corte Madera site, overall the median, maximum, and kurtosis values run higher across distance in 2022/2023 when compared against the 2025/2026 dataset. This patterns also appears when comparing specifically the 0.5 and 24 distances within the San Pablo datasets from 2022/2023 vs 2025/2026 (Tables 15-16).
+
+Elevation was not compared across study periods because the sample size of z\* values as it relates to distances across the transect differed between USGS and thesis surveys (Methods).
+
+*Temporally*
+
+Comparing the datasets of 2022/2023 and 2025/2026, there appeared to be trends within years across sites (Figures 19-21). Within the months of July and January/February time periods in 2022/2023, both Corte Madera marsh and San Pablo marsh experienced a greater span of values during those months in comparison to the 2025/2026 dataset. June of both datasets 2022/2023 and 2025/2026 across all sites experienced higher flux values in comparison to other Months and Sites throughout both datasets, which showed more variability across sites and Study Datasets.
+
+For the Corte Madera sites, across the majority of months there were higher maximum values recorded for the 2022/2023 dataset in comparison to the 2025/2026 dataset.
+
+#### 4.3 Sediment Deposition in Relation to Intra-Marsh Geomorphic Factors
+
+A Least Absolute Shrinkage and Selection Operator (LASSO) Regression model was used with the 2025/2026 dataset of averaged replicate flux data to test which of the geomorphic features measured of z\* Elevation and Distance from the marsh edge accounted for a greater factor in flux values within all sites (Figure 22). Z\* proved to have a higher positive associated with flux and greater overall integer value compared to Distance from the marsh edge, which had a negative association with flux. Giant Marsh site had observed highest elevation values near the marsh edge paired with extreme positive flux values, therefore the higher z\* coefficient may partly reflect an edge effect at Giant Marsh-a sensitivity analysis excluding Giant Marsh is necessary to understand the full suite of processes across the marsh.
+
+A Station level variance plot was created for distance and z\* value as well, to observe which of the two factors had overall greater variability overall (Figure 23). When tested, it is clear that closer to the marsh edge had both greater variability in flux values, coupled with a greater range of values. Elevation appeared to not have a strong pattern across sites, highlighting that elevation when coupled with distance is more diagnostic of the mechanism of flux across all sites, and that elevation is a site level specific factor that doesn't follow a pattern within this site level dataset. Distances measured further from the edge (greater than 6 meters) had similar typical flux across all four marshes despite differing elevations (Figure 25). Within the scarped marsh edges, Giant marsh had higher flux towards the marsh edge, whereas Corte Madera marsh had a lower flux towards the marsh edge. It should be noted that the highest elevation appears in Giant Marsh, located near the edge of the marsh. The extremity of these values could inflate the effect elevation as a predictor compared to distance from the marsh edge.
+
+A variance plot between all sites, tracking intra-marsh as well as temporal components, demonstrated how different each site responds to those factors in terms of flux (Figure 24). Both scarped edge sites of Corte Madera and Giant Marsh demonstrated the highest variance responsible for within sediment trap location, or distance within the transect responsible for variance differences in sediment flux (Corte Madera 39%, Giant Marsh 58%). Both ramped edge sites of San Pablo and Buck's Landing, demonstrated the highest variance responsible for flux was Month-to-Month differences (San Pablo 59%, Buck's Landing 54%). An additional 28-41% variance at each site was location-by-time variation, or in other words flux varying across distance in different months.
+
+Comparing flux across distances through time on a month to month scope (Figure 26), scarped sites of Giant Marsh and Corte Madera marsh appear to have more extreme flux values closer to the marsh edge consistently across months sampled. Throughout all sites, there appears to be greater flux in the summer months between July-October 2025 and June 2026.
+
+Corte Madera can be used as a case study to compare datasets of 2022/2023 to 2025/2026 across distance for average flux. flux at the edge (0.5 meters) was low in most Study Phases across both the 2022/2023 and 2025/2026 dataset, aside from a September (M3) pulse observed in both datasets. At 2 meters distance from the marsh edge, the two datasets differed the most, with flux observed higher for most of the 2022/2023 year dataset, whereas through 2025/2026 dataset flux was low from October through May. Further upland from the marsh edge greater than 6 meters from the marsh edge, flux was broadly similar between study phases and study datasets.

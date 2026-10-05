@@ -1367,6 +1367,100 @@ rq2_temporal_glmms <- list(
 )
 
 save_glmm_tables(rq2_temporal_glmms, out_dir = rq2_img_dir)
+
+# Study-phase descriptive tables in the same format as RQ1-temporal's
+# per-site tables (save_site_split_tables(): n, Mean, SD, SE, Median, Min,
+# Max, Skewness, Kurtosis, Shapiro_p). RQ2 has two study periods, so the
+# tables are made separately for each period: one table per site per
+# period, byrep and averaged.
+# Output: rq2t_phase_stats_<period>_<Site>_byrep.png / _avg.png
+# rq2_avg drops Study.Phase when it averages, so the averaged tables use
+# rq2_avg0 (the averaged tier before that step -- same deployments).
+
+rq2t_phase_order <- function(df) {
+  df %>%
+    filter(!is.na(Study.Phase), Flux > 0) %>%
+    mutate(Study.Phase = factor(as.character(Study.Phase), levels = paste0("M", 1:12)))
+}
+
+rq2t_phase_site_tables <- list()
+for (per in period_levels) {
+  tag <- gsub("[^0-9]+", "_", per)          # "2022–2023" -> "2022_2023"
+  rq2t_phase_site_tables[[paste0(tag, "_byrep")]] <- save_site_split_tables(
+    rq2t_phase_order(rq2_rep %>% filter(Study.Dataset == per)),
+    group_var = "Study.Phase", group_label = "Study Phase",
+    file_stub = paste0("rq2t_phase_stats_", tag), tier = "byrep", out_dir = rq2_img_dir
+  )
+  rq2t_phase_site_tables[[paste0(tag, "_avg")]] <- save_site_split_tables(
+    rq2t_phase_order(rq2_avg0 %>% filter(Study.Dataset == per)),
+    group_var = "Study.Phase", group_label = "Study Phase",
+    file_stub = paste0("rq2t_phase_stats_", tag), tier = "avg", out_dir = rq2_img_dir
+  )
+}
+```
+
+```{r}
+
+# Summary tables in the same gt style as RQ1-temporal (title + numbers to
+# 2 decimals, saved as PNG). These turn the summary objects built in
+# "Summary: replicate vs averaged" into report-ready tables.
+
+library(gt)
+
+rq2t_gt <- function(df, title, file, subtitle = NULL) {
+  tbl <- df %>%
+    gt() %>%
+    tab_header(title = title, subtitle = subtitle) %>%
+    fmt_number(columns = where(is.numeric), decimals = 2)
+  # p-values: show small values properly instead of rounding to 0.00
+  p_cols <- intersect(names(df), c("p.value", "Replicate_p", "Averaged_p", "p"))
+  if (length(p_cols)) tbl <- tbl %>% fmt_scientific(columns = all_of(p_cols), decimals = 2)
+  print(tbl)
+  gtsave(tbl, filename = file.path(rq2_img_dir, file))
+  tbl
+}
+
+# Change in flux (2025–2026 / 2022–2023), overall, by phen period and by month
+rq2t_ratio_table <- rq2t_gt(
+  rq2t_ratio_summary,
+  "Change in Sediment Flux: 2025–2026 Relative to 2022–2023",
+  "rq2t_ratio_summary_table.png",
+  subtitle = "Ratio of model-predicted flux (Gamma GLMM, paired stations); 1 = no change"
+)
+
+# Same, separately for each marsh
+rq2t_site_ratio_table <- rq2t_gt(
+  rq2t_site_ratio_summary,
+  "Change in Sediment Flux by Phenological Period at Each Marsh",
+  "rq2t_site_ratio_summary_table.png",
+  subtitle = "2025–2026 / 2022–2023, Gamma GLMM; 1 = no change"
+)
+
+# Every likelihood-ratio test in the file
+rq2t_lrt_table <- rq2t_gt(
+  rq2t_lrt_summary,
+  "Likelihood-Ratio Tests: Temporal Change in Sediment Flux",
+  "rq2t_lrt_summary_table.png",
+  subtitle = "p-values for each model comparison, replicate and averaged data"
+)
+
+# DHARMa residual diagnostics for the main models
+rq2t_dharma_table <- rq2t_gt(
+  rq2t_dharma_summary,
+  "Model Diagnostics (DHARMa) for the Temporal GLMMs",
+  "rq2t_dharma_summary_table.png"
+)
+
+# Month vs. phenological period vs. calendar season comparison, if that
+# section has been run
+if (exists("rq2t_grain_summary")) {
+  rq2t_grain_table <- rq2t_gt(
+    rq2t_grain_summary,
+    "Comparing Temporal Groupings: Month vs. Phenological Period vs. Calendar Season",
+    "rq2t_grain_summary_table.png",
+    subtitle = "Site-difference LRT p-values and AIC, replicate and averaged data"
+  )
+}
 ```
 
 ```{r}

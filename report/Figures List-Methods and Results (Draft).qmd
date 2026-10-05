@@ -1,0 +1,199 @@
+---
+title: "Figures-Methods and Results (Draft)" 
+format: docx                  
+editor: visual  
+---
+
+### 1. Introduction
+
+### 2. Methods
+
+#### 2.1 Study Sites
+
+*Figure 1. General Study Site*
+
+![](C:/Users/savan/OneDrive%20-%20San%20Francisco%20State%20University/ProjectData/GitHub/DepositionSFB/images/Maps/General%20Map-Study%20Sites.tif)
+
+*Figure 2. General Study Site with Elevation Survey Benchmarks Included*
+
+![](C:/Users/savan/OneDrive%20-%20San%20Francisco%20State%20University/ProjectData/GitHub/DepositionSFB/images/Maps/MapwithBenchmarks.tif)
+
+#### 2.2 Marsh Edge Typology
+
+#### 2.3 Sediment Deposition Collections throughout the Year
+
+*Figure 3. Transect Layout of Study Design With Ramped and Scarped Edges*
+
+![](C:/Users/savan/OneDrive%20-%20San%20Francisco%20State%20University/ProjectData/GitHub/DepositionSFB/images/methods/TransectFigureFinal.png){width="705"}
+
+*Figure 4. Deployment Length within Study Period (2022-2023)* ![](images/clipboard-1795811635.png)
+
+*Figure 5. Deployment Length within Study Period (2025-2026)* ![](images/clipboard-1685377747.png)
+
+#### 2.4 RTK Elevation Measurements for Horizontal Marsh Edge Profiles of 2025-2026 Study
+
+*Figure 6. Elevation Profiles of Scarped Edges Sites-Giant Marsh and Corte Madera* ![](C:/Users/savan/OneDrive%20-%20San%20Francisco%20State%20University/ProjectData/GitHub/DepositionSFB/images/elevation/crosssite_scarped_ep_mean.png)
+
+*Figure 7. Elevation Profiles of Ramped Edges Sites-Buck's Landing and San Pablo* ![](C:/Users/savan/OneDrive%20-%20San%20Francisco%20State%20University/ProjectData/GitHub/DepositionSFB/images/elevation/crosssite_ramped_ep_mean.png)
+
+### 3. Analysis
+
+### 4. Results
+
+#### 4.1 Sediment Deposition Across Ramped and Scarped Marsh Edges
+
+### Marsh Edge Typology Level
+
+*Table 1. GLMM of Sediment Deposition Across Marsh Edge Types* ![](C:/Users/savan/OneDrive%20-%20San%20Francisco%20State%20University/ProjectData/GitHub/DepositionSFB/images/rq_1/marsh_edge_model_edge_glmm_avg.png)
+
+### Site Level
+
+*Figure 8. Sediment Deposition (Flux) Across Site Level of Ramped and Scarped Sites (2025-2026)* ![](C:/Users/savan/OneDrive%20-%20San%20Francisco%20State%20University/ProjectData/GitHub/DepositionSFB/images/rq1_site_avg.png)
+
+*Table 2. Statistical Table of Sediment Deposition (Flux) Across Site (2025-2026)* ![](C:/Users/savan/OneDrive%20-%20San%20Francisco%20State%20University/ProjectData/GitHub/DepositionSFB/images/rq_1/site_flux_stats_avg.png)
+
+#### Tran-Site Level
+
+*Figure 9. Sediment Deposition (Flux) Across Transect Nested in Site Level of Ramped and Scarped Sites (2025-2026)* ![](C:/Users/savan/OneDrive%20-%20San%20Francisco%20State%20University/ProjectData/GitHub/DepositionSFB/images/rq_1/basic_rq1_tran_avg.png)
+
+*Table 3. GLMM of Sediment Deposition Across Transect Nested in Site Level of Ramped and Scarped Sites (2025-2026)* ![](C:/Users/savan/OneDrive%20-%20San%20Francisco%20State%20University/ProjectData/GitHub/DepositionSFB/images/rq_1/transite_glmm_avg.png)
+
+#### Z star level per site
+
+*Figure 10. Sediment Deposition (Flux) Across z\* (Relative Elevation) Within Ramped and Scarped Sites (2025-2026)* ![](C:/Users/savan/OneDrive%20-%20San%20Francisco%20State%20University/ProjectData/GitHub/DepositionSFB/images/rq_1/p_flux_zstar_avg.png)
+
+*Table 4. GLMM of Sediment Deposition Across z\* (Relative Elevation) Within Ramped and Scarped Sites (2025-2026)* ![](C:/Users/savan/OneDrive%20-%20San%20Francisco%20State%20University/ProjectData/GitHub/DepositionSFB/images/rq_1/model_full_glmm_avg.png)
+
+#### Distance Level Per Site
+
+*Figure 11. Sediment Deposition (Flux) Across Distances from Marsh Edge Within Ramped and Scarped Sites (2025-2026)* ![](C:/Users/savan/OneDrive%20-%20San%20Francisco%20State%20University/ProjectData/GitHub/DepositionSFB/images/rq_1/p_flux_dist_shape_avg.png)
+
+*Table 5. Statistical Table of Sediment Deposition (Flux) Across Distances within Giant Marsh Site (2025-2026)* ![](C:/Users/savan/OneDrive%20-%20San%20Francisco%20State%20University/ProjectData/GitHub/DepositionSFB/images/rq_1/dist_stats_GiantMarsh_avg.png)
+
+*Table 6. Statistical Table of Sediment Deposition (Flux) Across Distances within Corte Madera Site (2025-2026)* ![](C:/Users/savan/OneDrive%20-%20San%20Francisco%20State%20University/ProjectData/GitHub/DepositionSFB/images/rq_1/dist_stats_CorteMadera_avg.png)
+
+*Table 7. Statistical Table of Sediment Deposition (Flux) Across Distances within San Pablo Site (2025-2026)* ![](C:/Users/savan/OneDrive%20-%20San%20Francisco%20State%20University/ProjectData/GitHub/DepositionSFB/images/rq_1/dist_stats_SanPablo_avg.png)
+
+*Table 8. Statistical Table of Sediment Deposition (Flux) Across Distances within Buck's Landing Site (2025-2026)* ![](C:/Users/savan/OneDrive%20-%20San%20Francisco%20State%20University/ProjectData/GitHub/DepositionSFB/images/rq_1/dist_stats_BucksLanding_avg.png)
+
+#### Temporally
+
+*Figure 12. Sediment Deposition (Flux) Across July 2025 -October 2025 Within Ramped and Scarped Sites* ![](C:/Users/savan/OneDrive%20-%20San%20Francisco%20State%20University/ProjectData/GitHub/DepositionSFB/images/rq_1/log_phase_q1.png)
+
+*Figure 13. Sediment Deposition (Flux) Across November 2025 -February 2026 Within Ramped and Scarped Sites* ![](C:/Users/savan/OneDrive%20-%20San%20Francisco%20State%20University/ProjectData/GitHub/DepositionSFB/images/rq_1/log_phase_q2.png)
+
+*Figure 14. Sediment Deposition (Flux) Across March 2026 -June 2026 Within Ramped and Scarped Sites* ![](C:/Users/savan/OneDrive%20-%20San%20Francisco%20State%20University/ProjectData/GitHub/DepositionSFB/images/rq_1/log_phase_q3.png)
+
+*Table 9. Statistical Table of Sediment Deposition (Flux) Across Study Phase Collections (M#) within Corte Madera (2025-2026)* ![](C:/Users/savan/OneDrive%20-%20San%20Francisco%20State%20University/ProjectData/GitHub/DepositionSFB/images/rq_1/phase_stats_CorteMadera_avg.png)
+
+*Table 10. Statistical Table of Sediment Deposition (Flux) Across Study Phase Collections (M#) within Buck's Landing (2025-2026)* ![](C:/Users/savan/OneDrive%20-%20San%20Francisco%20State%20University/ProjectData/GitHub/DepositionSFB/images/rq_1/phase_stats_BucksLanding_avg.png)
+
+*Table 11. Statistical Table of Sediment Deposition (Flux) Across Study Phase Collections (M#) within San Pablo (2025-2026)* ![](C:/Users/savan/OneDrive%20-%20San%20Francisco%20State%20University/ProjectData/GitHub/DepositionSFB/images/rq_1/phase_stats_SanPablo_avg.png)
+
+*Table 12. Statistical Table of Sediment Deposition (Flux) Across Study Phase Collections (M#) within Giant Marsh (2025-2026)* ![](C:/Users/savan/OneDrive%20-%20San%20Francisco%20State%20University/ProjectData/GitHub/DepositionSFB/images/rq_1/phase_stats_GiantMarsh_avg.png)
+
+*Table 13. GLMM of Sediment Deposition (Flux) Across Summer (March-October) and Winter (November-February) Seasons Between Sites (2025-2026)*
+
+![](C:/Users/savan/OneDrive%20-%20San%20Francisco%20State%20University/ProjectData/GitHub/DepositionSFB/images/rq_1/site_season_model_glmm_avg.png)
+
+#### 4.2 Sediment Deposition Rates Across Years in One Ramped and One Scarped Edge Marsh
+
+*Study Dataset Comparison Across Ramped (San Pablo Marsh) and Scarped Edge (Corte Madera Marsh) Sites*
+
+*Figure 15. Sediment Deposition (Flux) Across Study Datasets of 2022/2023 vs. 2025/2026 within Corte Madera and San Pablo Sites*
+
+![](C:/Users/savan/OneDrive%20-%20San%20Francisco%20State%20University/ProjectData/GitHub/DepositionSFB/images/rq_2/basic_rq2_avg.png)
+
+*Table 14. Statistical Table of Sediment Deposition (Flux) Across Study Datasets of 2022/2023 vs. 2025/2026 within Corte Madera and San Pablo Sites*
+
+![](C:/Users/savan/OneDrive%20-%20San%20Francisco%20State%20University/ProjectData/GitHub/DepositionSFB/images/rq_2\site_stats_usgs_avg.png)
+
+*Spatially*
+
+*Figure 16. Sediment Deposition (Flux) Across Distances from Marsh Edge Within Between 2022/2023 vs. 2025/2026 in Corte Madera and San Pablo Sites*
+
+![](C:/Users/savan/OneDrive%20-%20San%20Francisco%20State%20University/ProjectData/GitHub/DepositionSFB/images/rq_2/rq2s_dist_shape_avg.png)
+
+*Table 15.Statistical Table of Sediment Deposition (Flux) Across Distances within Corte Madera Site (2022-2023)*
+
+![](images/rq2s_dist_stats_2022_2023_CorteMadera_avg.png)
+
+*Table 16. Statistical Table of Sediment Deposition (Flux) Across Distances within Corte Madera Site (2025-2026)*
+
+![](C:/Users/savan/OneDrive%20-%20San%20Francisco%20State%20University/ProjectData/GitHub/DepositionSFB/images/rq_2/rq2s_dist_stats_2025_2026_CorteMadera_avg.png)
+
+*Table 17. Statistical Table of Sediment Deposition (Flux) Across Distances within San Pablo Site (2022-2023)*
+
+![](C:/Users/savan/OneDrive%20-%20San%20Francisco%20State%20University/ProjectData/GitHub/DepositionSFB/images/rq_2/rq2s_dist_stats_2022_2023_SanPablo_avg.png)
+
+*Table 18. Statistical Table of Sediment Deposition (Flux) Across Distances within Corte Madera Site (2025-2026)*
+
+![](C:/Users/savan/OneDrive%20-%20San%20Francisco%20State%20University/ProjectData/GitHub/DepositionSFB/images/rq_2/rq2s_dist_stats_2025_2026_SanPablo_avg.png)
+
+*Figure 18. Sediment Deposition (Flux) Across z (Relative Elevation) Across Study Datasets 2022/2023 vs. 2025/2026*
+
+![](C:/Users/savan/OneDrive%20-%20San%20Francisco%20State%20University/ProjectData/GitHub/DepositionSFB/images/rq_2/rq2s_flux_zstation_avg.png)
+
+*Temporally*
+
+*Figure 19. Sediment Deposition (Flux) Between Study Datasets of 2022/2023 vs. 2025/2026 Across July through October Within Corte Madera and San Pablo Sites*
+
+![](C:/Users/savan/OneDrive%20-%20San%20Francisco%20State%20University/ProjectData/GitHub/DepositionSFB/images/rq_2/rq2t_phase_box_1_avg.png)
+
+*Figure 20. Sediment Deposition (Flux) Between Study Datasets of 2022/2023 vs. 2025/2026 Across November through March Within Corte Madera and San Pablo Sites*
+
+![](C:/Users/savan/OneDrive%20-%20San%20Francisco%20State%20University/ProjectData/GitHub/DepositionSFB/images/rq_2/rq2t_phase_box_2_avg.png)
+
+*Figure 21. Sediment Deposition (Flux) Between Study Datasets of 2022/2023 vs. 2025/2026 Across March through June Within Corte Madera and San Pablo Sites*
+
+![](C:/Users/savan/OneDrive%20-%20San%20Francisco%20State%20University/ProjectData/GitHub/DepositionSFB/images/rq_2/rq2t_phase_box_3_avg.png)
+
+*Table 19. Statistical Table of Sediment Deposition (Flux) Across Study Phase Collections (M#) within Corte Madera (2022-2023)*
+
+![](C:/Users/savan/OneDrive%20-%20San%20Francisco%20State%20University/ProjectData/GitHub/DepositionSFB/images/rq_2/rq2t_phase_stats_2022_2023_CorteMadera_avg.png)
+
+*Table 20. Statistical Table of Sediment Deposition (Flux) Across Study Phase Collections (M#) within Corte Madera (2025-2026)*
+
+![](C:/Users/savan/OneDrive%20-%20San%20Francisco%20State%20University/ProjectData/GitHub/DepositionSFB/images/rq_2/rq2t_phase_stats_2025_2026_CorteMadera_avg.png)
+
+*Table 21. Statistical Table of Sediment Deposition (Flux) Across Study Phase Collections (M#) within San Pablo (2022-2023)*
+
+![](C:/Users/savan/OneDrive%20-%20San%20Francisco%20State%20University/ProjectData/GitHub/DepositionSFB/images/rq_2/rq2t_phase_stats_2022_2023_SanPablo_avg.png)
+
+*Table 22. Statistical Table of Sediment Deposition (Flux) Across Study Phase Collections (M#) within San Pablo (2025-2026)*
+
+![](C:/Users/savan/OneDrive%20-%20San%20Francisco%20State%20University/ProjectData/GitHub/DepositionSFB/images/rq_2/rq2t_phase_stats_2025_2026_SanPablo_avg.png)
+
+#### 4.3 Sediment Deposition in Relation to Intra-Marsh Geomorphic Factors
+
+*Intra-Marsh Geomorphic Factor Comparison*
+
+*Figure 22. Least Absolute Shrinkage and Selection Operator (LASSO) Regression Model of Intra-Marsh Geomorphic Variables*
+
+![](C:/Users/savan/OneDrive%20-%20San%20Francisco%20State%20University/ProjectData/GitHub/DepositionSFB/images/rq_3/lasso_plot_avg.png)
+
+*Elevation and Distance from Marsh Edge*
+
+*Figure 23. Comparing Average Flux and Variability Across Distance from Marsh Edge and z star*
+
+![](C:/Users/savan/OneDrive%20-%20San%20Francisco%20State%20University/ProjectData/GitHub/DepositionSFB/images/rq_3/rq3_station_level_summary.png)
+
+*Figure 24. Variance Across Time and Space Between and Across Sites of Sediment Deposition (Flux)*
+
+![](C:/Users/savan/OneDrive%20-%20San%20Francisco%20State%20University/ProjectData/GitHub/DepositionSFB/images/rq_3/rq3_variance_partition_by_site_avg.png)
+
+*Figure 25. Sediment Deposition (Flux) Across z star profiles Across Marsh Sites*
+
+![](C:/Users/savan/OneDrive%20-%20San%20Francisco%20State%20University/ProjectData/GitHub/DepositionSFB/images/rq_3/rq3_zstar_flux_stacked_avg.png)
+
+*Figure 26. Sediment Deposition (Flux) Across Distance Over Study Collections Between Sites*
+
+![](C:/Users/savan/OneDrive%20-%20San%20Francisco%20State%20University/ProjectData/GitHub/DepositionSFB/images/rq_3/rq3_station_phase_heatmap.png)
+
+*Figure 27. Corte Madera Site Case Study of Sediment Deposition (Flux) Across Distance from Marsh Edge Across Study Collections Between 2022/2023 vs. 2025/2026*
+
+![](C:/Users/savan/OneDrive%20-%20San%20Francisco%20State%20University/ProjectData/GitHub/DepositionSFB/images/rq_2/rq2_CM_phase_heatmap.png)
+
+### 5. Discussion
+
+### 6. Conclusion

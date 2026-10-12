@@ -1941,3 +1941,141 @@ rq3_dist_time_test <- function(site) {
 rq3_dist_time_table <- bind_rows(lapply(rq3_site_order, rq3_dist_time_test))
 rq3_dist_time_table   # small p = the distance–flux relationship differs among phases
 ```
+
+```{r, giant marsh sensitivity}
+
+# Giant Marsh sensitivity analysis (RQ1)
+# Does z* still beat distance once Giant Marsh's extreme near-edge
+# points are removed? Same models on three versions of the data:
+#   full   = all four sites
+#   noGM2m = Giant Marsh kept, its 0.5 m and 2 m points dropped
+#   noGM   = Giant Marsh dropped entirely
+
+library(glmnet)
+library(emmeans)
+library(DHARMa)
+
+gm_site <- "GiantMarsh"   # spelled as in your data
+
+# ---- Data: same filters as the rest of the file -------------------------
+dat <- usgs_thesis %>%
+  filter(Study.Dataset == "Thesis", Flux > 0, Dist != 48) %>%
+  mutate(Site     = droplevels(factor(as.character(Site))),
+         Tran     = factor(Tran),
+         Dist_num = as.numeric(as.character(Dist)),
+         Dist_f   = factor(Dist_num))
+
+if (!"Loc_ID" %in% names(dat)) {
+  dat$Loc_ID <- interaction(dat$Site, dat$Tran, dat$Dist_num, drop = TRUE)
+}
+if (!"Study.Phase" %in% names(dat)) stop("usgs_thesis has no Study.Phase column")
+
+dat <- dat %>%
+  mutate(Loc_ID      = factor(Loc_ID),
+         Study.Phase = factor(Study.Phase),
+         # replicate traps share a location x phase deployment
+         Deploy_ID   = interaction(Loc_ID, Study.Phase, drop = TRUE))
+
+stopifnot(gm_site %in% levels(dat$Site))   # stops if the name doesn't match
+
+sets <- lapply(list(
+  full   = dat,
+  noGM2m = dat %>% filter(!(Site == gm_site & Dist_num <= 2)),
+  noGM   = dat %>% filter(Site != gm_site)
+), droplevels)
+sapply(sets, nrow)   # noGM2m and noGM should both be smaller than full
+
+# How tied are z* and distance in each set?
+sapply(sets, function(d) cor(d$z_star, d$Dist_num, method = "spearman",
+                             use = "complete.obs"))
+
+# ---- 1. LASSO: same setup as your original (raw Flux, lambda.min) -------
+lasso_vars <- c("z_star", "local_slope", "mean_wind_speed_kt",
+                "slope_fitted_elevation_m", "max_gust_kt", "Dist_num")
+
+run_lasso <- function(d, seed = 42) {
+  d <- d %>% select(Flux, all_of(lasso_vars)) %>% tidyr::drop_na()
+  vars <- lasso_vars[sapply(d[lasso_vars], sd) > 0]   # skip constant columns
+  x <- scale(as.matrix(d[vars]))
+  set.seed(seed)
+  cv <- cv.glmnet(x, d$Flux, alpha = 1)
+  b <- coef(cv, s = "lambda.min")
+  setNames(as.numeric(b), rownames(b))[-1][lasso_vars]   # NA if a var was dropped
+}
+
+lasso_tab <- do.call(rbind, lapply(sets, run_lasso))
+colnames(lasso_tab) <- lasso_vars
+round(lasso_tab, 3)
+
+# Stability: share of 50 CV reruns where |z*| > |distance|
+lasso_stability <- sapply(sets, function(d) {
+  mean(replicate(50, {
+    b <- run_lasso(d, seed = sample.int(1e6, 1))
+    abs(b["z_star"]) > abs(b["Dist_num"])
+  }), na.rm = TRUE)
+})
+lasso_stability
+
+# ---- 2. GLMM with z* and distance together -------------------------------
+fit_zd <- function(d) {
+  d <- d %>% mutate(z_s = as.numeric(scale(z_star)),
+                    d_s = as.numeric(scale(Dist_num)))
+  glmmTMB(Flux ~ z_s + d_s + Site + (1 | Site:Tran) + (1 | Loc_ID) +
+            (1 | Study.Phase) + (1 | Deploy_ID),
+          family = Gamma(link = "log"), data = d)
+}
+zd_models <- lapply(sets, fit_zd)
+
+zd_tab <- do.call(rbind, lapply(names(zd_models), function(nm) {
+  ct <- summary(zd_models[[nm]])$coefficients$cond[c("z_s", "d_s"), ]
+  data.frame(set   = nm,
+             term  = c("z* (per SD)", "distance (per SD)"),
+             ratio = exp(ct[, "Estimate"]),
+             lo    = exp(ct[, "Estimate"] - 1.96 * ct[, "Std. Error"]),
+             hi    = exp(ct[, "Estimate"] + 1.96 * ct[, "Std. Error"]),
+             p     = ct[, "Pr(>|z|)"])
+}))
+zd_tab %>% mutate(across(ratio:hi, ~ round(.x, 2)), p = signif(p, 2))
+
+# ---- 3. Distance x Site without Giant Marsh -------------------------------
+fit_ds <- function(d) {
+  glmmTMB(Flux ~ Dist_f * Site + (1 | Site:Tran) + (1 | Loc_ID) + (1 | Deploy_ID),
+          dispformula = ~ Site,
+          family = Gamma(link = "log"), data = d)
+}
+ds_full <- fit_ds(sets$full)
+ds_noGM <- fit_ds(sets$noGM)   # = distsitemodel_glmm_noGM
+
+car::Anova(ds_full, type = "II")
+car::Anova(ds_noGM, type = "II")
+
+emm_full <- emmeans(ds_full, ~ Dist_f | Site, type = "response")
+emm_noGM <- emmeans(ds_noGM, ~ Dist_f | Site, type = "response")
+
+compare <- full_join(
+  as.data.frame(emm_full) %>% select(Site, Dist_f, full = response),
+  as.data.frame(emm_noGM) %>% select(Site, Dist_f, noGM = response),
+  by = c("Site", "Dist_f")) %>%
+  filter(Site != gm_site) %>%
+  mutate(pct_change = round(100 * (noGM - full) / full, 1))
+compare
+
+# ---- 4. Diagnostics --------------------------------------------------------
+for (nm in names(zd_models)) {
+  r <- simulateResiduals(zd_models[[nm]])
+  plot(r, title = paste("z* + distance:", nm))
+  print(testDispersion(r))
+}
+r <- simulateResiduals(ds_noGM)
+plot(r, title = "Distance x Site, no Giant Marsh")
+print(testDispersion(r))
+
+# ---- How to read it --------------------------------------------------------
+# - z* stays larger than distance in noGM2m and noGM (LASSO and GLMM):
+#   the z* result is robust; say so in Discussion section 2.
+# - Distance overtakes z* once those points go: the z* result is driven by
+#   Giant Marsh's high near-edge points. Report that and add it to the
+#   section 5 limitations.
+# - The three-site distance patterns barely move (small pct_change):
+#   Giant Marsh isn't driving the Dist x Site result.
+```

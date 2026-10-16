@@ -4,4 +4,42 @@ format: docx
 editor: visual
 ---
 
-## Bibliography 
+## Bibliography (Draft)
+
+Beagle JR, Salomon M, Baumgarten SA, Grossinger RM. 2015. *ShiftingShores SFEI 063015_medres_final*.
+
+Christiansen, T., P. L. Wiberg, and T. G. Milligan. 2000. “Flow and Sediment Transport on a Tidal Salt Marsh Surface.” *Estuarine, Coastal and Shelf Science* 50 (3): 315–31. <https://doi.org/10.1006/ecss.2000.0548>.
+
+Fagherazzi, Sergio, Giulio Mariotti, Nicoletta Leonardi, Alberto Canestrelli, William Nardin, and William S. Kearney. 2020. “Salt Marsh Dynamics in a Period of Accelerated Sea Level Rise.” *Journal of Geophysical Research: Earth Surface* 125 (8): e2019JF005200. <https://doi.org/10.1029/2019JF005200>.
+
+Fettweis, M., M. Sas, and J. Monbaliu. 1998. “Seasonal, Neap-Spring and Tidal Variation of Cohesive Sediment Concentration in the Scheldt Estuary, Belgium.” *Estuarine, Coastal and Shelf Science* 47 (1): 21–36. <https://doi.org/10.1006/ecss.1998.0338>.
+
+Foster-Martinez, M. R., J. R. Lacy, M. C. Ferner, and E. A. Variano. 2018. “Wave Attenuation Across a Tidal Marsh in San Francisco Bay.” *Coastal Engineering* 136 (June): 26–40. <https://doi.org/10.1016/j.coastaleng.2018.02.001>.
+
+Hopkinson, Charles S., James T. Morris, Sergio Fagherazzi, Wilfred M. Wollheim, and Peter A. Raymond. 2018. “Lateral Marsh Edge Erosion as a Source of Sediments for Vertical Marsh Accretion.” *Journal of Geophysical Research: Biogeosciences* 123 (8): 2444–65. <https://doi.org/10.1029/2017JG004358>.
+
+Lacy, Jessica R., Matthew C. Ferner, and John C. Callaway. 2018. “The Influence of Neapspring Tidal Variation and Wave Energy on Sediment Flux in Salt Marsh Tidal Creeks.” *Earth Surface Processes and Landforms* 43 (11): 2384–96. <https://doi.org/10.1002/esp.4401>.
+
+Lacy, Jessica R., Madeline R. Foster-Martinez, Rachel M. Allen, Matthew C. Ferner, and John C. Callaway. 2020. “Seasonal Variation in Sediment Delivery Across the Bay-Marsh Interface of an Estuarine Salt Marsh.” *Journal of Geophysical Research: Oceans* 125 (1): e2019JC015268. <https://doi.org/10.1029/2019JC015268>.
+
+Leonardi, Nicoletta, Iacopo Carnacina, Carmine Donatelli, et al. 2018. “Dynamic Interactions Between Coastal Storms and Salt Marshes: A Review.” *Geomorphology* 301 (January): 92–107. <https://doi.org/10.1016/j.geomorph.2017.11.001>.
+
+Möller, I., and T. Spencer. 2002. “Wave Dissipation over Macro-Tidal Saltmarshes: Effects of Marsh Edge Typology and Vegetation Change.” *Journal of Coastal Research* 36 (March): 506–21. <https://doi.org/10.2112/1551-5036-36.sp1.506>.
+
+Nederhoff, Kees, Rohin Saleh, Babak Tehranirad, et al. 2021. “Drivers of Extreme Water Levels in a Large, Urban, High-Energy Coastal Estuary  a Case Study of the San Francisco Bay.” *Coastal Engineering* 170 (December): 103984. <https://doi.org/10.1016/j.coastaleng.2021.103984>.
+
+Schoellhamer, David, and Mathieu Marineau. n.d. *Sediment Supply to San Francisco Bay, Water Years 1995 Through 2016: Data, Trends, and Monitoring Recommendations to Support Decisions about Water Quality, Tidal Wetlands, and Resilience to Sea Level Rise*.
+
+SFEI, and Peter Baye. n.d. “New Life for Eroding Shorelines: Beach and Marsh Edge Change in the San Francisco Estuary.” *San Francisco Estuary Institute* Publication #984.
+
+Taylor-Burns, Rae, Christopher Lowrie, Babak Tehranirad, et al. 2024. “The Value of Marsh Restoration for Flood Risk Reduction in an Urban Estuary.” *Scientific Reports* 14 (1): 6856. <https://doi.org/10.1038/s41598-024-57474-4>.
+
+Taylor-Burns, Rae, Kees Nederhoff, Jessica R. Lacy, and Patrick L. Barnard. 2023. “The Influence of Vegetated Marshes on Wave Transformation in Sheltered Estuaries.” *Coastal Engineering* 184 (September): 104346. <https://doi.org/10.1016/j.coastaleng.2023.104346>.
+
+Thorne, Karen M., McKenna L. Bristow, Lyndsay L. Rankin, et al. 2024. “Understanding Marsh Elevation and Accretion Processes and Vulnerability to Rising Sea Levels Across Climatic and Geomorphic Gradients in California, USA.” *Estuaries and Coasts* 47 (7): 1972–92. <https://doi.org/10.1007/s12237-023-01298-4>.
+
+Thorne, Karen, Kevin Buffington, John Takekawa, and Kathleen Swanson. 2013. “Storm Episodes and Climate Change Implications for Tidal Marshes in the San Francisco Bay Estuary, California, USA.” *The International Journal of Climate Change: Impacts and Responses* 4 (4): 169–90. <https://doi.org/10.18848/1835-7156/CGP/v04i04/37200>.
+
+Willemsen, P. W. J. M., B. P. Smits, B. W. Borsje, et al. 2022. “Modeling Decadal Salt Marsh Development: Variability of the Salt Marsh Edge Under Influence of Waves and Sediment Availability.” *Water Resources Research* 58 (1): e2020WR028962. <https://doi.org/10.1029/2020WR028962>.
+
+WinklerPrins, Lukas, Jessica R. Lacy, Mark T. Stacey, Joshua B. Logan, and Andrew W. Stevens. 2024. “Seasonality of Retreat Rate of a Wave-Exposed Marsh Edge.” *Journal of Geophysical Research: Earth Surface* 129 (7): e2023JF007468. <https://doi.org/10.1029/2023JF007468>.

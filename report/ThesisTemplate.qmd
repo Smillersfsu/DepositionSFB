@@ -108,7 +108,7 @@ Upon each visit to the marsh, a photo was taken perpendicular to the edge, direc
 
 - Outlines the horizontal profile of each marsh with elevation on the y axis and distance on the x
 
-## 3. Analysis 
+## 3. Analysis
 
 ## 4. Results
 
@@ -172,11 +172,10 @@ Upon each visit to the marsh, a photo was taken perpendicular to the edge, direc
 - Giant Marsh is a good example well supported locally of a western facing scarped, eroding marsh. Recent results of Whale's Tale holds similarity in findings and systems at these scarps need more in detail study on the intraspecific factors at play that influence these dynamics
 
   - These western faced marshes are especially important socially as they are often adjacent and abutting large city communities of the East Bay. Understanding how these marshes currently work and how we can sustain them can help promote the benefits of marshes for urban communities as places of recreation, community building, and nature based feature protections against coastal flooding. Many of these existing marshes have been cut off or altered from their original riverine local inputs, which likely can have a huge effect on the sediment inputs of these marshes as discussed in 3.3, and implied within the results of 3.2 from Corte Madera across years, which is protected but has small riverine inputs. These marshes appear to be eroding quickly through their scarped edge, and they provide both an urgent and abundant solution for nature based features in urban communities against sea level rise.
-  
-  (originally from the Results, Discussion would be better here when discussing kurtosis/differences between sites as a result of their location within the system)
-  
-  This could implicate that topographic features and orientation of the marsh edge is a more specific factor to point to than the shape of the marsh edge when considering the distribution of values. However, given the small sample size of marshes compared (n = 2) as well as the lack of site specific data collected.
 
+  (originally from the Results, Discussion would be better here when discussing kurtosis/differences between sites as a result of their location within the system)
+
+  This could implicate that topographic features and orientation of the marsh edge is a more specific factor to point to than the shape of the marsh edge when considering the distribution of values. However, given the small sample size of marshes compared (n = 2) as well as the lack of site specific data collected.
 
 ```{r}
 
@@ -219,7 +218,8 @@ Reminders:
     as a supplementary result?
 -->
 ```
-```
+
+\`\`\`
 
 ### 6. Conclusion
 

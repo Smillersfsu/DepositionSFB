@@ -196,4 +196,28 @@ editor: visual
 
 ### 5. Discussion
 
+## b. Long Deployment Sampling Periods-How Does it Affect the Data?
+
+![](C:/Users/savan/OneDrive%20-%20San%20Francisco%20State%20University\ProjectData\GitHub\DepositionSFB\images\overall_comparison_3way.png)
+
+![](C:/Users/savan/OneDrive%20-%20San%20Francisco%20State%20University\ProjectData\GitHub\DepositionSFB\data\site_point_grid.png)
+
+![](C:/Users/savan/OneDrive%20-%20San%20Francisco%20State%20University\ProjectData\GitHub\DepositionSFB\data\phase_flux_by_scenario_dodged.png)
+
+![](C:/Users/savan/OneDrive%20-%20San%20Francisco%20State%20University\ProjectData\GitHub\DepositionSFB\images\phase_comparison_3way.png)
+
+![](C:/Users/savan/OneDrive%20-%20San%20Francisco%20State%20University/ProjectData/GitHub/DepositionSFB/images/monthly_precip_2022_2026.png)
+
+![](C:/Users/savan/OneDrive%20-%20San%20Francisco%20State%20University/ProjectData/GitHub/DepositionSFB/images/rq_2/marsharea.png)
+
+![](C:/Users/savan/OneDrive%20-%20San%20Francisco%20State%20University/ProjectData/GitHub/DepositionSFB/images/usgsdata/marsharea_seasonality_SP.png)
+
+![](C:/Users/savan/OneDrive%20-%20San%20Francisco%20State%20University/ProjectData/GitHub/DepositionSFB/images/rq_1/rq1_density_sj_avg.png)
+
+![](C:/Users/savan/OneDrive%20-%20San%20Francisco%20State%20University/ProjectData/GitHub/DepositionSFB/images/rq_2/rq2s_flux_density_avg.png)
+
+![](C:/Users/savan/OneDrive%20-%20San%20Francisco%20State%20University/ProjectData/GitHub/DepositionSFB/images/rq_2/rq2s_flux_hist_avg.png)
+
+![](C:/Users/savan/OneDrive%20-%20San%20Francisco%20State%20University/ProjectData/GitHub/DepositionSFB/images/rq_3/lasso_plot_by_site.png)
+
 ### 6. Conclusion

@@ -2079,3 +2079,179 @@ print(testDispersion(r))
 # - The three-site distance patterns barely move (small pct_change):
 #   Giant Marsh isn't driving the Dist x Site result.
 ```
+
+```{r}
+
+library(ggplot2)
+
+set_levels <- c("full", "noGM2m", "noGM")
+set_labels <- c(full   = "All sites",
+                noGM2m = "Without Giant Marsh 0.5–2 m",
+                noGM   = "Without Giant Marsh")
+set_cols   <- c(full = "#2a78d6", noGM2m = "#eb6834", noGM = "#1baf7a")
+set_shapes <- c(full = 16, noGM2m = 17, noGM = 15)   # shapes too, not color alone
+
+var_labels <- c(z_star                   = "z*",
+                Dist_num                 = "Distance from edge",
+                local_slope              = "Local slope",
+                slope_fitted_elevation_m = "Slope-fitted elevation (m)",
+                mean_wind_speed_kt       = "Mean wind speed (kt)",
+                max_gust_kt              = "Max gust (kt)")
+
+# ---- Station bootstrap of the LASSO --------------------------------------
+# Resamples whole stations (Loc_ID) so replicate traps stay together.
+# 200 reps x 3 datasets: expect a few minutes.
+boot_lasso <- function(d, B = 200) {
+  by_loc <- split(d, droplevels(factor(d$Loc_ID)))
+  out <- replicate(B, {
+    db <- dplyr::bind_rows(by_loc[sample(length(by_loc), replace = TRUE)])
+    setNames(unname(run_lasso(db, seed = sample.int(1e6, 1))), lasso_vars)
+  })
+  t(out)   # rows = bootstrap samples, columns = predictors
+}
+
+set.seed(2026)
+boot_list <- lapply(sets, boot_lasso)
+
+lasso_df <- do.call(rbind, lapply(set_levels, function(nm) {
+  b <- boot_list[[nm]]
+  data.frame(set = nm,
+             var = lasso_vars,
+             est = as.numeric(lasso_tab[nm, lasso_vars]),
+             lo  = apply(b, 2, quantile, 0.025, na.rm = TRUE),
+             hi  = apply(b, 2, quantile, 0.975, na.rm = TRUE),
+             sel = colMeans(b != 0, na.rm = TRUE))
+}))
+lasso_df$set <- factor(lasso_df$set, levels = set_levels)
+lasso_df$var <- factor(lasso_df$var, levels = rev(names(var_labels)),
+                       labels = unname(rev(var_labels)))
+
+# Table version (for the text or a supplement)
+lasso_df %>% mutate(across(c(est, lo, hi), ~ round(.x, 2)),
+                    sel = paste0(round(100 * sel), "%"))
+
+# ---- Shared styling --------------------------------------------------------
+dodge <- position_dodge(width = 0.7)
+theme_sens <- theme_minimal(base_size = 11) +
+  theme(panel.grid.minor = element_blank(),
+        legend.position = "bottom",
+        plot.title = element_text(face = "bold", size = 11),
+        plot.title.position = "plot")
+set_scales <- list(
+  scale_colour_manual(values = set_cols, labels = set_labels, name = NULL),
+  scale_shape_manual(values = set_shapes, labels = set_labels, name = NULL))
+
+# ---- A. LASSO coefficients with bootstrap intervals ------------------------
+p_coef <- ggplot(lasso_df, aes(var, est, colour = set, shape = set)) +
+  geom_hline(yintercept = 0, colour = "grey60", linewidth = 0.4) +
+  geom_linerange(aes(ymin = lo, ymax = hi), position = dodge, linewidth = 0.6) +
+  geom_point(size = 2.6, position = dodge) +
+  coord_flip() + set_scales + theme_sens +
+  labs(title = "A. LASSO coefficients", x = NULL,
+       y = "Standardized coefficient (95% station bootstrap)")
+
+# ---- B. Selection frequency -------------------------------------------------
+p_sel <- ggplot(lasso_df, aes(var, sel, colour = set, shape = set)) +
+  geom_linerange(aes(ymin = 0, ymax = sel), position = dodge, linewidth = 0.6) +
+  geom_point(size = 2.6, position = dodge) +
+  scale_y_continuous(limits = c(0, 1), labels = scales::percent) +
+  coord_flip() + set_scales + theme_sens +
+  labs(title = "B. How often the LASSO kept each predictor", x = NULL,
+       y = "Bootstrap samples with a nonzero coefficient")
+
+# ---- C. GLMM (site accounted for) ------------------------------------------
+glmm_df <- zd_tab
+glmm_df$set  <- factor(glmm_df$set, levels = set_levels)
+glmm_df$term <- factor(glmm_df$term,
+                       levels = c("distance (per SD)", "z* (per SD)"),
+                       labels = c("Distance from edge", "z*"))
+
+p_glmm <- ggplot(glmm_df, aes(term, ratio, colour = set, shape = set)) +
+  geom_hline(yintercept = 1, colour = "grey60", linewidth = 0.4) +
+  geom_linerange(aes(ymin = lo, ymax = hi), position = dodge, linewidth = 0.6) +
+  geom_point(size = 2.6, position = dodge) +
+  scale_y_log10(breaks = c(0.25, 0.5, 1, 2, 4)) +
+  coord_flip() + set_scales + theme_sens +
+  labs(title = "C. Gamma GLMM, site accounted for", x = NULL,
+       y = "Change in flux per SD increase (×, log scale; 95% CI)")
+
+# ---- Combine and save -------------------------------------------------------
+fig_dir <- "figures"
+dir.create(fig_dir, showWarnings = FALSE)
+
+if (requireNamespace("patchwork", quietly = TRUE)) {
+  library(patchwork)
+  fig <- (p_coef + p_sel) / p_glmm +
+    plot_layout(guides = "collect", heights = c(3, 1.3)) +
+    plot_annotation(caption = paste(
+      "LASSO on raw flux (lambda.min); intervals from 200 bootstrap resamples of stations.",
+      "GLMM: Gamma (log link) with site fixed effect and transect, station, phase",
+      "and deployment random effects.")) &
+    theme(legend.position = "bottom")
+  print(fig)
+  ggsave(file.path(fig_dir, "giant_marsh_sensitivity.png"), fig,
+         width = 10, height = 7.5, dpi = 300, bg = "white")
+} else {
+  print(p_coef); print(p_sel); print(p_glmm)
+  ggsave(file.path(fig_dir, "gm_sens_lasso_coef.png"), p_coef, width = 6, height = 5, dpi = 300, bg = "white")
+  ggsave(file.path(fig_dir, "gm_sens_lasso_selection.png"), p_sel, width = 6, height = 5, dpi = 300, bg = "white")
+  ggsave(file.path(fig_dir, "gm_sens_glmm.png"), p_glmm, width = 6, height = 2.8, dpi = 300, bg = "white")
+}
+```
+
+```{r, lasso per site plot}
+library(tidyverse)
+library(forcats)
+library(tibble)
+
+site_lasso_coefs <- site_lasso %>%
+  filter(predictor %in% c("z_star", "Dist_num")) %>%
+  mutate(
+    coefficient = replace_na(coefficient, 0),
+    direction   = ifelse(coefficient >= 0, "Positive", "Negative"),
+    predictor   = factor(predictor, levels = c("Dist_num", "z_star"),
+                         labels = c("Distance from edge", "z*")),
+    subset      = factor(subset, levels = names(site_sets),
+                         labels = c("All distances", "≥ 6 m only")),
+    Site        = recode(Site,
+                         "Buck'sLanding" = "Buck's Landing",
+                         "CorteMadera"   = "Corte Madera",
+                         "GiantMarsh"    = "Giant Marsh",
+                         "SanPablo"      = "San Pablo")
+  )
+
+site_lasso_plot <- ggplot(site_lasso_coefs, aes(x = predictor, y = coefficient, fill = direction)) +
+  geom_col(width = 0.6) +
+  geom_hline(yintercept = 0, color = "gray30", linewidth = 0.4) +
+  geom_text(aes(label = sprintf("%.1f", coefficient),
+                hjust = ifelse(coefficient >= 0, -0.15, 1.15)),
+            size = 3.8) +
+  scale_y_continuous(expand = expansion(mult = 0.5), n.breaks = 3) +
+  coord_flip(clip = "off") +
+  facet_wrap(vars(subset, Site), nrow = 2, scales = "free_x") +
+  scale_fill_manual(values = c("Positive" = "#2166AC", "Negative" = "#B2182B")) +
+  labs(
+    title = "Standardized LASSO Coefficients by Site",
+    x = NULL,
+    y = "Standardized Regression Coefficient (scale differs by panel)",
+    fill = NULL
+  ) +
+  theme_minimal(base_size = 14) +
+  theme(
+    legend.position = "bottom",
+    panel.grid.minor = element_blank(),
+    panel.spacing.x = unit(2, "lines"),
+    axis.text.y = element_text(size = 12),
+    strip.text = element_text(size = 11)
+  )
+
+site_lasso_plot
+
+ggsave("C:\\Users\\savan\\OneDrive - San Francisco State University\\ProjectData\\GitHub\\DepositionSFB\\images\\rq_3\\lasso_plot_by_site.png",
+       plot = site_lasso_plot,
+       width = 14,
+       height = 6.5,
+       dpi = 300,
+       limitsize = FALSE)
+
+```

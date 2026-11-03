@@ -69,15 +69,20 @@ knitr::opts_knit$set(root.dir = 'C:/Users/savan/OneDrive - San Francisco State U
 ```
 
 ```{r, load saved models}
+# >>> WHICH TIERS TO MAKE TABLES FOR (ADDED, Oct 2026) <<<
+# c("avg") = averaged only (primary analysis); c("byrep") = replicate only;
+# c("byrep", "avg") = both. Only the tiers listed here need to have been run.
+table_tiers <- c("avg")
+
 rds_dir <- knitr::opts_knit$get("root.dir")
-rds_files <- file.path(rds_dir, c("rq1_spatial_models_byrep.rds", "rq1_spatial_models_avg.rds"))
+rds_files <- file.path(rds_dir, c(byrep = "rq1_spatial_models_byrep.rds", avg = "rq1_spatial_models_avg.rds")[table_tiers])
 missing_rds <- rds_files[!file.exists(rds_files)]
 if (length(missing_rds) > 0) {
   stop("Saved models not found: ", paste(basename(missing_rds), collapse = ", "),
-       ". Knit RQ1-spatial_byrep.Rmd and RQ1-spatial_avg.Rmd first.")
+       ". Knit the matching tier file(s) first (RQ1-spatial_byrep.Rmd / RQ1-spatial_avg.Rmd).")
 }
 
-rq1_spatial_models <- c(readRDS(rds_files[1]), readRDS(rds_files[2]))
+rq1_spatial_models <- do.call(c, lapply(rds_files, readRDS))
 rq1_spatial_models <- Filter(Negate(is.null), rq1_spatial_models)
 
 # glmmTMB models read back from disk lose their compiled-code pointer.
@@ -93,19 +98,23 @@ names(rq1_spatial_models)
 
 rq1_img_dir <- "C:/Users/savan/OneDrive - San Francisco State University/ProjectData/GitHub/DepositionSFB/images/rq_1"
 
-# save_glmm_tables() needs both <model> and <model>_avg; this wrapper
-# skips (with a message) any model missing a tier.
-save_glmm_tables_available <- function(model_list, out_dir) {
-  has_both <- vapply(names(model_list), function(m)
-    exists(m, envir = globalenv()) && exists(paste0(m, "_avg"), envir = globalenv()),
-    logical(1))
-  if (any(!has_both)) {
-    message("Skipping (not saved in both tiers): ",
-            paste(names(model_list)[!has_both], collapse = ", "))
+# Makes tables only for the tiers in table_tiers. A model is tabled if it
+# exists in every listed tier (<name> for byrep, <name>_avg for avg);
+# otherwise it's skipped with a message instead of stopping the render.
+save_glmm_tables_available <- function(model_list, out_dir, tiers = table_tiers) {
+  has_all <- vapply(names(model_list), function(m) {
+    nms <- c(byrep = m, avg = paste0(m, "_avg"))[tiers]
+    all(vapply(nms, exists, logical(1), envir = globalenv()))
+  }, logical(1))
+  if (any(!has_all)) {
+    message("Skipping (not saved for tier(s) ", paste(tiers, collapse = "/"), "): ",
+            paste(names(model_list)[!has_all], collapse = ", "))
   }
-  if (any(has_both)) save_glmm_tables(model_list[has_both], out_dir = out_dir)
+  if (any(has_all)) save_glmm_tables(model_list[has_all], out_dir = out_dir,
+                                     env = globalenv(), tiers = tiers)
 }
 ```
+
 
 ```{r, GLMM output tables}
 # One image per GLMM, for both tiers: <model>_byrep.png and <model>_avg.png.

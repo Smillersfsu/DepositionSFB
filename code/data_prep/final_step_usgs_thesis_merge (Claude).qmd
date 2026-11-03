@@ -108,36 +108,37 @@ unique(sed_usgs_byrep$Site)
 ```
 
 ```{r, derive Month for comparability}
-# Derived from Date.removed.from.field rather than assumed to already
-# exist as a raw column -- gives USGS/thesis comparability at the Month
-# level, per your call to use Month (not the old Winter/Summer Season
-# split) for this comparison.
+
+# MONTH (pipeline cleanup, Oct 2026): ONE definition across the project.
+# Both datasets already carry the majority-of-deployment month from their
+# step1 (thesis as "Jul"/"Aug"..., USGS already relabeled to full names
+# in usgs step3). This used to RE-DERIVE Month from the removal date,
+# which gave RQ2 a different Month than RQ1/RQ3. Now it only relabels
+# to full month names, which the RQ2 files expect.
 #
 # Factor levels ordered chronologically starting from July (the first
-# month of data collection), not alphabetically -- so plots/models
-# using Month read left-to-right in actual study order instead of
-# April/August/December/... etc.
+# month of data collection).
 
 study_month_levels <- c("July", "August", "September", "October",
-                         "November", "December", "January", "February",
-                         "March", "April", "May", "June")
+                        "November", "December", "January", "February",
+                        "March", "April", "May", "June")
 
-sed_thesis <- sed_thesis %>%
-  mutate(Month = factor(month(Date.removed.from.field, label = TRUE, abbr = FALSE),
-                         levels = study_month_levels, ordered = TRUE))
+to_full_month <- function(m) {
+  m <- as.character(m)
+  full <- ifelse(m %in% month.abb, month.name[match(m, month.abb)], m)
+  factor(full, levels = study_month_levels, ordered = TRUE)
+}
 
-sed_usgs <- sed_usgs %>%
-  mutate(Month = factor(month(Date.removed.from.field, label = TRUE, abbr = FALSE),
-                         levels = study_month_levels, ordered = TRUE))
+sed_thesis       <- sed_thesis       %>% mutate(Month = to_full_month(Month))
+sed_usgs         <- sed_usgs         %>% mutate(Month = to_full_month(Month))
+sed_thesis_byrep <- sed_thesis_byrep %>% mutate(Month = to_full_month(Month))
+sed_usgs_byrep   <- sed_usgs_byrep   %>% mutate(Month = to_full_month(Month))
 
-# ADDED: same Month re-derivation for the byrep pair.
-sed_thesis_byrep <- sed_thesis_byrep %>%
-  mutate(Month = factor(month(Date.removed.from.field, label = TRUE, abbr = FALSE),
-                         levels = study_month_levels, ordered = TRUE))
-
-sed_usgs_byrep <- sed_usgs_byrep %>%
-  mutate(Month = factor(month(Date.removed.from.field, label = TRUE, abbr = FALSE),
-                         levels = study_month_levels, ordered = TRUE))
+# Rows with no Month after relabeling (should be 0 -- if not, check for
+# missing deployment dates upstream before trusting Month-based models)
+sapply(list(thesis = sed_thesis, usgs = sed_usgs,
+            thesis_byrep = sed_thesis_byrep, usgs_byrep = sed_usgs_byrep),
+       function(d) sum(is.na(d$Month)))
 ```
 
 ```{r, Study Dataset column}

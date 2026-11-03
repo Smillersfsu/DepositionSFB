@@ -113,16 +113,28 @@ sum(is.na(wind_9415141$wind_speed_kt))
 # `deploy_end + hours(23) + minutes(59)` (or similar) before comparing.
 wind_metrics_for_window <- function(station_id, deploy_start, deploy_end) {
   station_df <- wind_by_station[[as.character(station_id)]]
-
+  
+  start_dt <- as.POSIXct(as.Date(deploy_start), tz = "UTC")
+  end_dt   <- as.POSIXct(as.Date(deploy_end) + 1, tz = "UTC")   # exclusive: up to 23:59:59 on removal day
+  
   in_window <- station_df |>
-    filter(datetime >= deploy_start, datetime <= deploy_end)
-
+    filter(datetime >= start_dt, datetime < end_dt)
+  
+  n_speed <- sum(!is.na(in_window$wind_speed_kt))
+  n_gust  <- sum(!is.na(in_window$gust_kt))
+  
   tibble(
-    mean_wind_speed_kt = mean(in_window$wind_speed_kt, na.rm = TRUE),
-    max_gust_kt = max(in_window$gust_kt, na.rm = TRUE),
-    n_obs = sum(!is.na(in_window$wind_speed_kt))
+    mean_wind_speed_kt = if (n_speed > 0) mean(in_window$wind_speed_kt, na.rm = TRUE) else NA_real_,
+    max_gust_kt        = if (n_gust  > 0) max(in_window$gust_kt, na.rm = TRUE)        else NA_real_,
+    n_obs              = n_speed
   )
 }
+
+# Quick self-check: a reading in the middle of a window must be counted.
+stopifnot(
+  as.POSIXct("2025-07-15 12:00", tz = "UTC") >= as.POSIXct(as.Date("2025-07-01"), tz = "UTC"),
+  as.POSIXct("2025-07-15 12:00", tz = "UTC") <  as.POSIXct(as.Date("2025-08-01") + 1, tz = "UTC")
+)
 ```
 
 ```{r, load elevation-joined flux data, get distinct deployment windows}

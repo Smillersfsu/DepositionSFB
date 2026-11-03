@@ -112,8 +112,21 @@ sed_usgs_river <- sed_usgs_river %>%
 sed_usgs_river_raw <- sed_usgs_river
 sed_usgs_bay_raw   <- sed_usgs_bay
 
-average_replicates <- function(df) {
+drop_nonpositive_reps <- function(df, log_name = NULL) {
+  dropped <- df %>% filter(!is.na(Flux_rep), Flux_rep <= 0)
+  if (!is.null(log_name)) {
+    message(log_name, ": dropped ", nrow(dropped), " of ", sum(!is.na(df$Flux_rep)),
+            " replicate(s) with Flux <= 0 before averaging")
+    readr::write_csv(dropped, file.path(
+      "C:/Users/savan/OneDrive - San Francisco State University/ProjectData/GitHub/DepositionSFB/data",
+      paste0(log_name, "_dropped_nonpositive_reps.csv")))
+  }
+  df %>% filter(!is.na(Flux_rep), Flux_rep > 0)
+}
+
+average_replicates <- function(df, log_name = NULL) {
   df %>%
+    drop_nonpositive_reps(log_name) %>%
     group_by(Site, Tran, Dist, Date.removed.from.field, Study.Phase) %>%
     summarise(
       Flux = mean(Flux_rep, na.rm = TRUE),
@@ -145,6 +158,7 @@ average_replicates <- function(df) {
 # Flux when Flux already existed in the frame).
 keep_replicates <- function(df) {
   df %>%
+    drop_nonpositive_reps() %>%   # same replicate rule as average_replicates()
     group_by(Site, Tran, Dist, Date.removed.from.field, Study.Phase) %>%
     mutate(n_reps = sum(!is.na(Flux_rep))) %>%
     ungroup() %>%
@@ -157,38 +171,33 @@ keep_replicates <- function(df) {
     )
 }
 
-sed_usgs_bay   <- sed_usgs_bay   %>% average_replicates()
-sed_usgs_river <- sed_usgs_river %>% average_replicates()
+
+sed_usgs_bay   <- sed_usgs_bay   %>% average_replicates(log_name = "usgs_bay")
+sed_usgs_river <- sed_usgs_river %>% average_replicates(log_name = "usgs_river")
 
 sed_usgs_bay_byrep   <- sed_usgs_bay_raw   %>% keep_replicates()
 sed_usgs_river_byrep <- sed_usgs_river_raw %>% keep_replicates()
 
-sed_usgs_bay <- sed_usgs_bay %>%
-  mutate(Month = factor(month(Date.removed.from.field, label = TRUE, abbr = FALSE),
-                         levels = c("July","August","September","October","November",
-                                    "December","January","February","March","April","May","June"),
-                         ordered = TRUE))
+study_month_levels <- c("July","August","September","October","November",
+                        "December","January","February","March","April","May","June")
+to_full_month <- function(m) {
+  m <- as.character(m)
+  full <- ifelse(m %in% month.abb, month.name[match(m, month.abb)], m)
+  factor(full, levels = study_month_levels, ordered = TRUE)
+}
 
-sed_usgs_river <- sed_usgs_river %>%
-  mutate(Month = factor(month(Date.removed.from.field, label = TRUE, abbr = FALSE),
-                         levels = c("July","August","September","October","November",
-                                    "December","January","February","March","April","May","June"),
-                         ordered = TRUE))
+sed_usgs_bay         <- sed_usgs_bay         %>% mutate(Month = to_full_month(Month))
+sed_usgs_river       <- sed_usgs_river       %>% mutate(Month = to_full_month(Month))
+sed_usgs_bay_byrep   <- sed_usgs_bay_byrep   %>% mutate(Month = to_full_month(Month))
+sed_usgs_river_byrep <- sed_usgs_river_byrep %>% mutate(Month = to_full_month(Month))
 
-sed_usgs_bay_byrep <- sed_usgs_bay_byrep %>%
-  mutate(Month = factor(month(Date.removed.from.field, label = TRUE, abbr = FALSE),
-                         levels = c("July","August","September","October","November",
-                                    "December","January","February","March","April","May","June"),
-                         ordered = TRUE))
-
-sed_usgs_river_byrep <- sed_usgs_river_byrep %>%
-  mutate(Month = factor(month(Date.removed.from.field, label = TRUE, abbr = FALSE),
-                         levels = c("July","August","September","October","November",
-                                    "December","January","February","March","April","May","June"),
-                         ordered = TRUE))
+# Rows with no Month = missing deployment dates. These also have no
+# Study.Phase, so they are removed at the export step below. Should be 0
+# once that filter is applied:
+sed_usgs_bay %>% filter(!is.na(Study.Phase), is.na(Month)) %>% nrow()
 
 # Confirm the split adds up to the original row count, no overlap/loss
-nrow(sed_usgs_bay) + nrow(sed_usgs_river) == nrow(sed_usgs)
+nrow(sed_usgs_bay_raw) + nrow(sed_usgs_river_raw) == nrow(sed_usgs)
 sed_usgs_bay %>% count(n_reps)
 sed_usgs_river %>% count(n_reps)
 sed_usgs_bay %>% count(n_reps)     # USGS

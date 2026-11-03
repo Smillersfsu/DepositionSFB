@@ -5,6 +5,7 @@ date: "2026-06-22"
 output: html_document
 ---
 
+```{=html}
 <!--
 SPLIT FILE (averaged tier). RQ1-spatial was split into three files so
 each tier can be knit on its own:
@@ -31,6 +32,7 @@ patterns across Study.Phase, not across site/space. The transite1 model
 itself and its Tran-by-Site boxplot stay here, since the model's actual
 question is the Tran x Site interaction.
 -->
+```
 
 ```{r, load packages and working directory}
 
@@ -82,6 +84,7 @@ library(patchwork)   # combining plots
 library(ggforce)     # geom_sina()
 ```
 
+```{=html}
 <!--
 STATISTICAL TOOLS USED IN THIS FILE
 (full definitions in statistical_tools_glossary (Claude).R; this is the subset
@@ -128,7 +131,7 @@ VISUALIZATION
   the raincloud plot comparing Flux distribution shape (skewness)
   between Ramped and Scarped, on the raw (not log-transformed) scale.
 -->
-
+```
 
 ```{r, working directory and master data file}
 
@@ -265,7 +268,6 @@ marsh_group_flux_avg <- master_tier5_clean_rebuilt %>%
 
 ## Site / edge type
 
-
 ```{r, ADDED averaged companion for rq1_site}
 
 site_order_avg <- master_tier5 %>%
@@ -306,7 +308,6 @@ ggsave("C:\\Users\\savan\\OneDrive - San Francisco State University\\ProjectData
 
 ```
 
-
 ```{r, ADDED averaged companion for the raincloud density plot}
 
 rq1_density_sj_avg = master_tier5_clean %>%
@@ -332,7 +333,6 @@ ggsave("C:\\Users\\savan\\OneDrive - San Francisco State University\\ProjectData
        width = 8, height = 5, dpi = 300, limitsize = FALSE)
 
 ```
-
 
 ```{r, ADDED averaged companion for rq1_boxplot and rq1_boxplot_bysite}
 # Same code as the chunk above, run on master_tier5_clean (averaged tier).
@@ -717,7 +717,6 @@ ggsave("C:\\Users\\savan\\OneDrive - San Francisco State University\\ProjectData
        width = 11, height = 5.5, dpi = 300, limitsize = FALSE)
 ```
 
-
 ```{r, ADDED averaged companion for rq1_tran}
 
 tran_order_avg <- master_tier5_clean %>%
@@ -752,7 +751,6 @@ ggsave("C:\\Users\\savan\\OneDrive - San Francisco State University\\ProjectData
        limitsize = FALSE)
 
 ```
-
 
 ```{r, ADDED averaged companion for the sample-size bar charts}
 
@@ -802,7 +800,6 @@ ggsave("C:\\Users\\savan\\OneDrive - San Francisco State University\\ProjectData
 ```
 
 ## Distance
-
 
 ```{r, ADDED averaged companions for rq1_dist, rq1_dist_noG, rq1_slope}
 
@@ -882,7 +879,6 @@ ggsave("C:\\Users\\savan\\OneDrive - San Francisco State University\\ProjectData
        limitsize = FALSE)
 ```
 
-
 ```{r, ADDED averaged companion for rq1_ramped/rq1_scarped}
 # NOTE: mirroring a pre-existing bug in the byrep version, not fixing
 # it here -- rq1_scarped's scale_fill_manual() line above is missing a
@@ -923,8 +919,7 @@ rq1_scarped_avg
 
 ```
 
-## Elevation (z*)
-
+## Elevation (z\*)
 
 ```{r, ADDED averaged companion for rq1_z}
 
@@ -950,7 +945,6 @@ ggsave("C:\\Users\\savan\\OneDrive - San Francisco State University\\ProjectData
 
 
 ```
-
 
 ```{r, ADDED averaged companions for the z* models}
 
@@ -984,9 +978,7 @@ emtrends(model_full_glmm_avg, ~ marsh_edge_type, var = "z_star")
 
 ```
 
-
 ## Distance models
-
 
 ```{r, ADDED averaged companion for distance model prep}
 shapiro.test(avgdist_avg$Flux)
@@ -995,7 +987,6 @@ shapiro.test(log(avgdist_avg$Flux))
 qqnorm(avgdist_avg$Flux)
 qqline(avgdist_avg$Flux)
 ```
-
 
 ```{r, ADDED averaged companions for the distance models}
 
@@ -1019,7 +1010,6 @@ distmodelcont_avg <- lmer(log(Flux) ~ Dist + (1|Site/Tran) + (1|Loc_ID), data = 
 summary(distmodelcont_avg)
 ```
 
-
 ```{r, ADDED averaged companion for dist glmm model}
 
 distmodel_glmm_avg <- glmmTMB(
@@ -1035,13 +1025,20 @@ testDispersion(sim_res_dist_avg)
 
 ```
 
-
 ```{r, ADDED averaged companion for distsitemodel}
+
 distsitemodel_avg <- lmer(log(Flux) ~ Dist + Site + Dist*Site + (1|Site:Tran) + (1|Loc_ID), data = avgdist_avg)
 summary(distsitemodel_avg)
 
 avgdist_avg$predicted <- predict(distsitemodel_avg)
 preds_avg <- ggpredict(distsitemodel_avg, terms = c("Dist [all]", "Site"), back.transform = FALSE)
+
+# Residual checks for distsitemodel_avg -- moved here from the "marsh edge
+# type and orientation model prep" chunk so they always run right after
+# the model is fit (they errored when that chunk ran without this one).
+shapiro.test(resid(distsitemodel_avg))
+qqnorm(resid(distsitemodel_avg))
+qqline(resid(distsitemodel_avg))
 ```
 
 
@@ -1061,7 +1058,6 @@ testDispersion(sim_res_distsite_avg)
 ```
 
 ## Transect x Site
-
 
 ```{r, ADDED averaged companion for transect x site model}
 transite_avg <- lmer(log(Flux) ~ Tran + Site + Tran*Site + (1|Dist) + (1|Loc_ID), data = avgdist_avg)
@@ -1094,7 +1090,6 @@ transite_glmm_avg <- glmmTMB(
 summary(transite_glmm_avg)
 ```
 
-
 ```{r, ADDED averaged companion for transite1}
 transite1_avg <- lmer(log(Flux) ~ Tran + Site + Tran*Site +
                     (1|Dist) + (1|Loc_ID) + (1|Study.Phase),
@@ -1113,7 +1108,6 @@ ggplot(master_tier5_clean, aes(x = as.factor(Tran), y = log(Flux), fill = Site, 
         axis.text.y = element_text(hjust = 1, size = 12))
 ```
 
-
 ```{r, ADDED averaged companion for transite1_glmm}
 transite1_glmm_avg <- glmmTMB(
   Flux ~ Tran + Site + Tran*Site + (1|Dist) + (1|Loc_ID) + (1|Study.Phase),
@@ -1122,7 +1116,6 @@ transite1_glmm_avg <- glmmTMB(
 )
 summary(transite1_glmm_avg)
 ```
-
 
 ## Marsh edge type and orientation
 
@@ -1133,11 +1126,8 @@ shapiro.test(log(avgtotal_avg$Flux))
 
 qqnorm(avgtotal_avg$Flux)
 qqline(avgtotal_avg$Flux)
-
-shapiro.test(resid(distsitemodel_avg))
-qqnorm(resid(distsitemodel_avg))
-qqline(resid(distsitemodel_avg))
 ```
+
 
 
 ```{r, ADDED averaged companions for marsh edge type and orientation glmm models}
@@ -1166,6 +1156,7 @@ emmeans(marsh_edge_model_edge_glmm_avg, pairwise ~ marsh_edge_type, adjust = "tu
 ```
 
 
+
 ```{r, ADDED averaged companions for marsh edge type and orientation lmer models}
 marsh_edge_model_edge_avg <- lmer(Flux ~ marsh_edge_type + (1|Dist) + (1|Loc_ID), data = master_tier5_clean)
 summary(marsh_edge_model_edge_avg)
@@ -1183,13 +1174,11 @@ emmeans(marsh_edge_model_edge_avg, pairwise ~ marsh_edge_type, adjust = "tukey")
 
 ```
 
-
 ```{r, ADDED averaged companion for marsh_group_model}
 marsh_group_model_avg <- lmer(Flux ~ Marsh_Group + (1 | Site/Tran) + (1|Loc_ID), data = marsh_group_flux_avg)
 summary(marsh_group_model_avg)
 anova(marsh_group_model_avg)
 ```
-
 
 ```{r, ADDED averaged companion for marsh_group_model_glmm}
 marsh_group_model_glmm_avg <- glmmTMB(
@@ -1203,7 +1192,6 @@ Anova(marsh_group_model_glmm_avg, type = "II")
 
 ```
 
-
 ```{r, ADDED averaged companion for the slope-as-covariate lmer models}
 deposition_model_slope_avg <- lmer(Flux ~ z_star + local_slope + (1 | Site) + (1|Loc_ID), data = master_tier5_clean)
 summary(deposition_model_slope_avg)
@@ -1211,7 +1199,6 @@ summary(deposition_model_slope_avg)
 deposition_model_base_avg <- lmer(Flux ~ z_star + (1 | Site) + (1|Loc_ID), data = master_tier5_clean)
 anova(deposition_model_base_avg, deposition_model_slope_avg)
 ```
-
 
 ```{r, ADDED averaged companion for the slope-as-covariate glmm models}
 
@@ -1230,7 +1217,6 @@ deposition_model_base_glmm_avg <- glmmTMB(
 anova(deposition_model_base_glmm_avg, deposition_model_slope_glmm_avg)
 
 ```
-
 
 ```{r, ADDED averaged companion for marsh edge type and orientation plots}
 ggplot(avgtotal_avg, aes(x = marsh_edge_type, y = log(Flux), fill = marsh_orientation)) +
@@ -1326,7 +1312,6 @@ ggplot(avgtotal_avg, aes(x = marsh_orientation, y = Flux, fill = marsh_orientati
         plot.title = element_text(hjust = 0.5))
 ```
 
-
 ```{r, ADDED averaged companion for p_with_48/p_without_48}
 
 p_with_48_avg <- ggplot(master_tier5_with48, aes(x = Dist, y = Flux)) +
@@ -1342,7 +1327,6 @@ p_without_48_avg <- ggplot(filter(master_tier5_clean, Dist != 48), aes(x = Dist,
 p_with_48_avg
 p_without_48_avg
 ```
-
 
 ```{r, ADDED averaged companion for plot_zstar/plot_slope}
 
@@ -1361,7 +1345,6 @@ plot_slope_avg
 
 ```
 
-
 ```{r, ADDED averaged companion for the marsh_group emmeans plot}
 summary(marsh_group_model_avg)
 
@@ -1377,7 +1360,6 @@ ggplot(emm_marsh_group_avg_df, aes(x = Marsh_Group, y = emmean)) +
   ) +
   theme_bw()
 ```
-
 
 ```{r, ADDED averaged companion for BCtransite}
 BCtransite_avg <- lmer(log(Flux) ~ Tran + Site + Tran*Site + (1|Dist) + (1|Loc_ID), data = avgdist_protected_avg)
@@ -1401,7 +1383,6 @@ ggsave("C:\\Users\\savan\\OneDrive - San Francisco State University\\ProjectData
        dpi = 300,
        limitsize = FALSE)
 ```
-
 
 ```{r, ADDED averaged companion for p_flux_zstar}
 
@@ -1428,7 +1409,6 @@ ggsave("C:\\Users\\savan\\OneDrive - San Francisco State University\\ProjectData
        limitsize = FALSE)
 ```
 
-
 ```{r, ADDED averaged companion for p_flux_dist}
 
 p_flux_dist_avg <- ggplot(master_tier5_clean, aes(x = Dist, y = Flux, color = Site)) +
@@ -1453,7 +1433,6 @@ ggsave("C:\\Users\\savan\\OneDrive - San Francisco State University\\ProjectData
        dpi = 300,
        limitsize = FALSE)
 ```
-
 
 ```{r, ADDED averaged companion for p_flux_dist_shape}
 
@@ -1487,16 +1466,19 @@ ggsave("C:\\Users\\savan\\OneDrive - San Francisco State University\\ProjectData
        limitsize = FALSE)
 ```
 
-
 ```{r, ADDED averaged companions for the three final distance/edge-type models}
 
-m_glmm_avg <- glmmTMB(Flux ~ Dist * marsh_edge_type + (1 | Site),
+# RANDOM EFFECTS (Oct 2026): (1|Site/Tran) + (1|Loc_ID) instead of (1|Site)
+# alone. Transect is the level of replication within site, and Loc_ID
+# (site x transect x distance) accounts for repeated monthly measurements
+# at the same station -- same structure as the other spatial GLMMs.
+m_glmm_avg <- glmmTMB(Flux ~ Dist * marsh_edge_type + (1 | Site/Tran) + (1 | Loc_ID),
                    family = Gamma(link = "log"),
                    data = master_tier5_clean)
 
 summary(m_glmm_avg)
 
-m_no_giant_avg <- glmmTMB(Flux ~ factor(Dist) * marsh_edge_type + (1 | Site),
+m_no_giant_avg <- glmmTMB(Flux ~ factor(Dist) * marsh_edge_type + (1 | Site/Tran) + (1 | Loc_ID),
                        family = Gamma(link = "log"),
                        data = master_tier5_clean %>% filter(Site != "GiantMarsh"))
 
@@ -1505,11 +1487,32 @@ summary(m_no_giant_avg)
 master_close_dist_avg <- master_tier5_clean %>%
   filter(Dist %in% c(0.5, 2))
 
-m_close_avg <- glmmTMB(Flux ~ Dist * marsh_edge_type + (1 | Site),
+m_close_avg <- glmmTMB(Flux ~ Dist * marsh_edge_type + (1 | Site/Tran) + (1 | Loc_ID),
                     family = Gamma(link = "log"),
                     data = master_close_dist_avg)
 summary(m_close_avg)
 ```
+
+```{r, distance as factor x edge type, all sites}
+# PRIMARY distance x edge-type model (Oct 2026): distance as a FACTOR --
+# six fixed sampling stations, each with its own mean, no assumed shape
+# between them. m_glmm_avg (continuous Dist, in meters) is kept above for
+# the record only.
+m_glmm_factor_avg <- glmmTMB(Flux ~ factor(Dist) * marsh_edge_type + (1 | Site/Tran) + (1 | Loc_ID),
+                             family = Gamma(link = "log"),
+                             data = master_tier5_clean)
+summary(m_glmm_factor_avg)
+Anova(m_glmm_factor_avg, type = "II")
+
+# Edge-type difference at each distance (Ramped / Scarped ratio)
+emmeans(m_glmm_factor_avg, pairwise ~ marsh_edge_type | Dist, type = "response", reverse = TRUE)
+
+sim_res_m_glmm_factor_avg <- simulateResiduals(m_glmm_factor_avg)
+plot(sim_res_m_glmm_factor_avg)
+testDispersion(sim_res_m_glmm_factor_avg)
+```
+
+
 
 
 ```{r, ADDED averaged companion for p_edge_zone_raincloud}
@@ -1541,7 +1544,6 @@ ggsave("C:\\Users\\savan\\OneDrive - San Francisco State University\\ProjectData
        limitsize = FALSE)
 ```
 
-
 ```{r, ADDED averaged companion for site_stats}
 site_stats_avg <- make_flux_table(
   master_tier5_clean, 
@@ -1550,7 +1552,6 @@ site_stats_avg <- make_flux_table(
   subtitle = "Flux measured in g/m²/day"
 )
 ```
-
 
 ```{r, ADDED averaged companion for the site_stats image export}
 ft_avg <- site_stats_avg$data %>%
@@ -1561,7 +1562,6 @@ ft_avg <- site_stats_avg$data %>%
 
 save_as_image(ft_avg, path = "C:\\Users\\savan\\OneDrive - San Francisco State University\\ProjectData\\GitHub\\DepositionSFB\\images\\rq_1\\site_flux_stats_avg.png")
 ```
-
 
 ```{r, ADDED averaged companion for the dispersion model}
 
@@ -1576,7 +1576,6 @@ summary(distsitemodel_glmm_dispersion_avg)
 AIC(distsitemodel_glmm_avg, distsitemodel_glmm_dispersion_avg)
 
 ```
-
 
 ```{r, ADDED averaged companion for the GiantMarsh sensitivity check}
 
@@ -1607,6 +1606,256 @@ dist_site_tables_avg <- save_site_split_tables(
   file_stub = "dist_stats", tier = "avg", out_dir = rq1_img_dir
 )
 ```
+
+```{r, platform sensitivity refits}
+## Platform-only sensitivity: 12, 18 and 24 m (ADDED, Oct 2026)
+
+#Refits the GLMMs above using only the marsh-platform stations (12, 18 and 24 m), leaving out 0.5, 2 and 6 m. Each model is refit with the same formula, family and random effects; only the data changes. The model list is in `platform_models` in the first chunk. Each refit is saved as `<model>_plat` (e.g. `m_glmm_avg_plat`) so you can call `summary()` on it like any other model.
+
+#How to read the comparison table: one row per model term, with the Type II Wald chi-square p-value on all distances and on the platform only. `Changed?` = "yes" means the term crosses p = 0.05 between the two fits. If none of the edge-type rows change, the edge-type conclusion does not depend on the near-edge stations.
+
+platform_dists <- c(12, 18, 24)
+
+# >>> MODEL LIST <<<
+platform_models <- c(
+  "model_full_glmm_avg",
+  "distmodel_glmm_avg",
+  "distsitemodel_glmm_avg",
+  "transite_glmm_avg",
+  "transite1_glmm_avg",
+  "marsh_edge_model_edge_glmm_avg",
+  "marsh_edge_model_sitetran_glmm_avg",
+  "marsh_edge_model_orient_dist_glmm_avg",
+  "marsh_group_model_glmm_avg",
+  "deposition_model_base_glmm_avg",
+  "deposition_model_slope_glmm_avg",
+  "m_glmm_avg",
+  "m_no_giant_avg"
+  # add any other fitted _avg GLMM name here (m_close_avg is left out: it only uses 0.5 and 2 m)
+)
+
+# Refit one model on the platform-only version of the SAME data it was
+# fit on: the data argument from the original call is re-evaluated,
+# filtered to platform distances, and passed to update(). Works whether
+# Dist is numeric or a factor.
+refit_platform <- function(.model_name) {
+  .m    <- get(.model_name)
+  .dat  <- eval(.m$call$data)
+  .plat <- .dat %>%
+    dplyr::filter(round(as.numeric(as.character(Dist)), 3) %in% platform_dists) %>%
+    droplevels()
+  stats::update(.m, data = .plat)
+}
+
+# Type II Wald table in long form (one row per term)
+wald_long <- function(model, fit) {
+  a <- as.data.frame(car::Anova(model, type = "II"))
+  data.frame(Term = rownames(a), Chisq = a$Chisq, Df = a$Df,
+             p = a[["Pr(>Chisq)"]], n = stats::nobs(model), Fit = fit,
+             row.names = NULL)
+}
+
+platform_models <- unique(platform_models)
+platform_rows <- list()
+for (nm in platform_models) {
+  if (!exists(nm)) { message("NOT FOUND (run its chunk first): ", nm); next }
+  plat_fit <- tryCatch(refit_platform(nm),
+                       error = function(e) { message("FAILED ", nm, ": ", conditionMessage(e)); NULL })
+  if (is.null(plat_fit)) next
+  assign(paste0(nm, "_plat"), plat_fit)
+
+  cat("\n==================", nm, "-- platform only (12/18/24 m) ==================\n")
+  print(summary(plat_fit))
+
+  platform_rows[[nm]] <- dplyr::bind_rows(
+    wald_long(get(nm), "all"),
+    wald_long(plat_fit, "platform")
+  ) %>% dplyr::mutate(Model = nm)
+}
+
+platform_sensitivity_spatial <- dplyr::bind_rows(platform_rows) %>%
+  tidyr::pivot_wider(id_cols = c(Model, Term),
+                     names_from = Fit, values_from = c(Chisq, p, n)) %>%
+  dplyr::mutate(`Changed?` = ifelse((p_all < 0.05) != (p_platform < 0.05), "yes", "")) %>%
+  dplyr::select(Model, Term, n_all, n_platform, Chisq_all, p_all,
+                Chisq_platform, p_platform, `Changed?`)
+platform_sensitivity_spatial
+```
+
+```{r, platform sensitivity edge-type ratio}
+# For every model with an edge-type term: Ramped / Scarped flux ratio
+# (averaged over the model's other terms), all distances vs. platform
+# only. 1 = no difference; 0.5 = ramped half of scarped.
+edge_ratio <- function(model, fit, nm) {
+  if (!"marsh_edge_type" %in% all.vars(stats::formula(model))) return(NULL)
+  out <- tryCatch(
+    suppressMessages(emmeans::emmeans(model, ~ marsh_edge_type, type = "response")) %>%
+      graphics::pairs(reverse = TRUE) %>% confint() %>% as.data.frame(),
+    error = function(e) NULL)
+  if (is.null(out)) return(NULL)
+  names(out)[names(out) %in% c("asymp.LCL", "lower.CL")] <- "lower"
+  names(out)[names(out) %in% c("asymp.UCL", "upper.CL")] <- "upper"
+  data.frame(Model = nm, Fit = fit, ratio = out$ratio, lower = out$lower, upper = out$upper)
+}
+
+platform_edge_ratio_spatial <- dplyr::bind_rows(lapply(platform_models, function(nm) {
+  if (!exists(nm) || !exists(paste0(nm, "_plat"))) return(NULL)
+  dplyr::bind_rows(edge_ratio(get(nm), "all", nm),
+                   edge_ratio(get(paste0(nm, "_plat")), "platform", nm))
+}))
+platform_edge_ratio_spatial
+```
+
+```{r, platform sensitivity tables}
+library(gt)
+
+platform_sensitivity_spatial_table <- platform_sensitivity_spatial %>%
+  gt::gt(groupname_col = "Model") %>%
+  gt::tab_header(
+    title = "Platform-only sensitivity (12, 18, 24 m): Type II Wald tests",
+    subtitle = "RQ1 spatial, averaged data -- all distances vs. platform stations only") %>%
+  gt::cols_label(n_all = "n (all)", n_platform = "n (platform)",
+                 Chisq_all = "\u03c7\u00b2 (all)", p_all = "p (all)",
+                 Chisq_platform = "\u03c7\u00b2 (platform)", p_platform = "p (platform)") %>%
+  gt::fmt_number(columns = c(Chisq_all, Chisq_platform), decimals = 2) %>%
+  gt::fmt_number(columns = c(p_all, p_platform), decimals = 3)
+platform_sensitivity_spatial_table
+
+gt::gtsave(platform_sensitivity_spatial_table,
+           filename = file.path(rq1_img_dir, "rq1_spatial_platform_sensitivity_avg.png"))
+
+if (nrow(platform_edge_ratio_spatial) > 0) {
+  platform_edge_ratio_spatial_table <- platform_edge_ratio_spatial %>%
+    gt::gt(groupname_col = "Model") %>%
+    gt::tab_header(title = "Ramped / Scarped flux ratio: all distances vs. platform only",
+                   subtitle = "RQ1 spatial, averaged data -- 1 = no difference between edge types") %>%
+    gt::fmt_number(columns = c(ratio, lower, upper), decimals = 2)
+  print(platform_edge_ratio_spatial_table)
+  gt::gtsave(platform_edge_ratio_spatial_table,
+             filename = file.path(rq1_img_dir, "rq1_spatial_platform_edge_ratio_avg.png"))
+}
+
+# Full output table image for each platform refit (same layout as the
+# other GLMM tables), saved as <model>_platform_avg.png
+for (nm in platform_models) {
+  pn <- paste0(nm, "_plat")
+  if (exists(pn)) {
+    tryCatch(save_glmm_table(get(pn), name = paste0(sub("_avg$", "", nm), "_platform_avg"),
+                             title = paste0(nm, " -- platform only (12, 18, 24 m)"),
+                             out_dir = rq1_img_dir),
+             error = function(e) message("Table FAILED for ", pn, ": ", conditionMessage(e)))
+  }
+}
+```
+
+```{r}
+
+# Objective 1 main-body figures: deposition by edge type only.
+# A = all stations, paired with marsh_edge_model_sitetran_glmm_avg
+# B = platform stations only (12, 18, 24 m), paired with
+#     marsh_edge_model_sitetran_glmm_avg_plat
+# Points/boxes = averaged observations; black diamond = GLMM estimate
+# (95% CI); annotation = ratio and Type II Wald test from the same model.
+
+edge_fig_all_data <- master_tier5_clean %>%
+  dplyr::filter(!is.na(Flux), Flux > 0, !is.na(marsh_edge_type))
+
+edge_fig_plat_data <- edge_fig_all_data %>%
+  dplyr::filter(round(as.numeric(as.character(Dist)), 3) %in% platform_dists)
+
+# Shared y-axis so A and B are directly comparable; extra headroom on
+# top for the annotation
+edge_fig_ylims <- c(min(edge_fig_all_data$Flux), max(edge_fig_all_data$Flux) * 8)
+
+edge_type_figure <- function(model, data, title, subtitle, ylims) {
+  emm <- emmeans(model, ~ marsh_edge_type, type = "response")
+  est <- as.data.frame(emm) %>%
+    dplyr::rename(emmean = response, lower.CL = asymp.LCL, upper.CL = asymp.UCL)
+  ratio <- as.data.frame(pairs(emm, reverse = TRUE))
+  wald  <- car::Anova(model, type = "II")
+
+  annot <- sprintf("%s = %.2f\nWald \u03c7\u00b2 = %.2f, p = %s",
+                   ratio$contrast, ratio$ratio,
+                   wald["marsh_edge_type", "Chisq"],
+                   format.pval(wald["marsh_edge_type", "Pr(>Chisq)"],
+                               digits = 2, eps = 0.001))
+
+  n_lab <- data %>%
+    dplyr::count(marsh_edge_type) %>%
+    dplyr::mutate(lab = paste0(marsh_edge_type, "\n(n = ", n, ")"))
+
+  ggplot(data, aes(x = marsh_edge_type, y = Flux)) +
+    geom_boxplot(aes(fill = marsh_edge_type), width = 0.45, alpha = 0.25,
+                 outlier.shape = NA, color = "grey40") +
+    geom_quasirandom(aes(color = Site), width = 0.15,
+                     alpha = 0.5, size = 1.2) +
+    geom_pointrange(data = est,
+                    aes(y = emmean, ymin = lower.CL, ymax = upper.CL),
+                    shape = 23, fill = "white", color = "black",
+                    size = 0.7, linewidth = 0.9,
+                    position = position_nudge(x = 0.32)) +
+    annotate("text", x = 1.5, y = ylims[2], label = annot,
+             vjust = 1, size = 3.6) +
+    scale_fill_manual(values = marsh_edge_colors, guide = "none") +
+    scale_color_manual(values = site_colors, name = "Site") +
+    scale_y_log10(labels = scales::label_comma(), limits = ylims) +
+    scale_x_discrete(labels = setNames(n_lab$lab, n_lab$marsh_edge_type)) +
+    labs(title = title, subtitle = subtitle,
+         x = NULL, y = "Sediment flux (log scale)") +
+    theme_bw(base_size = 12) +
+    theme(legend.position = "bottom",
+          panel.grid.minor = element_blank())
+}
+
+p_edge_all <- edge_type_figure(
+  marsh_edge_model_sitetran_glmm_avg, edge_fig_all_data,
+  title    = "A. All stations (0.5\u201324 m)",
+  subtitle = "Diamond = GLMM estimate (95% CI)",
+  ylims    = edge_fig_ylims
+)
+p_edge_all
+
+p_edge_plat <- edge_type_figure(
+  marsh_edge_model_sitetran_glmm_avg_plat, edge_fig_plat_data,
+  title    = "B. Platform stations only (12, 18, 24 m)",
+  subtitle = "Diamond = GLMM estimate (95% CI)",
+  ylims    = edge_fig_ylims
+)
+p_edge_plat
+
+ggsave(file.path(rq1_img_dir, "rq1_edge_type_all_avg.png"),
+       plot = p_edge_all, width = 5.5, height = 5.5, dpi = 300)
+ggsave(file.path(rq1_img_dir, "rq1_edge_type_platform_avg.png"),
+       plot = p_edge_plat, width = 5.5, height = 5.5, dpi = 300)
+```
+
+
+```{r}
+library(patchwork)
+
+p_edge_combined <- (p_edge_all + p_edge_plat) +
+  plot_layout(guides = "collect") &
+  theme(legend.position = "bottom")
+p_edge_combined
+
+ggsave(file.path(rq1_img_dir, "rq1_edge_type_all_vs_platform_avg.png"),
+       plot = p_edge_combined, width = 11, height = 5.5, dpi = 300)
+```
+
+```{r}
+
+# Where do the extreme scarped values in Figure A come from?
+# If most are at 0.5-6 m, the text can say the variability is
+# concentrated at near-edge stations.
+master_tier5_clean %>%
+  dplyr::filter(marsh_edge_type == "Scarped", Flux > 100 | Flux < 0.1) %>%
+  dplyr::mutate(Tail = ifelse(Flux > 100, "High (> 100)", "Low (< 0.1)")) %>%
+  dplyr::count(Tail, Site, Dist) %>%
+  dplyr::arrange(Tail, Site, Dist)
+```
+
+
+
 
 ```{r, save fitted models}
 # The GLMM output-table images need BOTH tiers of each model, which now
@@ -1642,9 +1891,8 @@ saveRDS(rq1_spatial_models_avg,
 sapply(rq1_spatial_models_avg, Negate(is.null))   # FALSE = not found, will be skipped
 ```
 
----
+------------------------------------------------------------------------
 
 **Note on scope:** every model-fitting call in this file now has an `_avg` companion, using the same formula and consolidated averaged-side data objects (`master_tier5_clean`, `avgdist_avg`, `avgtotal_avg`, `avgdist_protected_avg`, `marsh_group_flux_avg`, `avgdist_noGM_avg`). Model-integral diagnostics (summary, Anova, emmeans, DHARMa residual checks, nested-model anova comparisons) were duplicated alongside each model.
 
-**Plot companions (updated in the byrep/avg check):** every saved figure in this file now has an `_avg` companion, and every byrep output file ends in `_byrep` (byrep plot titles are unchanged; `_avg` plot titles carry "(Averaged)"). `rq1_boxplot`/`rq1_boxplot_bysite` were the last two without one and now have an averaged chunk. The only plots still without a saved `_avg` file are the ones that aren't saved as files at all on the byrep side either (the unassigned ggpredict z* plot and a few quick-look plots printed to the viewer).
-
+**Plot companions (updated in the byrep/avg check):** every saved figure in this file now has an `_avg` companion, and every byrep output file ends in `_byrep` (byrep plot titles are unchanged; `_avg` plot titles carry "(Averaged)"). `rq1_boxplot`/`rq1_boxplot_bysite` were the last two without one and now have an averaged chunk. The only plots still without a saved `_avg` file are the ones that aren't saved as files at all on the byrep side either (the unassigned ggpredict z\* plot and a few quick-look plots printed to the viewer).

@@ -2001,6 +2001,142 @@ phase_site_tables_avg <- save_site_split_tables(
 )
 ```
 
+```{r}
+## Platform-only sensitivity: 12, 18 and 24 m (ADDED, Oct 2026)
+
+#Refits the GLMMs above using only the marsh-platform stations (12, 18 and 24 m), leaving out 0.5, 2 and 6 m. Each model is refit with the same formula, family and random effects; only the data changes. The model list is in `platform_models` in the first chunk. Each refit is saved as `<model>_plat` (e.g. `edge_season_model_glmm_avg_plat`) so you can call `summary()` on it like any other model.
+
+#How to read the comparison table: one row per model term, with the Type II Wald chi-square p-value on all distances and on the platform only. `Changed?` = "yes" means the term crosses p = 0.05 between the two fits. If none of the edge-type rows change, the edge-type conclusion does not depend on the near-edge stations.
+
+platform_dists <- c(12, 18, 24)
+
+# >>> MODEL LIST <<<
+platform_models <- c(
+  "edge_time_model_glmm_avg",
+  "edge_phenperiod_model_glmm_avg",
+  "edge_season_model_glmm_avg",
+  "dist_time_model_glmm_avg",
+  "dist_season_model_glmm_avg",
+  "dist_season_model_glmm_factor_avg",
+  "edge_dist_season_model_glmm_avg",
+  "site_season_model_glmm_avg"
+  # add any other fitted _avg GLMM name here (e.g. the wind models)
+)
+
+# Refit one model on the platform-only version of the SAME data it was
+# fit on: the data argument from the original call is re-evaluated,
+# filtered to platform distances, and passed to update(). Works whether
+# Dist is numeric or a factor.
+refit_platform <- function(.model_name) {
+  .m    <- get(.model_name)
+  .dat  <- eval(.m$call$data)
+  .plat <- .dat %>%
+    dplyr::filter(round(as.numeric(as.character(Dist)), 3) %in% platform_dists) %>%
+    droplevels()
+  stats::update(.m, data = .plat)
+}
+
+# Type II Wald table in long form (one row per term)
+wald_long <- function(model, fit) {
+  a <- as.data.frame(car::Anova(model, type = "II"))
+  data.frame(Term = rownames(a), Chisq = a$Chisq, Df = a$Df,
+             p = a[["Pr(>Chisq)"]], n = stats::nobs(model), Fit = fit,
+             row.names = NULL)
+}
+
+platform_models <- unique(platform_models)
+platform_rows <- list()
+for (nm in platform_models) {
+  if (!exists(nm)) { message("NOT FOUND (run its chunk first): ", nm); next }
+  plat_fit <- tryCatch(refit_platform(nm),
+                       error = function(e) { message("FAILED ", nm, ": ", conditionMessage(e)); NULL })
+  if (is.null(plat_fit)) next
+  assign(paste0(nm, "_plat"), plat_fit)
+  
+  cat("\n==================", nm, "-- platform only (12/18/24 m) ==================\n")
+  print(summary(plat_fit))
+  
+  platform_rows[[nm]] <- dplyr::bind_rows(
+    wald_long(get(nm), "all"),
+    wald_long(plat_fit, "platform")
+  ) %>% dplyr::mutate(Model = nm)
+}
+
+platform_sensitivity_temporal <- dplyr::bind_rows(platform_rows) %>%
+  tidyr::pivot_wider(id_cols = c(Model, Term),
+                     names_from = Fit, values_from = c(Chisq, p, n)) %>%
+  dplyr::mutate(`Changed?` = ifelse((p_all < 0.05) != (p_platform < 0.05), "yes", "")) %>%
+  dplyr::select(Model, Term, n_all, n_platform, Chisq_all, p_all,
+                Chisq_platform, p_platform, `Changed?`)
+platform_sensitivity_temporal
+```
+
+```{r}
+# For every model with an edge-type term: Ramped / Scarped flux ratio
+# (averaged over the model's other terms), all distances vs. platform
+# only. 1 = no difference; 0.5 = ramped half of scarped.
+edge_ratio <- function(model, fit, nm) {
+  if (!"marsh_edge_type" %in% all.vars(stats::formula(model))) return(NULL)
+  out <- tryCatch(
+    suppressMessages(emmeans::emmeans(model, ~ marsh_edge_type, type = "response")) %>%
+      graphics::pairs(reverse = TRUE) %>% confint() %>% as.data.frame(),
+    error = function(e) NULL)
+  if (is.null(out)) return(NULL)
+  names(out)[names(out) %in% c("asymp.LCL", "lower.CL")] <- "lower"
+  names(out)[names(out) %in% c("asymp.UCL", "upper.CL")] <- "upper"
+  data.frame(Model = nm, Fit = fit, ratio = out$ratio, lower = out$lower, upper = out$upper)
+}
+
+platform_edge_ratio_temporal <- dplyr::bind_rows(lapply(platform_models, function(nm) {
+  if (!exists(nm) || !exists(paste0(nm, "_plat"))) return(NULL)
+  dplyr::bind_rows(edge_ratio(get(nm), "all", nm),
+                   edge_ratio(get(paste0(nm, "_plat")), "platform", nm))
+}))
+platform_edge_ratio_temporal
+```
+
+```{r, platform sensitivity tables}
+library(gt)
+
+platform_sensitivity_temporal_table <- platform_sensitivity_temporal %>%
+  gt::gt(groupname_col = "Model") %>%
+  gt::tab_header(
+    title = "Platform-only sensitivity (12, 18, 24 m): Type II Wald tests",
+    subtitle = "RQ1 temporal, averaged data -- all distances vs. platform stations only") %>%
+  gt::cols_label(n_all = "n (all)", n_platform = "n (platform)",
+                 Chisq_all = "\u03c7\u00b2 (all)", p_all = "p (all)",
+                 Chisq_platform = "\u03c7\u00b2 (platform)", p_platform = "p (platform)") %>%
+  gt::fmt_number(columns = c(Chisq_all, Chisq_platform), decimals = 2) %>%
+  gt::fmt_number(columns = c(p_all, p_platform), decimals = 3)
+platform_sensitivity_temporal_table
+
+gt::gtsave(platform_sensitivity_temporal_table,
+           filename = file.path(rq1_img_dir, "rq1_temporal_platform_sensitivity_avg.png"))
+
+if (nrow(platform_edge_ratio_temporal) > 0) {
+  platform_edge_ratio_temporal_table <- platform_edge_ratio_temporal %>%
+    gt::gt(groupname_col = "Model") %>%
+    gt::tab_header(title = "Ramped / Scarped flux ratio: all distances vs. platform only",
+                   subtitle = "RQ1 temporal, averaged data -- 1 = no difference between edge types") %>%
+    gt::fmt_number(columns = c(ratio, lower, upper), decimals = 2)
+  print(platform_edge_ratio_temporal_table)
+  gt::gtsave(platform_edge_ratio_temporal_table,
+             filename = file.path(rq1_img_dir, "rq1_temporal_platform_edge_ratio_avg.png"))
+}
+
+# Full output table image for each platform refit (same layout as the
+# other GLMM tables), saved as <model>_platform_avg.png
+for (nm in platform_models) {
+  pn <- paste0(nm, "_plat")
+  if (exists(pn)) {
+    tryCatch(save_glmm_table(get(pn), name = paste0(sub("_avg$", "", nm), "_platform_avg"),
+                             title = paste0(nm, " -- platform only (12, 18, 24 m)"),
+                             out_dir = rq1_img_dir),
+             error = function(e) message("Table FAILED for ", pn, ": ", conditionMessage(e)))
+  }
+}
+```
+
 ```{r, save fitted models}
 # The GLMM output-table images need BOTH tiers of each model, which now
 # live in separate files. So each tier file saves its fitted models here,

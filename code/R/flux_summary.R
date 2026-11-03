@@ -359,9 +359,14 @@ save_glmm_table <- function(model, name, title, out_dir) {
 #                object as named and <name>_avg.png from <name>_avg.
 # Any object that doesn't exist yet is reported as NOT FOUND, not fatal.
 # -----------------------------------------------------------------------------
-save_glmm_tables <- function(model_titles, out_dir, env = parent.frame()) {
+save_glmm_tables <- function(model_titles, out_dir, env = parent.frame(),
+                             tiers = c("byrep", "avg")) {
+  # tiers (ADDED, Oct 2026): which tiers to save. Default = both, as before.
+  # tiers = "avg" (or "byrep") makes tables for one tier only, so each tier
+  # can be run on its own.
+  tiers <- match.arg(tiers, c("byrep", "avg"), several.ok = TRUE)
   for (obj in names(model_titles)) {
-    for (tier in c("byrep", "avg")) {
+    for (tier in tiers) { 
       obj_name <- if (tier == "byrep") obj else paste0(obj, "_avg")
       caption  <- paste0(model_titles[[obj]],
                          if (tier == "byrep") " (by replicate)" else " (averaged)")

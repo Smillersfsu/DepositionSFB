@@ -1,0 +1,21 @@
+---
+title: "Results Draft (Thesis Draft 2)"
+format: docx
+editor: visual
+---
+
+## RQ1_a
+
+![](C:/Users/savan/OneDrive%20-%20San%20Francisco%20State%20University/ProjectData/GitHub/DepositionSFB/images/rq_1/rq1_edge_type_all_vs_platform_avg.png)
+
+## RQ2_a
+
+![](C:/Users/savan/OneDrive%20-%20San%20Francisco%20State%20University/ProjectData/GitHub/DepositionSFB/images/rq_2/rq2_period_all_vs_platform_avg.png)
+
+## RQ3_a
+
+![](C:/Users/savan/OneDrive%20-%20San%20Francisco%20State%20University/ProjectData/GitHub/DepositionSFB/images/rq_3/rq3_variance_partition_all_vs_platform_avg.png)
+
+## RQ3_b
+
+![](C:/Users/savan/OneDrive%20-%20San%20Francisco%20State%20University/ProjectData/GitHub/DepositionSFB/images/rq_3/rq3_lasso_zstar_distance_avg.png)

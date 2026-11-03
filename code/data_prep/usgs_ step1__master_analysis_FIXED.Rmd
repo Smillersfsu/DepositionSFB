@@ -165,16 +165,29 @@ sed_usgs$Replicate<- as.factor(sed_usgs$Replicate)
 sed_usgs$Year<- as.factor(sed_usgs$Year)
 sed_usgs$Flux <- as.numeric(sed_usgs$Flux)
 
-# Adding a Month column, derived from the deployment window
-# (Date.placed.in.field to Date.removed.from.field) -- same approach as
-# the thesis-side master_analysis_cleanup.Rmd, so Month means the same
-# thing and is derived the same way on both sides of the dataset.
+#
+# MONTH RULE (project-wide, Oct 2026): majority-of-days month is the ONE
+# Month definition used everywhere downstream; later files only relabel
+# it to full names. Ties go to the EARLIER month in time (the month the
+# deployment started in) -- same fix as thesis step1.
 majority_month <- function(start_date, end_date) {
   if (is.na(start_date) || is.na(end_date)) return(NA_character_)
   days <- seq(start_date, end_date, by = "day")
-  month_counts <- table(month(days, label = TRUE, abbr = TRUE))
+  m <- as.character(month(days, label = TRUE, abbr = TRUE))
+  month_counts <- table(factor(m, levels = unique(m)))   # levels in time order
   names(which.max(month_counts))
 }
+
+is_tied_month <- function(start_date, end_date) {
+  if (is.na(start_date) || is.na(end_date)) return(NA)
+  counts <- table(month(seq(start_date, end_date, by = "day")))
+  sum(counts == max(counts)) > 1
+}
+
+sed_usgs %>%
+  distinct(Site, Date.placed.in.field, Date.removed.from.field) %>%
+  mutate(tied = purrr::map2_lgl(Date.placed.in.field, Date.removed.from.field, is_tied_month)) %>%
+  count(tied)   # TRUE = deployments assigned by the tie rule
 
 sed_usgs <- sed_usgs %>%
   mutate(

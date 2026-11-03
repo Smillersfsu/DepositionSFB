@@ -409,7 +409,7 @@ make_rq_plots <- function(df, tier_label) {
   # ---------------------------------------------------------------
   # Seasonality Check (Exploratory)
   # ---------------------------------------------------------------
-  p_season <- ggplot(df, aes(x = factor(month(Date.removed.from.field)), y = Flux, fill = marsh_edge_type)) +
+  p_season <- ggplot(df, aes(x = Month, y = Flux, fill = marsh_edge_type))  +
     geom_boxplot(alpha = 0.7) +
     labs(
       title = paste("Sediment Flux by Month (Pooled Across Years) —", tier_label),

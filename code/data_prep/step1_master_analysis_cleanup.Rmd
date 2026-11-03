@@ -83,15 +83,28 @@ sed_thesis$Filter_Num <- as.numeric(sed_thesis$Filter_Num)
 # rather than being re-derived in every downstream analysis file, and
 # requires Date.placed.in.field / Date.removed.from.field to already be
 # true Date class -- confirmed above, this must stay below that step.
-# Ties (exactly equal days split across two months) go to whichever
-# month is alphabetically first per which.max()'s default tie-breaking;
-# spot-check any tied rows if that distinction matters for your analysis.
+# MONTH RULE (project-wide, Oct 2026): this majority-of-days month is the
+# ONE Month definition used everywhere downstream ...
+# TIES ... go to the EARLIER month in time, i.e. the month the
+# deployment started in.
 majority_month <- function(start_date, end_date) {
   if (is.na(start_date) || is.na(end_date)) return(NA_character_)
   days <- seq(start_date, end_date, by = "day")
-  month_counts <- table(month(days, label = TRUE, abbr = TRUE))
+  m <- as.character(month(days, label = TRUE, abbr = TRUE))
+  month_counts <- table(factor(m, levels = unique(m)))   # levels in time order
   names(which.max(month_counts))
 }
+
+is_tied_month <- function(start_date, end_date) {
+  if (is.na(start_date) || is.na(end_date)) return(NA)
+  counts <- table(month(seq(start_date, end_date, by = "day")))
+  sum(counts == max(counts)) > 1
+}
+
+sed_thesis %>%
+  distinct(Site, Date.placed.in.field, Date.removed.from.field) %>%
+  mutate(tied = purrr::map2_lgl(Date.placed.in.field, Date.removed.from.field, is_tied_month)) %>%
+  count(tied)   # TRUE = deployments assigned by the tie rule
 
 sed_thesis <- sed_thesis %>%
   mutate(

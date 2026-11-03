@@ -923,47 +923,7 @@ ggsave("C:\\Users\\savan\\OneDrive - San Francisco State University\\ProjectData
        plot = rq3_vp_plot, width = 9, height = 5, dpi = 300, limitsize = FALSE)
 ```
 
-```{r}
-# Averaged-data version of the by-site variance partition: same models,
-# same colours, no Replicate panel and no "Averaged" strip. Uses the
-# tables already built by Part 1 (rq3_vp_table_avg) and Part 1b
-# (rq3_vp_site_table_avg) -- nothing is refit.
 
-rq3_vp_site_plot_avg <- bind_rows(
-  rq3_vp_table_avg %>% mutate(Site = "All sites (pooled)"),
-  rq3_vp_site_table_avg
-) %>%
-  mutate(
-    Level = factor(Level, levels = rev(rq3_vp_level_order)),
-    Site  = factor(Site, levels = rev(c("All sites (pooled)", rq3_sites)))
-  ) %>%
-  ggplot(aes(x = Site, y = Share, fill = Level)) +
-  geom_col(width = 0.65, color = "white") +
-  geom_text(aes(label = ifelse(Share >= 0.05, scales::percent(Share, accuracy = 1), "")),
-            position = position_stack(vjust = 0.5), size = 3.5) +
-  coord_flip() +
-  scale_y_continuous(labels = scales::percent) +
-  scale_fill_manual(values = c(
-    "Between marsh (Site)"                   = "#B2182B",
-    "Within marsh: transect"                 = "#2166AC",
-    "Within marsh: trap location"            = "#67A9CF",
-    "Time (shared by all marshes)"           = "#F4A582",
-    "Time (month to month)"                  = "#FDDBC7",
-    "Location x time (deployment, residual)" = "#D1E5F0"
-  ), drop = TRUE) +
-  labs(
-    title = stringr::str_wrap("Where Does the Variation in Sediment Flux Come From, Within Each Marsh?", width = 45),
-    subtitle = "Share of each site's total (log-scale) variance, intercept-only Gamma GLMM",
-    x = NULL, y = "Share of total variance", fill = NULL
-  ) +
-  theme_bw() +
-  theme(legend.position = "bottom") +
-  guides(fill = guide_legend(ncol = 2, reverse = TRUE))
-rq3_vp_site_plot_avg
-
-ggsave("C:\\Users\\savan\\OneDrive - San Francisco State University\\ProjectData\\GitHub\\DepositionSFB\\images\\rq_3\\rq3_variance_partition_by_site_avg.png",
-       plot = rq3_vp_site_plot_avg, width = 9, height = 5, dpi = 300, limitsize = FALSE)
-```
 
 ### Part 1b: variance partitioning within each site
 
@@ -1152,6 +1112,317 @@ rq3_vp_site_plot
 ggsave("C:\\Users\\savan\\OneDrive - San Francisco State University\\ProjectData\\GitHub\\DepositionSFB\\images\\rq_3\\rq3_variance_partition_by_site.png",
        plot = rq3_vp_site_plot, width = 9, height = 8, dpi = 300, limitsize = FALSE)
 ```
+
+```{r}
+# Averaged-data version of the by-site variance partition: same models,
+# same colours, no Replicate panel and no "Averaged" strip. Uses the
+# tables already built by Part 1 (rq3_vp_table_avg) and Part 1b
+# (rq3_vp_site_table_avg) -- nothing is refit.
+
+rq3_vp_site_plot_avg <- bind_rows(
+  rq3_vp_table_avg %>% mutate(Site = "All sites (pooled)"),
+  rq3_vp_site_table_avg
+) %>%
+  mutate(
+    Level = factor(Level, levels = rev(rq3_vp_level_order)),
+    Site  = factor(Site, levels = rev(c("All sites (pooled)", rq3_sites)))
+  ) %>%
+  ggplot(aes(x = Site, y = Share, fill = Level)) +
+  geom_col(width = 0.65, color = "white") +
+  geom_text(aes(label = ifelse(Share >= 0.05, scales::percent(Share, accuracy = 1), "")),
+            position = position_stack(vjust = 0.5), size = 3.5) +
+  coord_flip() +
+  scale_y_continuous(labels = scales::percent) +
+  scale_fill_manual(values = c(
+    "Between marsh (Site)"                   = "#B2182B",
+    "Within marsh: transect"                 = "#2166AC",
+    "Within marsh: trap location"            = "#67A9CF",
+    "Time (shared by all marshes)"           = "#F4A582",
+    "Time (month to month)"                  = "#FDDBC7",
+    "Location x time (deployment, residual)" = "#D1E5F0"
+  ), drop = TRUE) +
+  labs(
+    title = stringr::str_wrap("Where Does the Variation in Sediment Flux Come From, Within Each Marsh?", width = 45),
+    subtitle = "Share of each site's total (log-scale) variance, intercept-only Gamma GLMM",
+    x = NULL, y = "Share of total variance", fill = NULL
+  ) +
+  theme_bw() +
+  theme(legend.position = "bottom") +
+  guides(fill = guide_legend(ncol = 2, reverse = TRUE))
+rq3_vp_site_plot_avg
+
+ggsave("C:\\Users\\savan\\OneDrive - San Francisco State University\\ProjectData\\GitHub\\DepositionSFB\\images\\rq_3\\rq3_variance_partition_by_site_avg.png",
+       plot = rq3_vp_site_plot_avg, width = 9, height = 5, dpi = 300, limitsize = FALSE)
+```
+
+
+
+
+
+
+```{r}
+
+# Objective 3 LASSO on the averaged data (primary tier), all sites
+# together and each site separately, same six predictors as the
+# original LASSO. Response = log(Flux), matching the log link used in
+# every GLMM. Predictors standardised within each set, so coefficients
+# compare predictors WITHIN a panel, not across sites.
+library(glmnet)
+
+rq3_lasso_vars <- c("z_star", "Dist_m", "local_slope", "slope_fitted_elevation_m",
+                    "mean_wind_speed_kt", "max_gust_kt")
+rq3_lasso_labels <- c(z_star                   = "z*",
+                      Dist_m                   = "Distance from edge",
+                      local_slope              = "Local slope",
+                      slope_fitted_elevation_m = "Slope-fitted elevation",
+                      mean_wind_speed_kt       = "Mean wind speed",
+                      max_gust_kt              = "Max gust")
+
+# How many distinct values does each predictor have per site? Station-
+# level predictors (z*, distance, slopes) have one value per station, so
+# within a site the LASSO is choosing among ~12 stations' worth of
+# information -- read the by-site panels with that in mind.
+rq3_avg %>%
+  dplyr::group_by(Site) %>%
+  dplyr::summarise(n = dplyr::n(),
+                   stations = dplyr::n_distinct(Loc_ID),
+                   dplyr::across(dplyr::all_of(rq3_lasso_vars), dplyr::n_distinct))
+
+# One LASSO fit: standardised coefficients at lambda.min (NA = predictor
+# constant in that set, so not used)
+rq3_run_lasso <- function(d, seed = 42) {
+  d <- d %>% dplyr::select(Flux, dplyr::all_of(rq3_lasso_vars)) %>% tidyr::drop_na()
+  vars <- rq3_lasso_vars[sapply(d[rq3_lasso_vars], function(v) stats::sd(v) > 0)]
+  x <- scale(as.matrix(d[vars]))
+  set.seed(seed)
+  cv <- glmnet::cv.glmnet(x, log(d$Flux), alpha = 1)
+  b  <- stats::coef(cv, s = "lambda.min")
+  out <- setNames(rep(NA_real_, length(rq3_lasso_vars)), rq3_lasso_vars)
+  out[vars] <- as.numeric(b)[-1]
+  out
+}
+
+rq3_lasso_sets <- c(list("All sites" = rq3_avg),
+                    split(rq3_avg, droplevels(rq3_avg$Site))[rq3_sites])
+
+# Coefficients + selection frequency over 50 CV reruns (how often each
+# predictor is kept; low = unstable choice)
+rq3_lasso_table <- purrr::imap_dfr(rq3_lasso_sets, function(d, set_name) {
+  est  <- rq3_run_lasso(d, seed = 42)
+  reps <- replicate(50, rq3_run_lasso(d, seed = sample.int(1e6, 1)))
+  tibble::tibble(
+    Set         = set_name,
+    predictor   = rq3_lasso_vars,
+    coefficient = unname(est),
+    selected    = rowMeans(reps != 0, na.rm = TRUE),
+    n           = nrow(tidyr::drop_na(d[c("Flux", rq3_lasso_vars)]))
+  )
+})
+rq3_lasso_table %>%
+  dplyr::mutate(coefficient = round(coefficient, 3),
+                selected = scales::percent(selected, accuracy = 1)) %>%
+  print(n = Inf)
+
+# Figure: one panel per set, bars = coefficient, label = selection %
+rq3_lasso_plot <- rq3_lasso_table %>%
+  dplyr::filter(!is.na(coefficient)) %>%
+  dplyr::mutate(
+    Set       = factor(Set, levels = names(rq3_lasso_sets)),
+    predictor = factor(rq3_lasso_labels[predictor], levels = rev(rq3_lasso_labels)),
+    direction = dplyr::case_when(coefficient > 0 ~ "Positive",
+                                 coefficient < 0 ~ "Negative",
+                                 TRUE            ~ "Not selected"),
+    label     = scales::percent(selected, accuracy = 1)
+  ) %>%
+  ggplot(aes(x = predictor, y = coefficient, fill = direction)) +
+  geom_col(width = 0.6) +
+  geom_hline(yintercept = 0, color = "grey30", linewidth = 0.4) +
+  geom_text(aes(label = label, y = 0), hjust = -0.2, size = 3, color = "grey30") +
+  coord_flip() +
+  facet_wrap(~ Set, nrow = 1) +
+  scale_fill_manual(values = c("Positive" = "#2166AC", "Negative" = "#B2182B",
+                               "Not selected" = "grey80")) +
+  labs(title = "Standardized LASSO coefficients for log sediment flux",
+       subtitle = "Averaged data; label = share of 50 cross-validation reruns in which the predictor was kept",
+       x = NULL, y = "Standardized coefficient (log flux per SD)", fill = NULL) +
+  theme_bw(base_size = 11) +
+  theme(legend.position = "bottom", panel.grid.minor = element_blank())
+rq3_lasso_plot
+
+ggsave(file.path("C:/Users/savan/OneDrive - San Francisco State University/ProjectData/GitHub/DepositionSFB/images/rq_3",
+                 "rq3_lasso_all_and_by_site_avg.png"),
+       plot = rq3_lasso_plot, width = 13, height = 4.5, dpi = 300)
+```
+
+```{r}
+
+# Appendix: absolute variance components, all stations vs. platform
+rq3_vp_abs_table <- rq3_vp_compare %>%
+  dplyr::filter(Site != "All sites (pooled)") %>%
+  dplyr::select(Stations, Site, Component, Variance) %>%
+  tidyr::pivot_wider(names_from = Stations, values_from = Variance) %>%
+  dplyr::mutate(Component = dplyr::recode(Component,
+                  "Loc_ID" = "Trap location", "Time_ID" = "Month",
+                  "Tran" = "Transect", "Residual" = "Location \u00d7 deployment")) %>%
+  dplyr::arrange(Site, Component)
+
+rq3_vp_abs_gt <- rq3_vp_abs_table %>%
+  gt::gt(groupname_col = "Site") %>%
+  gt::tab_header(title = "Variance components of log sediment flux by site",
+                 subtitle = "Absolute (log-scale) variances; intercept-only Gamma GLMMs, averaged data") %>%
+  gt::fmt_number(columns = -Component, decimals = 2)
+rq3_vp_abs_gt
+gt::gtsave(rq3_vp_abs_gt, filename = file.path(rq3_img_dir, "rq3_variance_components_absolute_APPENDIX.png"))
+```
+
+
+
+
+
+
+```{r}
+
+# ---- Keep the 6-predictor LASSO for the appendix --------------------------
+rq3_lasso_table_6vars <- rq3_lasso_table
+rq3_lasso_plot_6vars  <- rq3_lasso_plot
+
+# ---- A. LASSO restricted to directly measured station variables ----------
+# Decided after the 6-predictor run (wind dominated); the 6-predictor
+# version is kept above and reported in the appendix.
+rq3_lasso_vars <- c("z_star", "Dist_m")
+
+# z* and distance are related; how strongly, in each set?
+rq3_avg %>%
+  dplyr::group_by(Site) %>%
+  dplyr::summarise(r_zstar_dist = cor(z_star, Dist_m, use = "complete.obs")) %>%
+  dplyr::bind_rows(tibble::tibble(Site = "All sites",
+                                  r_zstar_dist = cor(rq3_avg$z_star, rq3_avg$Dist_m,
+                                                     use = "complete.obs")))
+
+rq3_lasso_table_zd <- purrr::imap_dfr(rq3_lasso_sets, function(d, set_name) {
+  est  <- rq3_run_lasso(d, seed = 42)
+  reps <- replicate(50, rq3_run_lasso(d, seed = sample.int(1e6, 1)))
+  tibble::tibble(
+    Set         = set_name,
+    predictor   = rq3_lasso_vars,
+    coefficient = unname(est),
+    selected    = rowMeans(reps != 0, na.rm = TRUE),
+    n           = nrow(tidyr::drop_na(d[c("Flux", rq3_lasso_vars)]))
+  )
+})
+rq3_lasso_table_zd %>%
+  dplyr::mutate(coefficient = round(coefficient, 3),
+                selected = scales::percent(selected, accuracy = 1)) %>%
+  print(n = Inf)
+
+rq3_lasso_plot_zd <- rq3_lasso_table_zd %>%
+  dplyr::filter(!is.na(coefficient)) %>%
+  dplyr::mutate(
+    Set       = factor(Set, levels = names(rq3_lasso_sets)),
+    predictor = factor(rq3_lasso_labels[predictor],
+                       levels = rev(rq3_lasso_labels[rq3_lasso_vars])),
+    direction = dplyr::case_when(coefficient > 0 ~ "Positive",
+                                 coefficient < 0 ~ "Negative",
+                                 TRUE            ~ "Not selected"),
+    label     = scales::percent(selected, accuracy = 1)
+  ) %>%
+  ggplot(aes(x = predictor, y = coefficient, fill = direction)) +
+  geom_col(width = 0.5) +
+  geom_hline(yintercept = 0, color = "grey30", linewidth = 0.4) +
+  geom_text(aes(label = label, y = 0), hjust = -0.2, size = 3.2, color = "grey30") +
+  coord_flip() +
+  facet_wrap(~ Set, nrow = 1) +
+  scale_fill_manual(values = c("Positive" = "#2166AC", "Negative" = "#B2182B",
+                               "Not selected" = "grey80")) +
+  labs(title = "Standardized LASSO coefficients: elevation (z*) and distance from the edge",
+       subtitle = "Averaged data, log flux; label = share of 50 cross-validation reruns in which the predictor was kept",
+       x = NULL, y = "Standardized coefficient (log flux per SD)", fill = NULL) +
+  theme_bw(base_size = 11) +
+  theme(legend.position = "bottom", panel.grid.minor = element_blank())
+rq3_lasso_plot_zd
+
+rq3_img_dir <- "C:/Users/savan/OneDrive - San Francisco State University/ProjectData/GitHub/DepositionSFB/images/rq_3"
+ggsave(file.path(rq3_img_dir, "rq3_lasso_zstar_distance_avg.png"),
+       plot = rq3_lasso_plot_zd, width = 13, height = 3.5, dpi = 300)
+ggsave(file.path(rq3_img_dir, "rq3_lasso_6predictors_avg_APPENDIX.png"),
+       plot = rq3_lasso_plot_6vars, width = 13, height = 4.5, dpi = 300)
+
+# ---- B. Variance partition, platform stations only (12, 18, 24 m) -------
+# Same subset as Objectives 1 and 2. Does position still matter on the
+# platform, or is the scarped sites' position variance a near-edge effect?
+rq3_avg_plat <- rq3_avg %>%
+  dplyr::filter(Dist_m %in% c(12, 18, 24)) %>%
+  droplevels()
+table(rq3_avg_plat$Site)
+
+rq3_vp_avg_plat <- glmmTMB(
+  Flux ~ 1 + (1|Site) + (1|Site:Tran) + (1|Loc_ID) + (1|Time_ID),
+  family = Gamma(link = "log"), data = rq3_avg_plat
+)
+rq3_vp_table_avg_plat <- variance_partition(rq3_vp_avg_plat, "Averaged",
+                                            resid_label = "Location x time (deployment, residual)")
+
+rq3_vp_site_avg_plat <- lapply(rq3_sites, function(s)
+  fit_site_vp(rq3_avg_plat, s, "Averaged", include_deploy = FALSE,
+              resid_label = "Location x time (deployment, residual)"))
+names(rq3_vp_site_avg_plat) <- rq3_sites
+rq3_vp_site_table_avg_plat <- dplyr::bind_rows(lapply(rq3_vp_site_avg_plat, `[[`, "table"))
+
+# All stations vs. platform, side by side (shares + fit reliability)
+rq3_vp_compare <- dplyr::bind_rows(
+  dplyr::bind_rows(rq3_vp_table_avg %>% dplyr::mutate(Site = "All sites (pooled)"),
+                   rq3_vp_site_table_avg) %>%
+    dplyr::mutate(Stations = "All stations (0.5\u201324 m)"),
+  dplyr::bind_rows(rq3_vp_table_avg_plat %>% dplyr::mutate(Site = "All sites (pooled)"),
+                   rq3_vp_site_table_avg_plat) %>%
+    dplyr::mutate(Stations = "Platform only (12\u201324 m)")
+)
+rq3_vp_compare %>%
+  dplyr::group_by(Stations, Site) %>%
+  dplyr::summarise(trap_location = sum(Share[Component == "Loc_ID"]),
+                   transect      = sum(Share[Component %in% c("Tran", "Site:Tran")]),
+                   time          = sum(Share[Component == "Time_ID"]),
+                   residual      = sum(Share[Component == "Residual"]),
+                   pdHess        = dplyr::first(pdHess),
+                   .groups = "drop") %>%
+  dplyr::mutate(dplyr::across(where(is.double), ~ round(.x, 2))) %>%
+  dplyr::arrange(Site, Stations) %>%
+  print(n = Inf)
+
+rq3_vp_compare_plot <- rq3_vp_compare %>%
+  dplyr::mutate(
+    Level = factor(Level, levels = rev(rq3_vp_level_order)),
+    Site  = factor(Site, levels = rev(c("All sites (pooled)", rq3_sites)))
+  ) %>%
+  ggplot(aes(x = Site, y = Share, fill = Level)) +
+  geom_col(width = 0.65, color = "white") +
+  geom_text(aes(label = ifelse(Share >= 0.05, scales::percent(Share, accuracy = 1), "")),
+            position = position_stack(vjust = 0.5), size = 3.2) +
+  coord_flip() +
+  facet_wrap(~ Stations, nrow = 1) +
+  scale_y_continuous(labels = scales::percent) +
+  scale_fill_manual(values = c(
+    "Between marsh (Site)"                   = "#B2182B",
+    "Within marsh: transect"                 = "#2166AC",
+    "Within marsh: trap location"            = "#67A9CF",
+    "Time (shared by all marshes)"           = "#F4A582",
+    "Time (month to month)"                  = "#FDDBC7",
+    "Location x time (deployment, residual)" = "#D1E5F0"
+  ), drop = TRUE) +
+  labs(title = "Sources of variation in sediment flux: all stations vs. platform only",
+       subtitle = "Share of each site's total (log-scale) variance, intercept-only Gamma GLMM, averaged data",
+       x = NULL, y = "Share of total variance", fill = NULL) +
+  theme_bw(base_size = 11) +
+  theme(legend.position = "bottom") +
+  guides(fill = guide_legend(ncol = 3, reverse = TRUE))
+rq3_vp_compare_plot
+
+ggsave(file.path(rq3_img_dir, "rq3_variance_partition_all_vs_platform_avg.png"),
+       plot = rq3_vp_compare_plot, width = 13, height = 5, dpi = 300)
+```
+
+
+
 
 ### Part 2: between-marsh vs within-marsh predictors
 
@@ -1708,6 +1979,7 @@ ggsave(rq3_img("rq3_station_pca.png"),
 ```
 
 ```{r}
+#| eval: false
 
 # Corte Madera: flux by distance from the edge and study phase,
 # 2022–2023 vs. 2025–2026, in the style of the RQ3 heatmap.
@@ -2200,6 +2472,8 @@ if (requireNamespace("patchwork", quietly = TRUE)) {
 ```
 
 ```{r, lasso per site plot}
+#| eval: false
+
 library(tidyverse)
 library(forcats)
 library(tibble)

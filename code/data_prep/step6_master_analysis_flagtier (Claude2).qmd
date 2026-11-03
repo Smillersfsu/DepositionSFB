@@ -26,9 +26,22 @@ source("C:\\Users\\savan\\OneDrive - San Francisco State University\\ProjectData
 #   tier5 <- all,  full
 #   tier6 <- noG,  full
 
-average_replicates <- function(df) {
+drop_nonpositive_reps <- function(df, log_name = NULL) {
+  dropped <- df %>% filter(!is.na(Flux_rep), Flux_rep <= 0)
+  if (!is.null(log_name)) {
+    message(log_name, ": dropped ", nrow(dropped), " of ", sum(!is.na(df$Flux_rep)),
+            " replicate(s) with Flux <= 0 before averaging")
+    readr::write_csv(dropped, file.path(
+      "C:/Users/savan/OneDrive - San Francisco State University/ProjectData/GitHub/DepositionSFB/data",
+      paste0(log_name, "_dropped_nonpositive_reps.csv")))
+  }
+  df %>% filter(!is.na(Flux_rep), Flux_rep > 0)
+}
+
+average_replicates <- function(df, log_name = NULL) {
   df %>%
-    group_by(Site, Tran, Dist, Month, Study.Phase) %>%   # match your location/month grain
+    drop_nonpositive_reps(log_name) %>%
+    group_by(Site, Tran, Dist, Month, Study.Phase) %>%
     summarise(
       Flux = mean(Flux_rep, na.rm = TRUE),
       n_reps = sum(!is.na(Flux_rep)),
@@ -44,25 +57,18 @@ average_replicates <- function(df) {
     mutate(Loc_ID = interaction(Site, Tran, Dist, drop = TRUE))
 }
 
-# DECISION (committee feedback, both John and XiaoHang independently):
-# keep replicates separate rather than only ever averaging them --
-# averaging mutes real variability (esp. the Scarped-vs-Ramped skewness
-# difference), and there's no strong statistical justification for
-# averaging spatially distributed replicate traps. average_replicates()
-# above is left UNCHANGED -- master_tier1-6 and everything downstream
-# of them still default to the averaged grain. This function builds a
-# second, parallel, replicate-level version instead of replacing it.
-#
-# Unlike average_replicates(), Flux is never touched here -- it's
-# already the per-replicate value from elev_z_wind_slope_edge_flux, so
-# there's nothing to rename/collapse. n_reps is still computed, for
-# parity with the averaged version's n_reps > 0 filter below.
+# The AVERAGED grain (master_tier*.csv) is the primary analysis dataset
+# (decision Oct 2026: averaging replicates avoids pseudoreplication;
+# transect is the level of replication within site). This function
+# builds a parallel, replicate-level version for optional comparison.
+# Both use the same replicate rule (drop_nonpositive_reps), so they
+# start from the same traps.
 keep_replicates <- function(df) {
   df %>%
+    drop_nonpositive_reps() %>%   # same replicate rule as average_replicates()
     group_by(Site, Tran, Dist, Month, Study.Phase) %>%
     mutate(n_reps = sum(!is.na(Flux_rep))) %>%
     ungroup() %>%
-    filter(!is.na(Flux_rep)) %>%
     mutate(
       Loc_ID = interaction(Site, Tran, Dist, drop = TRUE)
     )
@@ -73,7 +79,7 @@ master_tier1 <- filter_flux(elev_z_wind_slope_edge_flux, "noG",  "review_only") 
 master_tier2 <- filter_flux(elev_z_wind_slope_edge_flux, "noG2", "review_only") %>% average_replicates()
 master_tier3 <- filter_flux(elev_z_wind_slope_edge_flux, "all",  "review_only") %>% average_replicates()
 master_tier4 <- filter_flux(elev_z_wind_slope_edge_flux, "noG2", "full") %>% average_replicates()
-master_tier5 <- filter_flux(elev_z_wind_slope_edge_flux, "all",  "full") %>% average_replicates()
+master_tier5 <- filter_flux(elev_z_wind_slope_edge_flux, "all",  "full") %>% average_replicates(log_name = "tier5")
 master_tier6 <- filter_flux(elev_z_wind_slope_edge_flux, "noG",  "full") %>% average_replicates()
 
 master_tier5 <- master_tier5 %>% filter(n_reps > 0)

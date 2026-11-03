@@ -145,9 +145,46 @@ unique(thesis_rq2_avg$Study.Dataset)
 unique(thesis_rq2_avg$Marsh_Area)
 str(thesis_rq2_avg)
 nrow(thesis_rq2_avg)
+```
+
+```{r, overlap check}
+# Objective 2 is Corte Madera only (San Pablo dropped for the offset).
+
+# Before choosing the model: what do the two study periods share?
+cm_rq2_avg <- thesis_rq2_avg %>%
+  dplyr::filter(Site == "CorteMadera") %>%
+  droplevels()
+
+# 1. Stations: which distances does each period have?
+cm_rq2_avg %>%
+  dplyr::count(Study.Dataset, Marsh_Area, Dist) %>%
+  tidyr::pivot_wider(names_from = Study.Dataset, values_from = n, values_fill = 0) %>%
+  dplyr::arrange(Dist)
+
+# 2. Months: which parts of the year does each period cover?
+cm_rq2_avg %>%
+  dplyr::count(Study.Dataset, Month) %>%
+  tidyr::pivot_wider(names_from = Study.Dataset, values_from = n, values_fill = 0)
+
+# 3. Transects and station IDs: are they labeled the same way in both
+#    periods? (If Loc_ID is identical across periods, the model would
+#    treat them as the same physical station.)
+cm_rq2_avg %>%
+  dplyr::distinct(Study.Dataset, Tran, Dist, Loc_ID) %>%
+  dplyr::arrange(Dist, Tran, Study.Dataset)
+
+# 4. Elevation by station and period (for the confound check)
+cm_rq2_avg %>%
+  dplyr::group_by(Study.Dataset, Dist) %>%
+  dplyr::summarise(n = dplyr::n(),
+                   z_star_mean = mean(z_star, na.rm = TRUE),
+                   z_star_missing = sum(is.na(z_star)),
+                   .groups = "drop") %>%
+  dplyr::arrange(Dist, Study.Dataset)
+```
 
 
-
+```{r, statistics basic}
 basic_stats_usgs <- make_flux_table(
   thesis_rq2, 
   group_vars = "Study.Dataset", 
@@ -321,6 +358,286 @@ ggsave("C:\\Users\\savan\\OneDrive - San Francisco State University\\ProjectData
        limitsize = FALSE)
 ```
 
+
+
+```{r, models}
+# Objective 2: Corte Madera, 2022-2023 vs. 2025-2026, all six shared
+# distances. Months overlap almost exactly (Jul-Apr, ~10 deployments
+# per month in each period), so month isn't needed in the main model.
+# Transect and station IDs are distinct between periods (A/B vs.
+# T1/T2), so (1|Tran) and (1|Loc_ID) keep the two periods' locations
+# separate.
+cm_rq2_model_data <- cm_rq2_avg %>%
+  dplyr::filter(!is.na(Flux), Flux > 0) %>%
+  dplyr::mutate(Dist_num      = as.numeric(as.character(Dist)),
+                Dist_f        = factor(Dist_num),
+                Tran          = factor(Tran),
+                Loc_ID        = factor(Loc_ID),
+                Study.Dataset = factor(Study.Dataset,
+                                       levels = c("2022–2023", "2025–2026"))) %>%
+  droplevels()
+
+table(cm_rq2_model_data$Study.Dataset, cm_rq2_model_data$Dist_f)
+
+# Main interaction model (appendix): period x distance
+rq2_cm_glmm_avg <- glmmTMB(
+  Flux ~ Study.Dataset * Dist_f + (1 | Tran) + (1 | Loc_ID),
+  family = Gamma(link = "log"),
+  data   = cm_rq2_model_data
+)
+summary(rq2_cm_glmm_avg)
+car::Anova(rq2_cm_glmm_avg, type = "II")
+
+# Overall period difference (2025-2026 / 2022-2023), averaged over distance
+emm_rq2_period <- emmeans(rq2_cm_glmm_avg, ~ Study.Dataset, type = "response")
+emm_rq2_period
+confint(pairs(emm_rq2_period, reverse = TRUE))
+
+# Period difference at each distance
+emm_rq2_dist <- emmeans(rq2_cm_glmm_avg, ~ Study.Dataset | Dist_f, type = "response")
+pairs(emm_rq2_dist, reverse = TRUE)
+
+# Sensitivity: does adding Month change the period result?
+rq2_cm_month_glmm_avg <- update(rq2_cm_glmm_avg, . ~ . + Month)
+car::Anova(rq2_cm_month_glmm_avg, type = "II")
+
+# Residual checks as numbers (p > 0.05 = passed). Used here and in the
+# figure and robustness chunks below. The quantile test returns NA for
+# models with only one fixed factor (too few distinct predictions for
+# it to run); that's expected, not a failure.
+rq2_dharma_tests <- function(model, label) {
+  sim <- DHARMa::simulateResiduals(model)
+  data.frame(
+    model        = label,
+    uniformity_p = DHARMa::testUniformity(sim, plot = FALSE)$p.value,
+    dispersion_p = DHARMa::testDispersion(sim, plot = FALSE)$p.value,
+    outliers_p   = DHARMa::testOutliers(sim, plot = FALSE)$p.value,
+    quantiles_p  = tryCatch(DHARMa::testQuantiles(sim, plot = FALSE)$p.value,
+                            error = function(e) NA_real_)
+  )
+}
+rbind(
+  rq2_dharma_tests(rq2_cm_glmm_avg,       "period x distance"),
+  rq2_dharma_tests(rq2_cm_month_glmm_avg, "period x distance + Month")
+)
+```
+
+```{r, final figures}
+# Objective 2 main-body figure, same structure as Objective 1:
+# A = all stations, B = platform only (12, 18, 24 m)
+# Period-only Gamma GLMM, matching RQ1's edge-only model. Dispersion
+# varies by period (dispformula), because 2022-2023 has more spread;
+# this improved fit (lower AIC) and the residual checks for both panels.
+cm_rq2_plat_data <- cm_rq2_model_data %>%
+  dplyr::filter(Dist_num %in% c(12, 18, 24)) %>%
+  droplevels()
+
+rq2_period_glmm_avg <- glmmTMB(
+  Flux ~ Study.Dataset + (1 | Tran) + (1 | Loc_ID),
+  dispformula = ~ Study.Dataset,
+  family = Gamma(link = "log"),
+  data   = cm_rq2_model_data
+)
+rq2_period_glmm_avg_plat <- glmmTMB(
+  Flux ~ Study.Dataset + (1 | Tran) + (1 | Loc_ID),
+  dispformula = ~ Study.Dataset,
+  family = Gamma(link = "log"),
+  data   = cm_rq2_plat_data
+)
+
+car::Anova(rq2_period_glmm_avg,      type = "II")
+car::Anova(rq2_period_glmm_avg_plat, type = "II")
+confint(pairs(emmeans(rq2_period_glmm_avg,      ~ Study.Dataset, type = "response"), reverse = TRUE))
+confint(pairs(emmeans(rq2_period_glmm_avg_plat, ~ Study.Dataset, type = "response"), reverse = TRUE))
+
+rbind(
+  rq2_dharma_tests(rq2_period_glmm_avg,      "period, all stations (disp by period)"),
+  rq2_dharma_tests(rq2_period_glmm_avg_plat, "period, platform (disp by period)")
+)
+
+period_figure <- function(model, data, title, subtitle, ylims) {
+  emm <- emmeans(model, ~ Study.Dataset, type = "response")
+  est <- as.data.frame(emm) %>%
+    dplyr::rename(emmean = response, lower.CL = asymp.LCL, upper.CL = asymp.UCL)
+  ratio <- as.data.frame(pairs(emm, reverse = TRUE))
+  wald  <- car::Anova(model, type = "II")
+
+  p_val <- wald["Study.Dataset", "Pr(>Chisq)"]
+  p_txt <- if (p_val < 0.001) "p < 0.001" else sprintf("p = %.3f", p_val)
+
+  annot <- sprintf("%s = %.2f\nWald \u03c7\u00b2 = %.2f, %s",
+                   ratio$contrast, ratio$ratio,
+                   wald["Study.Dataset", "Chisq"], p_txt)
+
+  n_lab <- data %>%
+    dplyr::count(Study.Dataset) %>%
+    dplyr::mutate(lab = paste0(Study.Dataset, "\n(n = ", n, ")"))
+
+  ggplot(data, aes(x = Study.Dataset, y = Flux)) +
+    geom_boxplot(aes(fill = Study.Dataset), width = 0.45, alpha = 0.25,
+                 outlier.shape = NA, color = "grey40") +
+    geom_quasirandom(aes(color = Study.Dataset), width = 0.15,
+                     alpha = 0.5, size = 1.2) +
+    geom_pointrange(data = est,
+                    aes(y = emmean, ymin = lower.CL, ymax = upper.CL),
+                    shape = 23, fill = "white", color = "black",
+                    size = 0.7, linewidth = 0.9,
+                    position = position_nudge(x = 0.32)) +
+    annotate("text", x = 1.5, y = ylims[2], label = annot,
+             vjust = 1, size = 3.6) +
+    scale_fill_manual(values = year_colors, guide = "none") +
+    scale_color_manual(values = year_colors, guide = "none") +
+    scale_y_log10(labels = scales::label_comma(), limits = ylims) +
+    scale_x_discrete(labels = setNames(n_lab$lab, n_lab$Study.Dataset)) +
+    labs(title = title, subtitle = subtitle,
+         x = NULL, y = "Sediment flux (log scale)") +
+    theme_bw(base_size = 12) +
+    theme(legend.position = "none",
+          panel.grid.minor = element_blank())
+}
+
+rq2_fig_ylims <- c(min(cm_rq2_model_data$Flux), max(cm_rq2_model_data$Flux) * 8)
+
+p_rq2_all <- period_figure(
+  rq2_period_glmm_avg, cm_rq2_model_data,
+  title    = "A. All stations (0.5\u201324 m)",
+  subtitle = "Diamond = GLMM estimate (95% CI)",
+  ylims    = rq2_fig_ylims
+)
+p_rq2_plat <- period_figure(
+  rq2_period_glmm_avg_plat, cm_rq2_plat_data,
+  title    = "B. Platform only (12, 18, 24 m)",
+  subtitle = "Diamond = GLMM estimate (95% CI)",
+  ylims    = rq2_fig_ylims
+)
+
+library(patchwork)
+p_rq2_combined <- (p_rq2_all + p_rq2_plat) +
+  plot_annotation(title = "Corte Madera: 2022\u20132023 vs. 2025\u20132026",
+                  theme = theme(plot.title = element_text(size = 14, face = "bold")))
+p_rq2_combined
+
+rq2_img_dir <- "C:/Users/savan/OneDrive - San Francisco State University/ProjectData/GitHub/DepositionSFB/images/rq_2"
+dir.create(rq2_img_dir, showWarnings = FALSE, recursive = TRUE)
+ggsave(file.path(rq2_img_dir, "rq2_period_all_vs_platform_avg.png"),
+       plot = p_rq2_combined, width = 11, height = 5.5, dpi = 300)
+```
+
+```{r, rq2 robustness dispersion}
+
+# Model choice record for methods/appendix.
+# 1. Period models: constant vs. period-varying dispersion
+rq2_period_glmm_avg_const <- update(rq2_period_glmm_avg, dispformula = ~ 1)
+rq2_period_glmm_avg_plat_const <- update(rq2_period_glmm_avg_plat, dispformula = ~ 1)
+AIC(rq2_period_glmm_avg_const,      rq2_period_glmm_avg)        # all stations
+AIC(rq2_period_glmm_avg_plat_const, rq2_period_glmm_avg_plat)   # platform
+
+# 2. Period x distance (appendix): original kept; distance-varying
+#    dispersion fit better by AIC but failed other residual checks,
+#    and gave the same conclusions
+rq2_cm_glmm_avg_disp <- update(rq2_cm_glmm_avg, dispformula = ~ Dist_f)
+car::Anova(rq2_cm_glmm_avg_disp, type = "II")
+confint(pairs(emmeans(rq2_cm_glmm_avg_disp, ~ Study.Dataset,
+                      type = "response"), reverse = TRUE))
+rbind(
+  rq2_dharma_tests(rq2_cm_glmm_avg,      "period x distance"),
+  rq2_dharma_tests(rq2_cm_glmm_avg_disp, "period x distance + disp by distance")
+)
+AIC(rq2_cm_glmm_avg, rq2_cm_glmm_avg_disp)
+```
+
+
+```{r, elevation table}
+
+# Station elevation (z*) by distance and period -- appendix table
+# supporting "not confounded"
+rq2_zstar_table <- cm_rq2_avg %>%
+  dplyr::group_by(Study.Dataset, Dist) %>%
+  dplyr::summarise(z_star = mean(z_star, na.rm = TRUE), .groups = "drop") %>%
+  dplyr::mutate(z_star = ifelse(is.nan(z_star), NA, z_star)) %>%
+  tidyr::pivot_wider(names_from = Study.Dataset, values_from = z_star) %>%
+  dplyr::mutate(Dist = as.numeric(Dist),
+                Difference = `2025–2026` - `2022–2023`) %>%
+  dplyr::arrange(Dist)
+rq2_zstar_table
+
+rq2_zstar_gt <- rq2_zstar_table %>%
+  gt::gt() %>%
+  gt::tab_header(title = "Mean station elevation (z*) at Corte Madera by study period",
+                 subtitle = "2022-2023 z* not available at 18 m") %>%
+  gt::cols_label(Dist = "Distance (m)") %>%
+  gt::fmt_number(columns = -Dist, decimals = 2) %>%
+  gt::sub_missing(missing_text = "\u2014")
+rq2_zstar_gt
+gt::gtsave(rq2_zstar_gt, filename = file.path(rq2_img_dir, "rq2_zstar_by_period.png"))
+```
+
+
+
+```{r, Appendix table and double check}
+
+# 1. Month coverage, all rows (the overlap check only displayed 10 of 12)
+rq2_month_coverage <- cm_rq2_avg %>%
+  dplyr::count(Study.Dataset, Month) %>%
+  tidyr::pivot_wider(names_from = Study.Dataset, values_from = n, values_fill = 0)
+print(rq2_month_coverage, n = Inf)
+
+# 2. Appendix table: period x distance model -- Wald tests
+rq2_int_wald <- car::Anova(rq2_cm_glmm_avg, type = "II") %>%
+  as.data.frame() %>%
+  tibble::rownames_to_column("Term") %>%
+  dplyr::rename(Chisq = Chisq, p = `Pr(>Chisq)`) %>%
+  dplyr::mutate(Term = dplyr::recode(Term,
+                                     "Study.Dataset"        = "Study period",
+                                     "Dist_f"               = "Distance",
+                                     "Study.Dataset:Dist_f" = "Study period \u00d7 distance"))
+rq2_int_wald
+
+rq2_int_wald_gt <- rq2_int_wald %>%
+  gt::gt() %>%
+  gt::tab_header(title = "Study period \u00d7 distance model: Type II Wald tests",
+                 subtitle = "Corte Madera, 2022\u20132023 vs. 2025\u20132026 (Gamma GLMM, log link)") %>%
+  gt::cols_label(Chisq = "\u03c7\u00b2", p = "p") %>%
+  gt::fmt_number(columns = Chisq, decimals = 2) %>%
+  gt::fmt(columns = p, fns = function(x) ifelse(x < 0.001, "< 0.001", sprintf("%.3f", x)))
+rq2_int_wald_gt
+gt::gtsave(rq2_int_wald_gt, filename = file.path(rq2_img_dir, "rq2_period_x_distance_wald.png"))
+
+# 3. Appendix table: period ratio at each distance (2025-2026 / 2022-2023)
+rq2_dist_ratios <- dplyr::left_join(
+  as.data.frame(confint(pairs(emm_rq2_dist, reverse = TRUE))) %>%
+    dplyr::select(Dist_f, ratio, asymp.LCL, asymp.UCL),
+  as.data.frame(pairs(emm_rq2_dist, reverse = TRUE)) %>%
+    dplyr::select(Dist_f, p.value),
+  by = "Dist_f"
+) %>%
+  dplyr::left_join(
+    cm_rq2_model_data %>%
+      dplyr::count(Dist_f, Study.Dataset) %>%
+      tidyr::pivot_wider(names_from = Study.Dataset, values_from = n),
+    by = "Dist_f"
+  ) %>%
+  dplyr::mutate(Dist = as.numeric(as.character(Dist_f))) %>%
+  dplyr::select(Dist, `2022–2023`, `2025–2026`, ratio, asymp.LCL, asymp.UCL, p.value) %>%
+  dplyr::arrange(Dist)
+rq2_dist_ratios
+
+rq2_dist_ratios_gt <- rq2_dist_ratios %>%
+  gt::gt() %>%
+  gt::tab_header(title = "Change in sediment flux at each distance, Corte Madera",
+                 subtitle = "Ratio = 2025\u20132026 / 2022\u20132023; < 1 = lower in 2025\u20132026") %>%
+  gt::tab_spanner(label = "n", columns = c(`2022–2023`, `2025–2026`)) %>%
+  gt::cols_label(Dist = "Distance (m)", ratio = "Ratio",
+                 asymp.LCL = "Lower 95% CI", asymp.UCL = "Upper 95% CI",
+                 p.value = "p") %>%
+  gt::fmt_number(columns = c(ratio, asymp.LCL, asymp.UCL), decimals = 2) %>%
+  gt::fmt(columns = p.value, fns = function(x) ifelse(x < 0.001, "< 0.001", sprintf("%.3f", x)))
+rq2_dist_ratios_gt
+gt::gtsave(rq2_dist_ratios_gt, filename = file.path(rq2_img_dir, "rq2_ratio_by_distance.png"))
+```
+
+
+
 ```{r, ADDED averaged companions for the two main boxplots}
 
 basic_rq2_avg = ggplot(thesis_rq2_avg, aes(x = Site, y = Flux, fill = Study.Dataset)) +
@@ -395,6 +712,13 @@ shapiro.test(thesis_rq2_avg$Flux)
 qqnorm(thesis_rq2_avg$Flux)
 qqline(thesis_rq2_avg$Flux)
 ```
+
+
+
+
+> **Superseded (Oct 28, 2026).** Objective 2 is now Corte Madera only (San Pablo excluded for the station offset). The models from here down include San Pablo and are kept for the record only; they are not reported. The reported analysis is in the chunks above: `rq2_period_glmm_avg` (main body), `rq2_cm_glmm_avg` (main interaction, appendix), and the robustness checks.
+
+
 
 ## Model 1: Study.Dataset x temporal grouping, random intercept for Site
 
@@ -898,12 +1222,17 @@ bay_channel$Study.Phase <- factor(bay_channel$Study.Phase, levels = paste0("M", 
 bay_channel$Marsh_Area  <- factor(bay_channel$Marsh_Area, levels = c("Intertidal", "Edge", "Platform", "Upland"))
 bay_channel$Site        <- as.factor(bay_channel$Site)
 
-# Month wasn't carried into usgs_bay.csv/usgs_river.csv (only added
-# during the merge step) -- derive it fresh here, same recipe as
-# usgs_thesis_merge.qmd.
+# MONTH (pipeline cleanup, Oct 2026): usgs_bay/usgs_river now carry the
+# project-wide majority-of-days Month (full names, from usgs step3).
+# Kept as-is instead of re-deriving it from the removal date; only
+# relabeled defensively in case an older CSV still has "Jul"-style names.
+to_full_month <- function(m) {
+  m <- as.character(m)
+  full <- ifelse(m %in% month.abb, month.name[match(m, month.abb)], m)
+  factor(full, levels = study_month_levels, ordered = TRUE)
+}
 bay_channel <- bay_channel %>%
-  mutate(Month = factor(month(Date.removed.from.field, label = TRUE, abbr = FALSE),
-                         levels = study_month_levels, ordered = TRUE))
+  mutate(Month = to_full_month(Month))
 
 # Sanity checks before modeling
 unique(bay_channel$Location)
@@ -958,8 +1287,7 @@ bay_channel_avg$Marsh_Area  <- factor(bay_channel_avg$Marsh_Area, levels = c("In
 bay_channel_avg$Site        <- as.factor(bay_channel_avg$Site)
 
 bay_channel_avg <- bay_channel_avg %>%
-  mutate(Month = factor(month(Date.removed.from.field, label = TRUE, abbr = FALSE),
-                         levels = study_month_levels, ordered = TRUE))
+  mutate(Month = to_full_month(Month))   # project-wide majority-of-days Month
 
 # BUGFIX: usgs_bay.csv/usgs_river.csv (averaged) may not carry Loc_ID if
 # generated before the average_replicates() fix in usgs_step3 -- every

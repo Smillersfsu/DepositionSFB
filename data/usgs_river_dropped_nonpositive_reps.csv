@@ -1,0 +1,7 @@
+Site,Tran,Dist,Replicate,Date.placed.in.field,Date.removed.from.field,Season,Year,Flux,LOI,Midpoint_Date,Month,Cal_Season,marsh_edge_type,marsh_orientation,Study.Phase,Phen_Period,Marsh_Loc,Elevation_m,z_star,Flux_rep,Marsh_Area
+SanPablo,C,6,c,2022-11-22,2022-12-20,Winter,2022,0,NA,2022-12-06,Dec,Winter,Ramped,South.facing,M6,"Tran
+(Months 4-6)",Bay,1.014,-0.023897845,0,Intertidal
+SanPablo,C,150,c,2022-11-22,2022-12-20,Winter,2022,0,NA,2022-12-06,Dec,Winter,Ramped,South.facing,M6,"Tran
+(Months 4-6)",Bay,1.988,1.0953799340000001,0,Upland
+SanPablo,C,12,c,2023-01-17,2023-02-15,Winter,2023,0,NA,2023-01-31,Jan,Winter,Ramped,South.facing,M8,"Wet
+(Months 7-9)",Bay,1.267,0.26683858,0,Intertidal

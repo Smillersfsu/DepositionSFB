@@ -129,6 +129,7 @@ save_glmm_tables_available <- function(model_list, out_dir, tiers = table_tiers)
 # lmer) are not GLMMs in the Rule 2 sense, so they're left out.
 
 rq1_spatial_glmms <- list(
+  m_glmm_factor                     = "Flux ~ distance (factor) x marsh edge type",
   model_full_glmm                   = "Flux ~ z* x marsh edge type",
   distmodel_glmm                    = "Flux ~ distance from edge",
   distsitemodel_glmm                = "Flux ~ distance x site",

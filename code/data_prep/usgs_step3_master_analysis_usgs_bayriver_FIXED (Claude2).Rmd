@@ -49,6 +49,14 @@ knitr::opts_knit$set(root.dir = 'C:/Users/savan/OneDrive - San Francisco State U
 sed_usgs <- readr::read_csv("C:\\Users\\savan\\OneDrive - San Francisco State University\\ProjectData\\GitHub\\DepositionSFB\\data\\usgs_elev_z_flux.csv") %>%
 mutate(Flux_rep = Flux)
 
+sed_usgs <- sed_usgs %>%
+  mutate(
+    Study.Phase = factor(Study.Phase, levels = paste0("M", 1:12)),
+    Phen_Period = factor(Phen_Period, levels = c("Late_Dry\n(Months 1-3)", "Tran\n(Months 4-6)",
+                                                 "Wet\n(Months 7-9)", "Growth\n(Months 10-12)")),
+    Cal_Season = factor(Cal_Season, levels = c("Winter", "Summer"))
+  )
+
 # FIX: this used to read.csv() the usgs_elevation_and_z_star.qmd SCRIPT
 # FILE itself (wrong path -- code\\data_prep\\, not data\\; wrong file
 # type -- a .qmd script isn't a CSV of sediment data). That would error
@@ -68,45 +76,36 @@ sed_usgs <- sed_usgs %>%
 
 # Bay adjacent transects A and B directly comparable to thesis
 
-sed_usgs_bay <- sed_usgs %>% 
+assign_usgs_marsh_area <- function(df) {
+  df %>%
+    mutate(
+      Marsh_Area = case_when(
+        Site == "CorteMadera" & Dist %in% c("0.5", "2") ~ "Edge",
+        Site == "CorteMadera" & Dist == "6" ~ "Transition",
+        Site == "CorteMadera" & Dist %in% c("12", "18", "24") ~ "Platform",
+        Site == "CorteMadera" & Dist %in% c("30", "48") ~ "Upland",
+        Site == "SanPablo" & Dist %in% c("0.5", "2", "6", "9", "12", "18") ~ "Intertidal",
+        Site == "SanPablo" & Dist == "24" ~ "Edge",
+        Site == "SanPablo" & Dist == "48" ~ "Platform",
+        Site == "SanPablo" & Dist %in% c("72", "150") ~ "Upland",
+        TRUE ~ NA_character_
+      ),
+      Marsh_Area = factor(Marsh_Area,
+                          levels = c("Intertidal", "Edge", "Transition", "Platform", "Upland"))
+    )
+}
+
+sed_usgs_bay <- sed_usgs %>%
   filter(Tran %in% c("A", "B")) %>%
-  mutate(
-    Marsh_Area = case_when (
-    Site == "CorteMadera" & Tran %in% c("A", "B") & Dist %in% c("0.5", "2", "6") ~ "Edge", 
-    Site == "CorteMadera" & Tran %in% c("A", "B") & Dist %in% c("12", "18", "24") ~ "Platform", 
-    Site == "CorteMadera" & Tran %in% c("A", "B") & Dist %in% c("30", "48") ~ "Upland", 
-    Site == "SanPablo" & Tran %in% c("A", "B") & Dist %in% c("0.5", "2", "6", "9", "12", "18") ~ "Intertidal", 
-    Site == "SanPablo" & Tran %in% c("A", "B") & Dist %in% c("24") ~ "Edge", 
-    Site == "SanPablo" & Tran %in% c("A", "B") & Dist %in% c("48") ~ "Platform", 
-    Site == "SanPablo" & Tran %in% c("A", "B") & Dist %in% c("72", "150") ~ "Upland", 
-    TRUE ~ NA_character_
-  ), 
-  Marsh_Area = factor(Marsh_Area, levels = c("Intertidal", "Edge", "Platform", "Upland")) 
-  )
+  assign_usgs_marsh_area()
+
+sed_usgs_river <- sed_usgs %>%
+  filter(Tran %in% c("C", "D")) %>%
+  assign_usgs_marsh_area()
 
 sed_usgs_bay <- sed_usgs_bay %>%
   mutate(Dist = factor(Dist, levels = c("0.5", "2", "6", "9", "12", "18", "24", "30", "48", "72", "150")))
 
-# river database
-
-sed_usgs_river <- sed_usgs %>% 
-  filter(Tran %in% c("C", "D")) %>%
-  mutate(
-    Marsh_Area = case_when (
-    Site == "CorteMadera" & Tran %in% c("C", "D") & Dist %in% c("0.5", "2", "6") ~ "Edge", 
-    Site == "CorteMadera" & Tran %in% c("C", "D") & Dist %in% c("12", "18", "24") ~ "Platform", 
-    Site == "CorteMadera" & Tran %in% c("C", "D") & Dist %in% c("30", "48") ~ "Upland", 
-    Site == "SanPablo" & Tran %in% c("C", "D") & Dist %in% c("0.5", "2", "6", "9", "12", "18") ~ "Intertidal", 
-    Site == "SanPablo" & Tran %in% c("C", "D") & Dist %in% c("24") ~ "Edge", 
-    Site == "SanPablo" & Tran %in% c("C", "D") & Dist %in% c("48") ~ "Platform", 
-    Site == "SanPablo" & Tran %in% c("C", "D") & Dist %in% c("72", "150") ~ "Upland", 
-    TRUE ~ NA_character_
-  ), 
-  Marsh_Area = factor(Marsh_Area, levels = c("Intertidal", "Edge", "Platform", "Upland")) 
-  )
-
-sed_usgs_river <- sed_usgs_river %>%
-  mutate(Dist = factor(Dist, levels = c("0.5", "2", "6", "9", "12", "18", "24", "30", "48", "72", "150")))
 
 # right after the split, BEFORE average_replicates() is called
 sed_usgs_river_raw <- sed_usgs_river

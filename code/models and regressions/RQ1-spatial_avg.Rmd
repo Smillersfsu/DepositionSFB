@@ -1436,11 +1436,11 @@ ggsave("C:\\Users\\savan\\OneDrive - San Francisco State University\\ProjectData
 
 ```{r, ADDED averaged companion for p_flux_dist_shape}
 
-master_tier5_clean$Site <- factor(master_tier5_clean$Site, 
-                   levels = c("GiantMarsh", "CorteMadera", "SanPablo", "Buck'sLanding"))
+
 
 p_flux_dist_shape_avg <- master_tier5_clean %>%
-  mutate(Dist_factor = factor(Dist, levels = c(0.5, 2, 6, 12, 18, 24))) %>%
+  mutate(
+    Site = factor(Site, levels = c("GiantMarsh", "CorteMadera", "SanPablo", "Buck'sLanding")), Dist_factor = factor(Dist, levels = c(0.5, 2, 6, 12, 18, 24))) %>%
   ggplot(aes(x = Dist_factor, y = Flux, fill = Site, color = Site)) +
   geom_violin(alpha = 0.4, position = position_dodge(width = 0.8), scale = "width") +
   geom_jitter(size = 1, alpha = 0.3, position = position_jitterdodge(jitter.width = 0.15, dodge.width = 0.8)) +
@@ -1618,6 +1618,7 @@ platform_dists <- c(12, 18, 24)
 
 # >>> MODEL LIST <<<
 platform_models <- c(
+  "m_glmm_factor_avg", 
   "model_full_glmm_avg",
   "distmodel_glmm_avg",
   "distsitemodel_glmm_avg",
@@ -1866,6 +1867,7 @@ master_tier5_clean %>%
 # wasn't fit is saved as NULL and skipped by the tables file.
 
 rq1_spatial_model_names_avg <- c(
+  "m_glmm_factor_avg", 
   "model_full_glmm_avg",
   "distmodel_glmm_avg",
   "distsitemodel_glmm_avg",

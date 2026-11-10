@@ -91,7 +91,7 @@ str(usgs_thesis_avg)
 
 thesis_rq2 <- usgs_thesis %>%
   filter(!Site %in% c("Buck'sLanding", "GiantMarsh")) %>%
-  filter(Marsh_Area %in% c("Edge", "Platform"))
+  filter(Marsh_Area %in% c("Edge", "Transition", "Platform"))
 
 thesis_rq2 <- thesis_rq2 %>%
   select(-marsh_edge_type, -marsh_orientation) %>%
@@ -105,7 +105,7 @@ thesis_rq2$Study.Dataset <- as.factor(thesis_rq2$Study.Dataset)
  month_levels <- c("July", "August", "September", "October", "November", "December",
                       "January", "February", "March", "April", "May", "June")
    thesis_rq2 <- thesis_rq2 %>%
-     mutate(Month = factor(Month, levels = month_levels))
+     mutate(Month = factor(as.character(Month), levels = month_levels))
 
 unique(thesis_rq2$Site)
 unique(thesis_rq2$Study.Dataset)
@@ -117,7 +117,7 @@ nrow(thesis_rq2)
 # above, applied to usgs_thesis_avg instead.
 thesis_rq2_avg <- usgs_thesis_avg %>%
   filter(!Site %in% c("Buck'sLanding", "GiantMarsh")) %>%
-  filter(Marsh_Area %in% c("Edge", "Platform"))
+  filter(Marsh_Area %in% c("Edge", "Transition", "Platform"))
 
 thesis_rq2_avg <- thesis_rq2_avg %>%
   select(-marsh_edge_type, -marsh_orientation) %>%
@@ -129,7 +129,7 @@ thesis_rq2_avg <- thesis_rq2_avg %>%
 thesis_rq2_avg$Study.Dataset <- as.factor(thesis_rq2_avg$Study.Dataset)
 
 thesis_rq2_avg <- thesis_rq2_avg %>%
-  mutate(Month = factor(Month, levels = month_levels))
+  mutate(Month = factor(as.character(Month), levels = month_levels))
 
 # BUGFIX: usgs_thesis.rds (averaged) may not carry Loc_ID if built
 # before the average_replicates() fix in step6/usgs_step3 -- every
@@ -182,7 +182,6 @@ cm_rq2_avg %>%
                    .groups = "drop") %>%
   dplyr::arrange(Dist, Study.Dataset)
 ```
-
 
 ```{r, statistics basic}
 basic_stats_usgs <- make_flux_table(
@@ -357,8 +356,6 @@ ggsave("C:\\Users\\savan\\OneDrive - San Francisco State University\\ProjectData
        dpi = 300,
        limitsize = FALSE)
 ```
-
-
 
 ```{r, models}
 # Objective 2: Corte Madera, 2022-2023 vs. 2025-2026, all six shared
@@ -546,7 +543,6 @@ rbind(
 AIC(rq2_cm_glmm_avg, rq2_cm_glmm_avg_disp)
 ```
 
-
 ```{r, elevation table}
 
 # Station elevation (z*) by distance and period -- appendix table
@@ -571,8 +567,6 @@ rq2_zstar_gt <- rq2_zstar_table %>%
 rq2_zstar_gt
 gt::gtsave(rq2_zstar_gt, filename = file.path(rq2_img_dir, "rq2_zstar_by_period.png"))
 ```
-
-
 
 ```{r, Appendix table and double check}
 
@@ -635,8 +629,6 @@ rq2_dist_ratios_gt <- rq2_dist_ratios %>%
 rq2_dist_ratios_gt
 gt::gtsave(rq2_dist_ratios_gt, filename = file.path(rq2_img_dir, "rq2_ratio_by_distance.png"))
 ```
-
-
 
 ```{r, ADDED averaged companions for the two main boxplots}
 
@@ -713,12 +705,7 @@ qqnorm(thesis_rq2_avg$Flux)
 qqline(thesis_rq2_avg$Flux)
 ```
 
-
-
-
 > **Superseded (Oct 28, 2026).** Objective 2 is now Corte Madera only (San Pablo excluded for the station offset). The models from here down include San Pablo and are kept for the record only; they are not reported. The reported analysis is in the chunks above: `rq2_period_glmm_avg` (main body), `rq2_cm_glmm_avg` (main interaction, appendix), and the robustness checks.
-
-
 
 ## Model 1: Study.Dataset x temporal grouping, random intercept for Site
 
@@ -1219,7 +1206,7 @@ bay_channel <- bind_rows(sed_usgs_bay_rq2, sed_usgs_river_rq2)
 # usgs_thesis_merge.qmd's equivalent chunk, not duplicated logic.
 bay_channel$Location    <- factor(bay_channel$Location, levels = c("Bay", "Channel"))
 bay_channel$Study.Phase <- factor(bay_channel$Study.Phase, levels = paste0("M", 1:12))
-bay_channel$Marsh_Area  <- factor(bay_channel$Marsh_Area, levels = c("Intertidal", "Edge", "Platform", "Upland"))
+bay_channel$Marsh_Area  <- factor(bay_channel$Marsh_Area, levels = c("Intertidal", "Edge", "Transition",  "Platform", "Upland"))
 bay_channel$Site        <- as.factor(bay_channel$Site)
 
 # MONTH (pipeline cleanup, Oct 2026): usgs_bay/usgs_river now carry the
@@ -1229,7 +1216,7 @@ bay_channel$Site        <- as.factor(bay_channel$Site)
 to_full_month <- function(m) {
   m <- as.character(m)
   full <- ifelse(m %in% month.abb, month.name[match(m, month.abb)], m)
-  factor(full, levels = study_month_levels, ordered = TRUE)
+  factor(full, levels = study_month_levels)
 }
 bay_channel <- bay_channel %>%
   mutate(Month = to_full_month(Month))
@@ -1283,7 +1270,7 @@ bay_channel_avg <- bind_rows(sed_usgs_bay_rq2_avg, sed_usgs_river_rq2_avg)
 
 bay_channel_avg$Location    <- factor(bay_channel_avg$Location, levels = c("Bay", "Channel"))
 bay_channel_avg$Study.Phase <- factor(bay_channel_avg$Study.Phase, levels = paste0("M", 1:12))
-bay_channel_avg$Marsh_Area  <- factor(bay_channel_avg$Marsh_Area, levels = c("Intertidal", "Edge", "Platform", "Upland"))
+bay_channel_avg$Marsh_Area  <- factor(bay_channel_avg$Marsh_Area, levels = c("Intertidal", "Edge", "Transition", "Platform", "Upland"))
 bay_channel_avg$Site        <- as.factor(bay_channel_avg$Site)
 
 bay_channel_avg <- bay_channel_avg %>%
@@ -1333,7 +1320,7 @@ ggplot(bay_channel_dist_avg, aes(x = Dist, y = mean_flux, color = Location)) +
   )
 
 bay_channel_dist_season <- bay_channel %>%
-  group_by(Site, Location, Season, Dist) %>%
+  group_by(Site, Location, Cal_Season, Dist) %>%
   summarise(
     mean_flux = mean(Flux, na.rm = TRUE),
     se_flux = sd(Flux, na.rm = TRUE) / sqrt(n()),
@@ -1347,7 +1334,7 @@ ggplot(bay_channel %>% filter(Site == "SanPablo"), aes(x = Dist, y = Flux, color
   stat_summary(fun = mean, geom = "point", size = 2.5, shape = 21) +
   scale_fill_manual(values = bay_channel_colors) +
   scale_color_manual(values = bay_channel_colors) +
-  facet_wrap(~ Season, scales = "free_x") +
+  facet_wrap(~ Cal_Season, scales = "free_x") +
   scale_y_log10() +
   labs(
     title =  stringr::str_wrap("Mean Sediment Flux at San Pablo Marsh Across Distance from Marsh Edge and Seasons", width = 40),
@@ -1366,7 +1353,7 @@ ggplot(bay_channel %>% filter(Site == "CorteMadera"), aes(x = Dist, y = Flux, co
               position = position_jitterdodge(jitter.width = 0.15, dodge.width = 0.75)) +
  # geom_errorbar(aes(ymin = mean_flux - se_flux, ymax = mean_flux + se_flux)) +
   stat_summary(fun = mean, geom = "point", size = 2.5, shape = 21) +
-  facet_wrap(~ Season, scales = "free_x") +
+  facet_wrap(~ Cal_Season, scales = "free_x") +
   scale_fill_manual(values = bay_channel_colors) +
   scale_color_manual(values = bay_channel_colors) +
   scale_y_log10() +
@@ -1409,7 +1396,7 @@ ggplot(bay_channel_avg %>% filter(Site == "SanPablo"), aes(x = Dist, y = Flux, c
   stat_summary(fun = mean, geom = "point", size = 2.5, shape = 21) +
   scale_fill_manual(values = bay_channel_colors) +
   scale_color_manual(values = bay_channel_colors) +
-  facet_wrap(~ Season, scales = "free_x") +
+  facet_wrap(~ Cal_Season, scales = "free_x") +
   scale_y_log10() +
   labs(
     title =  stringr::str_wrap("Mean Sediment Flux at San Pablo Marsh Across Distance from Marsh Edge and Seasons (Averaged)", width = 40),
@@ -1427,7 +1414,7 @@ ggplot(bay_channel_avg %>% filter(Site == "CorteMadera"), aes(x = Dist, y = Flux
   geom_jitter(alpha = 0.4, size = 0.8,
               position = position_jitterdodge(jitter.width = 0.15, dodge.width = 0.75)) +
   stat_summary(fun = mean, geom = "point", size = 2.5, shape = 21) +
-  facet_wrap(~ Season, scales = "free_x") +
+  facet_wrap(~ Cal_Season, scales = "free_x") +
   scale_fill_manual(values = bay_channel_colors) +
   scale_color_manual(values = bay_channel_colors) +
   scale_y_log10() +

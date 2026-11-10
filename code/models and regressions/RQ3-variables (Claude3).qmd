@@ -303,7 +303,7 @@ Standardized LASSO on the thesis subset, used to cross-check which predictors th
 library(glmnet)
 
 lasso_data <- usgs_thesis %>%
-  filter(Study.Dataset == "Thesis") %>%   
+  filter(Study.Dataset == "Thesis", Dist != 48, Flux > 0) %>%   
   select(Flux, z_star, local_slope, mean_wind_speed_kt, slope_fitted_elevation_m,
          max_gust_kt, Dist) %>%
   mutate(Dist = as.numeric(Dist)) %>%
@@ -374,7 +374,7 @@ ggsave("C:\\Users\\savan\\OneDrive - San Francisco State University\\ProjectData
 ```{r, ADDED averaged companion for LASSO}
 
 lasso_data_avg <- usgs_thesis_avg %>%
-  filter(Study.Dataset == "Thesis") %>%   
+  filter(Study.Dataset == "Thesis", Dist != 48, Flux > 0) %>%   
   select(Flux, z_star, Dist) %>%
   mutate(Dist = as.numeric(Dist)) %>%
   drop_na() %>%
@@ -923,8 +923,6 @@ ggsave("C:\\Users\\savan\\OneDrive - San Francisco State University\\ProjectData
        plot = rq3_vp_plot, width = 9, height = 5, dpi = 300, limitsize = FALSE)
 ```
 
-
-
 ### Part 1b: variance partitioning within each site
 
 ADDED. The same intercept-only partition as Part 1, fit separately for each marsh, so each site can be looked at on its own terms: is that marsh's variation mostly between its transects, between trap locations along a transect, month to month, or trap to trap? Site drops out of the model (each fit is one site), and transect becomes `(1|Tran)` instead of `(1|Site:Tran)`.
@@ -1155,11 +1153,6 @@ ggsave("C:\\Users\\savan\\OneDrive - San Francisco State University\\ProjectData
        plot = rq3_vp_site_plot_avg, width = 9, height = 5, dpi = 300, limitsize = FALSE)
 ```
 
-
-
-
-
-
 ```{r}
 
 # Objective 3 LASSO on the averaged data (primary tier), all sites
@@ -1253,32 +1246,6 @@ ggsave(file.path("C:/Users/savan/OneDrive - San Francisco State University/Proje
                  "rq3_lasso_all_and_by_site_avg.png"),
        plot = rq3_lasso_plot, width = 13, height = 4.5, dpi = 300)
 ```
-
-```{r}
-
-# Appendix: absolute variance components, all stations vs. platform
-rq3_vp_abs_table <- rq3_vp_compare %>%
-  dplyr::filter(Site != "All sites (pooled)") %>%
-  dplyr::select(Stations, Site, Component, Variance) %>%
-  tidyr::pivot_wider(names_from = Stations, values_from = Variance) %>%
-  dplyr::mutate(Component = dplyr::recode(Component,
-                  "Loc_ID" = "Trap location", "Time_ID" = "Month",
-                  "Tran" = "Transect", "Residual" = "Location \u00d7 deployment")) %>%
-  dplyr::arrange(Site, Component)
-
-rq3_vp_abs_gt <- rq3_vp_abs_table %>%
-  gt::gt(groupname_col = "Site") %>%
-  gt::tab_header(title = "Variance components of log sediment flux by site",
-                 subtitle = "Absolute (log-scale) variances; intercept-only Gamma GLMMs, averaged data") %>%
-  gt::fmt_number(columns = -Component, decimals = 2)
-rq3_vp_abs_gt
-gt::gtsave(rq3_vp_abs_gt, filename = file.path(rq3_img_dir, "rq3_variance_components_absolute_APPENDIX.png"))
-```
-
-
-
-
-
 
 ```{r}
 
@@ -1421,8 +1388,26 @@ ggsave(file.path(rq3_img_dir, "rq3_variance_partition_all_vs_platform_avg.png"),
        plot = rq3_vp_compare_plot, width = 13, height = 5, dpi = 300)
 ```
 
+```{r}
 
+# Appendix: absolute variance components, all stations vs. platform
+rq3_vp_abs_table <- rq3_vp_compare %>%
+  dplyr::filter(Site != "All sites (pooled)") %>%
+  dplyr::select(Stations, Site, Component, Variance) %>%
+  tidyr::pivot_wider(names_from = Stations, values_from = Variance) %>%
+  dplyr::mutate(Component = dplyr::recode(Component,
+                                          "Loc_ID" = "Trap location", "Time_ID" = "Month",
+                                          "Tran" = "Transect", "Residual" = "Location \u00d7 deployment")) %>%
+  dplyr::arrange(Site, Component)
 
+rq3_vp_abs_gt <- rq3_vp_abs_table %>%
+  gt::gt(groupname_col = "Site") %>%
+  gt::tab_header(title = "Variance components of log sediment flux by site",
+                 subtitle = "Absolute (log-scale) variances; intercept-only Gamma GLMMs, averaged data") %>%
+  gt::fmt_number(columns = -Component, decimals = 2)
+rq3_vp_abs_gt
+gt::gtsave(rq3_vp_abs_gt, filename = file.path(rq3_img_dir, "rq3_variance_components_absolute_APPENDIX.png"))
+```
 
 ### Part 2: between-marsh vs within-marsh predictors
 

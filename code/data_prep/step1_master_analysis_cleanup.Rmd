@@ -74,44 +74,16 @@ sed_thesis$RB_Num <- as.numeric(sed_thesis$RB_Num)
 sed_thesis$Filter_Num <- as.numeric(sed_thesis$Filter_Num)
 
 
-# Adding a Month column, derived from the deployment window
-# (Date.placed.in.field to Date.removed.from.field) rather than just
-# Date.removed.from.field alone -- assigns each row to whichever
-# calendar month contains the majority of days in that window, so a
-# deployment spanning a month boundary isn't mis-binned by whichever
-# single date happens to get used. Runs here (once, at the source)
-# rather than being re-derived in every downstream analysis file, and
-# requires Date.placed.in.field / Date.removed.from.field to already be
-# true Date class -- confirmed above, this must stay below that step.
-# MONTH RULE (project-wide, Oct 2026): this majority-of-days month is the
-# ONE Month definition used everywhere downstream ...
-# TIES ... go to the EARLIER month in time, i.e. the month the
-# deployment started in.
-majority_month <- function(start_date, end_date) {
-  if (is.na(start_date) || is.na(end_date)) return(NA_character_)
-  days <- seq(start_date, end_date, by = "day")
-  m <- as.character(month(days, label = TRUE, abbr = TRUE))
-  month_counts <- table(factor(m, levels = unique(m)))   # levels in time order
-  names(which.max(month_counts))
-}
-
-is_tied_month <- function(start_date, end_date) {
-  if (is.na(start_date) || is.na(end_date)) return(NA)
-  counts <- table(month(seq(start_date, end_date, by = "day")))
-  sum(counts == max(counts)) > 1
-}
-
-sed_thesis %>%
-  distinct(Site, Date.placed.in.field, Date.removed.from.field) %>%
-  mutate(tied = purrr::map2_lgl(Date.placed.in.field, Date.removed.from.field, is_tied_month)) %>%
-  count(tied)   # TRUE = deployments assigned by the tie rule
-
-sed_thesis <- sed_thesis %>%
+# Adding a month column based on the midpoint of the deployment window (Date placed in field vs. Date removed from field) 
+# MONTH RULE from now on: Month is the calendar month containing the "Midpoint Date". If a deployment window has two middle dates use the earlier one. 
+# This step in the code has to stay under the conversion that converts the columns to a Date class
+sed_thesis <- sed_thesis %>% 
   mutate(
-    Month = purrr::map2_chr(Date.placed.in.field, Date.removed.from.field, majority_month),
-    Month = factor(Month, levels = c("Jul", "Aug", "Sep", "Oct", "Nov", "Dec",
-                                       "Jan", "Feb", "Mar", "Apr", "May", "Jun"))
-  )
+    Midpoint_Date = Date.placed.in.field + floor(as.numeric(Date.removed.from.field - Date.placed.in.field)/2), 
+    Month = as.character(month(Midpoint_Date, label = TRUE, abbr = TRUE)), 
+    Month = factor(Month, levels = c("Jul", "Aug", "Sep", "Oct", "Nov", "Dec", "Jan", "Feb", "Mar", "Apr", "May", "Jun"))
+  ) 
+
 # Changing the from site abbreviations to Descriptive Site Names
 
 sed_thesis <- sed_thesis %>% 
@@ -200,7 +172,7 @@ sed_thesis <- sed_thesis %>%
 # = November-February, Summer = March-October.
 #
 # Built from Month (the actual calendar month derived from deployment
-# dates via majority_month() above), NOT from Study.Phase/Phen_Period --
+# dates via deployment midpoint above), NOT from Study.Phase/Phen_Period --
 # Study.Phase is a sequential deployment index (M1-M12) that only
 # roughly tracks calendar month, since deployment windows don't align
 # cleanly with calendar months (flagged in committee meeting notes).
@@ -227,14 +199,17 @@ sed_thesis <- sed_thesis %>%
 
 # Adding a Marsh Area category
 
-sed_thesis <- sed_thesis %>% 
-    mutate(Marsh_Area = case_when (
-      Dist %in% c("0.5", "2", "6") ~ "Edge", 
-      Dist %in% c("12", "18", "24") ~ "Platform", 
-      Dist %in% c("48") ~ "Upland"
-    ), 
-    Marsh_Area = factor(Marsh_Area, levels = c("Edge", "Platform", "Upland")) 
-    )
+sed_thesis <- sed_thesis %>%
+  mutate(
+    Marsh_Area = case_when(
+      Dist %in% c("0.5", "2") ~ "Edge",
+      Dist == "6" ~ "Transition",
+      Dist %in% c("12", "18", "24") ~ "Platform",
+      Dist == "48" ~ "Upland"
+    ),
+    Marsh_Area = factor(Marsh_Area,
+                        levels = c("Edge", "Transition", "Platform", "Upland"))
+  )
 
 #check before plotting or modeling 
 str(sed_thesis) 
@@ -288,7 +263,8 @@ master_thesis$Cal_Season <- factor(master_thesis$Cal_Season, levels = c("Winter"
 master_thesis$marsh_edgeID <- factor(master_thesis$marsh_edgeID,
                                        levels = c("R-1","R-2","R-3","R-4","S-1","S-2","S-3","S-4"))
 master_thesis$marsh_orientation <- as.factor(master_thesis$marsh_orientation)
-master_thesis$Marsh_Area <- as.factor(master_thesis$Marsh_Area)
+master_thesis$Marsh_Area <- factor(master_thesis$Marsh_Area,
+                                   levels = c("Edge", "Transition", "Platform", "Upland"))
 master_thesis$Master_Flag <- as.factor(master_thesis$Master_Flag)
 master_thesis$NegValue_Num <- as.numeric(master_thesis$NegValue_Num)
 master_thesis$DryTime_Obsv <- as.numeric(master_thesis$DryTime_Obsv)
@@ -327,6 +303,7 @@ source("C:\\Users\\savan\\OneDrive - San Francisco State University\\ProjectData
 
 
 ```
+
 
 
 

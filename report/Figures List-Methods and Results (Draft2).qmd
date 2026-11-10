@@ -1,0 +1,123 @@
+---
+title: "Figures-Methods and Results (Draft)" 
+format: docx                  
+editor: visual  
+---
+
+### 1. Introduction
+
+### 2. Methods
+
+#### 2.1 Study Sites
+
+*Figure 1. Sediment Deposition Processes with Structural, Biotic, and Abiotic Factors (reproduced from Leondari 2018)*
+
+*Figure 2. Scarp Marsh Edge Shape and Sediment Deposition Processes (reproduced from Fagherazzi 2020)*
+
+*Figure 3. General Study Site*
+
+![](C:/Users/savan/OneDrive%20-%20San%20Francisco%20State%20University/ProjectData/GitHub/DepositionSFB/images/Maps/General%20Map-Study%20Sites.tif)
+
+*Figure 4. General Study Site with Elevation Survey Benchmarks Included*
+
+![](C:/Users/savan/OneDrive%20-%20San%20Francisco%20State%20University/ProjectData/GitHub/DepositionSFB/images/Maps/MapwithBenchmarks.tif)
+
+#### 2.2 Marsh Edge Typology
+
+#### 2.3 Sediment Deposition Collections throughout the Year
+
+*Figure 3. Transect Layout of Study Design With Ramped and Scarped Edges*
+
+![](C:/Users/savan/OneDrive%20-%20San%20Francisco%20State%20University/ProjectData/GitHub/DepositionSFB/images/methods/TransectFigureFinal.png){width="705"}
+
+*Figure 4. Deployment Length within Study Period (2022-2023)* ![](images/clipboard-1795811635.png)
+
+*Figure 5. Deployment Length within Study Period (2025-2026)* ![](images/clipboard-1685377747.png)
+
+*Figure 6. Criteria Table for Qualitative and Quantative Quality Control Determinations* ![](C:/Users/savan/OneDrive%20-%20San%20Francisco%20State%20University/ProjectData/GitHub/DepositionSFB/images/flagged_data/all_sites/flag_criteria_reference.png)
+
+### 3. Results
+
+#### 3.1 RTK Elevation Measurements for Horizontal Marsh Edge Profiles of 2025-2026 Study
+
+*Figure 7. Elevation Profiles of Scarped Edges Sites-Giant Marsh and Corte Madera* ![](C:/Users/savan/OneDrive%20-%20San%20Francisco%20State%20University/ProjectData/GitHub/DepositionSFB/images/elevation/crosssite_scarped_ep_mean.png)
+
+*Figure 8. Elevation Profiles of Ramped Edges Sites-Buck's Landing and San Pablo* ![](C:/Users/savan/OneDrive%20-%20San%20Francisco%20State%20University/ProjectData/GitHub/DepositionSFB/images/elevation/crosssite_ramped_ep_mean.png)
+
+*Figure 9. Quality Control Results by Study Phase Collected*
+
+![](C:/Users/savan/OneDrive%20-%20San%20Francisco%20State%20University/ProjectData/GitHub/DepositionSFB/images/flagged_data/all_sites/flag_counts_by_site_studyphase.png)
+
+*Figure 10. Quality Control Results by Distance from Marsh Edge*
+
+![](C:/Users/savan/OneDrive%20-%20San%20Francisco%20State%20University/ProjectData/GitHub/DepositionSFB/images/flagged_data/all_sites/flag_counts_by_site_distance.png)
+
+*Figure 11. Quality Control Flag Frequency Per Distance Sampled*
+
+![](C:/Users/savan/OneDrive%20-%20San%20Francisco%20State%20University/ProjectData/GitHub/DepositionSFB/images/flagged_data/all_sites/all_sites_flag_types_by_distance.png)
+
+*Figure 12. Total Percentages of Flags Occurred within Site*
+
+![](C:/Users/savan/OneDrive%20-%20San%20Francisco%20State%20University/ProjectData/GitHub/DepositionSFB/images/flagged_data/all_sites/flag_pct_by_site_type.png)
+
+#### 3.2 Sediment Deposition Across Ramped and Scarped Marsh Edges
+
+*Figure 13. Sediment Flux Across Ramped and Scarped Marsh Edges in 2025/2026*
+
+![](C:/Users/savan/OneDrive%20-%20San%20Francisco%20State%20University/ProjectData/GitHub/DepositionSFB/images/rq_1/rq1_edge_type_all_vs_platform_avg.png)
+
+#### 3.3 Comparing 2022/2023 and 2025/2026 Flux Across Corte Madera Marsh
+
+![](C:/Users/savan/OneDrive%20-%20San%20Francisco%20State%20University/ProjectData/GitHub/DepositionSFB/images/rq_2/rq2_period_all_vs_platform_avg.png)
+
+#### 3.4 Sediment Deposition in Relation to Intra-Marsh Geomorphic Factors
+
+*Intra-Marsh Geomorphic Factor Comparison*
+
+*Figure 22. Least Absolute Shrinkage and Selection Operator (LASSO) Regression Model of Intra-Marsh Geomorphic Variables*
+
+![](C:/Users/savan/OneDrive%20-%20San%20Francisco%20State%20University/ProjectData/GitHub/DepositionSFB/images/rq_3/lasso_plot_avg.png)
+
+*Elevation and Distance from Marsh Edge*
+
+*Figure 23. Comparing Average Flux and Variability Across Distance from Marsh Edge and z star*
+
+![](C:/Users/savan/OneDrive%20-%20San%20Francisco%20State%20University/ProjectData/GitHub/DepositionSFB/images/rq_3/rq3_station_level_summary.png)
+
+*Figure 24. Variance Across Time and Space Between and Across Sites of Sediment Deposition (Flux)*
+
+![](C:/Users/savan/OneDrive%20-%20San%20Francisco%20State%20University/ProjectData/GitHub/DepositionSFB/images/rq_3/rq3_variance_partition_by_site_avg.png)
+
+*Figure 25. Sediment Deposition (Flux) Across z star profiles Across Marsh Sites*
+
+![](C:/Users/savan/OneDrive%20-%20San%20Francisco%20State%20University/ProjectData/GitHub/DepositionSFB/images/rq_3/rq3_zstar_flux_stacked_avg.png)
+
+*Figure 26. Sediment Deposition (Flux) Across Distance Over Study Collections Between Sites*
+
+![](C:/Users/savan/OneDrive%20-%20San%20Francisco%20State%20University/ProjectData/GitHub/DepositionSFB/images/rq_3/rq3_station_phase_heatmap.png)
+
+*Figure 27. Corte Madera Site Case Study of Sediment Deposition (Flux) Across Distance from Marsh Edge Across Study Collections Between 2022/2023 vs. 2025/2026*
+
+![](C:/Users/savan/OneDrive%20-%20San%20Francisco%20State%20University/ProjectData/GitHub/DepositionSFB/images/rq_2/rq2_CM_phase_heatmap.png)
+
+### 5. Discussion
+
+*Figure 28. Distribution of Values Between Ramped and Scarped Marsh Sites*
+
+![](C:/Users/savan/OneDrive%20-%20San%20Francisco%20State%20University/ProjectData/GitHub/DepositionSFB/images/rq_1/rq1_density_sj_avg.png)
+
+*Figure 29. LASSO Analysis Adjusted Per Site*
+
+![](C:/Users/savan/OneDrive%20-%20San%20Francisco%20State%20University/ProjectData/GitHub/DepositionSFB/images/rq_3/lasso_plot_by_site.png)
+
+*Figure 30. Average Precipitation Between 2022/2023 and 2025/2026 from San Francisco Bay (will get exact tidal station information)*
+
+![](C:/Users/savan/OneDrive%20-%20San%20Francisco%20State%20University/ProjectData/GitHub/DepositionSFB/images/daily_precip_2022_2026.png)
+
+*Figure 31. 2022/2023 and 2025/2026 Distribution Plot Comparisons Between Corte Madera Marsh and San Pablo Marsh*
+
+![](C:/Users/savan/OneDrive%20-%20San%20Francisco%20State%20University/ProjectData/GitHub/DepositionSFB/images/rq_2/rq2s_flux_hist_avg.png)
+
+*Figure 32. San Pablo 2022/2023 Unvegetated Marsh Sampling Points Incorporated Within Study*
+
+![](C:/Users/savan/OneDrive%20-%20San%20Francisco%20State%20University/ProjectData/GitHub/DepositionSFB/images/rq_2/rq2s_crossshore_profile_avg.png)

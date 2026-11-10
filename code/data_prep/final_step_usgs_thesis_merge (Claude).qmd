@@ -110,7 +110,7 @@ unique(sed_usgs_byrep$Site)
 ```{r, derive Month for comparability}
 
 # MONTH (pipeline cleanup, Oct 2026): ONE definition across the project.
-# Both datasets already carry the majority-of-deployment month from their
+# Both datasets already carry the deployment mid-point month month from their
 # step1 (thesis as "Jul"/"Aug"..., USGS already relabeled to full names
 # in usgs step3). This used to RE-DERIVE Month from the removal date,
 # which gave RQ2 a different Month than RQ1/RQ3. Now it only relabels
@@ -321,6 +321,34 @@ if (!is.null(crosswalk_check)) {
 ```
 
 ```{r, save merged dataset}
+
+phen_levels <- c("Late_Dry\n(Months 1-3)", "Tran\n(Months 4-6)",
+                 "Wet\n(Months 7-9)", "Growth\n(Months 10-12)")
+
+usgs_thesis <- usgs_thesis %>%
+  mutate(Phen_Period = factor(Phen_Period, levels = phen_levels),
+         Cal_Season = factor(Cal_Season, levels = c("Winter", "Summer")))
+
+marsh_area_levels <- c("Intertidal", "Edge", "Transition", "Platform", "Upland")
+
+usgs_thesis <- usgs_thesis %>%
+  mutate(
+    Phen_Period = factor(Phen_Period, levels = phen_levels),
+    Cal_Season = factor(Cal_Season, levels = c("Winter", "Summer")),
+    Marsh_Area = factor(Marsh_Area, levels = marsh_area_levels)
+  )
+
+usgs_thesis_byrep <- usgs_thesis_byrep %>%
+  mutate(
+    Phen_Period = factor(Phen_Period, levels = phen_levels),
+    Cal_Season = factor(Cal_Season, levels = c("Winter", "Summer")),
+    Marsh_Area = factor(Marsh_Area, levels = marsh_area_levels)
+  )
+
+usgs_thesis_byrep <- usgs_thesis_byrep %>%
+  mutate(Phen_Period = factor(Phen_Period, levels = phen_levels),
+         Cal_Season = factor(Cal_Season, levels = c("Winter", "Summer")))
+
 saveRDS(usgs_thesis, "C:\\Users\\savan\\OneDrive - San Francisco State University\\ProjectData\\GitHub\\DepositionSFB\\data\\usgs_thesis.rds")
 
 readr::write_csv(usgs_thesis, "C:\\Users\\savan\\OneDrive - San Francisco State University\\ProjectData\\GitHub\\DepositionSFB\\data\\usgs_thesis.csv")

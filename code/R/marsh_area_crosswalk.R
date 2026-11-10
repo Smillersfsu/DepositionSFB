@@ -57,7 +57,7 @@ build_marsh_area_crosswalk <- function(
 
   crosswalk_wide <- dplyr::bind_rows(wide_c, wide_s) %>%
     dplyr::mutate(Marsh_Area = factor(Marsh_Area,
-                    levels = c("Intertidal", "Edge", "Platform", "Upland")))
+                    levels = c("Intertidal", "Edge", "Transition", "Platform", "Upland")))
 
   # Long version -- one row per (Site, Study.Dataset, Dist), ready to
   # join onto usgs_thesis (or sed_thesis/sed_usgs individually) by

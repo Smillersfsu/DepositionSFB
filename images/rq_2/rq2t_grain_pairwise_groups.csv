@@ -1,229 +1,229 @@
 Grain,Time_Grain,Time_Level,contrast,ratio,lower,upper,p.value
-Replicate,Month,July,2025–2026 CorteMadera / 2022–2023 CorteMadera,0.9,0.37,2.16,0.989
-Replicate,Month,July,2022–2023 SanPablo / 2022–2023 CorteMadera,0.88,0.21,3.63,0.996
-Replicate,Month,July,2022–2023 SanPablo / 2025–2026 CorteMadera,0.98,0.25,3.92,1
-Replicate,Month,July,2025–2026 SanPablo / 2022–2023 CorteMadera,0.89,0.29,2.75,0.994
-Replicate,Month,July,2025–2026 SanPablo / 2025–2026 CorteMadera,0.99,0.34,2.94,1
-Replicate,Month,July,2025–2026 SanPablo / 2022–2023 SanPablo,1.01,0.31,3.35,1
-Replicate,Month,August,2025–2026 CorteMadera / 2022–2023 CorteMadera,1.08,0.35,3.32,0.998
-Replicate,Month,August,2022–2023 SanPablo / 2022–2023 CorteMadera,0.63,0.16,2.59,0.84
-Replicate,Month,August,2022–2023 SanPablo / 2025–2026 CorteMadera,0.59,0.12,2.79,0.817
-Replicate,Month,August,2025–2026 SanPablo / 2022–2023 CorteMadera,1.61,0.48,5.35,0.737
-Replicate,Month,August,2025–2026 SanPablo / 2025–2026 CorteMadera,1.49,0.38,5.9,0.877
-Replicate,Month,August,2025–2026 SanPablo / 2022–2023 SanPablo,2.54,0.71,9.08,0.236
-Replicate,Month,September,2025–2026 CorteMadera / 2022–2023 CorteMadera,0.6,0.24,1.48,0.462
-Replicate,Month,September,2022–2023 SanPablo / 2022–2023 CorteMadera,0.92,0.23,3.78,0.999
-Replicate,Month,September,2022–2023 SanPablo / 2025–2026 CorteMadera,1.55,0.38,6.36,0.856
-Replicate,Month,September,2025–2026 SanPablo / 2022–2023 CorteMadera,1.83,0.56,5.92,0.55
-Replicate,Month,September,2025–2026 SanPablo / 2025–2026 CorteMadera,3.07,0.94,9.97,0.0697
-Replicate,Month,September,2025–2026 SanPablo / 2022–2023 SanPablo,1.98,0.57,6.86,0.493
-Replicate,Month,October,2025–2026 CorteMadera / 2022–2023 CorteMadera,2.67,1.01,7.07,0.048
-Replicate,Month,October,2022–2023 SanPablo / 2022–2023 CorteMadera,0.77,0.18,3.34,0.97
-Replicate,Month,October,2022–2023 SanPablo / 2025–2026 CorteMadera,0.29,0.07,1.19,0.111
-Replicate,Month,October,2025–2026 SanPablo / 2022–2023 CorteMadera,5.23,1.57,17.49,0.0024
-Replicate,Month,October,2025–2026 SanPablo / 2025–2026 CorteMadera,1.96,0.62,6.19,0.432
-Replicate,Month,October,2025–2026 SanPablo / 2022–2023 SanPablo,6.76,1.99,22.9,3.36e-4
-Replicate,Month,November,2025–2026 CorteMadera / 2022–2023 CorteMadera,0.74,0.29,1.89,0.847
-Replicate,Month,November,2022–2023 SanPablo / 2022–2023 CorteMadera,1.74,0.42,7.25,0.747
-Replicate,Month,November,2022–2023 SanPablo / 2025–2026 CorteMadera,2.35,0.57,9.64,0.406
-Replicate,Month,November,2025–2026 SanPablo / 2022–2023 CorteMadera,1.13,0.35,3.69,0.993
-Replicate,Month,November,2025–2026 SanPablo / 2025–2026 CorteMadera,1.53,0.48,4.89,0.789
-Replicate,Month,November,2025–2026 SanPablo / 2022–2023 SanPablo,0.65,0.19,2.21,0.803
-Replicate,Month,December,2025–2026 CorteMadera / 2022–2023 CorteMadera,0.81,0.31,2.07,0.935
-Replicate,Month,December,2022–2023 SanPablo / 2022–2023 CorteMadera,1.67,0.41,6.83,0.787
-Replicate,Month,December,2022–2023 SanPablo / 2025–2026 CorteMadera,2.07,0.5,8.63,0.557
-Replicate,Month,December,2025–2026 SanPablo / 2022–2023 CorteMadera,1.29,0.41,4.09,0.939
-Replicate,Month,December,2025–2026 SanPablo / 2025–2026 CorteMadera,1.61,0.5,5.19,0.726
-Replicate,Month,December,2025–2026 SanPablo / 2022–2023 SanPablo,0.78,0.23,2.66,0.952
-Replicate,Month,January,2025–2026 CorteMadera / 2022–2023 CorteMadera,0.18,0.08,0.41,8.22e-7
-Replicate,Month,January,2022–2023 SanPablo / 2022–2023 CorteMadera,0.82,0.2,3.4,0.984
-Replicate,Month,January,2022–2023 SanPablo / 2025–2026 CorteMadera,4.64,1.13,18.95,0.0263
-Replicate,Month,January,2025–2026 SanPablo / 2022–2023 CorteMadera,0.15,0.05,0.46,9.59e-5
-Replicate,Month,January,2025–2026 SanPablo / 2025–2026 CorteMadera,0.85,0.28,2.58,0.981
-Replicate,Month,January,2025–2026 SanPablo / 2022–2023 SanPablo,0.18,0.05,0.65,0.00302
-Replicate,Month,February,2025–2026 CorteMadera / 2022–2023 CorteMadera,1.14,0.47,2.74,0.982
-Replicate,Month,February,2022–2023 SanPablo / 2022–2023 CorteMadera,1.42,0.35,5.8,0.92
-Replicate,Month,February,2022–2023 SanPablo / 2025–2026 CorteMadera,1.25,0.31,5.01,0.977
-Replicate,Month,February,2025–2026 SanPablo / 2022–2023 CorteMadera,1.15,0.38,3.52,0.988
-Replicate,Month,February,2025–2026 SanPablo / 2025–2026 CorteMadera,1.01,0.34,3.02,1
-Replicate,Month,February,2025–2026 SanPablo / 2022–2023 SanPablo,0.81,0.25,2.67,0.97
-Replicate,Month,March,2025–2026 CorteMadera / 2022–2023 CorteMadera,0.28,0.11,0.71,0.00265
-Replicate,Month,March,2022–2023 SanPablo / 2022–2023 CorteMadera,0.51,0.12,2.18,0.638
-Replicate,Month,March,2022–2023 SanPablo / 2025–2026 CorteMadera,1.83,0.46,7.33,0.677
-Replicate,Month,March,2025–2026 SanPablo / 2022–2023 CorteMadera,0.48,0.15,1.54,0.367
-Replicate,Month,March,2025–2026 SanPablo / 2025–2026 CorteMadera,1.71,0.57,5.09,0.588
-Replicate,Month,March,2025–2026 SanPablo / 2022–2023 SanPablo,0.93,0.28,3.08,0.999
-Replicate,Month,April,2025–2026 CorteMadera / 2022–2023 CorteMadera,1.05,0.42,2.6,0.999
-Replicate,Month,April,2022–2023 SanPablo / 2022–2023 CorteMadera,0.95,0.22,4.06,1
-Replicate,Month,April,2022–2023 SanPablo / 2025–2026 CorteMadera,0.9,0.22,3.76,0.998
-Replicate,Month,April,2025–2026 SanPablo / 2022–2023 CorteMadera,0.82,0.27,2.52,0.968
-Replicate,Month,April,2025–2026 SanPablo / 2025–2026 CorteMadera,0.78,0.27,2.31,0.937
-Replicate,Month,April,2025–2026 SanPablo / 2022–2023 SanPablo,0.86,0.26,2.91,0.99
-Replicate,Month,June,2025–2026 CorteMadera / 2022–2023 CorteMadera,0.31,0.12,0.78,0.00584
-Replicate,Month,June,2022–2023 SanPablo / 2022–2023 CorteMadera,1.49,0.35,6.33,0.894
-Replicate,Month,June,2022–2023 SanPablo / 2025–2026 CorteMadera,4.81,1.18,19.64,0.0217
-Replicate,Month,June,2025–2026 SanPablo / 2022–2023 CorteMadera,0.26,0.08,0.88,0.0237
-Replicate,Month,June,2025–2026 SanPablo / 2025–2026 CorteMadera,0.84,0.26,2.72,0.981
-Replicate,Month,June,2025–2026 SanPablo / 2022–2023 SanPablo,0.17,0.05,0.63,0.00255
-Replicate,Phenological Period,Late_Dry (Months 1-3),2025–2026 CorteMadera / 2022–2023 CorteMadera,0.95,0.37,2.44,0.999
-Replicate,Phenological Period,Late_Dry (Months 1-3),2022–2023 SanPablo / 2022–2023 CorteMadera,0.8,0.28,2.29,0.947
-Replicate,Phenological Period,Late_Dry (Months 1-3),2022–2023 SanPablo / 2025–2026 CorteMadera,0.84,0.23,3.1,0.987
-Replicate,Phenological Period,Late_Dry (Months 1-3),2025–2026 SanPablo / 2022–2023 CorteMadera,2.04,0.63,6.61,0.408
-Replicate,Phenological Period,Late_Dry (Months 1-3),2025–2026 SanPablo / 2025–2026 CorteMadera,2.15,0.84,5.47,0.154
-Replicate,Phenological Period,Late_Dry (Months 1-3),2025–2026 SanPablo / 2022–2023 SanPablo,2.55,0.86,7.53,0.118
-Replicate,Phenological Period,Tran (Months 4-6),2025–2026 CorteMadera / 2022–2023 CorteMadera,0.69,0.27,1.77,0.747
-Replicate,Phenological Period,Tran (Months 4-6),2022–2023 SanPablo / 2022–2023 CorteMadera,1.32,0.46,3.82,0.908
-Replicate,Phenological Period,Tran (Months 4-6),2022–2023 SanPablo / 2025–2026 CorteMadera,1.9,0.53,6.87,0.572
-Replicate,Phenological Period,Tran (Months 4-6),2025–2026 SanPablo / 2022–2023 CorteMadera,0.87,0.27,2.83,0.991
-Replicate,Phenological Period,Tran (Months 4-6),2025–2026 SanPablo / 2025–2026 CorteMadera,1.26,0.51,3.09,0.914
-Replicate,Phenological Period,Tran (Months 4-6),2025–2026 SanPablo / 2022–2023 SanPablo,0.66,0.22,1.95,0.758
-Replicate,Phenological Period,Wet (Months 7-9),2025–2026 CorteMadera / 2022–2023 CorteMadera,0.39,0.16,0.94,0.0311
-Replicate,Phenological Period,Wet (Months 7-9),2022–2023 SanPablo / 2022–2023 CorteMadera,0.84,0.29,2.42,0.975
-Replicate,Phenological Period,Wet (Months 7-9),2022–2023 SanPablo / 2025–2026 CorteMadera,2.15,0.61,7.54,0.397
-Replicate,Phenological Period,Wet (Months 7-9),2025–2026 SanPablo / 2022–2023 CorteMadera,0.41,0.14,1.25,0.168
-Replicate,Phenological Period,Wet (Months 7-9),2025–2026 SanPablo / 2025–2026 CorteMadera,1.06,0.45,2.53,0.998
-Replicate,Phenological Period,Wet (Months 7-9),2025–2026 SanPablo / 2022–2023 SanPablo,0.49,0.18,1.34,0.268
-Replicate,Phenological Period,Growth (Months 10-12),2025–2026 CorteMadera / 2022–2023 CorteMadera,1,0.35,2.91,1
-Replicate,Phenological Period,Growth (Months 10-12),2022–2023 SanPablo / 2022–2023 CorteMadera,1.19,0.36,3.96,0.982
-Replicate,Phenological Period,Growth (Months 10-12),2022–2023 SanPablo / 2025–2026 CorteMadera,1.19,0.28,4.96,0.99
-Replicate,Phenological Period,Growth (Months 10-12),2025–2026 SanPablo / 2022–2023 CorteMadera,0.91,0.27,3.04,0.997
-Replicate,Phenological Period,Growth (Months 10-12),2025–2026 SanPablo / 2025–2026 CorteMadera,0.91,0.35,2.32,0.993
-Replicate,Phenological Period,Growth (Months 10-12),2025–2026 SanPablo / 2022–2023 SanPablo,0.76,0.24,2.45,0.933
+Replicate,Month,July,2025–2026 CorteMadera / 2022–2023 CorteMadera,1.19,0.39,3.7,0.978
+Replicate,Month,July,2022–2023 SanPablo / 2022–2023 CorteMadera,0.88,0.21,3.59,0.995
+Replicate,Month,July,2022–2023 SanPablo / 2025–2026 CorteMadera,0.73,0.16,3.47,0.957
+Replicate,Month,July,2025–2026 SanPablo / 2022–2023 CorteMadera,1.82,0.55,6.03,0.576
+Replicate,Month,July,2025–2026 SanPablo / 2025–2026 CorteMadera,1.52,0.39,5.96,0.859
+Replicate,Month,July,2025–2026 SanPablo / 2022–2023 SanPablo,2.07,0.58,7.4,0.457
+Replicate,Month,August,2025–2026 CorteMadera / 2022–2023 CorteMadera,0.66,0.27,1.65,0.654
+Replicate,Month,August,2022–2023 SanPablo / 2022–2023 CorteMadera,0.63,0.16,2.57,0.836
+Replicate,Month,August,2022–2023 SanPablo / 2025–2026 CorteMadera,0.95,0.23,3.88,1
+Replicate,Month,August,2025–2026 SanPablo / 2022–2023 CorteMadera,2.03,0.63,6.5,0.404
+Replicate,Month,August,2025–2026 SanPablo / 2025–2026 CorteMadera,3.05,0.95,9.83,0.0681
+Replicate,Month,August,2025–2026 SanPablo / 2022–2023 SanPablo,3.2,0.93,11.07,0.0755
+Replicate,Month,September,2025–2026 CorteMadera / 2022–2023 CorteMadera,1.14,0.46,2.8,0.982
+Replicate,Month,September,2022–2023 SanPablo / 2022–2023 CorteMadera,0.93,0.23,3.75,0.999
+Replicate,Month,September,2022–2023 SanPablo / 2025–2026 CorteMadera,0.81,0.2,3.29,0.981
+Replicate,Month,September,2025–2026 SanPablo / 2022–2023 CorteMadera,2.24,0.72,7.01,0.264
+Replicate,Month,September,2025–2026 SanPablo / 2025–2026 CorteMadera,1.97,0.63,6.13,0.422
+Replicate,Month,September,2025–2026 SanPablo / 2022–2023 SanPablo,2.42,0.72,8.13,0.238
+Replicate,Month,October,2025–2026 CorteMadera / 2022–2023 CorteMadera,0.6,0.22,1.59,0.531
+Replicate,Month,October,2022–2023 SanPablo / 2022–2023 CorteMadera,0.77,0.18,3.3,0.968
+Replicate,Month,October,2022–2023 SanPablo / 2025–2026 CorteMadera,1.29,0.32,5.28,0.967
+Replicate,Month,October,2025–2026 SanPablo / 2022–2023 CorteMadera,0.91,0.27,3.06,0.998
+Replicate,Month,October,2025–2026 SanPablo / 2025–2026 CorteMadera,1.53,0.48,4.87,0.78
+Replicate,Month,October,2025–2026 SanPablo / 2022–2023 SanPablo,1.19,0.35,4.06,0.984
+Replicate,Month,November,2025–2026 CorteMadera / 2022–2023 CorteMadera,0.91,0.35,2.39,0.994
+Replicate,Month,November,2022–2023 SanPablo / 2022–2023 CorteMadera,1.72,0.42,7.08,0.76
+Replicate,Month,November,2022–2023 SanPablo / 2025–2026 CorteMadera,1.89,0.46,7.8,0.659
+Replicate,Month,November,2025–2026 SanPablo / 2022–2023 CorteMadera,1.46,0.46,4.65,0.836
+Replicate,Month,November,2025–2026 SanPablo / 2025–2026 CorteMadera,1.6,0.5,5.13,0.724
+Replicate,Month,November,2025–2026 SanPablo / 2022–2023 SanPablo,0.85,0.25,2.91,0.986
+Replicate,Month,December,2025–2026 CorteMadera / 2022–2023 CorteMadera,0.55,0.23,1.32,0.298
+Replicate,Month,December,2022–2023 SanPablo / 2022–2023 CorteMadera,1.67,0.41,6.77,0.783
+Replicate,Month,December,2022–2023 SanPablo / 2025–2026 CorteMadera,3.01,0.76,11.88,0.165
+Replicate,Month,December,2025–2026 SanPablo / 2022–2023 CorteMadera,0.47,0.15,1.46,0.312
+Replicate,Month,December,2025–2026 SanPablo / 2025–2026 CorteMadera,0.84,0.28,2.53,0.978
+Replicate,Month,December,2025–2026 SanPablo / 2022–2023 SanPablo,0.28,0.08,0.95,0.0382
+Replicate,Month,January,2025–2026 CorteMadera / 2022–2023 CorteMadera,0.27,0.11,0.63,4.29e-4
+Replicate,Month,January,2022–2023 SanPablo / 2022–2023 CorteMadera,0.61,0.16,2.36,0.779
+Replicate,Month,January,2022–2023 SanPablo / 2025–2026 CorteMadera,2.27,0.59,8.79,0.402
+Replicate,Month,January,2025–2026 SanPablo / 2022–2023 CorteMadera,0.27,0.09,0.79,0.01
+Replicate,Month,January,2025–2026 SanPablo / 2025–2026 CorteMadera,1,0.34,2.96,1
+Replicate,Month,January,2025–2026 SanPablo / 2022–2023 SanPablo,0.44,0.14,1.4,0.261
+Replicate,Month,March,2025–2026 CorteMadera / 2022–2023 CorteMadera,0.2,0.08,0.52,7.73e-5
+Replicate,Month,March,2022–2023 SanPablo / 2022–2023 CorteMadera,0.51,0.12,2.17,0.635
+Replicate,Month,March,2022–2023 SanPablo / 2025–2026 CorteMadera,2.52,0.63,10.08,0.314
+Replicate,Month,March,2025–2026 SanPablo / 2022–2023 CorteMadera,0.12,0.04,0.4,2.07e-5
+Replicate,Month,March,2025–2026 SanPablo / 2025–2026 CorteMadera,0.61,0.21,1.81,0.652
+Replicate,Month,March,2025–2026 SanPablo / 2022–2023 SanPablo,0.24,0.07,0.79,0.0116
+Replicate,Month,April,2025–2026 CorteMadera / 2022–2023 CorteMadera,0.87,0.35,2.17,0.981
+Replicate,Month,April,2022–2023 SanPablo / 2022–2023 CorteMadera,0.95,0.22,4.03,1
+Replicate,Month,April,2022–2023 SanPablo / 2025–2026 CorteMadera,1.08,0.26,4.49,0.999
+Replicate,Month,April,2025–2026 SanPablo / 2022–2023 CorteMadera,0.92,0.3,2.84,0.997
+Replicate,Month,April,2025–2026 SanPablo / 2025–2026 CorteMadera,1.05,0.35,3.13,0.999
+Replicate,Month,April,2025–2026 SanPablo / 2022–2023 SanPablo,0.97,0.28,3.3,1
+Replicate,Month,May,2025–2026 CorteMadera / 2022–2023 CorteMadera,1.21,0.49,2.99,0.952
+Replicate,Month,May,2022–2023 SanPablo / 2022–2023 CorteMadera,2.12,0.41,10.82,0.64
+Replicate,Month,May,2022–2023 SanPablo / 2025–2026 CorteMadera,1.75,0.35,8.71,0.805
+Replicate,Month,May,2025–2026 SanPablo / 2022–2023 CorteMadera,1.01,0.3,3.36,1
+Replicate,Month,May,2025–2026 SanPablo / 2025–2026 CorteMadera,0.84,0.26,2.68,0.979
+Replicate,Month,May,2025–2026 SanPablo / 2022–2023 SanPablo,0.48,0.11,2.13,0.581
+Replicate,Month,June,2025–2026 CorteMadera / 2022–2023 CorteMadera,0.71,0.29,1.75,0.758
+Replicate,Month,June,2022–2023 SanPablo / 2022–2023 CorteMadera,1.48,0.35,6.24,0.896
+Replicate,Month,June,2022–2023 SanPablo / 2025–2026 CorteMadera,2.1,0.52,8.4,0.518
+Replicate,Month,June,2025–2026 SanPablo / 2022–2023 CorteMadera,0.7,0.23,2.2,0.857
+Replicate,Month,June,2025–2026 SanPablo / 2025–2026 CorteMadera,1,0.34,2.92,1
+Replicate,Month,June,2025–2026 SanPablo / 2022–2023 SanPablo,0.47,0.14,1.59,0.386
+Replicate,Phenological Period,Late_Dry (Months 1-3),2025–2026 CorteMadera / 2022–2023 CorteMadera,0.94,0.38,2.36,0.998
+Replicate,Phenological Period,Late_Dry (Months 1-3),2022–2023 SanPablo / 2022–2023 CorteMadera,0.8,0.28,2.25,0.943
+Replicate,Phenological Period,Late_Dry (Months 1-3),2022–2023 SanPablo / 2025–2026 CorteMadera,0.85,0.24,3.02,0.987
+Replicate,Phenological Period,Late_Dry (Months 1-3),2025–2026 SanPablo / 2022–2023 CorteMadera,2.04,0.65,6.42,0.383
+Replicate,Phenological Period,Late_Dry (Months 1-3),2025–2026 SanPablo / 2025–2026 CorteMadera,2.16,0.86,5.42,0.136
+Replicate,Phenological Period,Late_Dry (Months 1-3),2025–2026 SanPablo / 2022–2023 SanPablo,2.55,0.89,7.36,0.103
+Replicate,Phenological Period,Tran (Months 4-6),2025–2026 CorteMadera / 2022–2023 CorteMadera,0.68,0.28,1.7,0.708
+Replicate,Phenological Period,Tran (Months 4-6),2022–2023 SanPablo / 2022–2023 CorteMadera,1.31,0.46,3.73,0.911
+Replicate,Phenological Period,Tran (Months 4-6),2022–2023 SanPablo / 2025–2026 CorteMadera,1.91,0.55,6.7,0.545
+Replicate,Phenological Period,Tran (Months 4-6),2025–2026 SanPablo / 2022–2023 CorteMadera,0.86,0.27,2.7,0.987
+Replicate,Phenological Period,Tran (Months 4-6),2025–2026 SanPablo / 2025–2026 CorteMadera,1.26,0.52,3.03,0.911
+Replicate,Phenological Period,Tran (Months 4-6),2025–2026 SanPablo / 2022–2023 SanPablo,0.66,0.23,1.89,0.736
+Replicate,Phenological Period,Wet (Months 7-9),2025–2026 CorteMadera / 2022–2023 CorteMadera,0.23,0.08,0.69,0.00338
+Replicate,Phenological Period,Wet (Months 7-9),2022–2023 SanPablo / 2022–2023 CorteMadera,0.56,0.18,1.75,0.554
+Replicate,Phenological Period,Wet (Months 7-9),2022–2023 SanPablo / 2025–2026 CorteMadera,2.39,0.57,9.99,0.396
+Replicate,Phenological Period,Wet (Months 7-9),2025–2026 SanPablo / 2022–2023 CorteMadera,0.18,0.05,0.66,0.00397
+Replicate,Phenological Period,Wet (Months 7-9),2025–2026 SanPablo / 2025–2026 CorteMadera,0.79,0.31,1.99,0.912
+Replicate,Phenological Period,Wet (Months 7-9),2025–2026 SanPablo / 2022–2023 SanPablo,0.33,0.09,1.14,0.0986
+Replicate,Phenological Period,Growth (Months 10-12),2025–2026 CorteMadera / 2022–2023 CorteMadera,0.91,0.37,2.24,0.994
+Replicate,Phenological Period,Growth (Months 10-12),2022–2023 SanPablo / 2022–2023 CorteMadera,1.4,0.48,4.14,0.852
+Replicate,Phenological Period,Growth (Months 10-12),2022–2023 SanPablo / 2025–2026 CorteMadera,1.54,0.43,5.53,0.821
+Replicate,Phenological Period,Growth (Months 10-12),2025–2026 SanPablo / 2022–2023 CorteMadera,0.88,0.28,2.74,0.991
+Replicate,Phenological Period,Growth (Months 10-12),2025–2026 SanPablo / 2025–2026 CorteMadera,0.96,0.4,2.29,0.999
+Replicate,Phenological Period,Growth (Months 10-12),2025–2026 SanPablo / 2022–2023 SanPablo,0.62,0.21,1.84,0.675
 Replicate,"Calendar Season
-(Lacy et al. 2019)",Winter,2025–2026 CorteMadera / 2022–2023 CorteMadera,0.59,0.2,1.79,0.613
+(Lacy et al. 2019)",Winter,2025–2026 CorteMadera / 2022–2023 CorteMadera,0.51,0.12,2.09,0.612
 Replicate,"Calendar Season
-(Lacy et al. 2019)",Winter,2022–2023 SanPablo / 2022–2023 CorteMadera,1.33,0.49,3.62,0.88
+(Lacy et al. 2019)",Winter,2022–2023 SanPablo / 2022–2023 CorteMadera,1.17,0.41,3.34,0.982
 Replicate,"Calendar Season
-(Lacy et al. 2019)",Winter,2022–2023 SanPablo / 2025–2026 CorteMadera,2.26,0.55,9.23,0.447
+(Lacy et al. 2019)",Winter,2022–2023 SanPablo / 2025–2026 CorteMadera,2.28,0.43,12.07,0.581
 Replicate,"Calendar Season
-(Lacy et al. 2019)",Winter,2025–2026 SanPablo / 2022–2023 CorteMadera,0.7,0.19,2.61,0.896
+(Lacy et al. 2019)",Winter,2025–2026 SanPablo / 2022–2023 CorteMadera,0.56,0.12,2.71,0.779
 Replicate,"Calendar Season
-(Lacy et al. 2019)",Winter,2025–2026 SanPablo / 2025–2026 CorteMadera,1.18,0.5,2.78,0.96
+(Lacy et al. 2019)",Winter,2025–2026 SanPablo / 2025–2026 CorteMadera,1.09,0.45,2.66,0.994
 Replicate,"Calendar Season
-(Lacy et al. 2019)",Winter,2025–2026 SanPablo / 2022–2023 SanPablo,0.52,0.15,1.77,0.52
+(Lacy et al. 2019)",Winter,2025–2026 SanPablo / 2022–2023 SanPablo,0.48,0.11,2.18,0.598
 Replicate,"Calendar Season
-(Lacy et al. 2019)",Summer,2025–2026 CorteMadera / 2022–2023 CorteMadera,0.76,0.33,1.77,0.837
+(Lacy et al. 2019)",Summer,2025–2026 CorteMadera / 2022–2023 CorteMadera,0.74,0.31,1.77,0.816
 Replicate,"Calendar Season
-(Lacy et al. 2019)",Summer,2022–2023 SanPablo / 2022–2023 CorteMadera,0.83,0.33,2.06,0.951
+(Lacy et al. 2019)",Summer,2022–2023 SanPablo / 2022–2023 CorteMadera,0.91,0.37,2.22,0.993
 Replicate,"Calendar Season
-(Lacy et al. 2019)",Summer,2022–2023 SanPablo / 2025–2026 CorteMadera,1.09,0.34,3.54,0.998
+(Lacy et al. 2019)",Summer,2022–2023 SanPablo / 2025–2026 CorteMadera,1.22,0.37,4.03,0.972
 Replicate,"Calendar Season
-(Lacy et al. 2019)",Summer,2025–2026 SanPablo / 2022–2023 CorteMadera,1.02,0.34,3.09,1
+(Lacy et al. 2019)",Summer,2025–2026 SanPablo / 2022–2023 CorteMadera,0.91,0.3,2.8,0.997
 Replicate,"Calendar Season
-(Lacy et al. 2019)",Summer,2025–2026 SanPablo / 2025–2026 CorteMadera,1.34,0.6,3,0.781
+(Lacy et al. 2019)",Summer,2025–2026 SanPablo / 2025–2026 CorteMadera,1.23,0.56,2.69,0.909
 Replicate,"Calendar Season
-(Lacy et al. 2019)",Summer,2025–2026 SanPablo / 2022–2023 SanPablo,1.23,0.48,3.14,0.94
-Averaged,Month,July,2025–2026 CorteMadera / 2022–2023 CorteMadera,0.63,0.27,1.46,0.489
-Averaged,Month,July,2022–2023 SanPablo / 2022–2023 CorteMadera,0.83,0.23,2.99,0.982
-Averaged,Month,July,2022–2023 SanPablo / 2025–2026 CorteMadera,1.32,0.38,4.63,0.94
-Averaged,Month,July,2025–2026 SanPablo / 2022–2023 CorteMadera,0.58,0.22,1.51,0.458
-Averaged,Month,July,2025–2026 SanPablo / 2025–2026 CorteMadera,0.92,0.36,2.32,0.995
-Averaged,Month,July,2025–2026 SanPablo / 2022–2023 SanPablo,0.69,0.22,2.2,0.849
-Averaged,Month,August,2025–2026 CorteMadera / 2022–2023 CorteMadera,0.76,0.26,2.25,0.915
-Averaged,Month,August,2022–2023 SanPablo / 2022–2023 CorteMadera,0.46,0.13,1.62,0.381
-Averaged,Month,August,2022–2023 SanPablo / 2025–2026 CorteMadera,0.6,0.15,2.47,0.791
-Averaged,Month,August,2025–2026 SanPablo / 2022–2023 CorteMadera,1.84,0.64,5.3,0.446
-Averaged,Month,August,2025–2026 SanPablo / 2025–2026 CorteMadera,2.43,0.71,8.34,0.251
-Averaged,Month,August,2025–2026 SanPablo / 2022–2023 SanPablo,4.04,1.17,13.97,0.0199
-Averaged,Month,September,2025–2026 CorteMadera / 2022–2023 CorteMadera,0.39,0.16,0.94,0.0316
-Averaged,Month,September,2022–2023 SanPablo / 2022–2023 CorteMadera,0.56,0.16,2.04,0.658
-Averaged,Month,September,2022–2023 SanPablo / 2025–2026 CorteMadera,1.45,0.41,5.15,0.876
-Averaged,Month,September,2025–2026 SanPablo / 2022–2023 CorteMadera,2.6,0.9,7.5,0.0953
-Averaged,Month,September,2025–2026 SanPablo / 2025–2026 CorteMadera,6.7,2.37,18.93,1.54e-5
-Averaged,Month,September,2025–2026 SanPablo / 2022–2023 SanPablo,4.62,1.38,15.47,0.00621
-Averaged,Month,October,2025–2026 CorteMadera / 2022–2023 CorteMadera,2.12,0.8,5.6,0.193
-Averaged,Month,October,2022–2023 SanPablo / 2022–2023 CorteMadera,0.55,0.15,2.07,0.66
-Averaged,Month,October,2022–2023 SanPablo / 2025–2026 CorteMadera,0.26,0.07,0.94,0.0367
-Averaged,Month,October,2025–2026 SanPablo / 2022–2023 CorteMadera,5.32,1.84,15.35,2.94e-4
-Averaged,Month,October,2025–2026 SanPablo / 2025–2026 CorteMadera,2.51,0.91,6.94,0.0922
-Averaged,Month,October,2025–2026 SanPablo / 2022–2023 SanPablo,9.59,2.99,30.73,3.64e-6
-Averaged,Month,November,2025–2026 CorteMadera / 2022–2023 CorteMadera,0.73,0.29,1.79,0.801
-Averaged,Month,November,2022–2023 SanPablo / 2022–2023 CorteMadera,1.34,0.37,4.85,0.937
-Averaged,Month,November,2022–2023 SanPablo / 2025–2026 CorteMadera,1.84,0.52,6.56,0.604
-Averaged,Month,November,2025–2026 SanPablo / 2022–2023 CorteMadera,0.96,0.34,2.66,0.999
-Averaged,Month,November,2025–2026 SanPablo / 2025–2026 CorteMadera,1.31,0.48,3.58,0.897
-Averaged,Month,November,2025–2026 SanPablo / 2022–2023 SanPablo,0.71,0.22,2.34,0.885
-Averaged,Month,December,2025–2026 CorteMadera / 2022–2023 CorteMadera,0.63,0.26,1.56,0.561
-Averaged,Month,December,2022–2023 SanPablo / 2022–2023 CorteMadera,1.32,0.37,4.71,0.945
-Averaged,Month,December,2022–2023 SanPablo / 2025–2026 CorteMadera,2.08,0.58,7.56,0.459
-Averaged,Month,December,2025–2026 SanPablo / 2022–2023 CorteMadera,1.08,0.4,2.95,0.997
-Averaged,Month,December,2025–2026 SanPablo / 2025–2026 CorteMadera,1.72,0.62,4.75,0.523
-Averaged,Month,December,2025–2026 SanPablo / 2022–2023 SanPablo,0.82,0.25,2.74,0.976
-Averaged,Month,January,2025–2026 CorteMadera / 2022–2023 CorteMadera,0.1,0.04,0.23,5.29e-12
-Averaged,Month,January,2022–2023 SanPablo / 2022–2023 CorteMadera,0.54,0.15,1.93,0.603
-Averaged,Month,January,2022–2023 SanPablo / 2025–2026 CorteMadera,5.38,1.53,18.85,0.00322
-Averaged,Month,January,2025–2026 SanPablo / 2022–2023 CorteMadera,0.08,0.03,0.21,1.84e-10
-Averaged,Month,January,2025–2026 SanPablo / 2025–2026 CorteMadera,0.77,0.3,2.03,0.904
-Averaged,Month,January,2025–2026 SanPablo / 2022–2023 SanPablo,0.14,0.04,0.48,2.4e-4
-Averaged,Month,February,2025–2026 CorteMadera / 2022–2023 CorteMadera,1.36,0.59,3.13,0.787
-Averaged,Month,February,2022–2023 SanPablo / 2022–2023 CorteMadera,1.06,0.3,3.75,0.999
-Averaged,Month,February,2022–2023 SanPablo / 2025–2026 CorteMadera,0.78,0.23,2.69,0.955
-Averaged,Month,February,2025–2026 SanPablo / 2022–2023 CorteMadera,0.96,0.37,2.51,1
-Averaged,Month,February,2025–2026 SanPablo / 2025–2026 CorteMadera,0.71,0.28,1.79,0.774
-Averaged,Month,February,2025–2026 SanPablo / 2022–2023 SanPablo,0.91,0.29,2.85,0.996
-Averaged,Month,March,2025–2026 CorteMadera / 2022–2023 CorteMadera,0.2,0.08,0.49,2.7e-5
-Averaged,Month,March,2022–2023 SanPablo / 2022–2023 CorteMadera,0.28,0.08,1.05,0.0654
-Averaged,Month,March,2022–2023 SanPablo / 2025–2026 CorteMadera,1.42,0.41,4.92,0.888
-Averaged,Month,March,2025–2026 SanPablo / 2022–2023 CorteMadera,0.27,0.1,0.75,0.00569
-Averaged,Month,March,2025–2026 SanPablo / 2025–2026 CorteMadera,1.36,0.54,3.43,0.83
-Averaged,Month,March,2025–2026 SanPablo / 2022–2023 SanPablo,0.96,0.3,3.04,1
-Averaged,Month,April,2025–2026 CorteMadera / 2022–2023 CorteMadera,0.92,0.38,2.21,0.995
-Averaged,Month,April,2022–2023 SanPablo / 2022–2023 CorteMadera,1.18,0.32,4.4,0.988
-Averaged,Month,April,2022–2023 SanPablo / 2025–2026 CorteMadera,1.29,0.36,4.62,0.958
-Averaged,Month,April,2025–2026 SanPablo / 2022–2023 CorteMadera,0.61,0.25,1.5,0.491
-Averaged,Month,April,2025–2026 SanPablo / 2025–2026 CorteMadera,0.66,0.28,1.55,0.599
-Averaged,Month,April,2025–2026 SanPablo / 2022–2023 SanPablo,0.51,0.17,1.57,0.418
-Averaged,Month,June,2025–2026 CorteMadera / 2022–2023 CorteMadera,0.32,0.13,0.76,0.00421
-Averaged,Month,June,2022–2023 SanPablo / 2022–2023 CorteMadera,1.45,0.4,5.27,0.883
-Averaged,Month,June,2022–2023 SanPablo / 2025–2026 CorteMadera,4.55,1.29,16.05,0.0107
-Averaged,Month,June,2025–2026 SanPablo / 2022–2023 CorteMadera,0.33,0.12,0.94,0.0331
-Averaged,Month,June,2025–2026 SanPablo / 2025–2026 CorteMadera,1.04,0.38,2.84,1
-Averaged,Month,June,2025–2026 SanPablo / 2022–2023 SanPablo,0.23,0.07,0.75,0.00819
-Averaged,Phenological Period,Late_Dry (Months 1-3),2025–2026 CorteMadera / 2022–2023 CorteMadera,0.65,0.24,1.78,0.686
-Averaged,Phenological Period,Late_Dry (Months 1-3),2022–2023 SanPablo / 2022–2023 CorteMadera,0.59,0.24,1.42,0.406
-Averaged,Phenological Period,Late_Dry (Months 1-3),2022–2023 SanPablo / 2025–2026 CorteMadera,0.91,0.26,3.12,0.997
-Averaged,Phenological Period,Late_Dry (Months 1-3),2025–2026 SanPablo / 2022–2023 CorteMadera,2.32,0.76,7.09,0.213
-Averaged,Phenological Period,Late_Dry (Months 1-3),2025–2026 SanPablo / 2025–2026 CorteMadera,3.58,1.66,7.75,1.25e-4
-Averaged,Phenological Period,Late_Dry (Months 1-3),2025–2026 SanPablo / 2022–2023 SanPablo,3.95,1.27,12.32,0.0102
-Averaged,Phenological Period,Tran (Months 4-6),2025–2026 CorteMadera / 2022–2023 CorteMadera,0.59,0.22,1.6,0.521
-Averaged,Phenological Period,Tran (Months 4-6),2022–2023 SanPablo / 2022–2023 CorteMadera,0.99,0.4,2.42,1
-Averaged,Phenological Period,Tran (Months 4-6),2022–2023 SanPablo / 2025–2026 CorteMadera,1.68,0.5,5.66,0.688
-Averaged,Phenological Period,Tran (Months 4-6),2025–2026 SanPablo / 2022–2023 CorteMadera,0.71,0.23,2.16,0.862
-Averaged,Phenological Period,Tran (Months 4-6),2025–2026 SanPablo / 2025–2026 CorteMadera,1.21,0.59,2.48,0.9
-Averaged,Phenological Period,Tran (Months 4-6),2025–2026 SanPablo / 2022–2023 SanPablo,0.72,0.23,2.25,0.881
-Averaged,Phenological Period,Wet (Months 7-9),2025–2026 CorteMadera / 2022–2023 CorteMadera,0.33,0.13,0.85,0.0135
-Averaged,Phenological Period,Wet (Months 7-9),2022–2023 SanPablo / 2022–2023 CorteMadera,0.53,0.22,1.29,0.258
-Averaged,Phenological Period,Wet (Months 7-9),2022–2023 SanPablo / 2025–2026 CorteMadera,1.62,0.5,5.21,0.717
-Averaged,Phenological Period,Wet (Months 7-9),2025–2026 SanPablo / 2022–2023 CorteMadera,0.27,0.09,0.78,0.00867
-Averaged,Phenological Period,Wet (Months 7-9),2025–2026 SanPablo / 2025–2026 CorteMadera,0.83,0.42,1.64,0.892
-Averaged,Phenological Period,Wet (Months 7-9),2025–2026 SanPablo / 2022–2023 SanPablo,0.51,0.17,1.5,0.377
-Averaged,Phenological Period,Growth (Months 10-12),2025–2026 CorteMadera / 2022–2023 CorteMadera,0.79,0.25,2.45,0.948
-Averaged,Phenological Period,Growth (Months 10-12),2022–2023 SanPablo / 2022–2023 CorteMadera,1.34,0.47,3.79,0.887
-Averaged,Phenological Period,Growth (Months 10-12),2022–2023 SanPablo / 2025–2026 CorteMadera,1.71,0.43,6.79,0.753
-Averaged,Phenological Period,Growth (Months 10-12),2025–2026 SanPablo / 2022–2023 CorteMadera,0.69,0.21,2.23,0.849
-Averaged,Phenological Period,Growth (Months 10-12),2025–2026 SanPablo / 2025–2026 CorteMadera,0.88,0.41,1.88,0.971
-Averaged,Phenological Period,Growth (Months 10-12),2025–2026 SanPablo / 2022–2023 SanPablo,0.51,0.15,1.78,0.516
+(Lacy et al. 2019)",Summer,2025–2026 SanPablo / 2022–2023 SanPablo,1,0.38,2.61,1
+Averaged,Month,July,2025–2026 CorteMadera / 2022–2023 CorteMadera,0.6,0.2,1.77,0.623
+Averaged,Month,July,2022–2023 SanPablo / 2022–2023 CorteMadera,0.83,0.23,3,0.983
+Averaged,Month,July,2022–2023 SanPablo / 2025–2026 CorteMadera,1.38,0.33,5.76,0.938
+Averaged,Month,July,2025–2026 SanPablo / 2022–2023 CorteMadera,1.46,0.51,4.19,0.798
+Averaged,Month,July,2025–2026 SanPablo / 2025–2026 CorteMadera,2.42,0.71,8.27,0.253
+Averaged,Month,July,2025–2026 SanPablo / 2022–2023 SanPablo,1.75,0.5,6.15,0.661
+Averaged,Month,August,2025–2026 CorteMadera / 2022–2023 CorteMadera,0.54,0.22,1.29,0.266
+Averaged,Month,August,2022–2023 SanPablo / 2022–2023 CorteMadera,0.44,0.13,1.57,0.35
+Averaged,Month,August,2022–2023 SanPablo / 2025–2026 CorteMadera,0.83,0.23,2.92,0.98
+Averaged,Month,August,2025–2026 SanPablo / 2022–2023 CorteMadera,3.44,1.21,9.72,0.0123
+Averaged,Month,August,2025–2026 SanPablo / 2025–2026 CorteMadera,6.39,2.26,18.02,2.62e-5
+Averaged,Month,August,2025–2026 SanPablo / 2022–2023 SanPablo,7.74,2.36,25.43,5.86e-5
+Averaged,Month,September,2025–2026 CorteMadera / 2022–2023 CorteMadera,0.83,0.35,2,0.95
+Averaged,Month,September,2022–2023 SanPablo / 2022–2023 CorteMadera,0.57,0.16,2.05,0.67
+Averaged,Month,September,2022–2023 SanPablo / 2025–2026 CorteMadera,0.68,0.19,2.44,0.867
+Averaged,Month,September,2025–2026 SanPablo / 2022–2023 CorteMadera,2.06,0.74,5.73,0.266
+Averaged,Month,September,2025–2026 SanPablo / 2025–2026 CorteMadera,2.47,0.9,6.8,0.0983
+Averaged,Month,September,2025–2026 SanPablo / 2022–2023 SanPablo,3.63,1.13,11.69,0.0242
+Averaged,Month,October,2025–2026 CorteMadera / 2022–2023 CorteMadera,0.53,0.21,1.33,0.286
+Averaged,Month,October,2022–2023 SanPablo / 2022–2023 CorteMadera,0.53,0.14,1.99,0.611
+Averaged,Month,October,2022–2023 SanPablo / 2025–2026 CorteMadera,1.02,0.28,3.63,1
+Averaged,Month,October,2025–2026 SanPablo / 2022–2023 CorteMadera,0.69,0.24,1.99,0.809
+Averaged,Month,October,2025–2026 SanPablo / 2025–2026 CorteMadera,1.32,0.49,3.59,0.891
+Averaged,Month,October,2025–2026 SanPablo / 2022–2023 SanPablo,1.3,0.39,4.28,0.943
+Averaged,Month,November,2025–2026 CorteMadera / 2022–2023 CorteMadera,0.74,0.29,1.87,0.838
+Averaged,Month,November,2022–2023 SanPablo / 2022–2023 CorteMadera,1.3,0.36,4.7,0.954
+Averaged,Month,November,2022–2023 SanPablo / 2025–2026 CorteMadera,1.75,0.49,6.33,0.674
+Averaged,Month,November,2025–2026 SanPablo / 2022–2023 CorteMadera,1.28,0.46,3.55,0.924
+Averaged,Month,November,2025–2026 SanPablo / 2025–2026 CorteMadera,1.73,0.63,4.79,0.506
+Averaged,Month,November,2025–2026 SanPablo / 2022–2023 SanPablo,0.99,0.3,3.28,1
+Averaged,Month,December,2025–2026 CorteMadera / 2022–2023 CorteMadera,0.5,0.22,1.18,0.16
+Averaged,Month,December,2022–2023 SanPablo / 2022–2023 CorteMadera,1.31,0.37,4.67,0.95
+Averaged,Month,December,2022–2023 SanPablo / 2025–2026 CorteMadera,2.59,0.75,9.01,0.201
+Averaged,Month,December,2025–2026 SanPablo / 2022–2023 CorteMadera,0.39,0.15,1.07,0.0794
+Averaged,Month,December,2025–2026 SanPablo / 2025–2026 CorteMadera,0.78,0.3,2.05,0.916
+Averaged,Month,December,2025–2026 SanPablo / 2022–2023 SanPablo,0.3,0.09,1.01,0.0532
+Averaged,Month,January,2025–2026 CorteMadera / 2022–2023 CorteMadera,0.17,0.08,0.39,1.93e-7
+Averaged,Month,January,2022–2023 SanPablo / 2022–2023 CorteMadera,0.35,0.1,1.24,0.145
+Averaged,Month,January,2022–2023 SanPablo / 2025–2026 CorteMadera,2.04,0.58,7.09,0.461
+Averaged,Month,January,2025–2026 SanPablo / 2022–2023 CorteMadera,0.12,0.05,0.32,7.62e-8
+Averaged,Month,January,2025–2026 SanPablo / 2025–2026 CorteMadera,0.71,0.28,1.8,0.786
+Averaged,Month,January,2025–2026 SanPablo / 2022–2023 SanPablo,0.35,0.11,1.12,0.092
+Averaged,Month,March,2025–2026 CorteMadera / 2022–2023 CorteMadera,0.14,0.05,0.34,1.22e-7
+Averaged,Month,March,2022–2023 SanPablo / 2022–2023 CorteMadera,0.28,0.07,1.03,0.0574
+Averaged,Month,March,2022–2023 SanPablo / 2025–2026 CorteMadera,2.04,0.58,7.14,0.46
+Averaged,Month,March,2025–2026 SanPablo / 2022–2023 CorteMadera,0.08,0.03,0.21,7.11e-10
+Averaged,Month,March,2025–2026 SanPablo / 2025–2026 CorteMadera,0.57,0.22,1.46,0.416
+Averaged,Month,March,2025–2026 SanPablo / 2022–2023 SanPablo,0.28,0.09,0.88,0.0225
+Averaged,Month,April,2025–2026 CorteMadera / 2022–2023 CorteMadera,0.76,0.32,1.83,0.853
+Averaged,Month,April,2022–2023 SanPablo / 2022–2023 CorteMadera,1.11,0.3,4.12,0.997
+Averaged,Month,April,2022–2023 SanPablo / 2025–2026 CorteMadera,1.46,0.41,5.25,0.87
+Averaged,Month,April,2025–2026 SanPablo / 2022–2023 CorteMadera,0.69,0.26,1.85,0.77
+Averaged,Month,April,2025–2026 SanPablo / 2025–2026 CorteMadera,0.91,0.36,2.32,0.994
+Averaged,Month,April,2025–2026 SanPablo / 2022–2023 SanPablo,0.62,0.19,2.03,0.731
+Averaged,Month,May,2025–2026 CorteMadera / 2022–2023 CorteMadera,1.23,0.51,2.94,0.93
+Averaged,Month,May,2022–2023 SanPablo / 2022–2023 CorteMadera,1.59,0.39,6.51,0.831
+Averaged,Month,May,2022–2023 SanPablo / 2025–2026 CorteMadera,1.3,0.33,5.14,0.963
+Averaged,Month,May,2025–2026 SanPablo / 2022–2023 CorteMadera,1.31,0.46,3.74,0.908
+Averaged,Month,May,2025–2026 SanPablo / 2025–2026 CorteMadera,1.07,0.39,2.92,0.998
+Averaged,Month,May,2025–2026 SanPablo / 2022–2023 SanPablo,0.83,0.22,3.08,0.982
+Averaged,Month,June,2025–2026 CorteMadera / 2022–2023 CorteMadera,0.68,0.29,1.61,0.662
+Averaged,Month,June,2022–2023 SanPablo / 2022–2023 CorteMadera,1.4,0.38,5.07,0.911
+Averaged,Month,June,2022–2023 SanPablo / 2025–2026 CorteMadera,2.04,0.59,7.1,0.453
+Averaged,Month,June,2025–2026 SanPablo / 2022–2023 CorteMadera,0.64,0.24,1.7,0.636
+Averaged,Month,June,2025–2026 SanPablo / 2025–2026 CorteMadera,0.93,0.37,2.34,0.997
+Averaged,Month,June,2025–2026 SanPablo / 2022–2023 SanPablo,0.46,0.14,1.45,0.3
+Averaged,Phenological Period,Late_Dry (Months 1-3),2025–2026 CorteMadera / 2022–2023 CorteMadera,0.64,0.26,1.6,0.593
+Averaged,Phenological Period,Late_Dry (Months 1-3),2022–2023 SanPablo / 2022–2023 CorteMadera,0.59,0.25,1.42,0.407
+Averaged,Phenological Period,Late_Dry (Months 1-3),2022–2023 SanPablo / 2025–2026 CorteMadera,0.92,0.29,2.93,0.998
+Averaged,Phenological Period,Late_Dry (Months 1-3),2025–2026 SanPablo / 2022–2023 CorteMadera,2.25,0.8,6.28,0.179
+Averaged,Phenological Period,Late_Dry (Months 1-3),2025–2026 SanPablo / 2025–2026 CorteMadera,3.51,1.64,7.5,1.28e-4
+Averaged,Phenological Period,Late_Dry (Months 1-3),2025–2026 SanPablo / 2022–2023 SanPablo,3.81,1.33,10.96,0.00619
+Averaged,Phenological Period,Tran (Months 4-6),2025–2026 CorteMadera / 2022–2023 CorteMadera,0.58,0.24,1.44,0.418
+Averaged,Phenological Period,Tran (Months 4-6),2022–2023 SanPablo / 2022–2023 CorteMadera,0.97,0.4,2.37,1
+Averaged,Phenological Period,Tran (Months 4-6),2022–2023 SanPablo / 2025–2026 CorteMadera,1.67,0.54,5.18,0.649
+Averaged,Phenological Period,Tran (Months 4-6),2025–2026 SanPablo / 2022–2023 CorteMadera,0.72,0.26,1.99,0.834
+Averaged,Phenological Period,Tran (Months 4-6),2025–2026 SanPablo / 2025–2026 CorteMadera,1.23,0.61,2.49,0.878
+Averaged,Phenological Period,Tran (Months 4-6),2025–2026 SanPablo / 2022–2023 SanPablo,0.73,0.26,2.12,0.878
+Averaged,Phenological Period,Wet (Months 7-9),2025–2026 CorteMadera / 2022–2023 CorteMadera,0.15,0.05,0.45,4.77e-5
+Averaged,Phenological Period,Wet (Months 7-9),2022–2023 SanPablo / 2022–2023 CorteMadera,0.3,0.11,0.82,0.0118
+Averaged,Phenological Period,Wet (Months 7-9),2022–2023 SanPablo / 2025–2026 CorteMadera,2,0.53,7.49,0.533
+Averaged,Phenological Period,Wet (Months 7-9),2025–2026 SanPablo / 2022–2023 CorteMadera,0.1,0.03,0.31,2.26e-6
+Averaged,Phenological Period,Wet (Months 7-9),2025–2026 SanPablo / 2025–2026 CorteMadera,0.64,0.3,1.36,0.421
+Averaged,Phenological Period,Wet (Months 7-9),2025–2026 SanPablo / 2022–2023 SanPablo,0.32,0.09,1.1,0.0832
+Averaged,Phenological Period,Growth (Months 10-12),2025–2026 CorteMadera / 2022–2023 CorteMadera,0.84,0.35,2.06,0.962
+Averaged,Phenological Period,Growth (Months 10-12),2022–2023 SanPablo / 2022–2023 CorteMadera,1.36,0.54,3.41,0.825
+Averaged,Phenological Period,Growth (Months 10-12),2022–2023 SanPablo / 2025–2026 CorteMadera,1.61,0.51,5.11,0.713
+Averaged,Phenological Period,Growth (Months 10-12),2025–2026 SanPablo / 2022–2023 CorteMadera,0.79,0.29,2.19,0.936
+Averaged,Phenological Period,Growth (Months 10-12),2025–2026 SanPablo / 2025–2026 CorteMadera,0.94,0.47,1.86,0.995
+Averaged,Phenological Period,Growth (Months 10-12),2025–2026 SanPablo / 2022–2023 SanPablo,0.58,0.2,1.68,0.559
 Averaged,"Calendar Season
-(Lacy et al. 2019)",Winter,2025–2026 CorteMadera / 2022–2023 CorteMadera,0.49,0.14,1.72,0.465
+(Lacy et al. 2019)",Winter,2025–2026 CorteMadera / 2022–2023 CorteMadera,0.39,0.08,1.81,0.393
 Averaged,"Calendar Season
-(Lacy et al. 2019)",Winter,2022–2023 SanPablo / 2022–2023 CorteMadera,1.01,0.43,2.39,1
+(Lacy et al. 2019)",Winter,2022–2023 SanPablo / 2022–2023 CorteMadera,0.88,0.34,2.29,0.985
 Averaged,"Calendar Season
-(Lacy et al. 2019)",Winter,2022–2023 SanPablo / 2025–2026 CorteMadera,2.05,0.49,8.57,0.573
+(Lacy et al. 2019)",Winter,2022–2023 SanPablo / 2025–2026 CorteMadera,2.24,0.41,12.32,0.616
 Averaged,"Calendar Season
-(Lacy et al. 2019)",Winter,2025–2026 SanPablo / 2022–2023 CorteMadera,0.52,0.14,2,0.598
+(Lacy et al. 2019)",Winter,2025–2026 SanPablo / 2022–2023 CorteMadera,0.39,0.08,1.96,0.439
 Averaged,"Calendar Season
-(Lacy et al. 2019)",Winter,2025–2026 SanPablo / 2025–2026 CorteMadera,1.05,0.53,2.11,0.997
+(Lacy et al. 2019)",Winter,2025–2026 SanPablo / 2025–2026 CorteMadera,1,0.47,2.1,1
 Averaged,"Calendar Season
-(Lacy et al. 2019)",Winter,2025–2026 SanPablo / 2022–2023 SanPablo,0.52,0.13,1.99,0.589
+(Lacy et al. 2019)",Winter,2025–2026 SanPablo / 2022–2023 SanPablo,0.44,0.09,2.3,0.584
 Averaged,"Calendar Season
-(Lacy et al. 2019)",Summer,2025–2026 CorteMadera / 2022–2023 CorteMadera,0.63,0.24,1.62,0.583
+(Lacy et al. 2019)",Summer,2025–2026 CorteMadera / 2022–2023 CorteMadera,0.61,0.24,1.56,0.53
 Averaged,"Calendar Season
-(Lacy et al. 2019)",Summer,2022–2023 SanPablo / 2022–2023 CorteMadera,0.67,0.32,1.43,0.527
+(Lacy et al. 2019)",Summer,2022–2023 SanPablo / 2022–2023 CorteMadera,0.73,0.35,1.53,0.694
 Averaged,"Calendar Season
-(Lacy et al. 2019)",Summer,2022–2023 SanPablo / 2025–2026 CorteMadera,1.07,0.34,3.38,0.999
+(Lacy et al. 2019)",Summer,2022–2023 SanPablo / 2025–2026 CorteMadera,1.2,0.38,3.76,0.978
 Averaged,"Calendar Season
-(Lacy et al. 2019)",Summer,2025–2026 SanPablo / 2022–2023 CorteMadera,0.9,0.31,2.62,0.994
+(Lacy et al. 2019)",Summer,2025–2026 SanPablo / 2022–2023 CorteMadera,0.85,0.29,2.48,0.981
 Averaged,"Calendar Season
-(Lacy et al. 2019)",Summer,2025–2026 SanPablo / 2025–2026 CorteMadera,1.44,0.78,2.66,0.433
+(Lacy et al. 2019)",Summer,2025–2026 SanPablo / 2025–2026 CorteMadera,1.4,0.76,2.59,0.498
 Averaged,"Calendar Season
-(Lacy et al. 2019)",Summer,2025–2026 SanPablo / 2022–2023 SanPablo,1.34,0.48,3.71,0.885
+(Lacy et al. 2019)",Summer,2025–2026 SanPablo / 2022–2023 SanPablo,1.17,0.42,3.25,0.979

@@ -108,7 +108,7 @@ Upon each visit to the marsh, a photo was taken perpendicular to the edge, direc
 
 - Outlines the horizontal profile of each marsh with elevation on the y axis and distance on the x
 
-## 3. Analysis
+#### 2.5 Analysis
 
 ## 4. Results
 

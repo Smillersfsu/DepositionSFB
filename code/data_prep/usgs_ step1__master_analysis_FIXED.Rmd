@@ -166,35 +166,33 @@ sed_usgs$Year<- as.factor(sed_usgs$Year)
 sed_usgs$Flux <- as.numeric(sed_usgs$Flux)
 
 #
-# MONTH RULE (project-wide, Oct 2026): majority-of-days month is the ONE
-# Month definition used everywhere downstream; later files only relabel
-# it to full names. Ties go to the EARLIER month in time (the month the
-# deployment started in) -- same fix as thesis step1.
-majority_month <- function(start_date, end_date) {
-  if (is.na(start_date) || is.na(end_date)) return(NA_character_)
-  days <- seq(start_date, end_date, by = "day")
-  m <- as.character(month(days, label = TRUE, abbr = TRUE))
-  month_counts <- table(factor(m, levels = unique(m)))   # levels in time order
-  names(which.max(month_counts))
-}
+# MONTH RULE Month is the # calendar month containing the   
+# midpoint date. If there is a   # deployment that has multiple 
+# dates, it will use the earlier # date
+# M8 window for San Pablo will have both study phases in January M7 and M8 and no February 
 
-is_tied_month <- function(start_date, end_date) {
-  if (is.na(start_date) || is.na(end_date)) return(NA)
-  counts <- table(month(seq(start_date, end_date, by = "day")))
-  sum(counts == max(counts)) > 1
-}
+sed_usgs <- sed_usgs %>%  
+  mutate(
+    Midpoint_Date = Date.placed.in.field + 
+      floor(as.numeric(Date.removed.from.field - Date.placed.in.field)/2), 
+    Month = as.character(month(Midpoint_Date, label = TRUE, abbr = TRUE)), 
+    Month = factor(Month, levels = c("Jul", "Aug", "Sep", "Oct", "Nov", "Dec", "Jan", "Feb", "Mar", "Apr", "May", "Jun"))
+  )
 
-sed_usgs %>%
-  distinct(Site, Date.placed.in.field, Date.removed.from.field) %>%
-  mutate(tied = purrr::map2_lgl(Date.placed.in.field, Date.removed.from.field, is_tied_month)) %>%
-  count(tied)   # TRUE = deployments assigned by the tie rule
+# make a California season Lacy 2019 paper 
 
 sed_usgs <- sed_usgs %>%
   mutate(
-    Month = purrr::map2_chr(Date.placed.in.field, Date.removed.from.field, majority_month),
-    Month = factor(Month, levels = c("Jul", "Aug", "Sep", "Oct", "Nov", "Dec",
-                                     "Jan", "Feb", "Mar", "Apr", "May", "Jun"))
+    Cal_Season = case_when(
+      Month %in% c("Nov", "Dec", "Jan", "Feb") ~ "Winter",
+      Month %in% c("Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct") ~ "Summer",
+      TRUE ~ NA_character_
+    ),
+    Cal_Season = factor(Cal_Season, levels = c("Winter", "Summer"))
   )
+
+
+
 
 # Making a Marsh Edge Type Categorization 
 

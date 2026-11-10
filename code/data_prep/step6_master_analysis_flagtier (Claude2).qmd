@@ -13,6 +13,14 @@ source("C:\\Users\\savan\\OneDrive - San Francisco State University\\ProjectData
 elev_z_wind_slope_edge_flux <- readr::read_csv("C:\\Users\\savan\\OneDrive - San Francisco State University\\ProjectData\\GitHub\\DepositionSFB\\data\\elev_z_wind_slope_edge_flux.csv") %>%
 mutate(Flux_rep = Flux)
 
+elev_z_wind_slope_edge_flux <- elev_z_wind_slope_edge_flux %>%
+  mutate(
+    Study.Phase = factor(Study.Phase, levels = paste0("M", 1:12)),
+    Phen_Period = factor(Phen_Period, levels = c("Late_Dry\n(Months 1-3)", "Tran\n(Months 4-6)",
+                                                 "Wet\n(Months 7-9)", "Growth\n(Months 10-12)")),
+    Cal_Season = factor(Cal_Season, levels = c("Winter", "Summer"))
+  )
+
 ```
 
 ```{r, build tiers}

@@ -175,7 +175,7 @@ xw_wide <- xw$wide %>%
     Thesis_Dist = suppressWarnings(as.numeric(as.character(Thesis_Dist)))
   ) %>%
   arrange(Site,
-          factor(Marsh_Area, levels = c("Intertidal", "Edge", "Platform", "Upland")),
+          factor(Marsh_Area, levels = c("Intertidal", "Edge", "Transition", "Platform", "Upland")),
           dplyr::coalesce(Thesis_Dist, Inf), dplyr::coalesce(USGS_Dist, Inf))
 
 # Merge rows that share a USGS_Dist or a Thesis_Dist (repeats until
@@ -238,7 +238,7 @@ attach_crosswalk <- function(df) {
            Tran = as.character(Tran),
            Marsh_Area = as.character(Marsh_Area)) %>%
     filter(Site %in% c("CorteMadera", "SanPablo"),
-           Marsh_Area %in% c("Edge", "Platform"),
+           Marsh_Area %in% c("Edge", "Transition", "Platform"),
            Flux > 0) %>%
     mutate(Dist_key = round(as.numeric(as.character(Dist)), 3)) %>%
     left_join(xw_lookup, by = c("Site", "Study.Dataset", "Dist_key"),
@@ -261,7 +261,7 @@ finalize_rq2 <- function(df) {
                              levels = period_levels),
       Site        = factor(Site, levels = c("CorteMadera", "SanPablo")),
       Tran_X      = factor(Tran_X),
-      Marsh_Area  = factor(Marsh_Area, levels = c("Edge", "Platform")),
+      Marsh_Area  = factor(Marsh_Area, levels = c("Edge", "Transition", "Platform")),
       Month       = factor(as.character(Month), levels = month_levels),
       # keep the file's Phen_Period; derive from Month only where missing
       Phen_Period = dplyr::coalesce(
@@ -1207,3 +1207,106 @@ rq2_spatial_glmms <- list(
 
 save_glmm_tables(rq2_spatial_glmms, out_dir = rq2_img_dir)
 ```
+
+
+```{r}
+## Platform-only sensitivity: Marsh_Area == "Platform" (ADDED)
+
+# Mirrors the Platform-only sensitivity section in RQ1-spatial/RQ1-temporal,
+# adapted for RQ2's structure. RQ1 subsets to Dist %in% c(12, 18, 24)
+# because raw Dist is directly comparable within the thesis-only data.
+# RQ2 can't do that: raw Dist isn't comparable BETWEEN USGS and Thesis
+# (that's the entire reason the crosswalk/Marsh_Area system exists here).
+# So "platform only" for RQ2 means Marsh_Area == "Platform", dropping
+# Edge (and Transition) entirely -- the direct equivalent for this file's
+# data structure.
+#
+# Every primary model from Steps 1-5 above is refit on the platform-only
+# subset, both tiers. The question each refit answers: does the
+# Study.Dataset conclusion still hold if only platform stations are used,
+# or is it being driven by what's happening right at the marsh edge?
+```
+
+
+
+```{r}
+rq2s_platform_rows <- list()
+for (nm in rq2s_platform_models) {
+  plat_fit <- tryCatch(refit_platform_rq2s(nm),
+                       error = function(e) { message("FAILED ", nm, ": ", conditionMessage(e)); NULL })
+  if (is.null(plat_fit)) next
+  assign(paste0(nm, "_plat"), plat_fit)
+
+  cat("\n==================", nm, "-- platform only (Marsh_Area == Platform) ==================\n")
+  print(summary(plat_fit))
+
+  rq2s_platform_rows[[nm]] <- dplyr::bind_rows(
+    wald_long_rq2s(get(nm), "all"),
+    wald_long_rq2s(plat_fit, "platform")
+  ) %>% dplyr::mutate(Model = nm)
+}
+
+rq2s_platform_sensitivity <- dplyr::bind_rows(rq2s_platform_rows) %>%
+  tidyr::pivot_wider(id_cols = c(Model, Term),
+                     names_from = Fit, values_from = c(Chisq, p, n)) %>%
+  dplyr::mutate(`Changed?` = ifelse((p_all < 0.05) != (p_platform < 0.05), "yes", "")) %>%
+  dplyr::select(Model, Term, n_all, n_platform, Chisq_all, p_all,
+                Chisq_platform, p_platform, `Changed?`)
+rq2s_platform_sensitivity
+```
+
+
+```{r}
+
+rq2s_platform_ratio <- dplyr::bind_rows(lapply(rq2s_platform_models, function(nm) {
+  if (!exists(paste0(nm, "_plat"))) return(NULL)
+  dplyr::bind_rows(study_dataset_ratio_rq2s(get(nm), "all", nm),
+                   study_dataset_ratio_rq2s(get(paste0(nm, "_plat")), "platform", nm))
+}))
+rq2s_platform_ratio
+```
+
+
+```{r}
+
+library(gt)
+
+rq2s_platform_sensitivity_table <- rq2s_platform_sensitivity %>%
+  gt::gt(groupname_col = "Model") %>%
+  gt::tab_header(
+    title = "Platform-only sensitivity (Marsh_Area == Platform): Type II Wald tests",
+    subtitle = "RQ2 spatial -- all stations (Edge + Platform) vs. platform stations only") %>%
+  gt::cols_label(n_all = "n (all)", n_platform = "n (platform)",
+                 Chisq_all = "\u03c7\u00b2 (all)", p_all = "p (all)",
+                 Chisq_platform = "\u03c7\u00b2 (platform)", p_platform = "p (platform)") %>%
+  gt::fmt_number(columns = c(Chisq_all, Chisq_platform), decimals = 2) %>%
+  gt::fmt_number(columns = c(p_all, p_platform), decimals = 3)
+rq2s_platform_sensitivity_table
+
+gt::gtsave(rq2s_platform_sensitivity_table,
+           filename = file.path(rq2_img_dir, "rq2s_platform_sensitivity.png"))
+
+if (nrow(rq2s_platform_ratio) > 0) {
+  rq2s_platform_ratio_table <- rq2s_platform_ratio %>%
+    gt::gt(groupname_col = "Model") %>%
+    gt::tab_header(title = "2025\u20132026 / 2022\u20132023 flux ratio: all stations vs. platform only",
+                   subtitle = "RQ2 spatial -- 1 = no change between study periods") %>%
+    gt::fmt_number(columns = c(ratio, lower, upper), decimals = 2)
+  print(rq2s_platform_ratio_table)
+  gt::gtsave(rq2s_platform_ratio_table,
+             filename = file.path(rq2_img_dir, "rq2s_platform_ratio.png"))
+}
+
+# Full output table image for each platform refit, same layout as the
+# other GLMM tables in this file (save_glmm_table(), from flux_summary.R)
+for (nm in rq2s_platform_models) {
+  pn <- paste0(nm, "_plat")
+  if (exists(pn)) {
+    tryCatch(save_glmm_table(get(pn), name = paste0(nm, "_platform"),
+                             title = paste0(nm, " -- platform only (Marsh_Area == Platform)"),
+                             out_dir = rq2_img_dir),
+             error = function(e) message("Table FAILED for ", pn, ": ", conditionMessage(e)))
+  }
+}
+```
+

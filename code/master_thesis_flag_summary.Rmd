@@ -1,0 +1,1783 @@
+---
+title: "QC Flag Summary Across All Sites"
+subtitle: "Rationale for marsh-platform sampling distances"
+author: "Savannah K. Miller"
+date: "`r Sys.Date()`"
+output:
+  html_document:
+    toc: true
+    toc_float: true
+    code_folding: show
+---
+
+```{r setup, include = FALSE}
+knitr::opts_chunk$set(
+  echo = TRUE,
+  message = FALSE,
+  warning = FALSE,
+  fig.width = 10,
+  fig.height = 6
+)
+```
+
+```{r packages}
+
+library(tidyverse)   # dplyr, tidyr, ggplot2, readr, purrr
+library(lubridate)   # date handling
+library(writexl)     # export summary tables to Excel
+library(gt)          # formatted tables
+library(lme4)        # optional binomial mixed model
+library(scales)      # percent labels
+
+```
+
+# 1. Settings
+
+Everything you are likely to change lives in this chunk.
+
+```{r settings}
+
+#############################################################
+# FILE PATHS
+#############################################################
+
+project_dir <- "C:/Users/savan/OneDrive - San Francisco State University/ProjectData/GitHub/DepositionSFB"
+
+data_dir <- file.path(project_dir, "data")
+img_dir  <- file.path(project_dir, "images", "flagged_data", "all_sites")
+
+dir.create(img_dir, showWarnings = FALSE, recursive = TRUE)
+
+
+#############################################################
+# SITES (codes as they appear in the Site column -> labels)
+#############################################################
+
+site_labels <- c(
+  "Buck'sLanding" = "Buck's Landing",
+  "CorteMadera"   = "Corte Madera",
+  "GiantMarsh"    = "Giant Marsh",
+  "SanPablo"      = "San Pablo"
+)
+
+
+#############################################################
+# CANDIDATE "PLATFORM" DISTANCES  <-- EDIT THIS
+#
+# Distances (m from marsh edge) you consider marsh platform.
+# Everything else is treated as "Edge". Section 6 tests
+# whether flag rates differ between the two zones.
+#############################################################
+
+edge_dists      <- c(0.5, 2)
+transition_dist <- 6
+platform_dists  <- c(12, 18, 24)
+
+
+#############################################################
+# QC FLAG DEFINITIONS (same as the site scripts)
+#############################################################
+
+flag_cols <- c(
+  "Filter_Num",
+  "RB_Num",
+  "Flood_Obsv",
+  "BigBio_Obsv",
+  "SmallBio_Obsv",
+  "Drop_Obsv",
+  "OpenBag_Obsv",
+  "Position_Obsv",
+  "DryTime_Obsv",
+  "NegValue_Num"
+)
+
+flag_labels <- c(
+  "Filter_Num"    = "Filter Issues",
+  "RB_Num"        = "Rubber Band Issues",
+  "Flood_Obsv"    = "Flood/Ponding",
+  "BigBio_Obsv"   = "Big Biological Matter",
+  "SmallBio_Obsv" = "Small Biological Matter",
+  "Drop_Obsv"     = "Recorded Drop in Field/Lab",
+  "OpenBag_Obsv"  = "Open Ziploc Bag Observed",
+  "Position_Obsv" = "Position Changed",
+  "DryTime_Obsv"  = "Multiple Drying Times Needed",
+  "NegValue_Num"  = "Negative Flux Values Calculated"
+)
+
+# Expected direction of the bias each flag introduces
+flag_groups <- c(
+  "Filter_Num"    = "Likely degrading mass",
+  "Flood_Obsv"    = "Likely degrading mass",
+  "Drop_Obsv"     = "Likely degrading mass",
+  "NegValue_Num"  = "Likely degrading mass",
+  "RB_Num"        = "Likely inflating mass",
+  "BigBio_Obsv"   = "Likely inflating mass",
+  "OpenBag_Obsv"  = "Likely inflating mass",
+  "DryTime_Obsv"  = "Likely inflating mass",
+  "Position_Obsv" = "Likely neutral",
+  "SmallBio_Obsv" = "Likely neutral"
+)
+
+group_levels <- c(
+  "Likely degrading mass",
+  "Likely inflating mass",
+  "Likely neutral"
+)
+
+flag_colors <- c(
+  # Likely degrading the mass
+  "Filter Issues"                   = "#1B4F72",
+  "Flood/Ponding"                   = "#2E86AB",
+  "Recorded Drop in Field/Lab"      = "#5DADE2",
+  "Negative Flux Values Calculated" = "#48C9B0",
+
+  # Likely inflating the mass
+  "Rubber Band Issues"              = "#7B241C",
+  "Big Biological Matter"           = "#C0392B",
+  "Open Ziploc Bag Observed"        = "#E67E22",
+  "Multiple Drying Times Needed"    = "#CB4335",
+
+  # Likely neutral
+  "Position Changed"                = "#7F8C8D",
+  "Small Biological Matter"         = "azure3"
+)
+
+flag_levels <- names(flag_colors)
+
+site_colors <- c(
+  "Buck's Landing" = "#1B9E77",
+  "Corte Madera"   = "#D95F02",
+  "Giant Marsh"    = "#7570B3",
+  "San Pablo"      = "#E7298A"
+)
+
+
+#############################################################
+# SHARED THEME + HELPERS
+#############################################################
+
+flag_theme <- theme_minimal(base_size = 13) +
+  theme(
+    legend.title = element_text(face = "bold"),
+    strip.text = element_text(face = "bold"),
+    axis.title = element_text(face = "bold"),
+    panel.grid.minor = element_blank(),
+    plot.caption = element_text(hjust = 0, size = 10)
+  )
+
+save_plot <- function(plot, name, width = 10, height = 6) {
+  ggsave(
+    file.path(img_dir, paste0(name, ".png")),
+    plot = plot,
+    width = width,
+    height = height,
+    dpi = 300,
+    bg = "white"
+  )
+}
+
+# Wilson 95% confidence interval for a proportion
+# (behaves well with small n and proportions near 0 or 1)
+wilson_lo <- function(x, n, z = 1.96) {
+  p <- x / n
+  (p + z^2 / (2 * n) - z * sqrt(p * (1 - p) / n + z^2 / (4 * n^2))) /
+    (1 + z^2 / n)
+}
+
+wilson_hi <- function(x, n, z = 1.96) {
+  p <- x / n
+  (p + z^2 / (2 * n) + z * sqrt(p * (1 - p) / n + z^2 / (4 * n^2))) /
+    (1 + z^2 / n)
+}
+
+```
+
+```{r}
+
+
+flag_criteria <- tribble(
+  ~Flag,                           ~Criteria,
+  "Filter Issues",
+  "Column O < 1. If the filter is less than 1, it means that the filter was observed broken. Estimates of filter loss were estimated to the nearest quarter of a filter, resulting in values of 0, 0.25, 0.5, 0.75, and 1. Additionally, if a filter was found with small holes throughout the filter -- likely either through precipitation or through herbivory -- the percent loss was also estimated to the nearest quarter. In the field, there were times where the filter was dried to the tile, and efforts to remove the filter resulted in loss of the filter, which was also accounted for with a nearest-quarter estimate.",
+
+  "Rubber Band Issues",
+  "Column N < 5.31 cm^2. If the surface area calculated is less than 5.31 cm^2, that means at least one rubber band was observed broken upon collection, and the filter was observed to not carry an indent over the sediment layer observed on the filter, marking a change in the surface area of the sediment comparable across tiles.",
+
+  "Flood/Ponding",
+  "Field observations note the following conditions upon collecting: \"ponding,\" or filter was collected \"underwater at end of field day.\" Flooding was commonly observed as the water level at the time of collection was above the filter, so that sediment on the filter would have a greater potential to be mobilized upon collection, altering the measurement representative of sediment deposition.",
+
+  "Large Biological Matter",
+  "Field observations note the following conditions upon collecting: matter that appears greater than the surface area and/or mass of the sediment collected, such as large mats of dead Ulva and seagrasses covering the entirety of the tile.",
+
+  "Small Biological Matter",
+  "Field observations note the following conditions upon collecting: matter that is roughly equal to or less than the surface area and/or mass of the sediment collected, such as bird poop or an amphipod.",
+
+  "Recorded Drop in Field/Lab",
+  "Field observations note the following conditions upon collecting: filter hit an obstacle in the field, or filter was dropped, which could have an impact on the total volume of material, or the pads were stepped on accidentally in the field prior to collection of the sample.",
+
+  "Open Ziploc Bag Observed",
+  "Field observations note the following conditions upon collecting: in the lab weighing, the ziploc bag was not able to be closed due to breaking of the zipper, or the ziploc was found partially open at the time of measurement or in transit from drying oven to scale.",
+
+  "Position Changed",
+  "Field observations note the following conditions upon collecting: a landscape pin that was moved, or uncertainty about whether the tile was placed back in the same position as when the filter was previously retrieved in the field.",
+
+  "Multiple Drying Times Needed",
+  "Field observations note the following conditions upon collecting: sample had to have more than one drying cycle, as the sediment/collected material still appeared to be moist (commonly coincides with the category \"Large Biological Matter\")."
+)
+
+flag_criteria_gt <- flag_criteria |>
+  gt() |>
+  tab_header(
+    title = "QC Flag Criteria",
+    subtitle = "Rationale used to assign each flag in the field or during lab processing"
+  ) |>
+  cols_width(
+    Flag ~ px(180),
+    Criteria ~ px(560)
+  ) |>
+  tab_style(
+    style = cell_text(v_align = "top"),
+    locations = cells_body()
+  )
+
+flag_criteria_gt
+
+gtsave(flag_criteria_gt, file.path(img_dir, "flag_criteria_reference.png"))
+```
+
+
+
+# 2. Load and prepare data
+
+`master_thesis.csv` holds every site plus the flag columns, so it is read once here instead of re-filtering in four scripts.
+
+```{r load-data}
+
+master_thesis <- readr::read_csv(
+  file.path(data_dir, "master_thesis.csv"),
+  show_col_types = FALSE
+)
+
+# Stop early with a clear message if any flag column is missing
+missing_flags <- setdiff(flag_cols, names(master_thesis))
+if (length(missing_flags) > 0) {
+  stop("These flag columns are missing from master_thesis.csv: ",
+       paste(missing_flags, collapse = ", "))
+}
+
+# Report any site codes that do not match site_labels
+unmatched_sites <- setdiff(unique(master_thesis$Site), names(site_labels))
+if (length(unmatched_sites) > 0) {
+  message("Site codes not included in this summary: ",
+          paste(unmatched_sites, collapse = ", "))
+}
+
+
+#############################################################
+# ONE ROW PER SEDIMENT OBSERVATION (WIDE)
+#############################################################
+
+flag_data <- master_thesis |>
+  filter(Site %in% names(site_labels)) |>
+  mutate(
+    Site_label = factor(site_labels[Site], levels = site_labels),
+    Dist = as.numeric(as.character(Dist)),
+    Tran = factor(Tran),
+
+    # Treat NA as "no flag", anything equal to 1 as a flag
+    across(
+      all_of(flag_cols),
+      ~ as.integer(replace_na(as.numeric(.x), 0) == 1)
+    ),
+
+    n_flags  = rowSums(pick(all_of(flag_cols))),
+    any_flag = n_flags > 0,
+
+    Zone = factor(
+    case_when(
+      Dist %in% edge_dists ~ "Edge", 
+      Dist %in% platform_dists ~ "Platform"
+              ), 
+    levels = c("Edge", "Platform")
+    )
+)
+# Check the platform distances actually exist in the data
+all_dists <- sort(unique(flag_data$Dist))
+cat("Distances in the data:", all_dists, "\n")
+
+not_found <- setdiff(platform_dists, all_dists)
+if (length(not_found) > 0) {
+  warning("platform_dists not present in the data: ",
+          paste(not_found, collapse = ", "))
+}
+
+
+#############################################################
+# ONE ROW PER OBSERVATION x FLAG TYPE (LONG)
+#############################################################
+
+flag_long <- flag_data |>
+  pivot_longer(
+    cols = all_of(flag_cols),
+    names_to = "Flag_Code",
+    values_to = "Flag_Value"
+  ) |>
+  mutate(
+    Flag_Type  = factor(flag_labels[Flag_Code], levels = flag_levels),
+    Flag_Group = factor(flag_groups[Flag_Code], levels = group_levels)
+  )
+
+flagged_all <- flag_long |>
+  filter(Flag_Value == 1)
+
+```
+
+# 3. Summary tables
+
+Two measures are reported because they answer different questions:
+
+* **Total flags** — every recorded flag; one sample with three problems counts three times.
+* **% of samples flagged** — samples with at least one flag divided by all samples at that distance. This corrects for unequal sample sizes and is the better basis for comparing distances.
+
+```{r summary-tables}
+
+#############################################################
+# SITE x DISTANCE
+#############################################################
+
+site_dist_summary <- flag_data |>
+  group_by(Site_label, Dist) |>
+  summarise(
+    n_obs          = n(),
+    n_obs_flagged  = sum(any_flag),
+    total_flags    = sum(n_flags),
+    .groups = "drop"
+  ) |>
+  mutate(
+    pct_obs_flagged = n_obs_flagged / n_obs,
+    flags_per_obs   = total_flags / n_obs,
+    ci_lo = wilson_lo(n_obs_flagged, n_obs),
+    ci_hi = wilson_hi(n_obs_flagged, n_obs)
+  )
+
+
+#############################################################
+# WHOLE STUDY x DISTANCE (all sites pooled)
+#############################################################
+
+study_dist_summary <- flag_data |>
+  group_by(Dist) |>
+  summarise(
+    n_obs          = n(),
+    n_obs_flagged  = sum(any_flag),
+    total_flags    = sum(n_flags),
+    .groups = "drop"
+  ) |>
+  mutate(
+    Site_label      = "All sites",
+    pct_obs_flagged = n_obs_flagged / n_obs,
+    flags_per_obs   = total_flags / n_obs,
+    ci_lo = wilson_lo(n_obs_flagged, n_obs),
+    ci_hi = wilson_hi(n_obs_flagged, n_obs)
+  )
+
+
+#############################################################
+# SITE TOTALS (all distances pooled)
+#############################################################
+
+site_summary <- flag_data |>
+  group_by(Site_label) |>
+  summarise(
+    n_obs         = n(),
+    n_obs_flagged = sum(any_flag),
+    total_flags   = sum(n_flags),
+    .groups = "drop"
+  ) |>
+  mutate(pct_obs_flagged = n_obs_flagged / n_obs)
+
+
+#############################################################
+# SITE x DISTANCE x FLAG TYPE (zeros kept)
+#############################################################
+
+site_dist_type <- flag_long |>
+  group_by(Site_label, Dist, Flag_Type) |>
+  summarise(
+    n_flags = sum(Flag_Value),
+    n_obs   = n(),
+    .groups = "drop"
+  ) |>
+  mutate(pct_obs = n_flags / n_obs)
+
+
+#############################################################
+# SITE x DISTANCE x FLAG GROUP
+# (samples with >= 1 flag of that group)
+#############################################################
+
+site_dist_group <- flag_data |>
+  mutate(.obs_id = row_number()) |>
+  pivot_longer(all_of(flag_cols), names_to = "Flag_Code", values_to = "Flag_Value") |>
+  mutate(Flag_Group = factor(flag_groups[Flag_Code], levels = group_levels)) |>
+  group_by(.obs_id, Site_label, Dist, Flag_Group) |>
+  summarise(group_flagged = any(Flag_Value == 1), .groups = "drop") |>
+  group_by(Site_label, Dist, Flag_Group) |>
+  summarise(
+    n_obs = n(),
+    n_obs_flagged = sum(group_flagged),
+    .groups = "drop"
+  ) |>
+  mutate(pct_obs_flagged = n_obs_flagged / n_obs)
+
+
+```
+
+## 3a. Flagged samples by site and distance
+
+Each cell is *flagged samples / total samples (%)*.
+
+```{r gt-table}
+
+bind_rows(site_dist_summary, study_dist_summary) |>
+  mutate(
+    Site_label = factor(Site_label, levels = c(site_labels, "All sites")),
+    cell = sprintf("%d / %d (%.0f%%)",
+                   n_obs_flagged, n_obs, 100 * pct_obs_flagged)
+  ) |>
+  select(Site_label, Dist, cell) |>
+  arrange(Dist) |>
+  pivot_wider(names_from = Dist, values_from = cell) |>
+  arrange(Site_label) |>
+  gt(rowname_col = "Site_label") |>
+  tab_header(
+    title = "Samples with at least one QC flag",
+    subtitle = "By site and distance from marsh edge (m)"
+  ) |>
+  tab_spanner(
+    label = "Distance from marsh edge (m)",
+    columns = everything()
+  ) |>
+  sub_missing(missing_text = "—") |>
+  tab_style(
+    style = cell_text(weight = "bold"),
+    locations = cells_body(rows = Site_label == "All sites")
+  ) |>
+  tab_source_note(
+    "Platform distances (as set in Settings): " |>
+      paste0(paste(platform_dists, collapse = ", "), " m")
+  )
+
+```
+
+## 3b. Total flag counts by site and distance
+
+```{r gt-total-flags}
+
+bind_rows(site_dist_summary, study_dist_summary) |>
+  mutate(Site_label = factor(Site_label, levels = c(site_labels, "All sites"))) |>
+  select(Site_label, Dist, total_flags) |>
+  arrange(Dist) |>
+  pivot_wider(names_from = Dist, values_from = total_flags, values_fill = 0) |>
+  mutate(Total = rowSums(pick(-Site_label))) |>
+  arrange(Site_label) |>
+  gt(rowname_col = "Site_label") |>
+  tab_header(
+    title = "Total recorded QC flags",
+    subtitle = "A sample with several issues contributes several flags"
+  ) |>
+  tab_spanner(
+    label = "Distance from marsh edge (m)",
+    columns = -Total
+  ) |>
+  tab_style(
+    style = cell_text(weight = "bold"),
+    locations = list(
+      cells_body(rows = Site_label == "All sites"),
+      cells_body(columns = Total)
+    )
+  )
+
+```
+
+## 3c. Site totals
+
+```{r gt-site-totals}
+
+site_summary |>
+  gt() |>
+  cols_label(
+    Site_label      = "Site",
+    n_obs           = "Samples",
+    n_obs_flagged   = "Flagged samples",
+    total_flags     = "Total flags",
+    pct_obs_flagged = "% flagged"
+  ) |>
+  fmt_percent(columns = pct_obs_flagged, decimals = 1) |>
+  grand_summary_rows(
+    columns = c(n_obs, n_obs_flagged, total_flags),
+    fns = list(Total = ~ sum(.)),
+    fmt = ~ fmt_integer(.)
+  )
+
+```
+
+
+```{r}
+
+# One function, reused for Dist, Study.Phase, and Cal_Season: counts of each
+# flag type (wide, one column per type), plus n_obs / n_flagged / %
+# flagged for "at least one flag" -- the same "any_flag" summary
+# Section 3's Dist tables already use, generalized to any grouping
+# column. Study.Phase and Cal_Season already exist on master_thesis.csv,
+# so flag_data and flag_long already carry them -- no new prep needed,
+# except Study.Phase needs to be releveled M1-M12 (not alphabetical).
+
+flag_data <- flag_data |>
+  mutate(Study.Phase = factor(as.character(Study.Phase), levels = paste0("M", 1:12)))
+
+flag_long <- flag_long |>
+  mutate(Study.Phase = factor(as.character(Study.Phase), levels = paste0("M", 1:12)))
+
+flag_count_table <- function(group_var) {
+  by_type <- flag_long |>
+    group_by(Site_label, .data[[group_var]], Flag_Type) |>
+    summarise(n_flags = sum(Flag_Value), .groups = "drop") |>
+    pivot_wider(names_from = Flag_Type, values_from = n_flags, values_fill = 0)
+
+  any_stats <- flag_data |>
+    group_by(Site_label, .data[[group_var]]) |>
+    summarise(
+      n_obs       = n(),
+      n_flagged   = sum(any_flag),
+      pct_flagged = n_flagged / n_obs,
+      .groups = "drop"
+    )
+
+  left_join(any_stats, by_type, by = c("Site_label", group_var)) |>
+    select(Site_label, all_of(group_var), n_obs, n_flagged, pct_flagged,
+           any_of(flag_levels))
+}
+
+flag_by_dist       <- flag_count_table("Dist")
+flag_by_studyphase <- flag_count_table("Study.Phase")
+flag_by_cal_season <- flag_count_table("Cal_Season")
+
+```
+
+
+
+
+```{r}
+
+
+# groupname_col = "Site_label" gives you "one table per site" visually
+# (each site is its own labeled block within one gt object), so you
+# still get one file per grouping variable rather than one file per
+# site x variable combination.
+
+make_flag_gt <- function(df, group_var, title) {
+  df |>
+    mutate(Site_label = as.character(Site_label)) |>
+    gt(groupname_col = "Site_label", rowname_col = group_var) |>
+    tab_header(
+      title = title,
+      subtitle = "n = total samples; Flagged (any) / % flagged = samples with >= 1 flag of any type"
+    ) |>
+    cols_label(
+      n_obs       = "n",
+      n_flagged   = "Flagged (any)",
+      pct_flagged = "% flagged"
+    ) |>
+    fmt_percent(columns = pct_flagged, decimals = 1) |>
+    sub_missing(missing_text = "0") |>
+    tab_spanner(label = "Flags by type", columns = any_of(flag_levels))
+}
+
+flag_dist_gt   <- make_flag_gt(flag_by_dist,       "Dist",       "QC Flags by Site and Distance")
+flag_month_gt  <- make_flag_gt(flag_by_studyphase,      "Study.Phase",      "QC Flags by Site and Study Phase")
+flag_season_gt <- make_flag_gt(flag_by_cal_season, "Cal_Season", "QC Flags by Site and Calendar Season")
+
+flag_dist_gt
+flag_month_gt
+flag_season_gt
+
+gtsave(flag_dist_gt,   file.path(img_dir, "flag_counts_by_site_distance.png"))
+gtsave(flag_month_gt,  file.path(img_dir, "flag_counts_by_site_studyphase.png"))
+gtsave(flag_season_gt, file.path(img_dir, "flag_counts_by_site_cal_season.png"))
+```
+
+```{r}
+
+#############################################################
+#############################################################
+# SITE x FLAG TYPE: % of samples at that site carrying each
+# specific flag, plus n = total samples, plus % with ANY flag
+#############################################################
+
+site_n <- flag_data |>
+  group_by(Site_label) |>
+  summarise(
+    n_obs        = n(),
+    pct_any_flag = mean(any_flag),
+    .groups = "drop"
+  )
+
+site_flag_pct <- flag_long |>
+  group_by(Site_label, Flag_Type) |>
+  summarise(
+    n_flags = sum(Flag_Value),
+    n_obs   = n(),
+    .groups = "drop"
+  ) |>
+  mutate(pct_flagged = n_flags / n_obs) |>
+  select(Site_label, Flag_Type, pct_flagged) |>
+  pivot_wider(names_from = Flag_Type, values_from = pct_flagged, values_fill = 0) |>
+  left_join(site_n, by = "Site_label") |>
+  relocate(n_obs, pct_any_flag, .after = Site_label)
+
+# All-sites pooled row
+all_sites_flag_pct <- flag_long |>
+  group_by(Flag_Type) |>
+  summarise(
+    n_flags = sum(Flag_Value),
+    n_obs   = n(),
+    .groups = "drop"
+  ) |>
+  mutate(pct_flagged = n_flags / n_obs) |>
+  select(Flag_Type, pct_flagged) |>
+  pivot_wider(names_from = Flag_Type, values_from = pct_flagged, values_fill = 0) |>
+  mutate(
+    Site_label   = "All sites",
+    n_obs        = nrow(flag_data),
+    pct_any_flag = mean(flag_data$any_flag)
+  ) |>
+  relocate(Site_label, n_obs, pct_any_flag)
+
+site_flag_pct <- bind_rows(
+  site_flag_pct |> mutate(Site_label = as.character(Site_label)),
+  all_sites_flag_pct
+)
+
+site_flag_pct_gt <- site_flag_pct |>
+  gt(rowname_col = "Site_label") |>
+  tab_header(
+    title = "Percentage of Samples with Each Flag Type, by Site",
+    subtitle = "% of that site's samples carrying that specific flag"
+  ) |>
+  cols_label(
+    n_obs        = "n",
+    pct_any_flag = "Any flag (%)"
+  ) |>
+  fmt_percent(columns = c(pct_any_flag, any_of(flag_levels)), decimals = 1) |>
+  sub_missing(missing_text = "0%") |>
+  tab_spanner(label = "Flag type", columns = any_of(flag_levels)) |>
+  tab_style(
+    style = cell_text(weight = "bold"),
+    locations = cells_body(rows = Site_label == "All sites")
+  )
+
+site_flag_pct_gt
+
+gtsave(site_flag_pct_gt, file.path(img_dir, "flag_pct_by_site_type.png"))
+```
+
+
+
+# 4. Figures: flags across the marsh-edge gradient
+
+## 4a. Percent of samples flagged vs distance
+
+The key figure for the platform rationale. Shaded band marks the platform distances.
+
+```{r fig-pct-flagged}
+
+platform_band <- if (length(platform_dists) > 0) {
+  annotate(
+    "rect",
+    xmin = min(platform_dists) - 1, xmax = max(platform_dists) + 1,
+    ymin = -Inf, ymax = Inf,
+    fill = "grey85", alpha = 0.5
+  )
+} else {
+  NULL
+}
+
+pct_flagged_dist <- ggplot() +
+  platform_band +
+  geom_line(
+    data = site_dist_summary,
+    aes(x = Dist, y = pct_obs_flagged, color = Site_label),
+    linewidth = 0.8
+  ) +
+  geom_point(
+    data = site_dist_summary,
+    aes(x = Dist, y = pct_obs_flagged, color = Site_label),
+    size = 2.8
+  ) +
+  geom_errorbar(
+    data = study_dist_summary,
+    aes(x = Dist, ymin = ci_lo, ymax = ci_hi),
+    width = 1, linewidth = 0.7
+  ) +
+  geom_line(
+    data = study_dist_summary,
+    aes(x = Dist, y = pct_obs_flagged),
+    linewidth = 1.3, linetype = "dashed"
+  ) +
+  geom_point(
+    data = study_dist_summary,
+    aes(x = Dist, y = pct_obs_flagged),
+    size = 3.5, shape = 18
+  ) +
+  scale_color_manual(values = site_colors, name = "Site") +
+  scale_x_continuous(breaks = all_dists) +
+  scale_y_continuous(labels = percent_format(), limits = c(0, NA)) +
+  flag_theme +
+  theme(legend.position = "bottom") +
+  labs(
+    title = "Share of Sediment Samples with at Least One QC Flag",
+    subtitle = "Colored lines = individual sites; black dashed line = all sites pooled",
+    x = "Distance from Marsh Edge (m)",
+    y = "Samples flagged",
+    caption = paste(
+      "Black error bars are Wilson 95% confidence intervals for the pooled proportion.",
+      "Shaded region = distances designated as marsh platform."
+    )
+  )
+
+pct_flagged_dist
+save_plot(pct_flagged_dist, "all_sites_pct_flagged_by_distance")
+
+```
+
+## 4b. Heatmap: site x distance
+
+```{r fig-heatmap}
+
+heat_data <- bind_rows(site_dist_summary, study_dist_summary) |>
+  mutate(
+    Site_label = factor(Site_label, levels = rev(c(site_labels, "All sites"))),
+    label = sprintf("%.0f%%\n(%d/%d)",
+                    100 * pct_obs_flagged, n_obs_flagged, n_obs)
+  )
+
+flag_heatmap_all <- ggplot(
+  heat_data,
+  aes(x = factor(Dist), y = Site_label, fill = pct_obs_flagged)
+) +
+  geom_tile(color = "white", linewidth = 1) +
+  geom_text(
+    aes(
+      label = label,
+      color = pct_obs_flagged > 0.5
+    ),
+    size = 3.6,
+    lineheight = 0.9,
+    show.legend = FALSE
+  ) +
+  scale_color_manual(values = c(`TRUE` = "white", `FALSE` = "black")) +
+  scale_fill_viridis_c(
+    option = "magma",
+    direction = -1,
+    labels = percent_format(),
+    name = "Samples\nflagged",
+    limits = c(0, 1)
+  ) +
+  flag_theme +
+  theme(panel.grid = element_blank()) +
+  labs(
+    title = "QC Flag Rate by Site and Distance",
+    x = "Distance from Marsh Edge (m)",
+    y = NULL
+  )
+
+flag_heatmap_all
+save_plot(flag_heatmap_all, "all_sites_flag_heatmap", width = 11, height = 5)
+
+```
+
+## 4c. Flag type composition by site and distance
+
+```{r fig-type-stack, fig.height = 8}
+
+flag_type_stack <- site_dist_type |>
+  filter(n_flags > 0) |>
+  ggplot(aes(x = factor(Dist), y = n_flags, fill = Flag_Type)) +
+  geom_col(width = 0.8) +
+  scale_fill_manual(
+    values = flag_colors,
+    limits = flag_levels,
+    drop = FALSE,
+    name = "Flag type"
+  ) +
+  facet_wrap(~ Site_label, ncol = 2) +
+  flag_theme +
+  theme(legend.position = "right") +
+  labs(
+    title = "Total QC Flags by Distance and Flag Type",
+    x = "Distance from Marsh Edge (m)",
+    y = "Number of flags"
+  )
+
+flag_type_stack
+save_plot(flag_type_stack, "all_sites_flag_types_by_distance", width = 12, height = 8)
+
+```
+
+## 4d. Flag rate by bias direction
+
+Which kinds of problems change along the gradient? For example, flooding/ponding concentrated near the edge would argue for excluding those distances, while neutral flags matter less.
+
+```{r fig-groups, fig.height = 5}
+
+flag_group_dist <- ggplot(
+  site_dist_group,
+  aes(x = Dist, y = pct_obs_flagged, color = Site_label)
+) +
+  platform_band +
+  geom_line(linewidth = 0.8) +
+  geom_point(size = 2.5) +
+  facet_wrap(~ Flag_Group) +
+  scale_color_manual(values = site_colors, name = "Site") +
+  scale_x_continuous(breaks = all_dists) +
+  scale_y_continuous(labels = percent_format(), limits = c(0, NA)) +
+  flag_theme +
+  theme(legend.position = "bottom") +
+  labs(
+    title = "Samples Flagged, Grouped by Expected Bias on Sediment Mass",
+    x = "Distance from Marsh Edge (m)",
+    y = "Samples with >= 1 flag in group"
+  )
+
+flag_group_dist
+save_plot(flag_group_dist, "all_sites_flag_groups_by_distance", width = 13, height = 5)
+
+```
+
+## 4e. Individual flag types across the gradient (all sites pooled)
+
+```{r fig-type-pooled, fig.height = 7}
+
+type_pooled <- flag_long |>
+  group_by(Dist, Flag_Type) |>
+  summarise(
+    n_obs = n(),
+    n_flags = sum(Flag_Value),
+    .groups = "drop"
+  ) |>
+  mutate(pct_obs = n_flags / n_obs)
+
+flag_type_pooled <- ggplot(
+  type_pooled,
+  aes(x = Dist, y = pct_obs, color = Flag_Type)
+) +
+  platform_band +
+  geom_line(linewidth = 0.8) +
+  geom_point(size = 2.2) +
+  scale_color_manual(values = flag_colors, guide = "none") +
+  facet_wrap(~ Flag_Type, ncol = 5) +
+  scale_x_continuous(breaks = all_dists) +
+  scale_y_continuous(labels = percent_format()) +
+  flag_theme +
+  theme(
+    axis.text.x = element_text(angle = 45, hjust = 1, size = 8),
+    strip.text = element_text(size = 9)
+  ) +
+  labs(
+    title = "Rate of Each Flag Type Across Distance (All Sites Pooled)",
+    x = "Distance from Marsh Edge (m)",
+    y = "Samples with this flag"
+  )
+
+flag_type_pooled
+save_plot(flag_type_pooled, "all_sites_flag_type_rates_pooled", width = 14, height = 7)
+
+```
+
+# 5. Platform vs edge comparison
+
+Tests whether samples at the designated platform distances are flagged at a different rate than edge samples. Fisher's exact test is used because some cells may be small.
+
+```{r platform-tests}
+
+flag_zone_data <- filter(flag_data, !is.na(Zone))
+
+run_fisher <- function(df) {
+  tab <- table(
+    factor(df$Zone, levels = c("Edge", "Platform")),
+    factor(df$any_flag, levels = c(FALSE, TRUE))
+  )
+  tryCatch(fisher.test(tab)$p.value, error = function(e) NA_real_)
+}
+
+zone_rates <- function(df) {
+  tibble(
+    n_edge            = sum(df$Zone == "Edge"),
+    flagged_edge      = sum(df$any_flag & df$Zone == "Edge"),
+    n_platform        = sum(df$Zone == "Platform"),
+    flagged_platform  = sum(df$any_flag & df$Zone == "Platform"),
+    p_value           = run_fisher(df)
+  )
+}
+
+platform_comparison <- bind_rows(
+  flag_zone_data |>
+    group_by(Site_label) |>
+    group_modify(~ zone_rates(.x)) |>
+    ungroup() |>
+    mutate(Site_label = as.character(Site_label)),
+  zone_rates(flag_zone_data) |>
+    mutate(Site_label = "All sites")
+) |>
+  mutate(
+    pct_edge     = flagged_edge / n_edge,
+    pct_platform = flagged_platform / n_platform,
+    difference   = pct_platform - pct_edge
+  )
+
+platform_comparison |>
+  select(Site_label, n_edge, pct_edge, n_platform, pct_platform, difference, p_value) |>
+  gt() |>
+  cols_label(
+    Site_label   = "Site",
+    n_edge       = "Edge n",
+    pct_edge     = "Edge % flagged",
+    n_platform   = "Platform n",
+    pct_platform = "Platform % flagged",
+    difference   = "Difference (P - E)",
+    p_value      = "Fisher p"
+  ) |>
+  fmt_percent(columns = c(pct_edge, pct_platform, difference), decimals = 1) |>
+  fmt_number(columns = p_value, decimals = 3) |>
+  sub_missing(missing_text = "—") |>
+  tab_header(
+    title = "QC Flag Rate: Platform vs Edge",
+    subtitle = paste0("Platform = ", paste(platform_dists, collapse = ", "), " m")
+  ) |>
+  tab_style(
+    style = cell_text(weight = "bold"),
+    locations = cells_body(rows = Site_label == "All sites")
+  )
+
+```
+
+
+
+### Optional: binomial mixed model
+
+Accounts for samples being clustered within transects and sites, which the pooled Fisher test ignores.
+
+```{r platform-glmm}
+
+flag_glmm <- tryCatch(
+  glmer(
+    any_flag ~ Zone + (1 | Site_label / Tran),
+    data = flag_zone_data,
+    family = binomial
+  ),
+  error = function(e) {
+    message("GLMM did not fit: ", conditionMessage(e))
+    NULL
+  }
+)
+
+if (!is.null(flag_glmm)) {
+  summary(flag_glmm)
+
+  # Odds ratio for Platform relative to Edge, with Wald 95% CI
+  or_table <- exp(cbind(
+    OR = fixef(flag_glmm),
+    confint(flag_glmm, method = "Wald", parm = "beta_")
+  ))
+  or_table
+}
+
+print(summary(flag_glmm))
+```
+
+# 6. Export
+
+```{r export}
+
+writexl::write_xlsx(
+  list(
+    site_x_distance       = site_dist_summary,
+    all_sites_x_distance  = study_dist_summary,
+    site_totals           = site_summary,
+    site_dist_flag_type   = site_dist_type,
+    site_dist_flag_group  = site_dist_group,
+    platform_vs_edge      = platform_comparison
+  ),
+  file.path(data_dir, "flag_summary_all_sites.xlsx")
+)
+
+```
+
+# 7. Temporal variability of deposition by distance
+
+```{r var-settings}
+
+edge_dists_var     <- edge_dists
+platform_dists_var <- platform_dists
+
+# Set negative flux to 0, matching the "negative values set to
+# zero" subtitle in the site plots
+floor_negatives <- FALSE
+exclude_flag_codes <- c("BigBio_Obsv", "NegValue_Num", "Flood_Obsv")
+
+# Divide by deployment length so deployments of different
+# lengths are comparable (g/m^2/day). Set FALSE to keep g/m^2.
+use_daily_rate <- FALSE
+
+# Drop samples carrying flags from these groups before
+# calculating variability, e.g.
+# c("Likely degrading mass", "Likely inflating mass")
+exclude_flag_groups <- character(0)
+
+```
+
+```{r var-prep}
+
+
+
+flag_data_var <- flag_data |>
+  filter(rowSums(pick(all_of(exclude_flag_codes))) == 0, Flux > 0)
+
+var_data <- flag_data_var |>
+  mutate(
+    Date.removed.from.field = as.Date(Date.removed.from.field),
+    Date.placed.in.field    = as.Date(Date.placed.in.field),
+    deploy_days = as.numeric(Date.removed.from.field - Date.placed.in.field),
+    Zone3 = factor(
+      case_when(
+        Dist %in% edge_dists_var     ~ "Edge",
+        Dist == transition_dist      ~ "Transition",
+        Dist %in% platform_dists_var ~ "Platform"
+      ),
+      levels = c("Edge", "Transition", "Platform")
+    )
+  )
+
+# Check deployment lengths before dividing by them
+cat("Deployment length (days):\n")
+print(summary(var_data$deploy_days))
+
+if (use_daily_rate && any(is.na(var_data$deploy_days) | var_data$deploy_days <= 0)) {
+  warning("Some deployments have missing or non-positive length; ",
+          "their daily rates will be NA.")
+}
+
+var_data <- var_data |>
+  mutate(
+    Flux_use = if (floor_negatives) pmax(Flux, 0) else Flux,
+    Flux_use = if (use_daily_rate) Flux_use / deploy_days else Flux_use
+  )
+
+# Optional removal of flagged samples
+if (length(exclude_flag_groups) > 0) {
+  drop_codes <- names(flag_groups)[flag_groups %in% exclude_flag_groups]
+  n_before <- nrow(var_data)
+  var_data <- var_data |>
+    filter(rowSums(pick(all_of(drop_codes))) == 0)
+  cat("Removed", n_before - nrow(var_data), "flagged samples\n")
+}
+
+flux_unit <- expression(Flux~(g/m^2/day))
+
+
+
+#############################################################
+# AGGREGATE: replicates -> transect means -> site means
+# (transects are the replicate unit for site-level means)
+#############################################################
+
+tran_date <- var_data |>
+  filter(!is.na(Flux_use)) |>
+  group_by(Site_label, Tran, Dist, Zone3, Date.removed.from.field) |>
+  summarise(flux = mean(Flux_use), .groups = "drop")
+
+site_date <- tran_date |>
+  group_by(Site_label, Dist, Zone3, Date.removed.from.field) |>
+  summarise(
+    mean_flux = mean(flux),
+    se_flux   = sd(flux) / sqrt(n()),
+    n_tran    = n(),
+    .groups = "drop"
+  )
+
+
+#############################################################
+# COLOR PALETTE: edge = reds, transition = black,
+# platform = blues
+#############################################################
+
+dist_palette <- setNames(rep("grey50", length(all_dists)), all_dists)
+dist_palette[as.character(edge_dists_var)] <-
+  colorRampPalette(c("#B2182B", "#F4A582"))(length(edge_dists_var))
+dist_palette[as.character(platform_dists_var)] <-
+  colorRampPalette(c("#92C5DE", "#2166AC"))(length(platform_dists_var))
+dist_palette[as.character(transition_dist)] <- "black"
+
+```
+
+
+```{r var-trajectories, fig.height = 8}
+
+flux_trajectories <- ggplot(
+  site_date,
+  aes(
+    x = Date.removed.from.field,
+    y = mean_flux,
+    color = factor(Dist),
+    group = factor(Dist)
+  )
+) +
+  geom_line(
+    aes(linewidth = Dist == transition_dist),
+    show.legend = FALSE
+  ) +
+  geom_point(size = 2) +
+  scale_linewidth_manual(values = c(`FALSE` = 0.6, `TRUE` = 1.6)) +
+  scale_color_manual(values = dist_palette, name = "Distance (m)") +
+  scale_x_date(date_breaks = "1 month", date_labels = "%b\n%Y") +
+  facet_wrap(~ Site_label, ncol = 1, scales = "free_y") +
+  flag_theme +
+  theme(legend.position = "right") +
+  labs(
+    title = "Seasonal Deposition Trajectories by Distance",
+    subtitle = paste0("Black heavy line = ", transition_dist,
+                      " m; reds = edge; blues = platform"),
+    x = "Date removed from field",
+    y = flux_unit,
+    caption = "Points are site means of transect means."
+  )
+
+flux_trajectories
+save_plot(flux_trajectories, "temporal_trajectories_by_distance", width = 12, height = 11)
+
+```
+
+```{r var-sd-cv, fig.height = 7}
+
+temporal_var <- site_date |>
+  group_by(Site_label, Dist, Zone3) |>
+  summarise(
+    n_dates     = n(),
+    annual_mean = mean(mean_flux),
+    temporal_sd = sd(mean_flux),
+    temporal_cv = temporal_sd / annual_mean,
+    min_flux    = min(mean_flux),
+    max_flux    = max(mean_flux),
+    .groups = "drop"
+  )
+
+temporal_var_long <- temporal_var |>
+  select(Site_label, Dist, `Temporal SD` = temporal_sd, `Temporal CV` = temporal_cv) |>
+  pivot_longer(c(`Temporal SD`, `Temporal CV`), names_to = "metric")
+
+transition_band <- annotate(
+  "rect",
+  xmin = transition_dist - 1.5, xmax = transition_dist + 1.5,
+  ymin = -Inf, ymax = Inf,
+  fill = "grey80", alpha = 0.5
+)
+
+temporal_var_plot <- ggplot(
+  temporal_var_long,
+  aes(x = Dist, y = value, color = Site_label)
+) +
+  transition_band +
+  geom_line(linewidth = 0.8) +
+  geom_point(size = 2.6) +
+  stat_summary(
+    aes(group = 1),
+    fun = mean,
+    geom = "line",
+    color = "black",
+    linetype = "dashed",
+    linewidth = 1.1
+  ) +
+  facet_wrap(~ metric, ncol = 1, scales = "free_y") +
+  scale_color_manual(values = site_colors, name = "Site") +
+  scale_x_continuous(breaks = all_dists) +
+  flag_theme +
+  theme(legend.position = "bottom") +
+  labs(
+    title = "How Much Deposition Varies Through the Year at Each Distance",
+    subtitle = "Black dashed line = mean across sites; shaded = transition distance",
+    x = "Distance from Marsh Edge (m)",
+    y = NULL,
+    caption = "Computed across collection dates from site-level mean flux."
+  )
+
+temporal_var_plot
+save_plot(temporal_var_plot, "temporal_sd_cv_by_distance", width = 11, height = 8)
+
+temporal_var |>
+  mutate(Site_label = as.character(Site_label)) |>
+  gt(groupname_col = "Site_label") |>
+  cols_label(
+    Dist = "Distance (m)", Zone3 = "Zone", n_dates = "Dates",
+    annual_mean = "Mean", temporal_sd = "SD", temporal_cv = "CV",
+    min_flux = "Min", max_flux = "Max"
+  ) |>
+  fmt_number(columns = c(annual_mean, temporal_sd, min_flux, max_flux), decimals = 2) |>
+  fmt_number(columns = temporal_cv, decimals = 2) |>
+  tab_style(
+    style = cell_fill(color = "#F2F2F2"),
+    locations = cells_body(rows = Dist == transition_dist)
+  ) |>
+  tab_header(title = "Temporal variability of site-mean flux by distance")
+
+```
+
+```{r var-six-vs}
+
+composite <- site_date |>
+  filter(Zone3 %in% c("Edge", "Platform")) |>
+  group_by(Site_label, Zone3, Date.removed.from.field) |>
+  summarise(comp = mean(mean_flux), .groups = "drop") |>
+  pivot_wider(names_from = Zone3, values_from = comp)
+
+six_series <- site_date |>
+  filter(Dist == transition_dist) |>
+  select(Site_label, Date.removed.from.field, six = mean_flux) |>
+  inner_join(composite, by = c("Site_label", "Date.removed.from.field"))
+
+six_vs <- six_series |>
+  group_by(Site_label) |>
+  summarise(
+    n_dates      = n(),
+    rho_edge     = cor(six, Edge, method = "spearman", use = "complete.obs"),
+    rho_platform = cor(six, Platform, method = "spearman", use = "complete.obs"),
+    mad_edge     = mean(abs(six - Edge), na.rm = TRUE),
+    mad_platform = mean(abs(six - Platform), na.rm = TRUE),
+    .groups = "drop"
+  ) |>
+  mutate(
+    pattern_follows  = if_else(rho_edge > rho_platform, "Edge", "Platform"),
+    magnitude_closer = if_else(mad_edge < mad_platform, "Edge", "Platform")
+  )
+
+six_vs |>
+  gt() |>
+  cols_label(
+    Site_label = "Site", n_dates = "Dates",
+    rho_edge = "ρ with edge", rho_platform = "ρ with platform",
+    mad_edge = "Mean |diff| to edge", mad_platform = "Mean |diff| to platform",
+    pattern_follows = "Pattern follows", magnitude_closer = "Magnitude closer to"
+  ) |>
+  fmt_number(columns = c(rho_edge, rho_platform), decimals = 2) |>
+  fmt_number(columns = c(mad_edge, mad_platform), decimals = 2) |>
+  tab_header(
+    title = paste0("Is ", transition_dist, " m more like the edge or the platform?"),
+    subtitle = paste0(
+      "Edge = ", paste(edge_dists_var, collapse = ", "), " m; ",
+      "Platform = ", paste(platform_dists_var, collapse = ", "), " m"
+    )
+  )
+
+```
+
+```{r var-six-plot, fig.height = 8}
+
+six_plot_data <- six_series |>
+  pivot_longer(c(Edge, six, Platform), names_to = "Series", values_to = "flux") |>
+  mutate(
+    Series = dplyr::recode(
+      Series,
+      Edge = "Edge mean",
+      Platform = "Platform mean",
+      six = paste0(transition_dist, " m")
+    ),
+    Series = factor(
+      Series,
+      levels = c("Edge mean", paste0(transition_dist, " m"), "Platform mean")
+    )
+  )
+
+six_vs_plot <- ggplot(
+  six_plot_data,
+  aes(x = Date.removed.from.field, y = flux, color = Series, linetype = Series)
+) +
+  geom_line(linewidth = 1) +
+  geom_point(size = 2.2) +
+  scale_color_manual(values = c("#B2182B", "black", "#2166AC")) +
+  scale_linetype_manual(values = c("dashed", "solid", "dashed")) +
+  scale_x_date(date_breaks = "1 month", date_labels = "%b\n%Y") +
+  facet_wrap(~ Site_label, ncol = 1, scales = "free_y") +
+  flag_theme +
+  theme(legend.position = "bottom") +
+  labs(
+    title = paste0(transition_dist, " m Deposition Compared with Edge and Platform Means"),
+    x = "Date removed from field",
+    y = flux_unit,
+    color = NULL,
+    linetype = NULL
+  )
+
+six_vs_plot
+save_plot(six_vs_plot, "six_m_vs_edge_platform", width = 11, height = 11)
+
+```
+
+```{r var-cor-matrix, fig.height = 8}
+
+dist_cor <- site_date |>
+  select(Site_label, Dist, Date.removed.from.field, mean_flux) |>
+  group_by(Site_label) |>
+  group_modify(function(df, key) {
+    wide <- df |>
+      arrange(Dist) |>
+      pivot_wider(names_from = Dist, values_from = mean_flux) |>
+      arrange(Date.removed.from.field)
+    m <- as.matrix(select(wide, -Date.removed.from.field))
+    cm <- suppressWarnings(
+      cor(m, use = "pairwise.complete.obs", method = "spearman")
+    )
+    as_tibble(cm, rownames = "Dist_a") |>
+      pivot_longer(-Dist_a, names_to = "Dist_b", values_to = "rho")
+  }) |>
+  ungroup() |>
+  mutate(across(
+    c(Dist_a, Dist_b),
+    ~ factor(.x, levels = as.character(all_dists))
+  ))
+
+dist_cor_plot <- ggplot(dist_cor, aes(x = Dist_a, y = Dist_b, fill = rho)) +
+  geom_tile(color = "white") +
+  geom_text(aes(label = sprintf("%.2f", rho)), size = 2.8) +
+  scale_fill_gradient2(
+    low = "#2166AC", mid = "white", high = "#B2182B",
+    midpoint = 0, limits = c(-1, 1), name = "Spearman ρ"
+  ) +
+  facet_wrap(~ Site_label, ncol = 2) +
+  coord_equal() +
+  flag_theme +
+  theme(panel.grid = element_blank()) +
+  labs(
+    title = "Correlation of Seasonal Deposition Patterns Between Distances",
+    x = "Distance (m)",
+    y = "Distance (m)"
+  )
+
+dist_cor_plot
+save_plot(dist_cor_plot, "distance_correlation_matrix", width = 11, height = 10)
+
+```
+
+```{r var-partition, fig.height = 7}
+
+var_part <- var_data |>
+  filter(!is.na(Flux_use), !is.na(Zone3)) |>
+  mutate(Date_f = factor(Date.removed.from.field)) |>
+  group_by(Site_label, Dist, Zone3) |>
+  group_modify(function(df, key) {
+    fit <- tryCatch(
+      lmer(Flux_use ~ 1 + (1 | Date_f) + (1 | Tran), data = df),
+      error = function(e) NULL
+    )
+    if (is.null(fit)) {
+      return(tibble(var_date = NA_real_, var_tran = NA_real_, var_resid = NA_real_))
+    }
+    vc <- as.data.frame(VarCorr(fit))
+    tibble(
+      var_date  = vc$vcov[vc$grp == "Date_f"],
+      var_tran  = vc$vcov[vc$grp == "Tran"],
+      var_resid = vc$vcov[vc$grp == "Residual"]
+    )
+  }) |>
+  ungroup() |>
+  mutate(
+    total    = var_date + var_tran + var_resid,
+    Season   = var_date / total,
+    Transect = var_tran / total,
+    Residual = var_resid / total
+  )
+
+var_part_plot <- var_part |>
+  pivot_longer(c(Season, Transect, Residual), names_to = "Source", values_to = "share") |>
+  mutate(Source = factor(Source, levels = c("Residual", "Transect", "Season"))) |>
+  ggplot(aes(x = factor(Dist), y = share, fill = Source)) +
+  geom_col(width = 0.8) +
+  scale_fill_manual(values = c(Season = "#2E86AB", Transect = "#E67E22", Residual = "grey75")) +
+  scale_y_continuous(labels = percent_format()) +
+  facet_wrap(~ Site_label, ncol = 2) +
+  flag_theme +
+  theme(legend.position = "bottom") +
+  labs(
+    title = "Where Does Variation in Deposition Come From?",
+    subtitle = "Share of flux variance explained by collection date, transect, and residual",
+    x = "Distance from Marsh Edge (m)",
+    y = "Share of variance",
+    fill = "Source"
+  )
+
+var_part_plot
+save_plot(var_part_plot, "variance_partition_by_distance", width = 11, height = 8)
+
+```
+
+# 8. Does 6 m sit with the edge or platform in z*?
+
+
+```{r, zstar-prep}
+
+z_points <- readr::read_csv(
+  file.path(data_dir, "elev_z_flux.csv"),
+  show_col_types = FALSE
+) |>
+  transmute(
+    Site      = as.character(Site),
+    Tran      = as.character(Tran),      # "T1" / "T2" in this file
+    Dist      = as.numeric(as.character(Dist)),
+    Replicate = as.character(Replicate),
+    z_star
+  ) |>
+  filter(Site %in% names(site_labels), !is.na(z_star)) |>
+  distinct()
+
+# Should return 0 rows: each point should have one z* value
+z_points |>
+  count(Site, Tran, Dist, Replicate) |>
+  filter(n > 1)
+
+# Replicates -> one z* per transect x distance
+z_by_dist <- z_points |>
+  group_by(Site, Tran, Dist) |>
+  summarise(z_star = mean(z_star), n_points = n(), .groups = "drop") |>
+  mutate(
+    Site_label = factor(site_labels[Site], levels = site_labels),
+    Zone3 = factor(
+      case_when(
+        Dist %in% edge_dists_var     ~ "Edge",
+        Dist == transition_dist      ~ "Transition",
+        Dist %in% platform_dists_var ~ "Platform"
+      ),
+      # Transition first, so model coefficients are differences from 6 m
+      levels = c("Transition", "Edge", "Platform")
+    )
+  )
+
+```
+
+## 8a. z* along each transect
+
+```{r zstar-profile-plot, fig.height = 7}
+
+zstar_profile <- ggplot(
+  z_by_dist,
+  aes(x = Dist, y = z_star, color = Tran, group = Tran)
+) +
+  annotate(
+    "rect",
+    xmin = transition_dist - 1.5, xmax = transition_dist + 1.5,
+    ymin = -Inf, ymax = Inf,
+    fill = "grey80", alpha = 0.5
+  ) +
+  geom_line(linewidth = 0.8) +
+  geom_point(size = 2.5) +
+  facet_wrap(~ Site_label, ncol = 2, scales = "free_y") +
+  scale_x_continuous(breaks = all_dists) +
+  flag_theme +
+  theme(legend.position = "bottom") +
+  labs(
+    title = "z* Across the Marsh-Edge Gradient",
+    subtitle = paste0("Shaded = ", transition_dist, " m"),
+    x = "Distance from Marsh Edge (m)",
+    y = "z*",
+    color = "Transect"
+  )
+
+zstar_profile
+save_plot(zstar_profile, "zstar_by_distance", width = 11, height = 8)
+
+```
+
+## 8b. Is 6 m closer to the edge or platform?
+
+```{r zstar-transect-table}
+
+z_zone_tran <- z_by_dist |>
+  filter(!is.na(Zone3)) |>
+  group_by(Site_label, Tran, Zone3) |>
+  summarise(z_star = mean(z_star), .groups = "drop") |>
+  pivot_wider(names_from = Zone3, values_from = z_star) |>
+  mutate(
+    diff_to_edge     = abs(Transition - Edge),
+    diff_to_platform = abs(Transition - Platform),
+    closer_to = if_else(diff_to_edge < diff_to_platform, "Edge", "Platform"),
+    position  = (Transition - Edge) / (Platform - Edge)
+  )
+
+z_zone_tran |>
+  select(Site_label, Tran, Edge, Transition, Platform,
+         diff_to_edge, diff_to_platform, closer_to, position) |>
+  mutate(Site_label = as.character(Site_label)) |>
+  gt(groupname_col = "Site_label") |>
+  cols_label(
+    Tran = "Transect",
+    Edge = "Edge z*",
+    Transition = paste0(transition_dist, " m z*"),
+    Platform = "Platform z*",
+    diff_to_edge = "|Diff| to edge",
+    diff_to_platform = "|Diff| to platform",
+    closer_to = "Closer to",
+    position = "Position (0 = edge, 1 = platform)"
+  ) |>
+  fmt_number(
+    columns = c(Edge, Transition, Platform,
+                diff_to_edge, diff_to_platform, position),
+    decimals = 2
+  ) |>
+  tab_header(
+    title = paste0("Is ", transition_dist, " m closer to the edge or platform in z*?"),
+    subtitle = paste0(
+      "Edge = ", paste(edge_dists_var, collapse = ", "), " m; ",
+      "Platform = ", paste(setdiff(platform_dists_var, transition_dist), collapse = ", "), " m"
+    )
+  )
+
+# Paired across transects. With only 8 transects, this has limited power.
+z_closeness_test <- wilcox.test(
+  z_zone_tran$diff_to_edge,
+  z_zone_tran$diff_to_platform,
+  paired = TRUE
+)
+
+z_closeness_test
+
+```
+
+## 8c. Mixed model of z* by zone
+
+```{r zstar-zone-model}
+
+z_zone_model <- tryCatch(
+  lmer(
+    z_star ~ Zone3 + (1 | Site_label / Tran),
+    data = filter(z_by_dist, !is.na(Zone3))
+  ),
+  error = function(e) {
+    message("z* zone model did not fit: ", conditionMessage(e))
+    NULL
+  }
+)
+
+z_zone_estimates <- NULL
+
+if (!is.null(z_zone_model)) {
+  z_zone_ci <- confint(z_zone_model, method = "Wald", parm = "beta_")
+
+  z_zone_estimates <- tibble(
+    term     = names(fixef(z_zone_model)),
+    estimate = unname(fixef(z_zone_model)),
+    ci_lo    = z_zone_ci[, 1],
+    ci_hi    = z_zone_ci[, 2]
+  )
+
+  print(z_zone_estimates)
+  cat("Singular fit:", isSingular(z_zone_model), "\n")
+}
+
+
+pair_type <- function(a, b) {
+  case_when(
+    a %in% edge_dists_var & b %in% edge_dists_var ~ "Within edge",
+    a %in% edge_dists_var & b == transition_dist ~ "Edge vs 6 m",
+    a == transition_dist & b %in% platform_dists_var ~ "6 m vs platform",
+    a %in% platform_dists_var & b %in% platform_dists_var ~ "Within platform",
+    a %in% edge_dists_var & b %in% platform_dists_var ~ "Edge vs platform"
+  )
+}
+
+pair_levels <- c("Within edge", "Edge vs 6 m", "6 m vs platform",
+                 "Within platform", "Edge vs platform")
+
+# z*: pairwise differences within each transect
+z_input <- z_by_dist |>
+  filter(!is.na(Zone3)) |>
+  select(Site_label, Tran, Dist, z_star)
+
+z_pairs <- inner_join(
+  z_input, z_input,
+  by = c("Site_label", "Tran"),
+  suffix = c("_a", "_b"),
+  relationship = "many-to-many"
+) |>
+  filter(Dist_a < Dist_b) |>
+  mutate(
+    pair = factor(pair_type(Dist_a, Dist_b), levels = pair_levels),
+    z_diff = abs(z_star_a - z_star_b)
+  )
+
+z_benchmark <- z_pairs |>
+  group_by(Site_label, pair) |>
+  summarise(mean_z_diff = mean(z_diff), .groups = "drop") |>
+  pivot_wider(names_from = pair, values_from = mean_z_diff)
+
+print(z_benchmark)
+
+# Flux: pairwise seasonal pattern and magnitude within each site
+flux_input <- site_date |>
+  filter(!is.na(Zone3)) |>
+  select(Site_label, Date.removed.from.field, Dist, mean_flux)
+
+flux_pairs <- inner_join(
+  flux_input, flux_input,
+  by = c("Site_label", "Date.removed.from.field"),
+  suffix = c("_a", "_b"),
+  relationship = "many-to-many"
+) |>
+  filter(Dist_a < Dist_b) |>
+  group_by(Site_label, Dist_a, Dist_b) |>
+  summarise(
+    n_dates = n(),
+    rho = cor(mean_flux_a, mean_flux_b, method = "spearman"),
+    # 2 = one distance typically has about twice the flux of the other
+    fold_diff = exp(mean(abs(log(mean_flux_a / mean_flux_b)))),
+    .groups = "drop"
+  ) |>
+  mutate(pair = factor(pair_type(Dist_a, Dist_b), levels = pair_levels))
+
+flux_benchmark <- flux_pairs |>
+  group_by(Site_label, pair) |>
+  summarise(
+    mean_rho = mean(rho, na.rm = TRUE),
+    mean_fold_diff = mean(fold_diff, na.rm = TRUE),
+    .groups = "drop"
+  ) |>
+  arrange(Site_label, pair)
+
+print(flux_benchmark, n = Inf)
+
+```
+
+## 8d. Do QC flags change with z*?
+
+```{r zstar-flag-model}
+
+flag_z <- flag_data |>
+  mutate(
+    Site      = as.character(Site),
+    Tran      = paste0("T", as.character(Tran)),  # match elev_z_flux.csv
+    Replicate = as.character(Replicate)
+  ) |>
+  left_join(z_points, by = c("Site", "Tran", "Dist", "Replicate")) |>
+  mutate(
+    z_scaled = as.numeric(scale(z_star)),
+    point_id = interaction(Site, Tran, Dist, Replicate, drop = TRUE),
+    date_id  = factor(Date.removed.from.field)
+  )
+
+# Samples without a z* match
+flag_z |>
+  filter(is.na(z_star)) |>
+  count(Site_label, Dist)
+
+flag_z_model <- tryCatch(
+  glmer(
+    any_flag ~ z_scaled + (1 | Site_label / Tran) + (1 | point_id) + (1 | date_id),
+    data = filter(flag_z, !is.na(z_star)),
+    family = binomial,
+    control = glmerControl(optimizer = "bobyqa")
+  ),
+  error = function(e) {
+    message("Flag z* model did not fit: ", conditionMessage(e))
+    NULL
+  }
+)
+
+flag_z_estimates <- NULL
+
+if (!is.null(flag_z_model)) {
+  flag_z_ci <- confint(flag_z_model, method = "Wald", parm = "beta_")
+
+  flag_z_estimates <- tibble(
+    term       = names(fixef(flag_z_model)),
+    odds_ratio = exp(unname(fixef(flag_z_model))),
+    ci_lo      = exp(flag_z_ci[, 1]),
+    ci_hi      = exp(flag_z_ci[, 2])
+  )
+
+  print(flag_z_estimates)
+  cat("Singular fit:", isSingular(flag_z_model), "\n")
+}
+
+```
+
+```{r}
+
+
+flag_zone3 <- flag_z |>
+  mutate(
+    Zone3 = factor(
+      case_when(
+        Dist %in% edge_dists_var     ~ "Edge",
+        Dist == transition_dist      ~ "Transition",
+        Dist %in% platform_dists_var ~ "Platform"
+      ),
+      levels = c("Transition", "Edge", "Platform")
+    )
+  ) |>
+  filter(!is.na(Zone3))
+
+flag_zone3_model <- glmer(
+  any_flag ~ Zone3 + (1 | Site_label / Tran) + (1 | point_id) + (1 | date_id),
+  data = flag_zone3,
+  family = binomial,
+  control = glmerControl(optimizer = "bobyqa")
+)
+
+flag_zone3_ci <- confint(flag_zone3_model, method = "Wald", parm = "beta_")
+
+flag_zone3_estimates <- tibble(
+  term       = names(fixef(flag_zone3_model)),
+  odds_ratio = exp(unname(fixef(flag_zone3_model))),
+  ci_lo      = exp(flag_zone3_ci[, 1]),
+  ci_hi      = exp(flag_zone3_ci[, 2])
+)
+
+print(flag_zone3_estimates)
+cat("Singular fit:", isSingular(flag_zone3_model), "\n")
+```
+
+
+
+```{r zstar-export}
+
+z_export <- list(
+  zstar_by_distance = z_by_dist,
+  zstar_by_transect = z_zone_tran
+)
+
+if (!is.null(z_zone_estimates)) z_export$zone_model <- z_zone_estimates
+if (!is.null(flag_z_estimates)) z_export$flag_model <- flag_z_estimates
+
+writexl::write_xlsx(
+  z_export,
+  file.path(data_dir, "zstar_flag_summary.xlsx")
+)
+
+```
+
+
+
+
+
+
+```{r var-export}
+
+writexl::write_xlsx(
+  list(
+    site_date_means      = site_date,
+    temporal_variability = temporal_var,
+    six_vs_edge_platform = six_vs,
+    distance_correlation = dist_cor,
+    variance_partition   = var_part
+  ),
+  file.path(data_dir, "temporal_variability_by_distance.xlsx")
+)
+
+```
